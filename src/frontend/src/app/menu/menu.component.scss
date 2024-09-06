@@ -1,0 +1,35 @@
+:host {
+    height: 100%;
+    display: blocK;
+}
+
+ul {
+    list-style: none;
+    padding: 1rem;
+    margin: 0;
+}
+
+li:hover {
+    background-color: var(--surface-200);
+}
+
+a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    display: block;
+    height: 100%;
+    width: 100%;
+    color: var(--text-color);
+    border-left: 1px solid var(--surface-400);
+}
+
+.active {
+    border-left: 1px solid var(--surface-900);
+    background-color: var(--surface-200);
+    color: var(--highlight-text-color);
+    background: var(--highlight-bg);
+}
+
+.active a {
+    color: red;
+}
