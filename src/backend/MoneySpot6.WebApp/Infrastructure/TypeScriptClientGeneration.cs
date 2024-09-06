@@ -13,7 +13,17 @@ namespace MoneySpot6.WebApp.Infrastructure
                 return false;
             
             var document = await sp.GetRequiredService<IOpenApiDocumentGenerator>().GenerateAsync("v1");
-            var typescript = new TypeScriptClientGenerator(await OpenApiDocument.FromJsonAsync(document.ToJson()), new TypeScriptClientGeneratorSettings()).GenerateFile();
+            var settings = new TypeScriptClientGeneratorSettings
+            {
+                Template = TypeScriptTemplate.Angular,
+                InjectionTokenType = InjectionTokenType.InjectionToken,
+                TypeScriptGeneratorSettings =
+                {
+                    TypeScriptVersion = 5
+                }
+            };
+            var typescript = new TypeScriptClientGenerator(await OpenApiDocument.FromJsonAsync(document.ToJson()), settings).GenerateFile();
+            typescript = typescript.Replace("@Injectable()", "@Injectable({providedIn: 'root'})");
             await File.WriteAllTextAsync(args[index+1], typescript);
             Console.WriteLine("TypeScript client written to: " + Path.GetFullPath(args[index + 1]));
             return true;
