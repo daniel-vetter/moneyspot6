@@ -1,8 +1,5 @@
-import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, Injectable, NgZone } from "@angular/core";
-import { DialogModule } from 'primeng/dialog';
 import { GlobalErrorCallback } from "./global-error-callback";
-import { ApiException } from "../server";
 
 @Injectable({ providedIn: "root" })
 export class GlobalErrorHandler implements ErrorHandler {

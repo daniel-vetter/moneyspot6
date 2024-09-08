@@ -35,8 +35,7 @@
               "src/styles.scss",
               "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
               "node_modules/primeng/resources/primeng.min.css"
-            ],
-            "scripts": []
+            ]
           },
           "configurations": {
             "production": {
@@ -69,7 +68,8 @@
               "buildTarget": "MoneySpot6.Client:build:production"
             },
             "development": {
-              "buildTarget": "MoneySpot6.Client:build:development"
+              "buildTarget": "MoneySpot6.Client:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

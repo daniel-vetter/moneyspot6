@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { AccountSyncClient } from '../server';
-import { lastValueFrom } from 'rxjs';
+import { HubConnectionBuilder } from "@microsoft/signalr";
 
 @Component({
   selector: 'app-summary',
@@ -10,13 +9,35 @@ import { lastValueFrom } from 'rxjs';
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.scss'
 })
-export class SummaryComponent {
+export class SummaryComponent implements OnInit {
 
-  constructor(private accountSyncClient: AccountSyncClient) {
+  constructor() {
+
+
+  }
+  async ngOnInit(): Promise<void> {
+
   }
 
   async onSyncButtonClicked() {
-    await lastValueFrom(this.accountSyncClient.get());
+    const connection = new HubConnectionBuilder()
+      .withUrl("/api/account-sync")
+      .build();
+
+    connection.on("requestTan", (message: String) => {
+      return prompt("TAN: " + message);
+    });
+
+    connection.on("requestSecurityMechanism", (options) => {
+      return prompt(JSON.stringify(options));
+    }); 
+
+    await connection.on("logMessage", (severity, message) => {
+      console.log(severity, message);
+    });
+
+    await connection.start();
+    await connection.invoke("start");
   }
 
 }
