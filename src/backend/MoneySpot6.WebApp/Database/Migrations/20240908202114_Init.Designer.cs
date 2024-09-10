@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20240907233416_Init")]
+    [Migration("20240908202114_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -197,9 +197,8 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.Property<string>("Date")
-                                .IsRequired()
-                                .HasColumnType("text");
+                            b1.Property<DateOnly>("Date")
+                                .HasColumnType("date");
 
                             b1.Property<string>("EndToEndId")
                                 .HasColumnType("text");

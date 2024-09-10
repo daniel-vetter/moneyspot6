@@ -1,1 +1,48 @@
-<p>transactions works!</p>
+@for (block of blocks; track block) {
+<p-panel [style]="{'margin-bottom': '3rem'}">
+    <ng-template pTemplate="header">
+        <div style="display: flex; width: 100%; align-items: center;">
+            <b style="flex: 1; font-size: 1.5rem;">{{block.title}}</b>
+
+            <div class="header-value">
+                <div>Buchungen</div>
+                <span style="font-size: 1.5rem;">{{ block.transactions.length }}</span>
+            </div>
+
+            <div class="header-value">
+                <div>Einnahmen</div>
+                <app-value [value]="block.income" size="1.5rem" />
+            </div>
+
+            <div class="header-value">
+                <div>Ausgaben</div>
+                <app-value [value]="block.expense" [reverseColor]="true" size="1.5rem" />
+            </div>
+
+            <div class="header-value">
+                <div>Gesamt</div>
+                <app-value [value]="block.total" size="1.5rem" />
+            </div>
+
+        </div>
+    </ng-template>
+    <p-table [value]="block.transactions">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Datum</th>
+                <th>Verwendungszweck</th>
+                <th>Kategorie</th>
+                <th>Wert</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-transaction>
+            <tr>
+                <td style="max-width: 100px; display: block">{{ transaction.date | customDate }}</td>
+                <td class="oneLine" style="max-width: 300px;">{{ transaction.purpose }}</td>
+                <td>{{ transaction.category }}</td>
+                <td style="text-align: right"><app-value [value]="transaction.value" /></td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-panel>
+}

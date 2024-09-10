@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
+using Newtonsoft.Json.Serialization;
 
 namespace MoneySpot6.WebApp;
 

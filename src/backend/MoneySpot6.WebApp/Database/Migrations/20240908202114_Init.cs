@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -69,7 +70,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     BankAccountId = table.Column<int>(type: "integer", nullable: false),
-                    RawData_Date = table.Column<string>(type: "text", nullable: false),
+                    RawData_Date = table.Column<DateOnly>(type: "date", nullable: false),
                     RawData_Usage = table.Column<string>(type: "text", nullable: false),
                     RawData_Code = table.Column<string>(type: "text", nullable: false),
                     RawData_Amount = table.Column<long>(type: "bigint", nullable: false),

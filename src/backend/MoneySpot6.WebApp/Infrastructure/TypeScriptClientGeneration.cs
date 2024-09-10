@@ -19,8 +19,11 @@ namespace MoneySpot6.WebApp.Infrastructure
                 InjectionTokenType = InjectionTokenType.InjectionToken,
                 TypeScriptGeneratorSettings =
                 {
-                    TypeScriptVersion = 5
-                }
+                    TypeScriptVersion = 5,
+                    ClassTypes = ["DateOnly"]
+                    
+                },
+                RxJsVersion = 7.8m,
             };
             var typescript = new TypeScriptClientGenerator(await OpenApiDocument.FromJsonAsync(document.ToJson()), settings).GenerateFile();
             typescript = typescript.Replace("@Injectable()", "@Injectable({providedIn: 'root'})");

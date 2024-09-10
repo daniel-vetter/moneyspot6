@@ -35,7 +35,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
 
     public record RpcSyncAccountTransactionResponse(
         string? Id,
-        string Date,
+        DateOnly Date,
         string Usage,
         string Code,
         long Amount,

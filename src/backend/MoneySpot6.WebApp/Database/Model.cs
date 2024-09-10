@@ -47,7 +47,7 @@ public class DbBankAccountTransaction
 [Owned]
 public class DbBankAccountTransactionRawData
 {
-    public required string Date { get; set; }
+    public required DateOnly Date { get; set; }
     public required string Usage { get; set; }
     public required string Code { get; set; }
     public required long Amount { get; set; }

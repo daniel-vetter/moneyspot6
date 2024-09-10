@@ -1,4 +1,16 @@
-<p>summary works!</p>
-
-
 <p-button (click)="onSyncButtonClicked()">Sync</p-button>
+
+<p-card header="Accounts">
+    
+</p-card>
+
+
+@if (bankAccounts) {
+    <h1>Accounts</h1>
+@for (entry of bankAccounts.entries; track entry) {
+    <a pRipple href="#">
+        <div>{{ entry.name }}</div>
+        <div><app-value [value]="entry.total" /></div>
+    </a>
+}
+}

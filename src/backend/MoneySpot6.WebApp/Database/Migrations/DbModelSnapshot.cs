@@ -194,9 +194,8 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.Property<string>("Date")
-                                .IsRequired()
-                                .HasColumnType("text");
+                            b1.Property<DateOnly>("Date")
+                                .HasColumnType("date");
 
                             b1.Property<string>("EndToEndId")
                                 .HasColumnType("text");

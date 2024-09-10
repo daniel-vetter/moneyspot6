@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     font-size: 14px;
     height: 100%;
     padding: 0;
@@ -8,7 +9,49 @@ html, body {
 //Fixing dialogs
 .p-dialog {
     border-radius: 0;
-    box-shadow: 0px 0px 28px 0px rgba(0,0,0,0.59);
+    box-shadow: 0px 0px 28px 0px rgba(0, 0, 0, 0.59);
 }
-.p-dialog .p-dialog-header { border-radius: 0; } 
-.p-dialog .p-dialog-content:last-of-type { border-radius: 0; }
+
+.p-dialog .p-dialog-header {
+    border-radius: 0;
+}
+
+.p-dialog .p-dialog-content:last-of-type {
+    border-radius: 0;
+}
+
+@layer primeng {
+    :root {
+        --border-radius: 0;
+    }
+    
+}
+
+.p-card {
+    border-radius: var(--border-radius);
+}
+
+.fullHeight {
+    height: 100%;
+    overflow-y: hidden;
+}
+
+.oneLine {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
