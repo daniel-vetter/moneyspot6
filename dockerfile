@@ -11,7 +11,7 @@ RUN npm install && npm run build
 FROM openjdk:21 AS build_hbci-adapter
 WORKDIR /source
 COPY src/hbci-adapter .
-RUN ./gradlew --no-daemon jar
+RUN chmod +x ./gradlew && ./gradlew --no-daemon jar
 
 FROM alpine
 WORKDIR /app
