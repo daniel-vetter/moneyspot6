@@ -20,15 +20,16 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
         public async Task<ActionResult<TransactionResponse>> GetTransactions(DateOnly startDate, DateOnly endDate)
         {
             var entries = await _db.BankAccountTransactions
-                .OrderByDescending(x => x.RawData.Date)
+                .OrderByDescending(x => x.Raw.Date)
                 .ThenByDescending(x => x.Id)
-                .Where(x => x.RawData.Date >= startDate && x.RawData.Date < endDate)
+                .Where(x => x.Raw.Date >= startDate && x.Raw.Date < endDate)
                 .Select(x => new TransactionEntryResponse
                 {
                     Id = x.Id,
-                    Date = x.RawData.Date,
-                    Purpose = x.RawData.Usage,
-                    Value = x.RawData.Amount
+                    Date = x.Raw.Date,
+                    Name = x.Parsed.Name,
+                    Purpose = x.Parsed.Purpose,
+                    Value = x.Raw.Amount
                 })
                 .ToArrayAsync();
 
@@ -56,6 +57,7 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
     {
         public required int Id { get; init; }
         public required DateOnly Date { get; init; }
+        public required string? Name { get; init; }
         public required string Purpose { get; init; }
         public required long Value { get; init; }
     }

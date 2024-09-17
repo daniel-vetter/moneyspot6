@@ -67,7 +67,7 @@ class RpcSyncAccountResponse(
 class RpcSyncAccountTransactionResponse(
     val Id: String?,
     val Date: String,
-    val Usage: String,
+    val Usage: List<String>,
     val Code: String,
     val Amount: Long,
     val OriginalAmount: Long?,
@@ -84,5 +84,11 @@ class RpcSyncAccountTransactionResponse(
     val IsCamt: Boolean,
     val EndToEndId: String?,
     val PurposeCode: String?,
-    val ManadateId: String?
+    val ManadateId: String?,
+    val AccountName: String?,
+    val AccountName2: String?,
+    val AccountCountry: String?,
+    val AccountBlz: String?,
+    val AccountBic: String?,
+    val AccountIban: String?
 )

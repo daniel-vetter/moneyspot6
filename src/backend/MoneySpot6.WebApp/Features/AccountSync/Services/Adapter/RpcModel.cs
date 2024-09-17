@@ -36,7 +36,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
     public record RpcSyncAccountTransactionResponse(
         string? Id,
         DateOnly Date,
-        string Usage,
+        ImmutableArray<string> Usage,
         string Code,
         long Amount,
         long? OriginalAmount,
@@ -53,7 +53,13 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
         bool IsCamt,
         string? EndToEndId,
         string? PurposeCode,
-        string? ManadateId
+        string? ManadateId,
+        string? AccountName,
+        string? AccountName2,
+        string? AccountCountry,
+        string? AccountBlz,
+        string? AccountBic,
+        string? AccountIban
     );
 
     public record RpcLogEntry(

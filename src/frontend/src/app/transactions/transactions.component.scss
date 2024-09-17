@@ -2,3 +2,38 @@
     padding-left: 4rem;
     width: 160px;
 }
+
+.line {
+    display: flex;
+    padding: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+
+    div:not(:last-child) {
+        padding-right: 1rem;
+    }
+}
+
+.header {
+    font-weight: bold;
+}
+
+.date {
+    min-width: 7rem;
+}
+
+.name {
+    flex: 1;
+    max-width: 20%;
+}
+
+.purpose {
+    flex: 1
+}
+
+.line:not(.header){
+    cursor: pointer;
+}
+
+.line:not(.header):hover {
+    background: lightblue;
+}

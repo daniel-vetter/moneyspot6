@@ -26,23 +26,24 @@
 
         </div>
     </ng-template>
-    <p-table [value]="block.transactions">
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Datum</th>
-                <th>Verwendungszweck</th>
-                <th>Kategorie</th>
-                <th>Wert</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-transaction>
-            <tr>
-                <td style="max-width: 100px; display: block">{{ transaction.date | customDate }}</td>
-                <td class="oneLine" style="max-width: 300px;">{{ transaction.purpose }}</td>
-                <td>{{ transaction.category }}</td>
-                <td style="text-align: right"><app-value [value]="transaction.value" /></td>
-            </tr>
-        </ng-template>
-    </p-table>
+
+    <div class="flex-col">
+        <div class="line header">
+            <div class="date oneLine">Datum</div>
+            <div class="name oneLine">Gegenkonto</div>
+            <div class="purpose oneLine">Verwendungszweck</div>
+            <div>Wert</div>
+        </div>
+
+        @for (transaction of block.transactions; track transaction){
+            <div style="display: flex" class="line">
+                <div class="date oneLine">{{ transaction.date! | customDate }}</div>
+                <div class="name oneLine">{{ transaction.name }}</div>
+                <div class="purpose oneLine">{{ transaction.purpose }}</div>
+                <div><app-value [value]="transaction.value" /></div>
+            </div>
+        }
+    </div>
+
 </p-panel>
 }

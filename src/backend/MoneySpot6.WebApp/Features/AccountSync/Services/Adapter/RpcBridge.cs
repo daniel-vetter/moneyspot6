@@ -62,8 +62,7 @@ public class RpcBridge(Stream inputStream, Stream outputStream)
 
         var json = await ReadString(ct);
         var obj = JsonSerializer.Deserialize(json, type);
-
-        return obj ?? throw new Exception($"Deserialization of message {messageType}'' returned null.");
+        return obj ?? throw new Exception($"Deserialization of message '{messageType}' returned null.");
     }
 
     public RpcBridge RegisterIncomingMessageType<T>()
