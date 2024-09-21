@@ -1,4 +1,4 @@
 ﻿.vs
-src/backend/**/Debug
+src/backend/**/bin/Debug
 src/backend/**/obj
 /build
