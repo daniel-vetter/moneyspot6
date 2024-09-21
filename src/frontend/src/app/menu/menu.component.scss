@@ -1,6 +1,7 @@
 :host {
     height: 100%;
     display: blocK;
+    min-width: 230px;
 }
 
 ul {
@@ -15,7 +16,7 @@ li:hover {
 
 a {
     text-decoration: none;
-    padding: 0.5rem 1rem;
+    padding: 1.5rem 1rem;
     display: block;
     height: 100%;
     width: 100%;

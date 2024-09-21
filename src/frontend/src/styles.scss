@@ -1,3 +1,5 @@
+@import "primeicons/primeicons.css";
+
 html,
 body {
     font-size: 14px;
@@ -24,7 +26,7 @@ body {
     :root {
         --border-radius: 0;
     }
-    
+
 }
 
 .p-card {
@@ -46,12 +48,48 @@ body {
 .flex-row {
     display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: center;
 }
+
+.flex-row-1 { @extend .flex-row; gap: 1rem; }
+.flex-row-2 { @extend .flex-row; gap: 1rem; }
+.flex-row-3 { @extend .flex-row; gap: 1rem; }
 
 .flex-col {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.flex-col-1 { @extend .flex-col; gap: 1rem; }
+.flex-col-2 { @extend .flex-col; gap: 2rem; }
+.flex-col-3 { @extend .flex-col; gap: 3rem; }
+
+.header-value {
+    padding-left: 4rem;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    padding-right: 0.5rem;
+    border-right: 1px solid rgba(192, 192, 192);
+}
+
+.table {
+
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    >div:first-child {
+        font-weight: bold;
+    }
+
+    >div {
+        display: flex;
+        padding: 0.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        >div:not(:last-child) {
+            padding-right: 1rem;
+        }
+    }   
 }

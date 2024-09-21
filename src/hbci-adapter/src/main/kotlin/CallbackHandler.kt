@@ -113,7 +113,10 @@ class CallbackHandler(
                 } else {
                     rpc.send(RpcTanRequest(msg))
                     val response = rpc.read<RpcTanResponse>()
+                    if (response.Tan == null)
+                        throw HBCI_Exception("No tan received");
                     retData.replace(0, retData.length, response.Tan)
+
                 }
             }
 

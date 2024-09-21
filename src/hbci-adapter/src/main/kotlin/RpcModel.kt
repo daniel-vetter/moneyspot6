@@ -17,6 +17,11 @@ class RpcSyncResponse(
 )
 
 @Serializable
+class RpcException(
+    val Message: String
+)
+
+@Serializable
 class RpcDone()
 
 @Serializable
@@ -40,7 +45,7 @@ class RpcSecurityMechanismRequestEntry(val Code: String, val Name: String)
 class RpcSecurityMechanismResponse(val Code: String);
 
 @Serializable
-class RpcTanResponse(val Tan: String)
+class RpcTanResponse(val Tan: String?)
 
 @Serializable
 class RpcTanRequest(val Message: String)

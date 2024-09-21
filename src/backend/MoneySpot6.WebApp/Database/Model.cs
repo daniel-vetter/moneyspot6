@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.InteropServices;
 
 namespace MoneySpot6.WebApp.Database;
 
@@ -14,6 +13,7 @@ public class DbBankConnection
     public required string UserId { get; set; }
     public required string Pin { get; set; }
     public byte[]? Passport { get; set; }
+    public DateTimeOffset? LastSuccessfulSync { get; set; }
 }
 
 [Table("BankAccounts")]

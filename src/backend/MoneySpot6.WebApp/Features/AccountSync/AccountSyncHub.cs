@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using MoneySpot6.WebApp.Features.AccountSync.Services;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
 using System.Collections.Immutable;
-using MoneySpot6.WebApp.Features.AccountSync.Services;
 
 namespace MoneySpot6.WebApp.Features.AccountSync;
 
@@ -14,11 +14,27 @@ public class AccountSyncHub : Hub
         _accountSyncService = accountSyncService;
     }
 
-    public async Task Start()
+    public async Task<SyncResult> Start()
     {
+        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         var handler = new Handler(Clients.Caller);
-        await _accountSyncService.Sync(handler);
+
+        try
+        {
+            var newTransactionIds = await _accountSyncService.Sync(handler, cts.Token);
+            return new SyncResult(false, null, newTransactionIds);
+        }
+        catch (CanceledByUserException e)
+        {
+            return new SyncResult(true, null, ImmutableArray<int>.Empty);
+        }
+        catch (Exception e)
+        {
+            return new SyncResult(false, e.Message, ImmutableArray<int>.Empty);
+        }
     }
+
+    public record SyncResult(bool CanceledByUser, string? Error, ImmutableArray<int> NewTransactions);
 }
 
 public class Handler : IAdapterCallbackHandler
@@ -30,20 +46,38 @@ public class Handler : IAdapterCallbackHandler
         _client = client;
     }
 
-    public async Task<string?> OnTanRequired(string message)
+    public async Task<string?> OnTanRequired(string message, CancellationToken ct)
     {
-        var tan = await _client.InvokeCoreAsync<string?>("requestTan", [message], CancellationToken.None);
-        return tan;
+        try
+        {
+            return (await _client.InvokeCoreAsync<TanResponse>("requestTan", [message], ct)).Tan;
+        }
+        catch (OperationCanceledException)
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+            await _client.SendCoreAsync("requestTanCanceled", [], timeout.Token);
+            return null;
+        }
     }
 
-    public async Task<string?> OnSecurityMechanismRequired(ImmutableDictionary<string, string> securityMechanism)
+    public async Task<string?> OnSecurityMechanismRequired(ImmutableDictionary<string, string> securityMechanism, CancellationToken ct)
     {
-        var code = await _client.InvokeCoreAsync<string?>("requestSecurityMechanism", [securityMechanism], CancellationToken.None);
-        return code;
+        try
+        {
+            return await _client.InvokeCoreAsync<string?>("requestSecurityMechanism", [securityMechanism], ct);
+        }
+        catch (OperationCanceledException)
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+            await _client.InvokeCoreAsync<string?>("requestSecurityMechanismCanceled", [securityMechanism], timeout.Token);
+            return null;
+        }
     }
 
-    public async Task OnLogMessage(int severity, string message)
+    public async Task OnLogMessage(int severity, string message, CancellationToken ct)
     {
-        await _client.SendCoreAsync("logMessage", [severity, message], CancellationToken.None);
+        await _client.SendCoreAsync("logMessage", [severity, message], ct);
     }
+
+    private record TanResponse(string? Tan);
 }

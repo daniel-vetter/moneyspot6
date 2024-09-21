@@ -5,78 +5,142 @@ import { lastValueFrom } from 'rxjs';
 import { ValueComponent } from '../common/value/value.component';
 import { CustomDatePipe } from '../common/custom-date.pipe';
 import { PanelModule } from 'primeng/panel';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { minDelay } from '../common/load-delay';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe],
+  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe, InputTextModule, FormsModule, ButtonModule, DropdownModule, ProgressSpinnerModule],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent implements OnInit {
-  transactions: TransactionResponse[] = [];
-  blocks: Block[] = [];
 
-  constructor(private transactionPageClient: TransactionPageClient) { }
+  transactions: TransactionResponse[] = [];
+  groups: Group[] = [];
+  searchText: string = "";
+  showClearButton = false;
+  isLoading = false;
+
+  groupOptions: GroupingSelecteItem[] = [
+    { name: "Keine", key: "None" },
+    { name: "Monatlich", key: "Monthly" },
+    { name: "Jährlich", key: "Yearly" },
+  ]
+  selectedGrouping: Grouping = "Monthly";
+
+  constructor(private transactionPageClient: TransactionPageClient, private router: Router, private activatedRoute: ActivatedRoute) { }
 
   async ngOnInit(): Promise<void> {
 
-    let date = DateOnly.today().setDay(1);
-    for (let i = 0; i < 12; i++) {
-      const response = await lastValueFrom(this.transactionPageClient.getTransactions(date.toTransport(), date.addMonths(1).toTransport()));
-      this.blocks.push({
-        title: `${["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][date.month - 1]} ${date.year}`,
-        month: date.month,
-        year: date.year,
-        transactions: response.entries!,
-        total: response.total!,
-        income: response.income!,
-        expense: response.expense!
-      })
+    this.activatedRoute.queryParams.subscribe(async x => {
+      this.readRouteParameter(x);
+      await this.update();
+    });
 
-      date = date.addMonths(-1);
+    this.readRouteParameter(this.activatedRoute.snapshot.queryParams);
+    await this.update();
+  }
+
+  readRouteParameter(map: any) {
+    this.searchText = map["search"] ? map["search"] : "";
+    this.selectedGrouping = map["grouping"] ? map["grouping"] : "Monthly";
+  }
+
+  async update() {
+    this.groups = [];
+    this.showClearButton = this.searchText != "";
+    this.isLoading = true;
+    const response = await  minDelay(lastValueFrom(this.transactionPageClient.getTransactions(this.searchText)));
+    this.isLoading = false;
+    const blocks: Group[] = [];
+    let currentBlock: Group | undefined;
+    for (const transaction of response.entries!) {
+
+      const groupId = this.getGroupId(transaction.date!);
+      if (currentBlock === undefined || currentBlock.id != groupId) {
+        currentBlock = {
+          id: groupId,
+          total: 0,
+          expense: 0,
+          income: 0,
+          transactions: [],
+          title: this.getTitle(transaction.date!)
+        };
+        blocks.push(currentBlock);
+      }
+
+      currentBlock.total += transaction.value!;
+      currentBlock.income += transaction.value! > 0 ? transaction.value! : 0;
+      currentBlock.expense += transaction.value! < 0 ? -transaction.value! : 0;
+      currentBlock.transactions.push(transaction);
     }
+
+    this.groups = blocks;
+  }
+
+  getGroupId(date: Date): string {
+    if (this.selectedGrouping === "None") return "0";
+    if (this.selectedGrouping === "Monthly") return date.getFullYear().toString() + date.getMonth().toString();
+    if (this.selectedGrouping === "Yearly") return date.getFullYear().toString();
+    throw Error("Invalid group: " + this.selectedGrouping);
+  }
+
+  getTitle(date: Date): string {
+    if (this.selectedGrouping === "None") return "Ergebnis";
+    if (this.selectedGrouping === "Monthly") return ["Januar", "Februar", "März", "April", "Mai", "Juni", "July", "August", "September", "November", "Dezember"][date.getMonth()] + " " + date.getFullYear().toString();
+    if (this.selectedGrouping === "Yearly") return date.getFullYear().toString();
+    throw Error("Invalid group: " + this.selectedGrouping);
+  }
+
+  async onSearchKeyPressed($event: KeyboardEvent) {
+    if ($event.code != "Enter") {
+      return;
+    }
+
+    this.router.navigate([],
+      {
+        relativeTo: this.activatedRoute,
+        queryParams: {
+          search: this.searchText !== undefined && this.searchText.trim() !== "" ? this.searchText : undefined
+        }, queryParamsHandling: "merge"
+      });
+  }
+
+  async onGroupingChanged(event: any) {
+    this.router.navigate([],
+      {
+        relativeTo: this.activatedRoute,
+        queryParams: {
+          grouping: this.selectedGrouping == "Monthly" ? undefined : this.selectedGrouping
+        }, queryParamsHandling: "merge"
+      });
+  }
+
+  onResetButtonClicked() {
+    this.router.navigate(["/", "transactions"]);
   }
 }
 
-class DateOnly {
-
-  constructor(
-    public readonly year: number,
-    public readonly month: number,
-    public readonly day: number) {
-  }
-
-  public static today() {
-    const d = new Date();
-    return new DateOnly(d.getFullYear(), d.getMonth() + 1, d.getDate());
-  }
-
-  toISOString() {
-    return `${this.year}-${this.month}-${this.day}`;
-  }
-
-  toTransport(): Date {
-    return <any>this;
-  }
-
-  setDay(day: number): DateOnly {
-    return new DateOnly(this.year, this.month, day);
-  }
-
-  addMonths(count: number): DateOnly {
-    const d = new Date(this.year, this.month - 1, this.day);
-    d.setMonth(d.getMonth() + count);
-    return new DateOnly(d.getFullYear(), d.getMonth() + 1, d.getDate())
-  }
-}
-
-interface Block {
+interface Group {
+  id: string;
   title: string;
-  year: number;
-  month: number;
   transactions: TransactionEntryResponse[];
   total: number;
   income: number;
   expense: number;
 }
+
+interface GroupingSelecteItem {
+  name: string;
+  key: Grouping
+}
+
+type Grouping = "None" | "Monthly" | "Yearly"

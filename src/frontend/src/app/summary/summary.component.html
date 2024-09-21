@@ -1,16 +1,59 @@
-<p-button (click)="onSyncButtonClicked()">Sync</p-button>
+<div class="flex-col" style="gap: 2rem">
+    <div class="flex-col">
+        <b>Gesamtguthaben</b>
+        <app-value [value]="total + 8700000" size="3.5rem" />
+    </div>
 
-<p-card header="Accounts">
-    
-</p-card>
+    @if (bankAccounts) {
+    <p-panel>
+        <ng-template pTemplate="header">
+            <b style="font-size: 1.5rem; flex: 1; ">Kontostand</b>
 
+            <app-account-sync></app-account-sync>
 
-@if (bankAccounts) {
-    <h1>Accounts</h1>
-@for (entry of bankAccounts.entries; track entry) {
-    <a pRipple href="#">
-        <div>{{ entry.name }}</div>
-        <div><app-value [value]="entry.total" /></div>
-    </a>
-}
-}
+            <div class="header-value">
+                <div>Gesamt</div>
+                <app-value [value]="total" size="1.5rem" />
+            </div>
+        </ng-template>
+        <div class="table">
+            <div>
+                <div style="flex: 1">Konto</div>
+                <div>Guthaben</div>
+            </div>
+            @for (entry of bankAccounts.entries; track entry) {
+            <div>
+                <div style="flex: 1">{{ entry.name }}</div>
+                <div><app-value [value]="entry.total" /></div>
+            </div>
+            }
+        </div>
+    </p-panel>
+    }
+
+    <p-panel>
+        <ng-template pTemplate="header">
+            <b style="font-size: 1.5rem; flex: 1; ">Depot</b>
+
+            <div class="header-value">
+                <div>Gesamt</div>
+                <app-value [value]="8700000" size="1.5rem" />
+            </div>
+        </ng-template>
+        <div class="table">
+            <div>
+                <div style="flex: 1">Wertpapier</div>
+                <div style="width: 200px; text-align: right;">Kurs</div>
+                <div style="width: 200px; text-align: right;">Wert</div>
+            </div>
+            
+            <div>
+                <div style="flex: 1">MSCI World</div>
+                <div style="width: 200px; text-align: right;"><app-value [value]="9421" /></div>
+                <div style="width: 200px; text-align: right;"><app-value [value]="8700000" /></div>
+            </div>
+            
+        </div>
+    </p-panel>
+
+</div>

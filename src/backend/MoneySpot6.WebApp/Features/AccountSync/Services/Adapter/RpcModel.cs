@@ -16,6 +16,10 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
         ImmutableArray<RpcSyncAccountResponse> Accounts
     );
 
+    public record RpcException(
+        string Message
+    );
+
     public record RpcSyncAccountResponse(
         string Name,
         string Name2,
@@ -72,7 +76,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
     );
 
     public record RpcTanResponse(
-        string Tan
+        string? Tan
     );
 
     public record RpcDone();

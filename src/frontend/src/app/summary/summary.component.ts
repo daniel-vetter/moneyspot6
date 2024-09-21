@@ -6,44 +6,26 @@ import { BankAccountSummaryResponse, SummaryPageClient } from '../server';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
 import { ValueComponent } from "../common/value/value.component";
+import { PanelModule } from 'primeng/panel';
+import { AccountSyncComponent } from "../account-sync/account-sync.component";
 
 @Component({
   selector: 'app-summary',
   standalone: true,
-  imports: [ButtonModule, RippleModule, CardModule, ValueComponent],
+  imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.scss'
 })
 export class SummaryComponent implements OnInit {
 
   bankAccounts?: BankAccountSummaryResponse;
+  total = 0;
 
   constructor(private summaryPageClient: SummaryPageClient) { }
 
   async ngOnInit(): Promise<void> {
     this.bankAccounts = await lastValueFrom(this.summaryPageClient.getBackAccountSummary())
+    this.total = this.bankAccounts.entries?.reduce((a, b) => a + b.total!, 0)!;
   }
-
-  async onSyncButtonClicked() {
-    const connection = new HubConnectionBuilder()
-      .withUrl("/api/account-sync")
-      .build();
-
-    connection.on("requestTan", (message: String) => {
-      return prompt("TAN: " + message);
-    });
-
-    connection.on("requestSecurityMechanism", (options) => {
-      return prompt(JSON.stringify(options));
-    });
-
-    await connection.on("logMessage", (severity, message) => {
-      console.log(severity, message);
-    });
-
-    await connection.start();
-    await connection.invoke("start");
-  }
-
 }
 

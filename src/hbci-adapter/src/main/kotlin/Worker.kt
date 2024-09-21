@@ -40,7 +40,11 @@ class Worker(val rpc: RpcBridge) {
 
             log(SEVERITY_INFO, "Done")
 
-        } finally {
+        }
+        catch(e: Exception) {
+            rpc.send(RpcException(e.toString()))
+        }
+        finally {
             handle?.close()
             passport?.close()
         }

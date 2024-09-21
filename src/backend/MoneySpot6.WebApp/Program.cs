@@ -1,5 +1,6 @@
-using MoneySpot6.WebApp.Infrastructure;
+﻿using MoneySpot6.WebApp.Infrastructure;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
@@ -52,11 +53,13 @@ public class Program
     }
 }
 
+[MeansImplicitUse﻿]
 [AttributeUsage(AttributeTargets.Class)]
 public class SingletonServiceAttribute : Attribute
 {
 }
 
+[MeansImplicitUse﻿]
 [AttributeUsage(AttributeTargets.Class)]
 public class ScopedServiceAttribute : Attribute
 {

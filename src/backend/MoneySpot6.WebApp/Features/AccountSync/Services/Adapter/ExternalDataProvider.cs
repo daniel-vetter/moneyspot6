@@ -5,9 +5,9 @@ using Microsoft.Extensions.Options;
 namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
 
 [ScopedService]
-public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<ExternalDataProvider> logger)
+public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<ExternalDataProvider> logger, ExternalProcessMonitor externalProcessMonitor)
 {
-    public async Task<RpcSyncResponse> Run(int connectionId, string hbciVersion, string bankCode, string userId, string customerId, string pin, IAdapterCallbackHandler callbackHandler, CancellationToken ct)
+    public async Task<RpcSyncResponse> Run(int connectionId, string hbciVersion, string bankCode, string userId, string customerId, string pin, DateTimeOffset? startDate, IAdapterCallbackHandler callbackHandler, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
 
@@ -21,6 +21,8 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
         if (!p.Start())
             throw new Exception("Could not start adapter");
 
+        externalProcessMonitor.AddProcessId(p.Id);
+
         try
         {
             var rpc = await new RpcBridge(p.StandardOutput.BaseStream, p.StandardInput.BaseStream)
@@ -29,6 +31,7 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
                 .RegisterIncomingMessageType<RpcSecurityMechanismRequest>()
                 .RegisterIncomingMessageType<RpcTanRequest>()
                 .RegisterIncomingMessageType<RpcDone>()
+                .RegisterIncomingMessageType<RpcException>()
                 .Connect(ct);
 
             await rpc.Send(new RpcSyncRequest(
@@ -38,7 +41,7 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
                     User: userId,
                     CustomerId: customerId,
                     Pin: pin,
-                    StartDate: null),
+                    StartDate: startDate?.ToString("u")),
                 ct);
 
             var response = await HandleMessages(rpc, callbackHandler, ct);
@@ -46,10 +49,7 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
             await p.WaitForExitAsync(ct);
             if (p.ExitCode != 0)
                 throw new Exception("Adapter exit code: " + p.ExitCode);
-
-            if (response == null)
-                throw new Exception("Adapter did not report a result");
-
+            
             return response;
         }
         finally
@@ -65,7 +65,7 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
 
         logger.LogWarning("HBCI adapter will be killed because the import was canceled but the adapter is still running.");
         p.Kill(true);
-        var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         try
         {
             await p.WaitForExitAsync(timeout.Token);
@@ -77,7 +77,7 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
         }
     }
 
-    private static async Task<RpcSyncResponse?> HandleMessages(RpcBridge rpc, IAdapterCallbackHandler callbackHandler, CancellationToken ct)
+    private static async Task<RpcSyncResponse> HandleMessages(RpcBridge rpc, IAdapterCallbackHandler callbackHandler, CancellationToken ct)
     {
         RpcSyncResponse? response = null;
 
@@ -89,29 +89,34 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
             switch (message)
             {
                 case RpcLogEntry logEntry:
-                    await callbackHandler.OnLogMessage(logEntry.Severity, logEntry.Message);
+                    await callbackHandler.OnLogMessage(logEntry.Severity, logEntry.Message, ct);
                     break;
 
                 case RpcTanRequest tanRequest:
-                    var tan = await callbackHandler.OnTanRequired(tanRequest.Message);
+                    var tan = await callbackHandler.OnTanRequired(tanRequest.Message, ct);
                     if (tan == null)
-                        throw new OperationCanceledException("No tan was provided.");
+                        throw new CanceledByUserException();
                     await rpc.Send(new RpcTanResponse(tan), ct);
                     break;
 
                 case RpcSecurityMechanismRequest securityMechanismRequest:
                     var mapped = securityMechanismRequest.Entries.ToImmutableDictionary(x => x.Code, x => x.Name);
-                    var code = await callbackHandler.OnSecurityMechanismRequired(mapped);
+                    var code = await callbackHandler.OnSecurityMechanismRequired(mapped, ct);
                     if (code == null)
-                        throw new OperationCanceledException("No sec mechanism was provided.");
+                        throw new CanceledByUserException();
                     await rpc.Send(new RpcSecurityMechanismResponse(code), ct);
                     break;
+
+                case RpcException exception:
+                    throw new Exception("Adapter reported a exception: " + exception.Message);
 
                 case RpcSyncResponse syncResponse:
                     response = syncResponse;
                     break;
 
                 case RpcDone:
+                    if (response == null)
+                        throw new Exception("Adapter did not return a result");
                     return response;
 
                 default:
@@ -130,7 +135,12 @@ public record HbciAdapterOptions
 
 public interface IAdapterCallbackHandler
 {
-    Task<string?> OnTanRequired(string message);
-    Task<string?> OnSecurityMechanismRequired(ImmutableDictionary<string, string> securityMechanism);
-    Task OnLogMessage(int severity, string message);
+    Task<string?> OnTanRequired(string message, CancellationToken ct);
+    Task<string?> OnSecurityMechanismRequired(ImmutableDictionary<string, string> securityMechanism, CancellationToken ct);
+    Task OnLogMessage(int severity, string message, CancellationToken ct);
+}
+
+public class CanceledByUserException : Exception
+{
+
 }

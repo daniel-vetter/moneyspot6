@@ -17,13 +17,16 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
         }
 
         [HttpGet]
-        public async Task<ActionResult<TransactionResponse>> GetTransactions(DateOnly startDate, DateOnly endDate)
+        public async Task<ActionResult<TransactionResponse>> GetTransactions(string? search)
         {
-            var entries = await _db.BankAccountTransactions
+            IQueryable<DbBankAccountTransaction> query = _db.BankAccountTransactions
                 .OrderByDescending(x => x.Raw.Date)
-                .ThenByDescending(x => x.Id)
-                .Where(x => x.Raw.Date >= startDate && x.Raw.Date < endDate)
-                .Select(x => new TransactionEntryResponse
+                .ThenByDescending(x => x.Id);
+
+            if (!string.IsNullOrWhiteSpace(search)) 
+                query = query.Where(x => EF.Functions.ILike(x.Parsed.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Parsed.Name!, "%" + search + "%"));
+
+            var entries = await query.Select(x => new TransactionEntryResponse
                 {
                     Id = x.Id,
                     Date = x.Raw.Date,

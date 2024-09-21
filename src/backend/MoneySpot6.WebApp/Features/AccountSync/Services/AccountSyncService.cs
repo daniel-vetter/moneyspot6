@@ -1,17 +1,14 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
+using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Features.AccountSync.Services
 {
     [ScopedService]
     public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, ExternalDataProvider externalDataProvider, RawDataParser rawDataParser)
     {
-        public async Task Sync(IAdapterCallbackHandler callbackHandler)
+        public async Task<ImmutableArray<int>> Sync(IAdapterCallbackHandler callbackHandler, CancellationToken ct)
         {
             var connection = await db.BankConnections
                 .AsTracking()
@@ -29,16 +26,23 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                 userId: connection.UserId,
                 customerId: connection.CustomerId,
                 pin: connection.Pin,
+                startDate: connection.LastSuccessfulSync?.AddDays(-2),
                 callbackHandler: callbackHandler,
-                CancellationToken.None
+                ct
             );
 
-            await MergeAccounts(connection, result);
+            ct.ThrowIfCancellationRequested();
+
+            connection.LastSuccessfulSync = DateTimeOffset.UtcNow;
+            var newTransactions = await MergeAccounts(connection, result);
             await db.SaveChangesAsync();
+
+            return [..newTransactions.Select(x => x.Id)];
         }
 
-        private async Task MergeAccounts(DbBankConnection connection, RpcSyncResponse result)
+        private async Task<ImmutableArray<DbBankAccountTransaction>> MergeAccounts(DbBankConnection connection, RpcSyncResponse result)
         {
+            var newTransactions = ImmutableArray.CreateBuilder<DbBankAccountTransaction>();
             foreach (var account in result.Accounts)
             {
                 var dbAccount = await db.BankAccounts
@@ -83,8 +87,10 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                     dbAccount.Balance = account.Balance;
                 }
 
-                await MergeTransactions(dbAccount, account.Transactions);
+                newTransactions.AddRange(await MergeTransactions(dbAccount, account.Transactions));
             }
+
+            return newTransactions.ToImmutable();
         }
 
         private string? TrimToNull(string? str)
@@ -95,8 +101,9 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
             return trimmed == "" ? null : trimmed;
         }
 
-        private async Task MergeTransactions(DbBankAccount dbAccount, ImmutableArray<RpcSyncAccountTransactionResponse> rpcTransactions)
+        private async Task<ImmutableArray<DbBankAccountTransaction>> MergeTransactions(DbBankAccount dbAccount, ImmutableArray<RpcSyncAccountTransactionResponse> rpcTransactions)
         {
+            var newTransactions = ImmutableArray.CreateBuilder<DbBankAccountTransaction>();
             foreach (var rpcTransaction in rpcTransactions)
             {
                 var rawData = new DbBankAccountTransactionRawData
@@ -158,8 +165,11 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                 if (existing != null)
                     continue;
 
-                db.BankAccountTransactions.Add(mappedTransaction);
+                db.BankAccountTransactions.Add(mappedTransaction); 
+                newTransactions.Add(mappedTransaction);
             }
+
+            return newTransactions.ToImmutable();
         }
     }
 }

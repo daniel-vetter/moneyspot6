@@ -2,4 +2,20 @@
     display: flex;
     height: 100%;
     width: 100%;
+    overflow: hidden;
+}
+
+.wrapper {
+    flex: 1;
+    height: 100%;
+    background: var(--surface-200);
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.content {
+    width: 1600px;
+    margin: auto;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
 }
