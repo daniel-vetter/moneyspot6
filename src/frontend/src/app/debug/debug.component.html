@@ -1,0 +1,18 @@
+<p-button (onClick)="OnReprocessTransactionpParsingClicked()">Reprocess transaction parsing</p-button>
+
+@if (runningProcesses.length > 0) {
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Start</th>
+            <th>Fehler</th>
+        </tr>
+    @for (p of runningProcesses; track p.processId) {
+        <tr>
+            <td>{{ p.processId }}</td>
+            <td>{{ p.startTime }}</td>
+            <td>{{ p.error }}</td>
+        </tr>
+    }
+    </table>
+}
