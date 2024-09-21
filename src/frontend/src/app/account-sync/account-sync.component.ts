@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { ButtonModule } from 'primeng/button';
@@ -8,25 +8,27 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TanDialogComponent } from './tan-dialog/tan-dialog.component';
 import { PanelModule } from 'primeng/panel';
 import { MessagesModule } from 'primeng/messages';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { GlobalEvents } from '../common/global-events';
 
 @Component({
   selector: 'app-account-sync',
   standalone: true,
-  imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ProgressSpinnerModule, PanelModule, TanDialogComponent, MessagesModule],
+  imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ProgressSpinnerModule, PanelModule, TanDialogComponent, MessagesModule, ToastModule],
   templateUrl: './account-sync.component.html',
   styleUrl: './account-sync.component.scss'
 })
 export class AccountSyncComponent {
-
-  logMessages: LogMessage[] = [];
   isVisible = false;
-  result?: { type: "Success", newTransactionCount: number } | { type: "Error", error: string } | { type: "Canceled" }
 
   @ViewChild(TanDialogComponent) tanDialog!: TanDialogComponent;
 
+
+  constructor(private messageService: MessageService, private globalEvents: GlobalEvents) {}
+
   async onSyncButtonClicked() {
 
-    this.result = undefined;
     this.isVisible = true;
 
     const connection = new HubConnectionBuilder()
@@ -49,38 +51,38 @@ export class AccountSyncComponent {
       throw Error("Not implemented");
     });
 
-    await connection.on("logMessage", (severity: number, message: string) => {
-      this.logMessages.push({
-        severity: severity,
-        message: message
-      })
-
-      console.log(severity, message);
-    });
-
     await connection.start();
     const result = await connection.invoke("start");
 
     if (result.canceledByUser) {
-      this.result = { type: "Canceled" }
+      this.messageService.add({
+        severity: "warn",
+        summary: "Der Vorgang wurde vom Benutzer abgebrochen."
+      });
     } else if (result.error === undefined || result.error === null) {
-      this.result = { type: "Success", newTransactionCount: result.newTransactions.length }
+      let details = "";
+      const count: number = result.newTransactions.length;
+      if (count === 0) {
+        details = "Es wurden keine neuen Buchungen gefunden.";
+      } else if (count === 1) {
+        details = "Es wurde eine neue Buchung gefunden."
+      } else {
+        details = `Es wurden ${count} neue Buchungen gefunden.`
+      }
+      this.messageService.add({
+        severity: "success", 
+        summary: "Buchungen wurden erfolgreich geladen.",
+        detail: details
+      });
     } else {
-      this.result = { type: "Error", error: result.error }
+      this.messageService.add({
+        severity: "error",
+        summary: "Es ist eine Fehler aufgetreten.",
+        detail: "Buchungen konnten nicht geladen werden."
+      });
     }
-  }
 
-  onCancelClicked() {
+    this.globalEvents.onAccountSyncDone.next();
     this.isVisible = false;
   }
-
-  onCloseClicked() {
-    this.isVisible = false;
-  }
-
-}
-
-interface LogMessage {
-  severity: number,
-  message: string
 }
