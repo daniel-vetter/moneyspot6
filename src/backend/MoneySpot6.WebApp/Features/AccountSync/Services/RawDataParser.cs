@@ -5,9 +5,9 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
     [SingletonService]
     public class RawDataParser
     {
-        private readonly SepaParser2 _sepaParser;
+        private readonly SepaParser _sepaParser;
 
-        public RawDataParser(SepaParser2 sepaParser)
+        public RawDataParser(SepaParser sepaParser)
         {
             _sepaParser = sepaParser;
         }

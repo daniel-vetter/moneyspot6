@@ -6,7 +6,7 @@ namespace MoneySpot6.WebApp.Tests
 {
     internal class RawDataParserTests
     {
-        private static DbBankAccountTransactionParsedData Parse(DbBankAccountTransactionRawData raw) => new RawDataParser(new SepaParser2()).Parse(raw);
+        private static DbBankAccountTransactionParsedData Parse(DbBankAccountTransactionRawData raw) => new RawDataParser(new SepaParser()).Parse(raw);
 
         [Test]
         public void Test1()
