@@ -37,8 +37,8 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
             await rpc.Send(new RpcSyncRequest(
                     AccountId: "id" + connectionId,
                     HbciVersion: hbciVersion,
-                    Blz: bankCode,
-                    User: userId,
+                    BankCode: bankCode,
+                    UserId: userId,
                     CustomerId: customerId,
                     Pin: pin,
                     StartDate: startDate?.ToString("u")),

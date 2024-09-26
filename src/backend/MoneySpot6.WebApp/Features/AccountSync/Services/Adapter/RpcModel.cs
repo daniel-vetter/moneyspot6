@@ -5,8 +5,8 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
     public record RpcSyncRequest(
         string AccountId,
         string HbciVersion,
-        string Blz,
-        string User,
+        string BankCode,
+        string UserId,
         string CustomerId,
         string Pin,
         string? StartDate
@@ -27,9 +27,8 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
         string Currency,
         string Bic,
         string Iban,
-        string Blz,
+        string BankCode,
         string Number,
-        string SubNumber,
         string CustomerId,
         string AccountType,
         string Type,
@@ -57,11 +56,12 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
         bool IsCamt,
         string? EndToEndId,
         string? PurposeCode,
-        string? ManadateId,
+        string? MandateId,
         string? AccountName,
         string? AccountName2,
         string? AccountCountry,
-        string? AccountBlz,
+        string? AccountBankCode,
+        string? AccountNumber,
         string? AccountBic,
         string? AccountIban
     );

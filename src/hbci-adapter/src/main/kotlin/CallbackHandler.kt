@@ -1,13 +1,11 @@
 import org.kapott.hbci.callback.AbstractHBCICallback
 import org.kapott.hbci.exceptions.HBCI_Exception
 import org.kapott.hbci.passport.HBCIPassport
-import java.io.IOException
-import java.net.SecureCacheResponse
 import java.util.*
 
 class CallbackHandler(
     private val rpc: RpcBridge,
-    private val blz: String,
+    private val bankCode: String,
     private val user: String,
     private val customerId: String,
     private val pin: String
@@ -28,7 +26,7 @@ class CallbackHandler(
         when (reason) {
             NEED_PASSPHRASE_LOAD, NEED_PASSPHRASE_SAVE -> retData.replace(0, retData.length, this.pin)
             NEED_PT_PIN -> retData.replace(0, retData.length, this.pin)
-            NEED_BLZ -> retData.replace(0, retData.length, this.blz)
+            NEED_BLZ -> retData.replace(0, retData.length, this.bankCode)
             NEED_USERID -> retData.replace(0, retData.length, this.user)
             NEED_CUSTOMERID -> retData.replace(0, retData.length, this.customerId)
             NEED_PT_PHOTOTAN ->                 // Die Klasse "MatrixCode" kann zum Parsen der Daten verwendet werden

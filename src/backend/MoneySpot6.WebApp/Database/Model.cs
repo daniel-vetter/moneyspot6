@@ -25,11 +25,10 @@ public class DbBankAccount
     public required string? Name2 { get; set; }
     public required string Country { get; set; }
     public required string Currency { get; set; }
-    public required string BIC { get; set; }
-    public required string IBAN { get; set; }
+    public required string Bic { get; set; }
+    public required string Iban { get; set; }
     public required string BankCode { get; set; }
     public required string AccountNumber { get; set; }
-    public required string? AccountSubNumber { get; set; }
     public required string CustomerId { get; set; }
     public required string AccountType { get; set; }
     public required string Type { get; set; }
@@ -40,6 +39,7 @@ public class DbBankAccount
 public class DbBankAccountTransaction
 {
     public int Id { get; set; }
+    public required string Source { get; set; }
     public required DbBankAccount BankAccount { get; set; }
     public required DbBankAccountTransactionRawData Raw { get; set; }
     public required DbBankAccountTransactionParsedData Parsed { get; set; }
@@ -67,7 +67,7 @@ public class DbBankAccountTransactionRawData
     public bool IsCamt { get; set; }
     public string? EndToEndId { get; set; }
     public string? PurposeCode { get; set; }
-    public string? ManadateId { get; set; }
+    public string? MandateId { get; set; }
 }
 
 [ComplexType]
@@ -76,18 +76,19 @@ public class CounterpartyAccount
     public string? Name { get; set; }
     public string? Name2 { get; set; }
     public string? Country { get; set; }
-    public string? BLZ { get; set; }
-    public string? BIC { get; set; }
-    public string? IBAN { get; set; }
+    public string? BankCode { get; set; }
+    public string? Number { get; set; }
+    public string? Bic { get; set; }
+    public string? Iban { get; set; }
 }
 
 [ComplexType]
 public class DbBankAccountTransactionParsedData
 {
-    public required string Purpose { get; set; }
+    public string? Purpose { get; set; }
     public string? Name { get; set; }
-    public string? IBAN { get; set; }
-    public string? BIC { get; set; }
+    public string? Iban { get; set; }
+    public string? Bic { get; set; }
     public string? EndToEndReference { get; set; }
     public string? CustomerReference { get; set; }
     public string? MandateReference { get; set; }

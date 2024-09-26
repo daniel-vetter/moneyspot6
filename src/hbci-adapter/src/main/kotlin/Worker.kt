@@ -16,13 +16,13 @@ class Worker(val rpc: RpcBridge) {
     fun run() {
         val request = rpc.read<RpcSyncRequest>()
 
-        initHbciLibrary(rpc, request.Blz, request.User, request.CustomerId, request.Pin)
+        initHbciLibrary(rpc, request.BankCode, request.UserId, request.CustomerId, request.Pin)
         var handle: HBCIHandler? = null
         var passport: HBCIPassport? = null
         try {
 
             log(SEVERITY_INFO, "Connecting...")
-            passport = createPassport(request.AccountId, request.Blz)
+            passport = createPassport(request.AccountId, request.BankCode)
             handle = HBCIHandler(request.HbciVersion, passport)
 
             log(SEVERITY_INFO, "Retrieving list of accounts...")
@@ -50,18 +50,18 @@ class Worker(val rpc: RpcBridge) {
         }
     }
 
-    private fun initHbciLibrary(rpc: RpcBridge, blz: String, user: String, customerId: String, pin: String) {
-        HBCIUtils.init(Properties(), CallbackHandler(rpc, blz, user, customerId, pin))
+    private fun initHbciLibrary(rpc: RpcBridge, bankCode: String, user: String, customerId: String, pin: String) {
+        HBCIUtils.init(Properties(), CallbackHandler(rpc, bankCode, user, customerId, pin))
         HBCIUtils.setParam("log.loglevel.default", "100")
         HBCIUtils.setParam("client.passport.default", "PinTan") // Legt als Verfahren PIN/TAN fest.
         HBCIUtils.setParam("client.passport.PinTan.init", "1") // Stellt sicher, dass der Passport initialisiert wird
     }
 
-    private fun createPassport(accountId: String, blz: String): HBCIPassport {
+    private fun createPassport(accountId: String, bankCode: String): HBCIPassport {
         val passportFile: File = File("${accountId}.dat")
         val passport: HBCIPassport = HBCIPassportPinTan(passportFile)
         passport.country = "DE"
-        passport.host = HBCIUtils.getBankInfo(blz).pinTanAddress
+        passport.host = HBCIUtils.getBankInfo(bankCode).pinTanAddress
         passport.port = 443
         passport.filterType = "Base64"
         return passport
@@ -124,7 +124,7 @@ class Worker(val rpc: RpcBridge) {
                     Currency = it.account.curr,
                     CustomerId = it.account.customerid,
                     AccountType = it.account.acctype,
-                    Blz = it.account.blz,
+                    BankCode = it.account.blz,
                     Number = it.account.number,
                     SubNumber = it.account.subnumber,
                     Type = it.account.type,
@@ -136,7 +136,8 @@ class Worker(val rpc: RpcBridge) {
                             AccountName = l.other?.name,
                             AccountName2 = l.other?.name2,
                             AccountCountry = l.other?.country,
-                            AccountBlz = l.other?.blz,
+                            AccountBankCode = l.other?.blz,
+                            AccountNumber = l.other?.number,
                             AccountBic = l.other?.bic,
                             AccountIban = l.other?.iban,
                             Usage = l.usage,
@@ -156,7 +157,7 @@ class Worker(val rpc: RpcBridge) {
                             IsCamt = l.isCamt,
                             EndToEndId = l.endToEndId,
                             PurposeCode = l.purposecode,
-                            ManadateId = l.mandateId
+                            MandateId = l.mandateId
                         )
                     }.toTypedArray()
                 )

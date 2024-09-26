@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 class RpcSyncRequest(
     val AccountId: String,
     val HbciVersion: String,
-    val Blz: String,
-    val User: String,
+    val BankCode: String,
+    val UserId: String,
     val CustomerId: String,
     val Pin: String,
     val StartDate: String? = null
@@ -58,7 +58,7 @@ class RpcSyncAccountResponse(
     val Currency: String,
     val Bic: String,
     val Iban: String,
-    val Blz: String,
+    val BankCode: String,
     val Number: String,
     val SubNumber: String?,
     val CustomerId: String,
@@ -89,11 +89,12 @@ class RpcSyncAccountTransactionResponse(
     val IsCamt: Boolean,
     val EndToEndId: String?,
     val PurposeCode: String?,
-    val ManadateId: String?,
+    val MandateId: String?,
     val AccountName: String?,
     val AccountName2: String?,
     val AccountCountry: String?,
-    val AccountBlz: String?,
+    val AccountBankCode: String?,
+    val AccountNumber: String?,
     val AccountBic: String?,
     val AccountIban: String?
 )

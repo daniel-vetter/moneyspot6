@@ -48,9 +48,8 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                 var dbAccount = await db.BankAccounts
                     .AsTracking()
                     .SingleOrDefaultAsync(x => x.BankConnection.Id == connection.Id &&
-                                               x.BankCode == account.Blz &&
-                                               x.AccountNumber == account.Number &&
-                                               x.AccountSubNumber == account.SubNumber);
+                                               x.BankCode == account.BankCode &&
+                                               x.AccountNumber == account.Number);
 
                 if (dbAccount == null)
                 {
@@ -59,13 +58,12 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                         BankConnection = connection,
                         Name = account.Name,
                         Name2 = account.Name2,
-                        BankCode = account.Blz,
+                        BankCode = account.BankCode,
                         CustomerId = account.CustomerId,
                         AccountNumber = account.Number,
-                        AccountSubNumber = account.SubNumber,
                         Country = account.Country,
-                        BIC = account.Bic,
-                        IBAN = account.Iban,
+                        Bic = account.Bic,
+                        Iban = account.Iban,
                         Type = account.Type,
                         AccountType = account.AccountType,
                         Currency = account.Currency,
@@ -79,8 +77,8 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                     dbAccount.Name2 = account.Name2;
                     dbAccount.CustomerId = account.CustomerId;
                     dbAccount.Country = account.Country;
-                    dbAccount.BIC = account.Bic;
-                    dbAccount.IBAN = account.Iban;
+                    dbAccount.Bic = account.Bic;
+                    dbAccount.Iban = account.Iban;
                     dbAccount.Type = account.Type;
                     dbAccount.AccountType = account.AccountType;
                     dbAccount.Currency = account.Currency;
@@ -103,7 +101,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
 
         private async Task<ImmutableArray<DbBankAccountTransaction>> MergeTransactions(DbBankAccount dbAccount, ImmutableArray<RpcSyncAccountTransactionResponse> rpcTransactions)
         {
-            var newTransactions = ImmutableArray.CreateBuilder<DbBankAccountTransaction>();
+            var allNewTransactions = ImmutableArray.CreateBuilder<DbBankAccountTransaction>();
             foreach (var rpcTransaction in rpcTransactions)
             {
                 var rawData = new DbBankAccountTransactionRawData
@@ -112,64 +110,66 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                     {
                         Name = TrimToNull(rpcTransaction.AccountName),
                         Name2 = TrimToNull(rpcTransaction.AccountName2),
-                        BLZ = TrimToNull(rpcTransaction.AccountBlz),
-                        BIC = TrimToNull(rpcTransaction.AccountIban),
-                        IBAN = TrimToNull(rpcTransaction.AccountIban),
+                        BankCode = TrimToNull(rpcTransaction.AccountBankCode),
+                        Number = TrimToNull(rpcTransaction.AccountNumber),
+                        Bic = TrimToNull(rpcTransaction.AccountBic),
+                        Iban = TrimToNull(rpcTransaction.AccountIban),
                         Country = TrimToNull(rpcTransaction.AccountCountry),
                     },
-                    Purpose = string.Join("\n", rpcTransaction.Usage),
+                    Purpose = TrimToNull(string.Join("\n", rpcTransaction.Usage)),
                     NewBalance = rpcTransaction.Balance,
-                    AddKey = rpcTransaction.AddKey,
-                    Additional = rpcTransaction.Additional,
+                    AddKey = TrimToNull(rpcTransaction.AddKey),
+                    Additional = TrimToNull(rpcTransaction.Additional),
                     Amount = rpcTransaction.Amount,
                     ChargeAmount = rpcTransaction.ChargeAmount,
-                    Code = rpcTransaction.Code,
-                    CustomerReference = rpcTransaction.CustomerReference,
+                    Code = TrimToNull(rpcTransaction.Code),
+                    CustomerReference = TrimToNull(rpcTransaction.CustomerReference),
                     Date = rpcTransaction.Date,
-                    EndToEndId = rpcTransaction.EndToEndId,
-                    InstituteReference = rpcTransaction.InstituteReference,
+                    EndToEndId = TrimToNull(rpcTransaction.EndToEndId),
+                    InstituteReference = TrimToNull(rpcTransaction.InstituteReference),
                     IsCamt = rpcTransaction.IsCamt,
                     IsSepa = rpcTransaction.IsSepa,
                     IsStorno = rpcTransaction.IsStorno,
-                    ManadateId = rpcTransaction.ManadateId,
+                    MandateId = TrimToNull(rpcTransaction.MandateId),
                     OriginalAmount = rpcTransaction.OriginalAmount,
-                    Primanota = rpcTransaction.Primanota,
-                    PurposeCode = rpcTransaction.PurposeCode,
-                    Text = rpcTransaction.Text
+                    Primanota = TrimToNull(rpcTransaction.Primanota),
+                    PurposeCode = TrimToNull(rpcTransaction.PurposeCode),
+                    Text = TrimToNull(rpcTransaction.Text)
                 };
 
                 var parsedDate = rawDataParser.Parse(rawData);
 
-                var mappedTransaction = new DbBankAccountTransaction
+                var newTrans = new DbBankAccountTransaction
                 {
+                    Source = "Sync",
                     BankAccount = dbAccount,
                     Raw = rawData,
                     Parsed = parsedDate
                 };
 
-                var existing = await db.BankAccountTransactions
+                var existingTransaction = await db.BankAccountTransactions
                     .AsNoTracking()
                     .SingleOrDefaultAsync(x =>
-                        x.BankAccount.Id == mappedTransaction.BankAccount.Id &&
-                        x.Raw.Date == mappedTransaction.Raw.Date &&
-                        x.Raw.Amount == mappedTransaction.Raw.Amount &&
-                        x.Raw.Purpose == mappedTransaction.Raw.Purpose &&
-                        x.Raw.Counterparty.Name == mappedTransaction.Raw.Counterparty.Name &&
-                        x.Raw.Counterparty.Name2 == mappedTransaction.Raw.Counterparty.Name2 &&
-                        x.Raw.Counterparty.BLZ == mappedTransaction.Raw.Counterparty.BLZ &&
-                        x.Raw.Counterparty.BIC == mappedTransaction.Raw.Counterparty.BIC &&
-                        x.Raw.Counterparty.IBAN == mappedTransaction.Raw.Counterparty.IBAN &&
-                        x.Raw.Counterparty.Country == mappedTransaction.Raw.Counterparty.Country
+                        x.BankAccount.Id == newTrans.BankAccount.Id &&
+                        x.Raw.Date == newTrans.Raw.Date &&
+                        x.Raw.Amount == newTrans.Raw.Amount &&
+                        x.Raw.Purpose == newTrans.Raw.Purpose &&
+                        x.Raw.Counterparty.Name == newTrans.Raw.Counterparty.Name &&
+                        x.Raw.Counterparty.Name2 == newTrans.Raw.Counterparty.Name2 &&
+                        x.Raw.Counterparty.BankCode == newTrans.Raw.Counterparty.BankCode &&
+                        x.Raw.Counterparty.Bic == newTrans.Raw.Counterparty.Bic &&
+                        x.Raw.Counterparty.Iban == newTrans.Raw.Counterparty.Iban &&
+                        x.Raw.Counterparty.Country == newTrans.Raw.Counterparty.Country
                     );
 
-                if (existing != null)
+                if (existingTransaction != null)
                     continue;
 
-                db.BankAccountTransactions.Add(mappedTransaction); 
-                newTransactions.Add(mappedTransaction);
+                db.BankAccountTransactions.Add(newTrans); 
+                allNewTransactions.Add(newTrans);
             }
 
-            return newTransactions.ToImmutable();
+            return allNewTransactions.ToImmutable();
         }
     }
 }

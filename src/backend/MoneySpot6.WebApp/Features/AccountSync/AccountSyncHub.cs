@@ -8,10 +8,12 @@ namespace MoneySpot6.WebApp.Features.AccountSync;
 public class AccountSyncHub : Hub
 {
     private readonly AccountSyncService _accountSyncService;
+    private readonly ILogger<AccountSyncService> _logger;
 
-    public AccountSyncHub(AccountSyncService accountSyncService)
+    public AccountSyncHub(AccountSyncService accountSyncService, ILogger<AccountSyncService> logger)
     {
         _accountSyncService = accountSyncService;
+        _logger = logger;
     }
 
     public async Task<SyncResult> Start()
@@ -24,12 +26,13 @@ public class AccountSyncHub : Hub
             var newTransactionIds = await _accountSyncService.Sync(handler, cts.Token);
             return new SyncResult(false, null, newTransactionIds);
         }
-        catch (CanceledByUserException e)
+        catch (CanceledByUserException)
         {
             return new SyncResult(true, null, ImmutableArray<int>.Empty);
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Account sync failed: " + e.Message);
             return new SyncResult(false, e.Message, ImmutableArray<int>.Empty);
         }
     }

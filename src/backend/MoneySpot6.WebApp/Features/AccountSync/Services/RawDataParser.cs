@@ -17,20 +17,33 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
             var line = (rawData.Purpose ?? "").Split('\n').Select(x => x.Replace("\r", "")).ToArray();
             var parsedPurpose = _sepaParser.Parse(line);
 
-            return new DbBankAccountTransactionParsedData
+            var result = new DbBankAccountTransactionParsedData
             {
-                Name = rawData.Counterparty.Name + rawData.Counterparty.Name2,
-                Purpose = parsedPurpose.GetValueOrDefault(Header.SVWZ, ""),
-                BIC = parsedPurpose.GetValueOrDefault(Header.BIC),
-                IBAN = parsedPurpose.GetValueOrDefault(Header.IBAN),
-                EndToEndReference = parsedPurpose.GetValueOrDefault(Header.EREF),
-                CustomerReference = parsedPurpose.GetValueOrDefault(Header.KREF),
-                MandateReference = parsedPurpose.GetValueOrDefault(Header.MREF),
-                CreditorIdentifier = parsedPurpose.GetValueOrDefault(Header.CRED),
-                OriginatorIdentifier = parsedPurpose.GetValueOrDefault(Header.DBET),
-                AlternateInitiator = parsedPurpose.GetValueOrDefault(Header.ABWA),
-                AlternateReceiver = parsedPurpose.GetValueOrDefault(Header.ABWE)
+                Name = TrimToNull(rawData.Counterparty.Name + rawData.Counterparty.Name2),
+                BankCode = TrimToNull(rawData.Counterparty.BankCode),
+                AccountNumber = TrimToNull(rawData.Counterparty.Number),
+                Purpose = TrimToNull(parsedPurpose.GetValueOrDefault(Header.SVWZ)),
+                Bic = TrimToNull(parsedPurpose.GetValueOrDefault(Header.BIC)),
+                Iban = TrimToNull(parsedPurpose.GetValueOrDefault(Header.IBAN)),
+                EndToEndReference = TrimToNull(parsedPurpose.GetValueOrDefault(Header.EREF)),
+                CustomerReference = TrimToNull(parsedPurpose.GetValueOrDefault(Header.KREF)),
+                MandateReference = TrimToNull(parsedPurpose.GetValueOrDefault(Header.MREF)),
+                CreditorIdentifier = TrimToNull(parsedPurpose.GetValueOrDefault(Header.CRED)),
+                OriginatorIdentifier = TrimToNull(parsedPurpose.GetValueOrDefault(Header.DBET)),
+                AlternateInitiator = TrimToNull(parsedPurpose.GetValueOrDefault(Header.ABWA)),
+                AlternateReceiver = TrimToNull(parsedPurpose.GetValueOrDefault(Header.ABWE))
             };
+
+            return result;
+        }
+
+        private string? TrimToNull(string? val)
+        {
+            if (val == null)
+                return null;
+
+            var r = val.Trim();
+            return r.Length == 0 ? null : r;
         }
     }
 }

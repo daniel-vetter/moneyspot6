@@ -9,6 +9,6 @@ fun main() {
         Worker(rpc).run();
         rpc.send(RpcDone())
     } catch (e: Exception) {
-        rpc.send(RpcLogEntry(SEVERITY_ERROR, "HBCI Adapter crashed: $e"))
+        rpc.send(RpcException("HBCI Adapter crashed: $e"))
     }
 }

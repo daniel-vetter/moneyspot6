@@ -30,8 +30,8 @@ namespace MoneySpot6.WebApp.Tests
             {
                 CustomerReference = "2024-07-03T00:59:10:0112",
                 Purpose = "Schulden",
-                IBAN = "DE32845686328746832746",
-                BIC = "DEXXGHFXS",
+                Iban = "DE32845686328746832746",
+                Bic = "DEXXGHFXS",
             });
         }
 
@@ -229,7 +229,7 @@ namespace MoneySpot6.WebApp.Tests
             result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
             {
                 Purpose = "Das geht sogar gemischt",
-                IBAN = "DE1234567890"
+                Iban = "DE1234567890"
             });
         }
 
@@ -250,8 +250,8 @@ namespace MoneySpot6.WebApp.Tests
             result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
             {
                 Purpose = "",
-                IBAN = "DE49390500000000012345",
-                BIC = "AACSDE33",
+                Iban = "DE49390500000000012345",
+                Bic = "AACSDE33",
                 AlternateInitiator = "NetAachen"
             });
         }
@@ -277,8 +277,8 @@ namespace MoneySpot6.WebApp.Tests
             {
                 Purpose = "Verwendungszweck",
                 EndToEndReference = "1234567890123456789",
-                IBAN = "DE12345678901234567890",
-                BIC = "ABCDEFGH"
+                Iban = "DE12345678901234567890",
+                Bic = "ABCDEFGH"
             });
         }
 

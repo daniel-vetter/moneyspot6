@@ -35,14 +35,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("AccountSubNumber")
-                        .HasColumnType("text");
-
                     b.Property<string>("AccountType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BIC")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -56,6 +49,10 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.Property<int>("BankConnectionId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Bic")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("text");
@@ -68,7 +65,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("IBAN")
+                    b.Property<string>("Iban")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -101,6 +98,10 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.Property<int>("BankAccountId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.ComplexProperty<Dictionary<string, object>>("Parsed", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Parsed#DbBankAccountTransactionParsedData", b1 =>
                         {
                             b1.IsRequired();
@@ -111,7 +112,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                             b1.Property<string>("AlternateReceiver")
                                 .HasColumnType("text");
 
-                            b1.Property<string>("BIC")
+                            b1.Property<string>("Bic")
                                 .HasColumnType("text");
 
                             b1.Property<string>("CreditorIdentifier")
@@ -123,7 +124,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                             b1.Property<string>("EndToEndReference")
                                 .HasColumnType("text");
 
-                            b1.Property<string>("IBAN")
+                            b1.Property<string>("Iban")
                                 .HasColumnType("text");
 
                             b1.Property<string>("MandateReference")
@@ -136,7 +137,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 .HasColumnType("text");
 
                             b1.Property<string>("Purpose")
-                                .IsRequired()
                                 .HasColumnType("text");
                         });
 
@@ -180,7 +180,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                             b1.Property<bool>("IsStorno")
                                 .HasColumnType("boolean");
 
-                            b1.Property<string>("ManadateId")
+                            b1.Property<string>("MandateId")
                                 .HasColumnType("text");
 
                             b1.Property<long>("NewBalance")
@@ -205,22 +205,25 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 {
                                     b2.IsRequired();
 
-                                    b2.Property<string>("BIC")
+                                    b2.Property<string>("BankCode")
                                         .HasColumnType("text");
 
-                                    b2.Property<string>("BLZ")
+                                    b2.Property<string>("Bic")
                                         .HasColumnType("text");
 
                                     b2.Property<string>("Country")
                                         .HasColumnType("text");
 
-                                    b2.Property<string>("IBAN")
+                                    b2.Property<string>("Iban")
                                         .HasColumnType("text");
 
                                     b2.Property<string>("Name")
                                         .HasColumnType("text");
 
                                     b2.Property<string>("Name2")
+                                        .HasColumnType("text");
+
+                                    b2.Property<string>("Number")
                                         .HasColumnType("text");
                                 });
                         });
