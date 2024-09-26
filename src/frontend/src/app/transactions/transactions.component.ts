@@ -45,8 +45,8 @@ export class TransactionsComponent implements OnInit {
       await this.update();
     });
 
-    this.readRouteParameter(this.activatedRoute.snapshot.queryParams);
-    await this.update();
+    /*this.readRouteParameter(this.activatedRoute.snapshot.queryParams);
+    await this.update();*/
   }
 
   readRouteParameter(map: any) {
@@ -95,7 +95,7 @@ export class TransactionsComponent implements OnInit {
 
   getTitle(date: Date): string {
     if (this.selectedGrouping === "None") return "Ergebnis";
-    if (this.selectedGrouping === "Monthly") return ["Januar", "Februar", "März", "April", "Mai", "Juni", "July", "August", "September", "November", "Dezember"][date.getMonth()] + " " + date.getFullYear().toString();
+    if (this.selectedGrouping === "Monthly") return ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][date.getMonth()] + " " + date.getFullYear().toString();
     if (this.selectedGrouping === "Yearly") return date.getFullYear().toString();
     throw Error("Invalid group: " + this.selectedGrouping);
   }
