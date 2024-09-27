@@ -89,6 +89,8 @@ public class DbBankAccountTransactionParsedData
 {
     public string? Purpose { get; set; }
     public string? Name { get; set; }
+    public string? BankCode { get; set; }
+    public string? AccountNumber { get; set; }
     public string? Iban { get; set; }
     public string? Bic { get; set; }
     public string? EndToEndReference { get; set; }
@@ -98,4 +100,11 @@ public class DbBankAccountTransactionParsedData
     public string? OriginatorIdentifier { get; set; }
     public string? AlternateInitiator { get; set; }
     public string? AlternateReceiver { get; set; }
+    public PaymentProcessor PaymentProcessor { get; set; } = PaymentProcessor.None;
+}
+
+public enum PaymentProcessor
+{
+    None = 0,
+    Paypal = 1
 }
