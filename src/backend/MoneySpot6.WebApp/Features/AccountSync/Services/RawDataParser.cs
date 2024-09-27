@@ -20,8 +20,6 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
             var result = new DbBankAccountTransactionParsedData
             {
                 Name = TrimToNull(rawData.Counterparty.Name + rawData.Counterparty.Name2),
-                BankCode = TrimToNull(rawData.Counterparty.BankCode),
-                AccountNumber = TrimToNull(rawData.Counterparty.Number),
                 Purpose = TrimToNull(parsedPurpose.GetValueOrDefault(Header.SVWZ)),
                 Bic = TrimToNull(parsedPurpose.GetValueOrDefault(Header.BIC)),
                 Iban = TrimToNull(parsedPurpose.GetValueOrDefault(Header.IBAN)),

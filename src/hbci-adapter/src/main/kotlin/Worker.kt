@@ -146,7 +146,7 @@ class Worker(val rpc: RpcBridge) {
                             OriginalAmount = l.orig_value?.longValue,
                             ChargeAmount = l.charge_value?.longValue,
                             Balance = l.saldo.value.longValue,
-                            IsStorno = l.isStorno,
+                            IsCancelation = l.isStorno,
                             CustomerReference = l.customerref,
                             InstituteReference = l.instref,
                             Additional = l.additional,

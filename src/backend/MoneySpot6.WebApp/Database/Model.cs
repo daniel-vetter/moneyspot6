@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+// ReSharper disable EntityFramework.ModelValidation.UnlimitedStringLength
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace MoneySpot6.WebApp.Database;
 
@@ -56,7 +58,7 @@ public class DbBankAccountTransactionRawData
     public long? OriginalAmount { get; set; }
     public long? ChargeAmount { get; set; }
     public long NewBalance { get; set; }
-    public bool IsStorno { get; set; }
+    public bool IsCancelation { get; set; }
     public string? CustomerReference { get; set; }
     public string? InstituteReference { get; set; }
     public string? Additional { get; set; }

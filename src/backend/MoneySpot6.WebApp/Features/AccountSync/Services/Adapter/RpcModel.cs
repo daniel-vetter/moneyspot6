@@ -45,7 +45,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter
         long? OriginalAmount,
         long? ChargeAmount,
         long Balance,
-        bool IsStorno,
+        bool IsCancelation,
         string CustomerReference,
         string InstituteReference,
         string? Additional,

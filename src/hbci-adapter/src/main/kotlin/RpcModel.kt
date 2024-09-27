@@ -78,7 +78,7 @@ class RpcSyncAccountTransactionResponse(
     val OriginalAmount: Long?,
     val ChargeAmount: Long?,
     val Balance: Long,
-    val IsStorno: Boolean,
+    val IsCancelation: Boolean,
     val CustomerReference: String,
     val InstituteReference: String,
     val Additional: String?,

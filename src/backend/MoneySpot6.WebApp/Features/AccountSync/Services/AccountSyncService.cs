@@ -2,6 +2,7 @@
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
 using System.Collections.Immutable;
+using MoneySpot6.WebApp.Common;
 
 namespace MoneySpot6.WebApp.Features.AccountSync.Services
 {
@@ -91,54 +92,67 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
             return newTransactions.ToImmutable();
         }
 
-        private string? TrimToNull(string? str)
-        {
-            if (str == null)
-                return null;
-            var trimmed = str.Trim();
-            return trimmed == "" ? null : trimmed;
-        }
-
         private async Task<ImmutableArray<DbBankAccountTransaction>> MergeTransactions(DbBankAccount dbAccount, ImmutableArray<RpcSyncAccountTransactionResponse> rpcTransactions)
         {
             var allNewTransactions = ImmutableArray.CreateBuilder<DbBankAccountTransaction>();
             foreach (var rpcTransaction in rpcTransactions)
             {
+                // Create a raw data package
                 var rawData = new DbBankAccountTransactionRawData
                 {
                     Counterparty = new CounterpartyAccount
                     {
-                        Name = TrimToNull(rpcTransaction.AccountName),
-                        Name2 = TrimToNull(rpcTransaction.AccountName2),
-                        BankCode = TrimToNull(rpcTransaction.AccountBankCode),
-                        Number = TrimToNull(rpcTransaction.AccountNumber),
-                        Bic = TrimToNull(rpcTransaction.AccountBic),
-                        Iban = TrimToNull(rpcTransaction.AccountIban),
-                        Country = TrimToNull(rpcTransaction.AccountCountry),
+                        Name = rpcTransaction.AccountName.TrimToNull(),
+                        Name2 = rpcTransaction.AccountName2.TrimToNull(),
+                        BankCode = rpcTransaction.AccountBankCode.TrimToNull(),
+                        Number = rpcTransaction.AccountNumber.TrimToNull(),
+                        Bic = rpcTransaction.AccountBic.TrimToNull(),
+                        Iban = rpcTransaction.AccountIban.TrimToNull(),
+                        Country = rpcTransaction.AccountCountry.TrimToNull(),
                     },
-                    Purpose = TrimToNull(string.Join("\n", rpcTransaction.Usage)),
+                    Purpose = string.Join("\n", rpcTransaction.Usage).TrimToNull(),
                     NewBalance = rpcTransaction.Balance,
-                    AddKey = TrimToNull(rpcTransaction.AddKey),
-                    Additional = TrimToNull(rpcTransaction.Additional),
+                    AddKey = rpcTransaction.AddKey.TrimToNull(),
+                    Additional = rpcTransaction.Additional.TrimToNull(),
                     Amount = rpcTransaction.Amount,
                     ChargeAmount = rpcTransaction.ChargeAmount,
-                    Code = TrimToNull(rpcTransaction.Code),
-                    CustomerReference = TrimToNull(rpcTransaction.CustomerReference),
+                    Code = rpcTransaction.Code.TrimToNull(),
+                    CustomerReference = rpcTransaction.CustomerReference.TrimToNull(),
                     Date = rpcTransaction.Date,
-                    EndToEndId = TrimToNull(rpcTransaction.EndToEndId),
-                    InstituteReference = TrimToNull(rpcTransaction.InstituteReference),
+                    EndToEndId = rpcTransaction.EndToEndId.TrimToNull(),
+                    InstituteReference = rpcTransaction.InstituteReference.TrimToNull(),
                     IsCamt = rpcTransaction.IsCamt,
                     IsSepa = rpcTransaction.IsSepa,
-                    IsStorno = rpcTransaction.IsStorno,
-                    MandateId = TrimToNull(rpcTransaction.MandateId),
+                    IsCancelation = rpcTransaction.IsCancelation,
+                    MandateId = rpcTransaction.MandateId.TrimToNull(),
                     OriginalAmount = rpcTransaction.OriginalAmount,
-                    Primanota = TrimToNull(rpcTransaction.Primanota),
-                    PurposeCode = TrimToNull(rpcTransaction.PurposeCode),
-                    Text = TrimToNull(rpcTransaction.Text)
+                    Primanota = rpcTransaction.Primanota.TrimToNull(),
+                    PurposeCode = rpcTransaction.PurposeCode.TrimToNull(),
+                    Text = rpcTransaction.Text.TrimToNull()
                 };
 
-                var parsedDate = rawDataParser.Parse(rawData);
+                // Check if the same entry already exist
+                var existingTransaction = await db.BankAccountTransactions
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(x =>
+                        x.BankAccount.Id == dbAccount.Id &&
+                        x.Raw.Date == rawData.Date &&
+                        x.Raw.Amount == rawData.Amount &&
+                        x.Raw.Purpose == rawData.Purpose &&
+                        x.Raw.Counterparty.Name == rawData.Counterparty.Name &&
+                        x.Raw.Counterparty.Name2 == rawData.Counterparty.Name2 &&
+                        x.Raw.Counterparty.BankCode == rawData.Counterparty.BankCode &&
+                        x.Raw.Counterparty.Number == rawData.Counterparty.Number &&
+                        x.Raw.Counterparty.Bic == rawData.Counterparty.Bic &&
+                        x.Raw.Counterparty.Iban == rawData.Counterparty.Iban &&
+                        x.Raw.Counterparty.Country == rawData.Counterparty.Country
+                    );
 
+                if (existingTransaction != null)
+                    continue;
+
+                // Parse the raw data and persist it to the db
+                var parsedDate = rawDataParser.Parse(rawData);
                 var newTrans = new DbBankAccountTransaction
                 {
                     Source = "Sync",
@@ -146,24 +160,6 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                     Raw = rawData,
                     Parsed = parsedDate
                 };
-
-                var existingTransaction = await db.BankAccountTransactions
-                    .AsNoTracking()
-                    .SingleOrDefaultAsync(x =>
-                        x.BankAccount.Id == newTrans.BankAccount.Id &&
-                        x.Raw.Date == newTrans.Raw.Date &&
-                        x.Raw.Amount == newTrans.Raw.Amount &&
-                        x.Raw.Purpose == newTrans.Raw.Purpose &&
-                        x.Raw.Counterparty.Name == newTrans.Raw.Counterparty.Name &&
-                        x.Raw.Counterparty.Name2 == newTrans.Raw.Counterparty.Name2 &&
-                        x.Raw.Counterparty.BankCode == newTrans.Raw.Counterparty.BankCode &&
-                        x.Raw.Counterparty.Bic == newTrans.Raw.Counterparty.Bic &&
-                        x.Raw.Counterparty.Iban == newTrans.Raw.Counterparty.Iban &&
-                        x.Raw.Counterparty.Country == newTrans.Raw.Counterparty.Country
-                    );
-
-                if (existingTransaction != null)
-                    continue;
 
                 db.BankAccountTransactions.Add(newTrans); 
                 allNewTransactions.Add(newTrans);
