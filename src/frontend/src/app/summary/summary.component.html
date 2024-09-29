@@ -21,7 +21,7 @@
                 <div style="flex: 1">Konto</div>
                 <div>Guthaben</div>
             </div>
-            @for (entry of bankAccounts.entries; track entry) {
+            @for (entry of bankAccounts.entries; track entry.id) {
             <div>
                 <div style="flex: 1">{{ entry.name }}</div>
                 <div><app-value [value]="entry.total" /></div>

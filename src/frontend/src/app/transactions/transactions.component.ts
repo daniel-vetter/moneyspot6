@@ -13,11 +13,12 @@ import { DropdownModule } from 'primeng/dropdown';
 import { minDelay } from '../common/load-delay';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe, InputTextModule, FormsModule, ButtonModule, DropdownModule, ProgressSpinnerModule],
+  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe, InputTextModule, FormsModule, ButtonModule, DropdownModule, ProgressSpinnerModule, ScrollingModule],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
 })
@@ -44,9 +45,6 @@ export class TransactionsComponent implements OnInit {
       this.readRouteParameter(x);
       await this.update();
     });
-
-    /*this.readRouteParameter(this.activatedRoute.snapshot.queryParams);
-    await this.update();*/
   }
 
   readRouteParameter(map: any) {
@@ -58,7 +56,7 @@ export class TransactionsComponent implements OnInit {
     this.groups = [];
     this.showClearButton = this.searchText != "";
     this.isLoading = true;
-    const response = await  minDelay(lastValueFrom(this.transactionPageClient.getTransactions(this.searchText)));
+    const response = await  lastValueFrom(this.transactionPageClient.getTransactions(this.searchText));
     this.isLoading = false;
     const blocks: Group[] = [];
     let currentBlock: Group | undefined;

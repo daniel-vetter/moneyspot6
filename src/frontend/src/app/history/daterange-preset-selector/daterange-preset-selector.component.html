@@ -1,0 +1,6 @@
+<p-buttonGroup>
+    <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != 'current'" (onClick)="onCurrentYearClicked()">{{ currentYear }}</p-button>
+    <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != 'last'" (onClick)="onLastYearClicked()">{{ lastYear }}</p-button>
+    <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != '5year'" (onClick)="on5YearClicked()">5 Jahre</p-button>
+    <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != 'all'" (onClick)="onAllClicked()">Alle</p-button>
+</p-buttonGroup>

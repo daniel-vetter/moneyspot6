@@ -1,0 +1,12 @@
+<div class="flex-col-1">
+    <div class="flex-row-1">
+        <p-calendar selectionMode="range" [(ngModel)]="dateRange" (ngModelChange)="update()" view="month" dateFormat="mm/yy" />
+        <app-daterange-preset-selector [(range)]="dateRange" (rangeChange)="update()"></app-daterange-preset-selector>
+        
+    </div>
+
+    @for (chart of charts2; track chart) {
+        <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; height: 1000px; display: block;"></highcharts-chart>
+    }
+    
+</div>

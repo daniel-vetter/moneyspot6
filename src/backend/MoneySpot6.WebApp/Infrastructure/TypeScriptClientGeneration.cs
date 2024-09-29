@@ -1,4 +1,7 @@
-﻿using NSwag.CodeGeneration.TypeScript;
+﻿using System.Diagnostics;
+using NJsonSchema;
+using NJsonSchema.CodeGeneration.TypeScript;
+using NSwag.CodeGeneration.TypeScript;
 using NSwag.Generation;
 using NSwag;
 
@@ -17,15 +20,15 @@ namespace MoneySpot6.WebApp.Infrastructure
             {
                 Template = TypeScriptTemplate.Angular,
                 InjectionTokenType = InjectionTokenType.InjectionToken,
-                TypeScriptGeneratorSettings =
-                {
-                    TypeScriptVersion = 5,
-                    ClassTypes = ["DateOnly"]
-                    
+                TypeScriptGeneratorSettings = 
+                {   
+                    TypeScriptVersion = 6   
                 },
                 RxJsVersion = 7.8m,
             };
-            var typescript = new TypeScriptClientGenerator(await OpenApiDocument.FromJsonAsync(document.ToJson()), settings).GenerateFile();
+            //Debugger.Launch();
+            var json = document.ToJson();
+            var typescript = new TypeScriptClientGenerator(await OpenApiDocument.FromJsonAsync(json), settings).GenerateFile();
             typescript = typescript.Replace("@Injectable()", "@Injectable({providedIn: 'root'})");
             await File.WriteAllTextAsync(args[index+1], typescript);
             Console.WriteLine("TypeScript client written to: " + Path.GetFullPath(args[index + 1]));

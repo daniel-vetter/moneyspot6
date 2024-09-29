@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
+using NJsonSchema.Generation.TypeMappers;
+using NJsonSchema;
+using NJsonSchema.Generation;
 
 namespace MoneySpot6.WebApp;
 
@@ -16,7 +19,19 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddOpenApiDocument(x => x.Title = "MoneySpot6 API");
+        builder.Services.AddOpenApiDocument(x =>
+        {
+            x.DefaultResponseReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
+            /*
+            x.SchemaSettings.TypeMappers.Add(new PrimitiveTypeMapper(typeof(DateOnly), x =>
+            {
+                x.Type = JsonObjectType.String;
+                x.Format = "woob";
+
+            }));
+            */
+            x.Title = "MoneySpot6 API";
+        });
         builder.Services.AddSignalR();
         builder.Services.AddDbContext<Db>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Db")));
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));

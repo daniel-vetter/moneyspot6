@@ -21,6 +21,7 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
         {
             var entries = await _db.BankAccounts.Select(x => new BankAccountEntrySummaryResponse
             {
+                Id = x.Id,
                 Name = $"{x.Name} ({x.Type})",
                 Total = x.Balance
             })
@@ -36,6 +37,7 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
 
     public record BankAccountEntrySummaryResponse
     {
+        public required int Id { get; init; }
         public required string Name { get; init; }
         public required long Total { get; init; }
     }
