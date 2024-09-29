@@ -10,15 +10,12 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
-import { minDelay } from '../common/load-delay';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe, InputTextModule, FormsModule, ButtonModule, DropdownModule, ProgressSpinnerModule, ScrollingModule],
+  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe, InputTextModule, FormsModule, ButtonModule, DropdownModule, ProgressSpinnerModule],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
 })

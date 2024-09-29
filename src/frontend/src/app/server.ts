@@ -385,9 +385,11 @@ export interface ITransactionResponse {
 
 export class TransactionEntryResponse implements ITransactionEntryResponse {
     id?: number;
+    icon?: string | undefined;
+    iconColor?: string | undefined;
     date?: Date;
     name?: string | undefined;
-    purpose?: string;
+    purpose?: string | undefined;
     value?: number;
 
     constructor(data?: ITransactionEntryResponse) {
@@ -402,6 +404,8 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.icon = _data["icon"];
+            this.iconColor = _data["iconColor"];
             this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
             this.name = _data["name"];
             this.purpose = _data["purpose"];
@@ -419,6 +423,8 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["icon"] = this.icon;
+        data["iconColor"] = this.iconColor;
         data["date"] = this.date ? formatDate(this.date) : <any>undefined;
         data["name"] = this.name;
         data["purpose"] = this.purpose;
@@ -429,9 +435,11 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
 
 export interface ITransactionEntryResponse {
     id?: number;
+    icon?: string | undefined;
+    iconColor?: string | undefined;
     date?: Date;
     name?: string | undefined;
-    purpose?: string;
+    purpose?: string | undefined;
     value?: number;
 }
 

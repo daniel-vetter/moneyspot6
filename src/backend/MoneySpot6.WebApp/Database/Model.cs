@@ -23,6 +23,8 @@ public class DbBankAccount
 {
     public int Id { get; set; }
     public required DbBankConnection BankConnection { get; set; }
+    public required string? Icon { get; set; }
+    public required string? IconColor { get; set; }
     public required string Name { get; set; }
     public required string? Name2 { get; set; }
     public required string Country { get; set; }
@@ -35,6 +37,7 @@ public class DbBankAccount
     public required string AccountType { get; set; }
     public required string Type { get; set; }
     public required long Balance { get; set; }
+    
 }
 
 [Table("BankAccountTransactions")]

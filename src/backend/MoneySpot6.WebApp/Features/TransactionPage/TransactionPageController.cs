@@ -20,15 +20,18 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
         public async Task<ActionResult<TransactionResponse>> GetTransactions(string? search)
         {
             IQueryable<DbBankAccountTransaction> query = _db.BankAccountTransactions
+                .Include(x => x.BankAccount)
                 .OrderByDescending(x => x.Raw.Date)
                 .ThenByDescending(x => x.Id);
 
             if (!string.IsNullOrWhiteSpace(search)) 
-                query = query.Where(x => EF.Functions.ILike(x.Parsed.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Parsed.Name!, "%" + search + "%"));
+                query = query.Where(x => EF.Functions.ILike(x.Parsed.Purpose!, "%" + search + "%") || EF.Functions.ILike(x.Parsed.Name!, "%" + search + "%"));
 
             var entries = await query.Select(x => new TransactionEntryResponse
                 {
                     Id = x.Id,
+                    Icon = x.BankAccount.Icon,
+                    IconColor = x.Parsed.PaymentProcessor == PaymentProcessor.Paypal ? "#009cde" : null,
                     Date = x.Raw.Date,
                     Name = x.Parsed.Name,
                     Purpose = x.Parsed.Purpose,
@@ -59,9 +62,11 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
     public record TransactionEntryResponse
     {
         public required int Id { get; init; }
+        public required string? Icon { get; init; }
+        public required string? IconColor { get; init; }
         public required DateOnly Date { get; init; }
         public required string? Name { get; init; }
-        public required string Purpose { get; init; }
+        public required string? Purpose { get; init; }
         public required long Value { get; init; }
     }
 }

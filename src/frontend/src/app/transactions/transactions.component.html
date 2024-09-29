@@ -55,6 +55,7 @@
 
     <div class="table">
         <div class="line header">
+            <div class="icon"></div>
             <div class="date oneLine">Datum</div>
             <div class="name oneLine">Gegenkonto</div>
             <div class="purpose oneLine">Verwendungszweck</div>
@@ -63,6 +64,7 @@
 
         @for (transaction of group.transactions; track transaction.id){
         <div style="display: flex" class="line">
+            <div class="icon" [style.color]="transaction.iconColor"><i class="pi {{ transaction.icon }}"></i></div>
             <div class="date oneLine">{{ transaction.date! | customDate }}</div>
             <div class="name oneLine">{{ transaction.name }}</div>
             <div class="purpose oneLine">{{ transaction.purpose }}</div>

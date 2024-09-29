@@ -57,6 +57,8 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                     dbAccount = new DbBankAccount
                     {
                         BankConnection = connection,
+                        Icon = null,
+                        IconColor = null,
                         Name = account.Name,
                         Name2 = account.Name2,
                         BankCode = account.BankCode,
