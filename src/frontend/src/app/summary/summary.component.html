@@ -7,13 +7,14 @@
     @if (bankAccounts) {
     <p-panel>
         <ng-template pTemplate="header">
-            <b style="font-size: 1.5rem; flex: 1; ">Kontostand</b>
-
-            <app-account-sync></app-account-sync>
-
-            <div class="header-value">
-                <div>Gesamt</div>
-                <app-value [value]="total" size="1.5rem" />
+            <div class="horizontal">
+                <b style="font-size: 1.5rem;">Kontostand</b>
+                <app-account-sync></app-account-sync>
+                <div class="spacer"></div>
+                <div class="header-value">
+                    <div>Gesamt</div>
+                    <app-value [value]="total" size="1.5rem" />
+                </div>
             </div>
         </ng-template>
         <div class="table">
@@ -46,13 +47,13 @@
                 <div style="width: 200px; text-align: right;">Kurs</div>
                 <div style="width: 200px; text-align: right;">Wert</div>
             </div>
-            
+
             <div>
                 <div style="flex: 1">MSCI World</div>
                 <div style="width: 200px; text-align: right;"><app-value [value]="9421" /></div>
                 <div style="width: 200px; text-align: right;"><app-value [value]="8700000" /></div>
             </div>
-            
+
         </div>
     </p-panel>
 

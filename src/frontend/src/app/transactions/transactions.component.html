@@ -1,77 +1,86 @@
-<div class="flex-row">
-    <span class="p-input-icon-left" style="flex: 0.4">
-        <i class="pi pi-search"></i>
-        <input pInputText style="width: 100%;" placeholder="Suche" [(ngModel)]="searchText" (keydown)="onSearchKeyPressed($event)" />
-    </span>
-    @if (showClearButton) {
-    <span style="padding-left: 0.5rem;">
-        <p-button icon="pi pi-times" size="small" [rounded]="true" [text]="true" severity="secondary" (onClick)="onResetButtonClicked()" />
-    </span>
-    }
-    <span style="flex: 1">&nbsp;</span>
-
-    <span>
-        <span>Gruppierung: </span>
-        <p-dropdown [options]="groupOptions" [(ngModel)]="selectedGrouping" optionLabel="name" optionValue="key"
-            (onChange)="onGroupingChanged($event)" />
-    </span>
-</div>
-
-@if(isLoading) {
-<div style="width: 100%; display: flex; justify-content:  center; padding-top: 10rem;">
-    <p-progressSpinner></p-progressSpinner>
-</div>
-}
-
-<br /><br />
-@for (group of groups; track group.id) {
-<p-panel [style]="{'margin-bottom': '3rem'}">
-    <ng-template pTemplate="header">
-        <div style="display: flex; width: 100%; align-items: center;">
-            <b style="flex: 1; font-size: 1.5rem;">{{group.title}}</b>
-
-            <div class="header-value">
-                <div>Buchungen</div>
-                <span style="font-size: 1.5rem;">{{ group.transactions.length }}</span>
-            </div>
-
-            <div class="header-value">
-                <div>Einnahmen</div>
-                <app-value [value]="group.income" size="1.5rem" />
-            </div>
-
-            <div class="header-value">
-                <div>Ausgaben</div>
-                <app-value [value]="group.expense" [reverseColor]="true" size="1.5rem" />
-            </div>
-
-            <div class="header-value">
-                <div>Gesamt</div>
-                <app-value [value]="group.total" size="1.5rem" />
-            </div>
-
-        </div>
-    </ng-template>
-
-    <div class="table">
-        <div class="line header">
-            <div class="icon"></div>
-            <div class="date oneLine">Datum</div>
-            <div class="name oneLine">Gegenkonto</div>
-            <div class="purpose oneLine">Verwendungszweck</div>
-            <div>Wert</div>
-        </div>
-
-        @for (transaction of group.transactions; track transaction.id){
-        <div style="display: flex" class="line">
-            <div class="icon" [style.color]="transaction.iconColor"><i class="pi {{ transaction.icon }}"></i></div>
-            <div class="date oneLine">{{ transaction.date! | customDate }}</div>
-            <div class="name oneLine">{{ transaction.name }}</div>
-            <div class="purpose oneLine">{{ transaction.purpose }}</div>
-            <div><app-value [value]="transaction.value" /></div>
-        </div>
+<div class="vertical">
+    <div class="horizontal">
+        <span class="p-input-icon-left" style="flex: 1; max-width: 400px;">
+            <i class="pi pi-search"></i>
+            <input pInputText style="width: 100%;" placeholder="Suche" [(ngModel)]="searchText"
+                (keydown)="onSearchKeyPressed($event)" />
+        </span>
+        @if (showClearButton) {
+            <p-button icon="pi pi-times" size="small" [rounded]="true" [text]="true" severity="secondary" [outlined]="true" (onClick)="onResetButtonClicked()" />
         }
+        <span class="spacer hidden-on-mobile"></span>
+        <span>
+            <span class="hidden-on-mobile">Gruppierung: </span>
+            <p-dropdown [options]="groupOptions" [(ngModel)]="selectedGrouping" optionLabel="name" optionValue="key" (onChange)="onGroupingChanged($event)" />
+        </span>
     </div>
 
-</p-panel>
-}
+    @if(isLoading) {
+    <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem;">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+    }
+
+    @for (group of groups; track group.id) {
+    <p-panel [style]="{'margin-bottom': '3rem'}">
+        <ng-template pTemplate="header">
+            <div class="horizontal" style="width: 100%; gap: 2rem">
+                <b style="font-size: 1.4rem;">{{group.title}}</b>
+
+                <div class="spacer"></div>
+
+                <div class="header-value hidden-on-mobile">
+                    <div>Buchungen</div>
+                    <span style="font-size: 1.5rem;">{{ group.transactions.length }}</span>
+                </div>
+
+                <div class="header-value hidden-on-mobile">
+                    <div>Einnahmen</div>
+                    <app-value [value]="group.income" size="1.5rem" />
+                </div>
+
+                <div class="header-value hidden-on-mobile">
+                    <div>Ausgaben</div>
+                    <app-value [value]="group.expense" [reverseColor]="true" size="1.5rem" />
+                </div>
+
+                <div class="header-value">
+                    <div>Gesamt</div>
+                    <app-value [value]="group.total" size="1.5rem" />
+                </div>
+
+            </div>
+        </ng-template>
+
+        <div class="table">
+            <div class="horizontal line header hidden-on-mobile">
+                <div class="icon"></div>
+                <div class="date oneLine">Datum</div>
+                <div class="name oneLine">Gegenkonto</div>
+                <div class="purpose oneLine">Verwendungszweck</div>
+                <div>Wert</div>
+            </div>
+
+            @for (transaction of group.transactions; track transaction.id){
+                <div class="horizontal line hidden-on-mobile">
+                    <div class="icon" [style.color]="transaction.iconColor"><i class="pi {{ transaction.icon }}"></i></div>
+                    <div class="date oneLine">{{ transaction.date! | customDate }}</div>
+                    <div class="name oneLine">{{ transaction.name }}</div>
+                    <div class="purpose oneLine">{{ transaction.purpose }}</div>
+                    <div><app-value [value]="transaction.value" /></div>
+                </div>
+
+                <div class="horizontal line hidden-on-desktop">
+                    <div class="vertical" style="gap: 0; flex: 1">
+                        <div style="font-size: 80%; opacity: 0.8;">{{ transaction.date! | customDate }}</div>
+                        <div style="font-weight: bold;">{{ transaction.name }}</div>
+                        <div class="">{{ transaction.purpose }}</div>
+                    </div>
+                    <div><app-value [value]="transaction.value" /></div>
+                </div>
+            }
+        </div>
+
+    </p-panel>
+    }
+</div>

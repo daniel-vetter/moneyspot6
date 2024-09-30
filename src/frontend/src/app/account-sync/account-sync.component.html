@@ -1,5 +1,4 @@
-<p-button (click)="onSyncButtonClicked()" size="small" outlined="true" severity="primary">Daten abrufen</p-button>
-
+<p-button icon="pi pi-sync" (click)="onSyncButtonClicked()" size="small" outlined="true" [rounded]="true" severity="primary" />
 <p-dialog [modal]="true" [(visible)]="isVisible" closable="false">
     <div class="flex-col-2">
         <div class="flex-col-2" style="width: 500px; height: 400px; align-items: center;">
