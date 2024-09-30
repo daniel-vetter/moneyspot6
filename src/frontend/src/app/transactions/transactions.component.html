@@ -44,11 +44,14 @@
                     <app-value [value]="group.expense" [reverseColor]="true" size="1.5rem" />
                 </div>
 
-                <div class="header-value">
+                <div class="header-value hidden-on-mobile">
                     <div>Gesamt</div>
                     <app-value [value]="group.total" size="1.5rem" />
                 </div>
 
+                <div class="hidden-on-desktop">
+                    <app-value [value]="group.total" size="1.5rem" />
+                </div>
             </div>
         </ng-template>
 
