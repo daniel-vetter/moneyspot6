@@ -22,7 +22,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 export class TransactionsComponent implements OnInit {
 
   transactions: TransactionResponse[] = [];
-  groups: Group[] = [];
+  groupsShown: Group[] = [];
+  groupsHidden: Group[] = [];
   searchText: string = "";
   showClearButton = false;
   isLoading = false;
@@ -50,10 +51,10 @@ export class TransactionsComponent implements OnInit {
   }
 
   async update() {
-    this.groups = [];
+    this.groupsShown = [];
     this.showClearButton = this.searchText != "";
     this.isLoading = true;
-    const response = await  lastValueFrom(this.transactionPageClient.getTransactions(this.searchText));
+    const response = await  lastValueFrom(this.transactionPageClient.getTransactions(this.searchText === "" ? undefined : this.searchText));
     this.isLoading = false;
     const blocks: Group[] = [];
     let currentBlock: Group | undefined;
@@ -78,7 +79,22 @@ export class TransactionsComponent implements OnInit {
       currentBlock.transactions.push(transaction);
     }
 
-    this.groups = blocks;
+    this.groupsHidden = blocks;
+    this.groupsShown = [];
+    this.showMore();
+  }
+
+  showMore() {
+    let totalEntriesShown = 0;
+    while (this.groupsHidden.length > 0) {
+      const toMove = this.groupsHidden.shift()!;
+      totalEntriesShown += toMove.transactions.length;
+      this.groupsShown.push(toMove);
+
+      if (totalEntriesShown > 1000) {
+        break;
+      }
+    }
   }
 
   getGroupId(date: Date): string {

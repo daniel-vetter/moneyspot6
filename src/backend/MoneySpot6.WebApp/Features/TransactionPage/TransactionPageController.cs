@@ -1,7 +1,7 @@
-﻿using System.Collections.Immutable;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Features.TransactionPage
 {
@@ -20,6 +20,7 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
         public async Task<ActionResult<TransactionResponse>> GetTransactions(string? search)
         {
             IQueryable<DbBankAccountTransaction> query = _db.BankAccountTransactions
+                .AsNoTracking()
                 .Include(x => x.BankAccount)
                 .OrderByDescending(x => x.Raw.Date)
                 .ThenByDescending(x => x.Id);
@@ -41,9 +42,6 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
 
             var r = new TransactionResponse
             {
-                Total = entries.Aggregate<TransactionEntryResponse, long>(0, (a, b) => a + b.Value),
-                Expense = -entries.Where(x => x.Value < 0).Aggregate<TransactionEntryResponse, long>(0, (a, b) => a + b.Value),
-                Income = entries.Where(x => x.Value > 0).Aggregate<TransactionEntryResponse, long>(0, (a, b) => a + b.Value),
                 Entries = [..entries]
             };
 
@@ -54,9 +52,6 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
     public record TransactionResponse
     {
         public required ImmutableArray<TransactionEntryResponse> Entries { get; init; }
-        public long Total { get; init; }
-        public long Income { get; init; }
-        public long Expense { get; init; }
     }
 
     public record TransactionEntryResponse

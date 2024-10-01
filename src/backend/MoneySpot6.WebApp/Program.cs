@@ -22,18 +22,11 @@ public class Program
         builder.Services.AddOpenApiDocument(x =>
         {
             x.DefaultResponseReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
-            /*
-            x.SchemaSettings.TypeMappers.Add(new PrimitiveTypeMapper(typeof(DateOnly), x =>
-            {
-                x.Type = JsonObjectType.String;
-                x.Format = "woob";
-
-            }));
-            */
             x.Title = "MoneySpot6 API";
         });
         builder.Services.AddSignalR();
         builder.Services.AddDbContext<Db>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Db")));
+        builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
 
         foreach (var type in typeof(Program).Assembly.GetTypes())
@@ -47,7 +40,8 @@ public class Program
         var app = builder.Build();
         if (await app.Services.CreateTypeScriptClient(args))
             return;
-            
+
+        app.UseResponseCompression();
         app.UseDefaultFiles();
         app.UseStaticFiles();
 

@@ -329,9 +329,6 @@ export class DebugClient {
 
 export class TransactionResponse implements ITransactionResponse {
     entries?: TransactionEntryResponse[];
-    total?: number;
-    income?: number;
-    expense?: number;
 
     constructor(data?: ITransactionResponse) {
         if (data) {
@@ -349,9 +346,6 @@ export class TransactionResponse implements ITransactionResponse {
                 for (let item of _data["entries"])
                     this.entries!.push(TransactionEntryResponse.fromJS(item));
             }
-            this.total = _data["total"];
-            this.income = _data["income"];
-            this.expense = _data["expense"];
         }
     }
 
@@ -369,18 +363,12 @@ export class TransactionResponse implements ITransactionResponse {
             for (let item of this.entries)
                 data["entries"].push(item.toJSON());
         }
-        data["total"] = this.total;
-        data["income"] = this.income;
-        data["expense"] = this.expense;
         return data;
     }
 }
 
 export interface ITransactionResponse {
     entries?: TransactionEntryResponse[];
-    total?: number;
-    income?: number;
-    expense?: number;
 }
 
 export class TransactionEntryResponse implements ITransactionEntryResponse {

@@ -19,9 +19,8 @@
     <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem;">
         <p-progressSpinner></p-progressSpinner>
     </div>
-    }
-
-    @for (group of groups; track group.id) {
+    } @else {
+    @for (group of groupsShown; track group.id) {
     <p-panel [style]="{'margin-bottom': '3rem'}">
         <ng-template pTemplate="header">
             <div class="horizontal" style="width: 100%; gap: 2rem">
@@ -86,4 +85,11 @@
 
     </p-panel>
     }
+
+    @if (this.groupsHidden.length > 0) {
+    <div class="horizontal" style="justify-content: center;">
+        <p-button (onClick)="showMore()">Mehr anzeigen</p-button>
+    </div>
+    }
+}
 </div>
