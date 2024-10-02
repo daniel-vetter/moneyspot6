@@ -18,3 +18,29 @@ a {
 a:hover {
     background-color: var(--surface-300);
 }
+
+.total { grid-area: total }
+.accounts { grid-area: accounts }
+.goal { grid-area: goal }
+.stocks { grid-area: stocks }
+
+.dashboard {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+        "total    total"
+        "accounts stocks"
+        "goal     .";
+}
+
+@media only screen and (max-width: 1000px) {
+    .dashboard {
+        grid-template-areas:
+        "total    total"
+        "accounts accounts"
+        "stocks stocks"
+        "goal     goal";
+    }   
+ }

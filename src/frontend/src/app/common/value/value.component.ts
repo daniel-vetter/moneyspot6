@@ -10,7 +10,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 export class ValueComponent implements OnChanges {
   @Input() value: number | undefined;
   @Input() size: string | undefined;
-  @Input() reverseColor = false;
+  @Input() color: "default" | "reverse" | "none" = "default";
 
   format = new Intl.NumberFormat('de-de', { style: 'currency', currency: 'EUR' });
 
@@ -25,14 +25,24 @@ export class ValueComponent implements OnChanges {
       this.valueStr = this.format.format(this.value / 100);
 
       let v = this.value;
-      if (this.reverseColor) {
-        v = -v;
+
+      this.class = "";
+      if (this.color === "default") {
+        if (v > 0) {
+          this.class = "green";
+        }
+        if (v < 0) {
+          this.class = "red";
+        }
       }
-      if (v > 0) {
-        this.class = "green";
-      }
-      if (v < 0) {
-        this.class = "red";
+      
+      if (this.color === "reverse") {
+        if (v < 0) {
+          this.class = "green";
+        }
+        if (v > 0) {
+          this.class = "red";
+        }
       }
     }
   }

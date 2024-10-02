@@ -1,11 +1,19 @@
-<div class="flex-col" style="gap: 2rem">
-    <div class="flex-col">
-        <b>Gesamtguthaben</b>
-        <app-value [value]="total + 8700000" size="3.5rem" />
-    </div>
 
+
+<div class="dashboard">
+
+    <p-panel class="total">
+        <ng-template pTemplate="header">
+            <b>Gesamt</b>
+        </ng-template>
+        <div style="width: 100%; text-align: center;">
+
+        </div>
+        <app-value [value]="total + 8700000" size="3.5rem" />
+    </p-panel>
+    
     @if (bankAccounts) {
-    <p-panel>
+    <p-panel class="accounts">
         <ng-template pTemplate="header">
             <div class="horizontal" style="width: 100%;">
                 <b style="font-size: 1.5rem;">Kontostand</b>
@@ -21,11 +29,11 @@
             </div>
         </ng-template>
         <div class="table">
-            <div>
+            <div class="header">
                 <div style="flex: 1">Konto</div>
                 <div>Guthaben</div>
             </div>
-            @for (entry of bankAccounts.entries; track entry.id) {
+            @for (entry of bankAccounts.accounts; track entry.id) {
             <div>
                 <div style="flex: 1">{{ entry.name }}</div>
                 <div><app-value [value]="entry.total" /></div>
@@ -35,7 +43,9 @@
     </p-panel>
     }
 
-    <p-panel>
+    <app-goal class="goal"></app-goal>
+
+    <p-panel class="stocks">
         <ng-template pTemplate="header">
             <b style="font-size: 1.5rem; flex: 1; ">Depot</b>
 
@@ -48,7 +58,7 @@
             </div>
         </ng-template>
         <div class="table">
-            <div>
+            <div class="header">
                 <div style="flex: 1">Wertpapier</div>
                 <div style="width: 200px; text-align: right;">Kurs</div>
                 <div style="width: 200px; text-align: right;">Wert</div>

@@ -8,11 +8,12 @@ import { ValueComponent } from "../common/value/value.component";
 import { PanelModule } from 'primeng/panel';
 import { AccountSyncComponent } from "../account-sync/account-sync.component";
 import { GlobalEvents } from '../common/global-events';
+import { GoalComponent } from "./goal/goal.component";
 
 @Component({
   selector: 'app-summary',
   standalone: true,
-  imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent],
+  imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.scss'
 })
@@ -34,8 +35,8 @@ export class SummaryComponent implements OnInit, OnDestroy {
   }
 
   private async update() {
-    this.bankAccounts = await lastValueFrom(this.summaryPageClient.getBackAccountSummary())
-    this.total = this.bankAccounts.entries?.reduce((a, b) => a + b.total!, 0)!;
+    this.bankAccounts = await lastValueFrom(this.summaryPageClient.getBankAccountSummary())
+    this.total = this.bankAccounts.accounts.reduce((a, b) => a + b.total!, 0)!;
   }
 }
 

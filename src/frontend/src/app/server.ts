@@ -88,8 +88,8 @@ export class SummaryPageClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getBackAccountSummary(): Observable<BankAccountSummaryResponse> {
-        let url_ = this.baseUrl + "/api/SummaryPage/GetBackAccountSummary";
+    getBankAccountSummary(): Observable<BankAccountSummaryResponse> {
+        let url_ = this.baseUrl + "/api/SummaryPage/GetBankAccountSummary";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -101,11 +101,11 @@ export class SummaryPageClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetBackAccountSummary(response_);
+            return this.processGetBankAccountSummary(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetBackAccountSummary(response_ as any);
+                    return this.processGetBankAccountSummary(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<BankAccountSummaryResponse>;
                 }
@@ -114,7 +114,7 @@ export class SummaryPageClient {
         }));
     }
 
-    protected processGetBackAccountSummary(response: HttpResponseBase): Observable<BankAccountSummaryResponse> {
+    protected processGetBankAccountSummary(response: HttpResponseBase): Observable<BankAccountSummaryResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -126,6 +126,54 @@ export class SummaryPageClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = BankAccountSummaryResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getBankAccountGoal(): Observable<BankAccountTotalGoalResponse> {
+        let url_ = this.baseUrl + "/api/SummaryPage/GetBankAccountGoal";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetBankAccountGoal(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetBankAccountGoal(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BankAccountTotalGoalResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BankAccountTotalGoalResponse>;
+        }));
+    }
+
+    protected processGetBankAccountGoal(response: HttpResponseBase): Observable<BankAccountTotalGoalResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BankAccountTotalGoalResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -432,8 +480,8 @@ export interface ITransactionEntryResponse {
 }
 
 export class BankAccountSummaryResponse implements IBankAccountSummaryResponse {
-    entries?: BankAccountEntrySummaryResponse[];
-    total?: number;
+    accounts!: BankAccountEntrySummaryResponse[];
+    total!: number;
 
     constructor(data?: IBankAccountSummaryResponse) {
         if (data) {
@@ -442,14 +490,17 @@ export class BankAccountSummaryResponse implements IBankAccountSummaryResponse {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.accounts = [];
+        }
     }
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["entries"])) {
-                this.entries = [] as any;
-                for (let item of _data["entries"])
-                    this.entries!.push(BankAccountEntrySummaryResponse.fromJS(item));
+            if (Array.isArray(_data["accounts"])) {
+                this.accounts = [] as any;
+                for (let item of _data["accounts"])
+                    this.accounts!.push(BankAccountEntrySummaryResponse.fromJS(item));
             }
             this.total = _data["total"];
         }
@@ -464,10 +515,10 @@ export class BankAccountSummaryResponse implements IBankAccountSummaryResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.entries)) {
-            data["entries"] = [];
-            for (let item of this.entries)
-                data["entries"].push(item.toJSON());
+        if (Array.isArray(this.accounts)) {
+            data["accounts"] = [];
+            for (let item of this.accounts)
+                data["accounts"].push(item.toJSON());
         }
         data["total"] = this.total;
         return data;
@@ -475,8 +526,8 @@ export class BankAccountSummaryResponse implements IBankAccountSummaryResponse {
 }
 
 export interface IBankAccountSummaryResponse {
-    entries?: BankAccountEntrySummaryResponse[];
-    total?: number;
+    accounts: BankAccountEntrySummaryResponse[];
+    total: number;
 }
 
 export class BankAccountEntrySummaryResponse implements IBankAccountEntrySummaryResponse {
@@ -521,6 +572,118 @@ export interface IBankAccountEntrySummaryResponse {
     id?: number;
     name?: string;
     total?: number;
+}
+
+export class BankAccountTotalGoalResponse implements IBankAccountTotalGoalResponse {
+    endDate!: Date;
+    endBalance!: number;
+    requiredSavingPerMonth!: number;
+    actualHistory!: BalanceEntryResponse[];
+    expectedHistory!: BalanceEntryResponse[];
+
+    constructor(data?: IBankAccountTotalGoalResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.actualHistory = [];
+            this.expectedHistory = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            this.endBalance = _data["endBalance"];
+            this.requiredSavingPerMonth = _data["requiredSavingPerMonth"];
+            if (Array.isArray(_data["actualHistory"])) {
+                this.actualHistory = [] as any;
+                for (let item of _data["actualHistory"])
+                    this.actualHistory!.push(BalanceEntryResponse.fromJS(item));
+            }
+            if (Array.isArray(_data["expectedHistory"])) {
+                this.expectedHistory = [] as any;
+                for (let item of _data["expectedHistory"])
+                    this.expectedHistory!.push(BalanceEntryResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): BankAccountTotalGoalResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BankAccountTotalGoalResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["endDate"] = this.endDate ? formatDate(this.endDate) : <any>undefined;
+        data["endBalance"] = this.endBalance;
+        data["requiredSavingPerMonth"] = this.requiredSavingPerMonth;
+        if (Array.isArray(this.actualHistory)) {
+            data["actualHistory"] = [];
+            for (let item of this.actualHistory)
+                data["actualHistory"].push(item.toJSON());
+        }
+        if (Array.isArray(this.expectedHistory)) {
+            data["expectedHistory"] = [];
+            for (let item of this.expectedHistory)
+                data["expectedHistory"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IBankAccountTotalGoalResponse {
+    endDate: Date;
+    endBalance: number;
+    requiredSavingPerMonth: number;
+    actualHistory: BalanceEntryResponse[];
+    expectedHistory: BalanceEntryResponse[];
+}
+
+export class BalanceEntryResponse implements IBalanceEntryResponse {
+    date!: Date;
+    balance!: number;
+
+    constructor(data?: IBalanceEntryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.balance = _data["balance"];
+        }
+    }
+
+    static fromJS(data: any): BalanceEntryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BalanceEntryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
+        data["balance"] = this.balance;
+        return data;
+    }
+}
+
+export interface IBalanceEntryResponse {
+    date: Date;
+    balance: number;
 }
 
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {
