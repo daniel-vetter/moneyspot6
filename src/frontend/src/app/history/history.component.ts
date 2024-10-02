@@ -63,6 +63,9 @@ export class HistoryComponent implements OnInit {
 
     this.charts2 = [];
     this.charts2.push({
+      chart: {
+        height: "70%"
+      },
       title: {
         text: "Gesamt",
         align: "left"
