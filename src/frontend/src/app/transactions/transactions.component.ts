@@ -136,7 +136,13 @@ export class TransactionsComponent implements OnInit {
   }
 
   onResetButtonClicked() {
-    this.router.navigate(["/", "transactions"]);
+    this.router.navigate([],
+      {
+        relativeTo: this.activatedRoute,
+        queryParams: {
+          search: undefined
+        }, queryParamsHandling: "merge"
+      });
   }
 }
 
