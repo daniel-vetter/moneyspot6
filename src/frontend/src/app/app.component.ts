@@ -4,8 +4,9 @@ import { ButtonModule } from 'primeng/button';
 import { MenuComponent } from './menu/menu.component';
 import { GlobalErrorHandlerDialogComponent } from "./global-error-handler-dialog/global-error-handler-dialog.component";
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TopBarComponent } from "./top-bar/top-bar.component";
+import * as h from "highcharts";
+
 
 @Component({
   selector: 'app-root',
@@ -15,10 +16,62 @@ import { TopBarComponent } from "./top-bar/top-bar.component";
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  
+
   constructor() {
   }
 
   async ngOnInit(): Promise<void> {
+
+    h.setOptions({
+      colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+      chart: {
+        backgroundColor: "#18181b",
+      },
+      xAxis: {
+        labels: {
+          style: {
+            color: "var(--text-color)"
+          }
+        },
+        lineColor: "var(--gray-600)",
+        tickColor: "var(--gray-600)",
+        minorGridLineColor: "#FF0000",
+        gridLineColor: "#FF0000"
+      },
+      yAxis: {
+        labels: {
+          style: {
+            color: "var(--text-color)"
+          }
+        },
+        lineColor: "var(--gray-600)",
+        gridLineColor: "var(--gray-600)"
+      },
+      title: {
+        style: {
+          color: 'var(--text-color)',
+          font: 'bold 16px var(--font-family)'
+        }
+      },
+      subtitle: {
+        style: {
+          color: 'var(--text-color)',
+          font: 'bold 12px var(--font-family)'
+        }
+      },
+      legend: {
+        itemStyle: {
+          font: '9pt var(--font-family)',
+          color: 'var(--text-color)'
+        },
+        itemHoverStyle: {
+          color: 'var(--text-color)'
+        }
+      },
+      credits: {
+        enabled: false
+      }
+    })
+
   }
 }

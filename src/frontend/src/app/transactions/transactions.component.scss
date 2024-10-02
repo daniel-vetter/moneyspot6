@@ -8,7 +8,7 @@
 }
 
 .purpose {
-    flex: 1
+    flex: 1;
 }
 
 .icon {
@@ -20,5 +20,6 @@
 }
 
 .line:not(.header):hover {
-    background: lightblue;
+    background: var(--surface-50);
+    color: var(--highlight-text-color);
 }

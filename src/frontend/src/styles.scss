@@ -1,3 +1,5 @@
+@import "primeng/resources/themes/aura-dark-blue/theme.css";
+@import "primeng/resources/primeng.css";
 @import "primeicons/primeicons.css";
 
 :root {
@@ -74,7 +76,7 @@ body {
     display: flex;
     flex-direction: column;
     padding-right: 0.5rem;
-    border-right: 1px solid rgba(192, 192, 192);
+    border-right: 1px solid var(--gray-600);
 }
 
 .table {
@@ -85,12 +87,13 @@ body {
 
     >div.header {
         font-weight: bold;
+        border-bottom: 1px solid var(--gray-600);
     }
 
     >div {
         display: flex;
         padding: 0.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        
         >div:not(:last-child) {
             padding-right: 1rem;
         }
@@ -125,7 +128,7 @@ body {
     flex: 1;
 }
 
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 1000px) {
     .only-mobile {
         display: none !important;
     }
@@ -137,7 +140,7 @@ body {
     }
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 1000px) {
     .only-desktop {
         display: none !important;
     }

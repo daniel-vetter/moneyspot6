@@ -21,7 +21,7 @@ a {
     height: 100%;
     width: 100%;
     color: var(--text-color);
-    border-left: 1px solid var(--surface-400);
+    border-left: 1px solid  var(--gray-600);
 }
 
 .active {
@@ -29,8 +29,4 @@ a {
     background-color: var(--surface-200);
     color: var(--highlight-text-color);
     background: var(--highlight-bg);
-}
-
-.active a {
-    color: red;
 }

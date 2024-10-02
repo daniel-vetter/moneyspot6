@@ -75,8 +75,8 @@
                 <div class="horizontal line hidden-on-desktop">
                     <div class="vertical" style="gap: 0; flex: 1">
                         <div style="font-size: 80%; opacity: 0.8;">{{ transaction.date! | customDate }}</div>
-                        <div style="font-weight: bold;">{{ transaction.name }}</div>
-                        <div class="">{{ transaction.purpose }}</div>
+                        <div style="font-weight: bold; overflow-wrap: anywhere;">{{ transaction.name }}</div>
+                        <div style="overflow-wrap: anywhere">{{ transaction.purpose }}</div>
                     </div>
                     <div><app-value [value]="transaction.value" /></div>
                 </div>
