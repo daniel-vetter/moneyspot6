@@ -58,8 +58,8 @@ body {
 }
 
 .flex-row-1 { @extend .flex-row; gap: 1rem; }
-.flex-row-2 { @extend .flex-row; gap: 1rem; }
-.flex-row-3 { @extend .flex-row; gap: 1rem; }
+.flex-row-2 { @extend .flex-row; gap: 2rem; }
+.flex-row-3 { @extend .flex-row; gap: 3rem; }
 
 .flex-col {
     display: flex;
@@ -121,7 +121,7 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
+    gap: 2rem;
 }
 
 .spacer {
