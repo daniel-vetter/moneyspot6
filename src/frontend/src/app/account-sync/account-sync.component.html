@@ -1,12 +1,8 @@
 <p-button icon="pi pi-sync" (click)="onSyncButtonClicked()" size="small" outlined="true" [rounded]="false" severity="primary" />
-<p-dialog [modal]="true" [(visible)]="isVisible" closable="false">
-    <div class="flex-col-2">
-        <div class="flex-col-2" style="width: 500px; height: 400px; align-items: center;">
-            <div class="flex-row-1">
-                <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: var(--primary-color)"></i>
-                <span class="p-dialog-title">Buchungen werden geladen...</span>
-            </div>
-        </div>
+<p-dialog [modal]="true" [(visible)]="isVisible" closable="false" [showHeader]="false" pad>
+    <div class="horizontal"  style="align-items: center; padding: 3rem;">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: var(--primary-color)"></i>
+        <span class="p-dialog-title">Buchungen werden geladen...</span>
     </div>
 </p-dialog>
 <app-tan-dialog></app-tan-dialog>
