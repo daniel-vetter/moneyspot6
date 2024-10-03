@@ -1,9 +1,9 @@
-<div style="text-align: center; font-size: 200%; padding: 1rem">
-    MoneySpot 6
+<div class="horizontal" style="gap: 0.5rem; font-weight: bold; font-size: 1.5rem; padding: 2rem 0; padding-left: 1rem;">
+    <img src="favicon.svg" width="40" height="40" /><span>MoneySpot 6</span>
 </div>
 
 <ul>
-    <li><a pRipple [routerLink]="['/summary']" routerLinkActive="active">Übersicht</a></li>
+    <li><a pRipple [routerLink]="['']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Übersicht</a></li>
     <li><a pRipple [routerLink]="['/transactions']" routerLinkActive="active">Buchungen</a></li>
     <li><a pRipple [routerLink]="['/history']" routerLinkActive="active">Verlauf</a></li>
     <!--
