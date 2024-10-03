@@ -1,10 +1,11 @@
 <div class="vertical">
     <div class="horizontal">
+        <form (ngSubmit)="onSearchSubmit()" #heroForm="ngForm">
         <span class="p-input-icon-left" style="flex: 1; max-width: 400px;">
             <i class="pi pi-search"></i>
-            <input pInputText style="width: 100%;" placeholder="Suche" [(ngModel)]="searchText"
-                (keydown)="onSearchKeyPressed($event)" />
+            <input pInputText style="width: 100%;" placeholder="Suche" name="search" [(ngModel)]="searchText" autocomplete="off" />
         </span>
+    </form>
         @if (showClearButton) {
             <p-button icon="pi pi-times" size="small" [rounded]="true" [text]="true" severity="secondary" [outlined]="true" (onClick)="onResetButtonClicked()" />
         }
@@ -21,7 +22,7 @@
     </div>
     } @else {
     @for (group of groupsShown; track group.id) {
-    <p-panel [style]="{'margin-bottom': '3rem'}">
+    <p-panel>
         <ng-template pTemplate="header">
             <div class="horizontal" style="width: 100%; gap: 2rem">
                 <b style="font-size: 1.4rem;">{{group.title}}</b>

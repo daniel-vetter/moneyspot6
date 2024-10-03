@@ -21,6 +21,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 })
 export class TransactionsComponent implements OnInit {
 
+
   transactions: TransactionResponse[] = [];
   groupsShown: Group[] = [];
   groupsHidden: Group[] = [];
@@ -111,11 +112,7 @@ export class TransactionsComponent implements OnInit {
     throw Error("Invalid group: " + this.selectedGrouping);
   }
 
-  async onSearchKeyPressed($event: KeyboardEvent) {
-    if ($event.code != "Enter") {
-      return;
-    }
-
+  onSearchSubmit() {
     this.router.navigate([],
       {
         relativeTo: this.activatedRoute,
