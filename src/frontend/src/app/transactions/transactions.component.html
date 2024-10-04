@@ -65,22 +65,22 @@
             </div>
 
             @for (transaction of group.transactions; track transaction.id){
-                <div class="horizontal line hidden-on-mobile">
+                <a pRipple class="horizontal line hidden-on-mobile">
                     <div class="icon" [style.color]="transaction.iconColor"><i class="pi {{ transaction.icon }}"></i></div>
                     <div class="date oneLine">{{ transaction.date! | customDate }}</div>
                     <div class="name oneLine">{{ transaction.name }}</div>
                     <div class="purpose oneLine">{{ transaction.purpose }}</div>
                     <div><app-value [value]="transaction.value" /></div>
-                </div>
+                </a>
 
-                <div class="horizontal line hidden-on-desktop">
+                <a pRipple class="horizontal line hidden-on-desktop">
                     <div class="vertical" style="gap: 0; flex: 1">
                         <div style="font-size: 80%; opacity: 0.8;">{{ transaction.date! | customDate }}</div>
                         <div style="font-weight: bold; overflow-wrap: anywhere;">{{ transaction.name }}</div>
                         <div style="overflow-wrap: anywhere">{{ transaction.purpose }}</div>
                     </div>
                     <div><app-value [value]="transaction.value" /></div>
-                </div>
+                </a>
             }
         </div>
 

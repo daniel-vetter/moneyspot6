@@ -85,12 +85,12 @@ body {
     flex-direction: column;
     width: 100%;
 
-    >div.header {
+    >*.header {
         font-weight: bold;
         border-bottom: 1px solid var(--gray-600);
     }
 
-    >div {
+    >* {
         display: flex;
         padding: 0.5rem;
         

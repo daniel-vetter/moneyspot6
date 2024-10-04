@@ -11,11 +11,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe, InputTextModule, FormsModule, ButtonModule, DropdownModule, ProgressSpinnerModule],
+  imports: [TableModule, ValueComponent, PanelModule, CustomDatePipe, InputTextModule, FormsModule, ButtonModule, DropdownModule, ProgressSpinnerModule, RippleModule],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
 })

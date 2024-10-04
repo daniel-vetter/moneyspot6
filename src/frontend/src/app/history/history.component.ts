@@ -88,7 +88,8 @@ export class HistoryComponent implements OnInit {
       series: [{
         name: "Alle Konten",
         type: "area",
-        data: result.map(x => ([x.date.valueOf(), x.balance / 100]))
+        data: result.map(x => ([x.date.valueOf(), x.balance / 100])),
+        fillOpacity: 0.15
       }]
     });
   }
