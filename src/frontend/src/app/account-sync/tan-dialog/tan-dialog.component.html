@@ -1,13 +1,10 @@
 <p-dialog header="TAN benötigt" [modal]="true" [(visible)]="visible" closable="false">
     <div class="flex-col-2">
-
         <span style="min-width: 400px">
             {{ message }}
         </span>
 
-        <div class="flex-row-1">
-            TAN: <input type="text" pInputText [(ngModel)]="tan" [autofocus]="true" style="width: 100%;" />
-        </div>
+        <div class="flex-row-1">TAN: <input type="text" pInputText [(ngModel)]="tan" [autofocus]="true" style="width: 100%" /></div>
 
         <div class="flex-row-1">
             <div style="flex: 1"></div>

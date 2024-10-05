@@ -1,85 +1,83 @@
 @if (isLoading) {
-
-    <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem;">
+    <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem">
         <p-progressSpinner></p-progressSpinner>
     </div>
 } @else {
+    <div class="dashboard">
+        <p-panel class="total">
+            <ng-template pTemplate="header">
+                <b>Gesamt</b>
+            </ng-template>
+            <div style="width: 100%; text-align: center"></div>
+            <app-value [value]="total + 8700000" size="3.5rem" />
+        </p-panel>
 
+        @if (bankAccounts) {
+            <p-panel class="accounts">
+                <ng-template pTemplate="header">
+                    <div class="horizontal" style="width: 100%">
+                        <b style="font-size: 1.5rem">Kontostand</b>
+                        <app-account-sync></app-account-sync>
+                        <div class="spacer"></div>
+                        <div class="header-value hidden-on-mobile">
+                            <div>Gesamt</div>
+                            <app-value [value]="total" size="1.5rem" />
+                        </div>
+                        <div class="hidden-on-desktop">
+                            <app-value [value]="total" size="1.5rem" />
+                        </div>
+                    </div>
+                </ng-template>
+                <div class="table">
+                    <div class="header">
+                        <div style="flex: 1">Konto</div>
+                        <div>Guthaben</div>
+                    </div>
+                    @for (entry of bankAccounts.accounts; track entry.id) {
+                        <div>
+                            <div style="flex: 1">
+                                {{ entry.name }}
+                            </div>
+                            <div>
+                                <app-value [value]="entry.total" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            </p-panel>
+        }
 
+        <app-goal class="goal"></app-goal>
 
+        <p-panel class="stocks">
+            <ng-template pTemplate="header">
+                <b style="font-size: 1.5rem; flex: 1">Depot</b>
 
-<div class="dashboard">
-
-    <p-panel class="total">
-        <ng-template pTemplate="header">
-            <b>Gesamt</b>
-        </ng-template>
-        <div style="width: 100%; text-align: center;">
-
-        </div>
-        <app-value [value]="total + 8700000" size="3.5rem" />
-    </p-panel>
-    
-    @if (bankAccounts) {
-    <p-panel class="accounts">
-        <ng-template pTemplate="header">
-            <div class="horizontal" style="width: 100%;">
-                <b style="font-size: 1.5rem;">Kontostand</b>
-                <app-account-sync></app-account-sync>
-                <div class="spacer"></div>
                 <div class="header-value hidden-on-mobile">
                     <div>Gesamt</div>
-                    <app-value [value]="total" size="1.5rem" />
+                    <app-value [value]="8700000" size="1.5rem" />
                 </div>
                 <div class="hidden-on-desktop">
-                    <app-value [value]="total" size="1.5rem" />
+                    <app-value [value]="8700000" size="1.5rem" />
+                </div>
+            </ng-template>
+            <div class="table">
+                <div class="header">
+                    <div style="flex: 1">Wertpapier</div>
+                    <div style="width: 200px; text-align: right">Kurs</div>
+                    <div style="width: 200px; text-align: right">Wert</div>
+                </div>
+
+                <div>
+                    <div style="flex: 1">MSCI World</div>
+                    <div style="width: 200px; text-align: right">
+                        <app-value [value]="9421" />
+                    </div>
+                    <div style="width: 200px; text-align: right">
+                        <app-value [value]="8700000" />
+                    </div>
                 </div>
             </div>
-        </ng-template>
-        <div class="table">
-            <div class="header">
-                <div style="flex: 1">Konto</div>
-                <div>Guthaben</div>
-            </div>
-            @for (entry of bankAccounts.accounts; track entry.id) {
-            <div>
-                <div style="flex: 1">{{ entry.name }}</div>
-                <div><app-value [value]="entry.total" /></div>
-            </div>
-            }
-        </div>
-    </p-panel>
-    }
-
-    <app-goal class="goal"></app-goal>
-
-    <p-panel class="stocks">
-        <ng-template pTemplate="header">
-            <b style="font-size: 1.5rem; flex: 1; ">Depot</b>
-
-            <div class="header-value hidden-on-mobile">
-                <div>Gesamt</div>
-                <app-value [value]="8700000" size="1.5rem" />
-            </div>
-            <div class="hidden-on-desktop">
-                <app-value [value]="8700000" size="1.5rem" />
-            </div>
-        </ng-template>
-        <div class="table">
-            <div class="header">
-                <div style="flex: 1">Wertpapier</div>
-                <div style="width: 200px; text-align: right;">Kurs</div>
-                <div style="width: 200px; text-align: right;">Wert</div>
-            </div>
-
-            <div>
-                <div style="flex: 1">MSCI World</div>
-                <div style="width: 200px; text-align: right;"><app-value [value]="9421" /></div>
-                <div style="width: 200px; text-align: right;"><app-value [value]="8700000" /></div>
-            </div>
-
-        </div>
-    </p-panel>
-
-</div>
+        </p-panel>
+    </div>
 }

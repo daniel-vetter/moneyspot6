@@ -6,56 +6,62 @@
     </div>
 
     @for (block of blocks; track block.id) {
-    <p-panel>
-        <ng-template pTemplate="header">
-            <div class="horizontal" style="width: 100%; gap: 2rem">
-                <b style="font-size: 1.4rem;">{{block.name}}</b>
+        <p-panel>
+            <ng-template pTemplate="header">
+                <div class="horizontal" style="width: 100%; gap: 2rem">
+                    <b style="font-size: 1.4rem">{{ block.name }}</b>
 
-                <div class="spacer"></div>
+                    <div class="spacer"></div>
 
-                <div class="header-value hidden-on-mobile">
-                    <div>Einnahmen</div>
-                    <app-value [value]="block.income" size="1.5rem" />
+                    <div class="header-value hidden-on-mobile">
+                        <div>Einnahmen</div>
+                        <app-value [value]="block.income" size="1.5rem" />
+                    </div>
+
+                    <div class="header-value hidden-on-mobile">
+                        <div>Ausgaben</div>
+                        <app-value [value]="block.expense" color="reverse" size="1.5rem" />
+                    </div>
+
+                    <div class="header-value hidden-on-mobile">
+                        <div>Gesamt</div>
+                        <app-value [value]="block.total" size="1.5rem" />
+                    </div>
+
+                    <div class="hidden-on-desktop">
+                        <app-value [value]="block.total" size="1.5rem" />
+                    </div>
                 </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Ausgaben</div>
-                    <app-value [value]="block.expense" color="reverse" size="1.5rem" />
+            </ng-template>
+            <div class="table">
+                <div class="header">
+                    <div class="name">Zeitraum</div>
+                    <div class="value">Einnahmen</div>
+                    <div class="value">Ausgaben</div>
+                    <div class="value">Gesamt</div>
+                    <div class="hidden-on-mobile"></div>
                 </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Gesamt</div>
-                    <app-value [value]="block.total" size="1.5rem" />
-                </div>
-
-                <div class="hidden-on-desktop">
-                    <app-value [value]="block.total" size="1.5rem" />
-                </div>
+                @for (line of block.lines; track line.id) {
+                    <a class="line" pRipple>
+                        <div class="name">{{ line.name }}</div>
+                        <div class="value"><app-value [value]="line.income" /></div>
+                        <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
+                        <div class="value"><app-value [value]="line.total" /></div>
+                        <div class="horizontal hidden-on-mobile" style="position: relative; flex: 1; align-items: center">
+                            <div
+                                [style.width.%]="line.bar.width"
+                                [style.left.%]="line.bar.left"
+                                [style.background]="line.bar.color"
+                                [style.borderRadius]="line.bar.radius"
+                                style="height: 0.8rem; opacity: 0.7; position: absolute"
+                            >
+                                &nbsp;
+                            </div>
+                            <div style="background: var(--gray-400); height: 14px; width: 2px; position: absolute; left: 50%">&nbsp;</div>
+                        </div>
+                    </a>
+                }
             </div>
-        </ng-template>
-        <div class="table">
-            <div class="header">
-                <div class="name">Zeitraum</div>
-                <div class="value">Einnahmen</div>
-                <div class="value">Ausgaben</div>
-                <div class="value">Gesamt</div>
-                <div class="hidden-on-mobile"></div>
-            </div>
-            @for (line of block.lines; track line.id) {
-            <a class="line" pRipple>
-                <div class="name">{{ line.name }}</div>
-                <div class="value"><app-value [value]="line.income" /></div>
-                <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
-                <div class="value"><app-value [value]="line.total" /></div>
-                <div class="horizontal hidden-on-mobile" style="position: relative; flex: 1; align-items: center;">
-                    <div [style.width.%]="line.bar.width" [style.left.%]="line.bar.left"
-                        [style.background]="line.bar.color" [style.borderRadius]="line.bar.radius"
-                        style="height: 0.8rem; opacity: 0.7; position: absolute;">&nbsp;</div>
-                    <div style="background: var(--gray-400); height: 14px; width: 2px; position: absolute; left: 50%">&nbsp;</div>
-                </div>
-            </a>
-            }
-        </div>
-    </p-panel>
+        </p-panel>
     }
 </div>

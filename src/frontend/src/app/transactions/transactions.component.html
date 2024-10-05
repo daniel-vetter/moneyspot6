@@ -5,81 +5,79 @@
         <app-grouping-bar></app-grouping-bar>
     </div>
 
-    @if(isLoading) {
-    <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem;">
-        <p-progressSpinner></p-progressSpinner>
-    </div>
-    } @else {
-    @for (block of blocksShown; track block.id) {
-    <p-panel>
-        <ng-template pTemplate="header">
-            <div class="horizontal" style="width: 100%; gap: 2rem">
-                <b style="font-size: 1.4rem;">{{block.title}}</b>
-
-                <div class="spacer"></div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Buchungen</div>
-                    <span style="font-size: 1.5rem;">{{ block.transactions.length }}</span>
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Einnahmen</div>
-                    <app-value [value]="block.income" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Ausgaben</div>
-                    <app-value [value]="block.expense" color="reverse" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Gesamt</div>
-                    <app-value [value]="block.total" size="1.5rem" />
-                </div>
-
-                <div class="hidden-on-desktop">
-                    <app-value [value]="block.total" size="1.5rem" />
-                </div>
-            </div>
-        </ng-template>
-
-        <div class="table">
-            <div class="horizontal line header hidden-on-mobile">
-                <div class="icon"></div>
-                <div class="date oneLine">Datum</div>
-                <div class="name oneLine">Gegenkonto</div>
-                <div class="purpose oneLine">Verwendungszweck</div>
-                <div>Wert</div>
-            </div>
-
-            @for (transaction of block.transactions; track transaction.id){
-                <a pRipple class="horizontal line hidden-on-mobile">
-                    <div class="icon" [style.color]="transaction.iconColor"><i class="pi {{ transaction.icon }}"></i></div>
-                    <div class="date oneLine">{{ transaction.date! | customDate }}</div>
-                    <div class="name oneLine">{{ transaction.name }}</div>
-                    <div class="purpose oneLine">{{ transaction.purpose }}</div>
-                    <div><app-value [value]="transaction.value" /></div>
-                </a>
-
-                <a pRipple class="horizontal line hidden-on-desktop">
-                    <div class="vertical" style="gap: 0; flex: 1">
-                        <div style="font-size: 80%; opacity: 0.8;">{{ transaction.date! | customDate }}</div>
-                        <div style="font-weight: bold; overflow-wrap: anywhere;">{{ transaction.name }}</div>
-                        <div style="overflow-wrap: anywhere">{{ transaction.purpose }}</div>
-                    </div>
-                    <div><app-value [value]="transaction.value" /></div>
-                </a>
-            }
+    @if (isLoading) {
+        <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem">
+            <p-progressSpinner></p-progressSpinner>
         </div>
+    } @else {
+        @for (block of blocksShown; track block.id) {
+            <p-panel>
+                <ng-template pTemplate="header">
+                    <div class="horizontal" style="width: 100%; gap: 2rem">
+                        <b style="font-size: 1.4rem">{{ block.title }}</b>
 
-    </p-panel>
-    }
+                        <div class="spacer"></div>
 
-    @if (this.blocksHidden.length > 0) {
-    <div class="horizontal" style="justify-content: center;">
-        <p-button (onClick)="showMore()">Mehr anzeigen</p-button>
-    </div>
+                        <div class="header-value hidden-on-mobile">
+                            <div>Buchungen</div>
+                            <span style="font-size: 1.5rem">{{ block.transactions.length }}</span>
+                        </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Einnahmen</div>
+                            <app-value [value]="block.income" size="1.5rem" />
+                        </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Ausgaben</div>
+                            <app-value [value]="block.expense" color="reverse" size="1.5rem" />
+                        </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Gesamt</div>
+                            <app-value [value]="block.total" size="1.5rem" />
+                        </div>
+
+                        <div class="hidden-on-desktop">
+                            <app-value [value]="block.total" size="1.5rem" />
+                        </div>
+                    </div>
+                </ng-template>
+
+                <div class="table">
+                    <div class="horizontal line header hidden-on-mobile">
+                        <div class="icon"></div>
+                        <div class="date oneLine">Datum</div>
+                        <div class="name oneLine">Gegenkonto</div>
+                        <div class="purpose oneLine">Verwendungszweck</div>
+                        <div>Wert</div>
+                    </div>
+
+                    @for (transaction of block.transactions; track transaction.id) {
+                        <a pRipple class="horizontal line hidden-on-mobile">
+                            <div class="icon" [style.color]="transaction.iconColor"><i class="pi {{ transaction.icon }}"></i></div>
+                            <div class="date oneLine">{{ transaction.date! | customDate }}</div>
+                            <div class="name oneLine">{{ transaction.name }}</div>
+                            <div class="purpose oneLine">{{ transaction.purpose }}</div>
+                            <div><app-value [value]="transaction.value" /></div>
+                        </a>
+
+                        <a pRipple class="horizontal line hidden-on-desktop">
+                            <div class="vertical" style="gap: 0; flex: 1">
+                                <div style="font-size: 80%; opacity: 0.8">{{ transaction.date! | customDate }}</div>
+                                <div style="font-weight: bold; overflow-wrap: anywhere">{{ transaction.name }}</div>
+                                <div style="overflow-wrap: anywhere">{{ transaction.purpose }}</div>
+                            </div>
+                            <div><app-value [value]="transaction.value" /></div>
+                        </a>
+                    }
+                </div>
+            </p-panel>
+        }
+        @if (this.blocksHidden.length > 0) {
+            <div class="horizontal" style="justify-content: center">
+                <p-button (onClick)="showMore()">Mehr anzeigen</p-button>
+            </div>
+        }
     }
-}
 </div>

@@ -4,43 +4,44 @@ import { lastValueFrom, Subscription } from 'rxjs';
 import { BankAccountSummaryResponse, SummaryPageClient } from '../server';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
-import { ValueComponent } from "../common/value/value.component";
+import { ValueComponent } from '../common/value/value.component';
 import { PanelModule } from 'primeng/panel';
-import { AccountSyncComponent } from "../account-sync/account-sync.component";
+import { AccountSyncComponent } from '../account-sync/account-sync.component';
 import { GlobalEvents } from '../common/global-events';
-import { GoalComponent } from "./goal/goal.component";
+import { GoalComponent } from './goal/goal.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { minDelay } from '../common/load-delay';
 
 @Component({
-  selector: 'app-summary',
-  standalone: true,
-  imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent, ProgressSpinnerModule],
-  templateUrl: './summary.component.html',
-  styleUrl: './summary.component.scss'
+    selector: 'app-summary',
+    standalone: true,
+    imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent, ProgressSpinnerModule],
+    templateUrl: './summary.component.html',
+    styleUrl: './summary.component.scss',
 })
 export class SummaryComponent implements OnInit, OnDestroy {
+    bankAccounts?: BankAccountSummaryResponse;
+    total = 0;
+    private _onAccountSyncDoneSubscription?: Subscription;
+    isLoading = true;
 
-  bankAccounts?: BankAccountSummaryResponse;
-  total = 0;
-  private _onAccountSyncDoneSubscription?: Subscription;
-  isLoading = true;
+    constructor(
+        private summaryPageClient: SummaryPageClient,
+        private globalEvents: GlobalEvents,
+    ) {}
 
-  constructor(private summaryPageClient: SummaryPageClient, private globalEvents: GlobalEvents) { }
-  
-  async ngOnInit(): Promise<void> {
-    this._onAccountSyncDoneSubscription = this.globalEvents.onAccountSyncDone.subscribe(async () => await this.update());
-    await this.update();
-  }
+    async ngOnInit(): Promise<void> {
+        this._onAccountSyncDoneSubscription = this.globalEvents.onAccountSyncDone.subscribe(async () => await this.update());
+        await this.update();
+    }
 
-  ngOnDestroy(): void {
-    this._onAccountSyncDoneSubscription?.unsubscribe();
-  }
+    ngOnDestroy(): void {
+        this._onAccountSyncDoneSubscription?.unsubscribe();
+    }
 
-  private async update() {
-    this.bankAccounts = await minDelay(lastValueFrom(this.summaryPageClient.getBankAccountSummary()))
-    this.total = this.bankAccounts.accounts.reduce((a, b) => a + b.total!, 0)!;
-    this.isLoading = false;
-  }
+    private async update() {
+        this.bankAccounts = await minDelay(lastValueFrom(this.summaryPageClient.getBankAccountSummary()));
+        this.total = this.bankAccounts.accounts.reduce((a, b) => a + b.total!, 0)!;
+        this.isLoading = false;
+    }
 }
-

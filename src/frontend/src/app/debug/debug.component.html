@@ -7,12 +7,12 @@
             <th>Start</th>
             <th>Fehler</th>
         </tr>
-    @for (p of runningProcesses; track p.processId) {
-        <tr>
-            <td>{{ p.processId }}</td>
-            <td>{{ p.startTime }}</td>
-            <td>{{ p.error }}</td>
-        </tr>
-    }
+        @for (p of runningProcesses; track p.processId) {
+            <tr>
+                <td>{{ p.processId }}</td>
+                <td>{{ p.startTime }}</td>
+                <td>{{ p.error }}</td>
+            </tr>
+        }
     </table>
 }

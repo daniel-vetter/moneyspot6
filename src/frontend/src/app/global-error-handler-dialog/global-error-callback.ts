@@ -1,8 +1,7 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class GlobalErrorCallback {
-
     callback?: (error: any) => void;
 
     public set(callback: (error: any) => void) {
@@ -11,7 +10,7 @@ export class GlobalErrorCallback {
 
     public call(error: any) {
         if (this.callback === undefined) {
-            throw Error("No error handler callback defined");
+            throw Error('No error handler callback defined');
         }
         this.callback(error);
     }

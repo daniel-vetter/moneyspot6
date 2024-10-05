@@ -8,8 +8,8 @@ import { IncomeExpenseReportComponent } from './income-expense-report/income-exp
 export const routes: Routes = [
     { path: '', component: SummaryComponent },
     { path: 'summary', component: SummaryComponent },
-    { path: 'transactions', component: TransactionsComponent},
-    { path: 'history', component: HistoryComponent},
-    { path: 'income-expense', component: IncomeExpenseReportComponent},    
-    { path: 'debug', component: DebugComponent}
+    { path: 'transactions', component: TransactionsComponent },
+    { path: 'history', component: HistoryComponent },
+    { path: 'income-expense', component: IncomeExpenseReportComponent },
+    { path: 'debug', component: DebugComponent },
 ];

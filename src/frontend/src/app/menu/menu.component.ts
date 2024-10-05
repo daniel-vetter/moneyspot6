@@ -13,7 +13,7 @@ import { RippleModule } from 'primeng/ripple';
     standalone: true,
     imports: [MenuModule, BadgeModule, AvatarModule, CommonModule, RippleModule, ButtonModule, DialogModule],
     templateUrl: './menu.component.html',
-    styleUrl: './menu.component.scss'
+    styleUrl: './menu.component.scss',
 })
 export class MenuComponent {
     items: MenuItem[] | undefined;
@@ -21,7 +21,7 @@ export class MenuComponent {
     ngOnInit() {
         this.items = [
             {
-                separator: true
+                separator: true,
             },
             {
                 label: 'Documents',
@@ -29,14 +29,14 @@ export class MenuComponent {
                     {
                         label: 'New',
                         icon: 'pi pi-plus',
-                        shortcut: '⌘+N'
+                        shortcut: '⌘+N',
                     },
                     {
                         label: 'Search',
                         icon: 'pi pi-search',
-                        shortcut: '⌘+S'
-                    }
-                ]
+                        shortcut: '⌘+S',
+                    },
+                ],
             },
             {
                 label: 'Profile',
@@ -44,23 +44,23 @@ export class MenuComponent {
                     {
                         label: 'Settings',
                         icon: 'pi pi-cog',
-                        shortcut: '⌘+O'
+                        shortcut: '⌘+O',
                     },
                     {
                         label: 'Messages',
                         icon: 'pi pi-inbox',
-                        badge: '2'
+                        badge: '2',
                     },
                     {
                         label: 'Logout',
                         icon: 'pi pi-sign-out',
-                        shortcut: '⌘+Q'
-                    }
-                ]
+                        shortcut: '⌘+Q',
+                    },
+                ],
             },
             {
-                separator: true
-            }
+                separator: true,
+            },
         ];
     }
 }

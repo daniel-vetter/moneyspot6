@@ -1,11 +1,17 @@
-<p-dialog [header]="title" [modal]="true" [(visible)]="visible" [closable]="false" [style]="{ width: '1000px', height: '1000px', border: '2px solid var(--red-600)' }">
-    <div style="display: flex; flex-direction: column;">
+<p-dialog
+    [header]="title"
+    [modal]="true"
+    [(visible)]="visible"
+    [closable]="false"
+    [style]="{ width: '1000px', height: '1000px', border: '2px solid var(--red-600)' }"
+>
+    <div style="display: flex; flex-direction: column">
         <pre>{{ message }}</pre>
         @if (stack) {
             <pre>{{ stack }}</pre>
         }
         @if (src) {
-            <iframe style="flex: 1; width: 100%;" [src]="src"></iframe>
+            <iframe style="flex: 1; width: 100%" [src]="src"></iframe>
         }
     </div>
 </p-dialog>

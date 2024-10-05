@@ -1,17 +1,17 @@
 <p-panel>
     <ng-template pTemplate="header">
-        <b style="font-size: 1.5rem; flex: 1; ">Ziel</b>
+        <b style="font-size: 1.5rem; flex: 1">Ziel</b>
     </ng-template>
 
-    <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; height: 300px; display: block; padding-bottom: 1rem;"></highcharts-chart>
+    <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; height: 300px; display: block; padding-bottom: 1rem"></highcharts-chart>
     <div class="table">
         <div>
             <div style="flex: 1">Ziel:</div>
-            <div style="width: 200px; text-align: right;"><app-value [value]="targetValue" /> am {{ targetDate | customDate  }}</div>
+            <div style="width: 200px; text-align: right"><app-value [value]="targetValue" /> am {{ targetDate | customDate }}</div>
         </div>
         <div>
             <div style="flex: 1">Benötigte Sparrate pro Monat:</div>
-            <div style="width: 200px; text-align: right;"><app-value [value]="requiredSavingPerMonth" /></div>
+            <div style="width: 200px; text-align: right"><app-value [value]="requiredSavingPerMonth" /></div>
         </div>
     </div>
 </p-panel>

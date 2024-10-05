@@ -9,31 +9,31 @@ import { GlobalErrorHandler } from './global-error-handler-dialog/global-error-h
 import { provideServiceWorker } from '@angular/service-worker';
 
 const initializeAppFactory = (primeConfig: PrimeNGConfig) => () => {
-  primeConfig.ripple = true;
+    primeConfig.ripple = true;
 };
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-    provideHttpClient(),
-    provideAnimations(),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeAppFactory,
-      deps: [PrimeNGConfig],
-      multi: true,
-    },
-    {
-      provide: ErrorHandler,
-      useClass: GlobalErrorHandler,
-    },
-    {
-      provide: MessageService
-    }, provideServiceWorker('ngsw-worker.js', {
+    providers: [
+        provideZoneChangeDetection({ eventCoalescing: true }),
+        provideRouter(routes),
+        provideHttpClient(),
+        provideAnimations(),
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeAppFactory,
+            deps: [PrimeNGConfig],
+            multi: true,
+        },
+        {
+            provide: ErrorHandler,
+            useClass: GlobalErrorHandler,
+        },
+        {
+            provide: MessageService,
+        },
+        provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          })
-  ]
+            registrationStrategy: 'registerWhenStable:30000',
+        }),
+    ],
 };
-

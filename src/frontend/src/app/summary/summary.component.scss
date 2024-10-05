@@ -11,7 +11,7 @@ a {
     border-radius: 8px;
 
     :first-child {
-        flex: 1
+        flex: 1;
     }
 }
 
@@ -19,10 +19,18 @@ a:hover {
     background-color: var(--surface-300);
 }
 
-.total { grid-area: total }
-.accounts { grid-area: accounts }
-.goal { grid-area: goal }
-.stocks { grid-area: stocks }
+.total {
+    grid-area: total;
+}
+.accounts {
+    grid-area: accounts;
+}
+.goal {
+    grid-area: goal;
+}
+.stocks {
+    grid-area: stocks;
+}
 
 .dashboard {
     display: grid;
@@ -38,9 +46,9 @@ a:hover {
 @media only screen and (max-width: 1000px) {
     .dashboard {
         grid-template-areas:
-        "total    total"
-        "accounts accounts"
-        "stocks   stocks"
-        "goal     goal";
-    }   
- }
+            "total    total"
+            "accounts accounts"
+            "stocks   stocks"
+            "goal     goal";
+    }
+}
