@@ -59,6 +59,11 @@ export class GoalComponent implements OnInit {
       }],
       credits: {
         enabled: false
+      },
+      chart: {
+        zooming: {
+          type: "x"
+        }
       }
     }
   }
