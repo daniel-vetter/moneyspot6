@@ -6,11 +6,14 @@ import { PanelModule } from 'primeng/panel';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { SearchBarComponent } from "../common/search-bar/search-bar.component";
+import { ActivatedRoute } from '@angular/router';
+import { Grouping, GroupingBarComponent } from "../common/grouping-bar/grouping-bar.component";
 
 @Component({
   selector: 'app-income-expense-report',
   standalone: true,
-  imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, FormsModule],
+  imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, FormsModule, SearchBarComponent, GroupingBarComponent],
   templateUrl: './income-expense-report.component.html',
   styleUrl: './income-expense-report.component.scss'
 })
@@ -20,12 +23,23 @@ export class IncomeExpenseReportComponent implements OnInit {
   }
   lines: Line[] = [];
   blocks: Block[] = [];
-  searchText = "";
+  searchText?: string;
+  grouping: Grouping = "Monthly";
 
-  constructor(private incomeExpenseClient: IncomeExpenseClient) { }
+  constructor(private incomeExpenseClient: IncomeExpenseClient, private activatedRoute: ActivatedRoute) { }
 
   async ngOnInit(): Promise<void> {
-    const response = (await lastValueFrom(this.incomeExpenseClient.get(IncomeExpenseGrouping.Month))).reverse();
+
+    this.activatedRoute.queryParams.subscribe(async x => {
+      this.searchText = x["search"];
+      this.grouping = x["grouping"] ?? "Monthly"
+      await this.update();
+    });
+  }
+
+  private async update(): Promise<void> {
+
+    const response = (await lastValueFrom(this.incomeExpenseClient.get(this.searchText, this.grouping === "Monthly" ? IncomeExpenseGrouping.Month : this.grouping === "None" ? IncomeExpenseGrouping.None : IncomeExpenseGrouping.Year))).reverse();
     const blocks: Block[] = [];
 
 
@@ -36,13 +50,16 @@ export class IncomeExpenseReportComponent implements OnInit {
         currentBlock = {
           id: groupId,
           name: groupId,
-          lines: []
+          lines: [],
+          income: 0,
+          expense: 0,
+          total: 0
         };
         blocks.push(currentBlock);
       }
 
       currentBlock.lines.push({
-        id: entry.year * 12 + (entry.month ?? 0),
+        id: (entry.year ?? 0) * 12 + (entry.month ?? 0),
         name: this.getName(entry.year, entry.month),
         expense: entry.expense,
         income: entry.income,
@@ -52,12 +69,20 @@ export class IncomeExpenseReportComponent implements OnInit {
     }
 
     for (const block of blocks) {
-      this.calsBars(block.lines);
+      this.calcBars(block.lines);
+      this.calcTotals(block);
     }
     this.blocks = blocks;
   }
+  calcTotals(block: Block) {
+    for (const line of block.lines) {
+      block.total += line.total
+      block.income += line.income;
+      block.expense += line.expense;
+    }
+  }
 
-  calsBars(lines: Line[]) {
+  calcBars(lines: Line[]) {
     let max = 0;
     for (const line of lines) {
       max = Math.max(max, Math.abs(line.total));
@@ -86,10 +111,21 @@ export class IncomeExpenseReportComponent implements OnInit {
   }
 
   getGroupId(entry: IncomeExpenseEntryResponse) {
-    return entry.year.toString();
+    if ((entry.year === undefined || entry.year === null) && (entry.month === undefined || entry.month === null))
+      return "Gesamt";
+
+    if ((entry.year !== undefined && entry.year !== null) && (entry.month === undefined || entry.month === null))
+      return "Gesamt";
+
+    if ((entry.year !== undefined && entry.year !== null) && (entry.month !== undefined && entry.month !== null))
+      return entry.year.toString();
+
+    throw new Error("Invalid Entry");
   }
 
-  private getName(year: number, month?: number) {
+  private getName(year?: number, month?: number) {
+    if (year === undefined || year === null)
+      return "Gesamt";
     if (month === undefined || month === null) {
       return year.toString();
     }
@@ -117,4 +153,7 @@ interface Block {
   id: string;
   name: string;
   lines: Line[];
+  income: number;
+  expense: number;
+  total: number;
 }

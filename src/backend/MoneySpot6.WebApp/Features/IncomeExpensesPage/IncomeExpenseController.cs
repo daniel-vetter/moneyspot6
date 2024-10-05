@@ -1,9 +1,9 @@
-﻿using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
 
 namespace MoneySpot6.WebApp.Features.IncomeExpensesPage
 {
@@ -19,30 +19,33 @@ namespace MoneySpot6.WebApp.Features.IncomeExpensesPage
         }
 
         [HttpGet("GetMonthlyIncomeAndExpenses")]
-        public async Task<ActionResult<ImmutableArray<IncomeExpenseEntryResponse>>> Get([BindRequired] IncomeExpenseGrouping grouping)
+        public async Task<ActionResult<ImmutableArray<IncomeExpenseEntryResponse>>> Get(string? search, [BindRequired] IncomeExpenseGrouping grouping)
         {
-            var result = await _db
-                .BankAccountTransactions
-                .GroupBy(x => new
-                {
-                    x.Raw.Date.Year,
-                    Month = grouping == IncomeExpenseGrouping.Month ? x.Raw.Date.Month : (int?)null
-                }).Select(x => new
-                {
-                    x.Key.Year,
-                    x.Key.Month,
-                    Income = x.Sum(y => Math.Max(0, y.Raw.Amount)),
-                    Expense = -x.Sum(y => Math.Min(0, y.Raw.Amount))
-                })
+            IQueryable<DbBankAccountTransaction> query = _db.BankAccountTransactions;
+
+            if (!string.IsNullOrWhiteSpace(search))
+                query = query.Where(x => EF.Functions.ILike(x.Parsed.Purpose!, "%" + search + "%") || EF.Functions.ILike(x.Parsed.Name!, "%" + search + "%"));
+
+            var result = await query.GroupBy(x => new
+            {
+                Year = grouping == IncomeExpenseGrouping.None ? (int?)null : x.Raw.Date.Year,
+                Month = grouping == IncomeExpenseGrouping.Month ? x.Raw.Date.Month : (int?)null
+            }).Select(x => new
+            {
+                x.Key.Year,
+                x.Key.Month,
+                Income = x.Sum(y => Math.Max(0, y.Raw.Amount)),
+                Expense = -x.Sum(y => Math.Min(0, y.Raw.Amount))
+            })
             .OrderBy(x => x.Year)
             .ThenBy(x => x.Month)
-                .Select(x => new IncomeExpenseEntryResponse
-                {
-                    Year = x.Year,
-                    Month = x.Month,
-                    Income = x.Income,
-                    Expense = x.Expense
-                })
+            .Select(x => new IncomeExpenseEntryResponse
+            {
+                Year = x.Year,
+                Month = x.Month,
+                Income = x.Income,
+                Expense = x.Expense
+            })
             .ToArrayAsync();
 
             return Ok(result);
@@ -51,13 +54,14 @@ namespace MoneySpot6.WebApp.Features.IncomeExpensesPage
 
     public enum IncomeExpenseGrouping
     {
+        None,
         Month,
         Year
     }
 
     public record IncomeExpenseEntryResponse
     {
-        [Required] public int Year { get; set; }
+        public int? Year { get; set; }
         public int? Month { get; set; }
         [Required] public long Income { get; set; }
         [Required] public long Expense { get; set; }

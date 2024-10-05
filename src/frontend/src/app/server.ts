@@ -196,8 +196,10 @@ export class IncomeExpenseClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    get(grouping: IncomeExpenseGrouping): Observable<IncomeExpenseEntryResponse[]> {
+    get(search: string | null | undefined, grouping: IncomeExpenseGrouping): Observable<IncomeExpenseEntryResponse[]> {
         let url_ = this.baseUrl + "/api/IncomeExpense/GetMonthlyIncomeAndExpenses?";
+        if (search !== undefined && search !== null)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
         if (grouping === undefined || grouping === null)
             throw new Error("The parameter 'grouping' must be defined and cannot be null.");
         else
@@ -758,7 +760,7 @@ export interface IBalanceEntryResponse {
 }
 
 export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
-    year!: number;
+    year?: number | undefined;
     month?: number | undefined;
     income!: number;
     expense!: number;
@@ -799,15 +801,16 @@ export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
 }
 
 export interface IIncomeExpenseEntryResponse {
-    year: number;
+    year?: number | undefined;
     month?: number | undefined;
     income: number;
     expense: number;
 }
 
 export enum IncomeExpenseGrouping {
-    Month = 0,
-    Year = 1,
+    None = 0,
+    Month = 1,
+    Year = 2,
 }
 
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {

@@ -1,0 +1,11 @@
+<div class="horizontal" style="gap: 0.5rem">
+    <form (ngSubmit)="onSearchSubmit()" #heroForm="ngForm">
+    <span class="p-input-icon-left" style="flex: 1; max-width: 400px;">
+        <i class="pi pi-search"></i>
+        <input pInputText style="width: 100%;" placeholder="Suche" name="search" [(ngModel)]="searchText" autocomplete="off" />
+    </span>
+</form>
+    @if (showClearButton) {
+        <p-button icon="pi pi-times" size="small" [rounded]="false" [text]="true" severity="secondary" [outlined]="true" (onClick)="onResetButtonClicked()" [style]="{'height': '32px'}"/>
+    }
+</div>
