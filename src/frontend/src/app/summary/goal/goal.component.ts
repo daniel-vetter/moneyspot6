@@ -61,6 +61,9 @@ export class GoalComponent implements OnInit {
         enabled: false
       },
       chart: {
+        animation: {
+          duration: 0
+        },
         zooming: {
           type: "x"
         }

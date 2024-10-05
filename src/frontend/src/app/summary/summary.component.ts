@@ -9,11 +9,13 @@ import { PanelModule } from 'primeng/panel';
 import { AccountSyncComponent } from "../account-sync/account-sync.component";
 import { GlobalEvents } from '../common/global-events';
 import { GoalComponent } from "./goal/goal.component";
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { minDelay } from '../common/load-delay';
 
 @Component({
   selector: 'app-summary',
   standalone: true,
-  imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent],
+  imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent, ProgressSpinnerModule],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.scss'
 })
@@ -22,6 +24,7 @@ export class SummaryComponent implements OnInit, OnDestroy {
   bankAccounts?: BankAccountSummaryResponse;
   total = 0;
   private _onAccountSyncDoneSubscription?: Subscription;
+  isLoading = true;
 
   constructor(private summaryPageClient: SummaryPageClient, private globalEvents: GlobalEvents) { }
   
@@ -35,8 +38,9 @@ export class SummaryComponent implements OnInit, OnDestroy {
   }
 
   private async update() {
-    this.bankAccounts = await lastValueFrom(this.summaryPageClient.getBankAccountSummary())
+    this.bankAccounts = await minDelay(lastValueFrom(this.summaryPageClient.getBankAccountSummary()))
     this.total = this.bankAccounts.accounts.reduce((a, b) => a + b.total!, 0)!;
+    this.isLoading = false;
   }
 }
 
