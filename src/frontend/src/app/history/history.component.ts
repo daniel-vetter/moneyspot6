@@ -8,11 +8,12 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { FormsModule } from '@angular/forms';
 import { ButtonGroupModule } from 'primeng/buttongroup';
 import { DaterangePresetSelectorComponent } from './daterange-preset-selector/daterange-preset-selector.component';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
     selector: 'app-history',
     standalone: true,
-    imports: [HighchartsChartModule, CalendarModule, SplitButtonModule, FormsModule, ButtonGroupModule, DaterangePresetSelectorComponent],
+    imports: [HighchartsChartModule, CalendarModule, SplitButtonModule, FormsModule, ButtonGroupModule, DaterangePresetSelectorComponent, PanelModule],
     templateUrl: './history.component.html',
     styleUrl: './history.component.scss',
 })
@@ -65,8 +66,7 @@ export class HistoryComponent implements OnInit {
                 height: '70%',
             },
             title: {
-                text: 'Gesamt',
-                align: 'left',
+                text: undefined
             },
             yAxis: {
                 title: {
@@ -89,8 +89,11 @@ export class HistoryComponent implements OnInit {
                     type: 'area',
                     data: result.map((x) => [x.date.valueOf(), x.balance / 100]),
                     fillOpacity: 0.15,
+                    animation: {
+                        duration: 0
+                    }
                 },
-            ],
+            ]
         });
     }
 }

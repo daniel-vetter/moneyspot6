@@ -34,7 +34,7 @@
                 </div>
             </ng-template>
             <div class="table">
-                <div class="header">
+                <div class="header hidden-on-mobile">
                     <div class="name">Zeitraum</div>
                     <div class="value">Einnahmen</div>
                     <div class="value">Ausgaben</div>
@@ -42,7 +42,7 @@
                     <div class="hidden-on-mobile"></div>
                 </div>
                 @for (line of block.lines; track line.id) {
-                    <a class="line" pRipple>
+                    <a class="line hidden-on-mobile" pRipple>
                         <div class="name">{{ line.name }}</div>
                         <div class="value"><app-value [value]="line.income" /></div>
                         <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
@@ -58,6 +58,25 @@
                                 &nbsp;
                             </div>
                             <div style="background: var(--gray-400); height: 14px; width: 2px; position: absolute; left: 50%">&nbsp;</div>
+                        </div>
+                    </a>
+
+                    <a class="line hidden-on-desktop" style="margin-bottom: 2rem" pRipple>
+                        <div class="vertical" style="width: 100%">
+                            <div class="horizontal">
+                                <div style="flex: 1; font-weight: bold">{{ line.name }}</div>
+                                <div class="right"><app-value [value]="line.total" /></div>
+                            </div>
+
+                            <div class="horizontal" style="opacity: 0.8">
+                                <div style="flex: 1">Einnahmen:</div>
+                                <div class="right"><app-value [value]="line.income" /></div>
+                            </div>
+
+                            <div class="horizontal" style="opacity: 0.8">
+                                <div style="flex: 1">Ausgaben:</div>
+                                <div class="right"><app-value [value]="line.expense" /></div>
+                            </div>
                         </div>
                     </a>
                 }

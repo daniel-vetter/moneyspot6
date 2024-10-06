@@ -52,3 +52,27 @@ a:hover {
             "goal     goal";
     }
 }
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+td {
+    text-align: left;
+    padding: 0;
+    margin: 0;
+    padding: 7px 0.5rem;
+}
+th {
+    text-align: left;
+    border-bottom: 1px solid var(--gray-600);
+    padding: 0;
+    margin: 0;
+    padding: 7px 0.5rem;
+    
+}
+
+.right {
+    text-align: right;
+}

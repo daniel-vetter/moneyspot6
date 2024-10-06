@@ -3,11 +3,12 @@ import { ButtonModule } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MenuComponent } from '../menu/menu.component';
 import { NavigationSkipped, NavigationStart, Router } from '@angular/router';
+import { AccountSyncComponent } from "../account-sync/account-sync.component";
 
 @Component({
     selector: 'app-top-bar',
     standalone: true,
-    imports: [ButtonModule],
+    imports: [ButtonModule, AccountSyncComponent],
     providers: [DialogService],
     templateUrl: './top-bar.component.html',
     styleUrl: './top-bar.component.scss',
@@ -16,7 +17,7 @@ export class TopBarComponent implements OnInit {
     constructor(
         private dialogService: DialogService,
         private router: Router,
-    ) {}
+    ) { }
 
     _dlg: DynamicDialogRef | undefined;
 

@@ -18,7 +18,7 @@ import { Grouping, GroupingBarComponent } from '../common/grouping-bar/grouping-
     styleUrl: './income-expense-report.component.scss',
 })
 export class IncomeExpenseReportComponent implements OnInit {
-    onSearchSubmit() {}
+    onSearchSubmit() { }
     lines: Line[] = [];
     blocks: Block[] = [];
     searchText?: string;
@@ -27,7 +27,7 @@ export class IncomeExpenseReportComponent implements OnInit {
     constructor(
         private incomeExpenseClient: IncomeExpenseClient,
         private activatedRoute: ActivatedRoute,
-    ) {}
+    ) { }
 
     async ngOnInit(): Promise<void> {
         this.activatedRoute.queryParams.subscribe(async (x) => {
@@ -45,8 +45,8 @@ export class IncomeExpenseReportComponent implements OnInit {
                     this.grouping === 'Monthly'
                         ? IncomeExpenseGrouping.Month
                         : this.grouping === 'None'
-                          ? IncomeExpenseGrouping.None
-                          : IncomeExpenseGrouping.Year,
+                            ? IncomeExpenseGrouping.None
+                            : IncomeExpenseGrouping.Year,
                 ),
             )
         ).reverse();
@@ -121,11 +121,8 @@ export class IncomeExpenseReportComponent implements OnInit {
 
     getGroupId(entry: IncomeExpenseEntryResponse) {
         if ((entry.year === undefined || entry.year === null) && (entry.month === undefined || entry.month === null)) return 'Gesamt';
-
         if (entry.year !== undefined && entry.year !== null && (entry.month === undefined || entry.month === null)) return 'Gesamt';
-
         if (entry.year !== undefined && entry.year !== null && entry.month !== undefined && entry.month !== null) return entry.year.toString();
-
         throw new Error('Invalid Entry');
     }
 

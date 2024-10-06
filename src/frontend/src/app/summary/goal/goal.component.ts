@@ -16,22 +16,13 @@ import { CustomDatePipe } from '../../common/custom-date.pipe';
 })
 export class GoalComponent implements OnInit {
     Highcharts: typeof Highcharts = Highcharts;
-    chart: Highcharts.Options = {
-        series: [
-            {
-                type: 'line',
-            },
-            {
-                type: 'line',
-            },
-        ],
-    };
+    chart?: Highcharts.Options = undefined;
 
     targetValue = 0;
     targetDate!: Date;
     requiredSavingPerMonth = 0;
 
-    constructor(private summaryPageClient: SummaryPageClient) {}
+    constructor(private summaryPageClient: SummaryPageClient) { }
 
     async ngOnInit(): Promise<void> {
         const r = await lastValueFrom(this.summaryPageClient.getBankAccountGoal());
@@ -53,12 +44,18 @@ export class GoalComponent implements OnInit {
                     name: 'Aktuell',
                     type: 'line',
                     data: r.actualHistory.map((x) => [x.date.valueOf(), x.balance / 100]),
+                    animation: {
+                        duration: 0
+                    }
                 },
                 {
                     name: 'Erwartet',
                     type: 'line',
                     dashStyle: 'ShortDash',
                     data: r.expectedHistory.map((x) => [x.date.valueOf(), x.balance / 100]),
+                    animation: {
+                        duration: 0
+                    }
                 },
             ],
             credits: {

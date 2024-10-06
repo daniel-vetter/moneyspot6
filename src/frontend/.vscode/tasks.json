@@ -18,6 +18,10 @@
             "regexp": "bundle generation complete"
           }
         }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
       }
     },
     {

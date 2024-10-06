@@ -17,7 +17,7 @@
                 <ng-template pTemplate="header">
                     <div class="horizontal" style="width: 100%">
                         <b style="font-size: 1.5rem">Kontostand</b>
-                        <app-account-sync></app-account-sync>
+                        <app-account-sync class="hidden-on-mobile"></app-account-sync>
                         <div class="spacer"></div>
                         <div class="header-value hidden-on-mobile">
                             <div>Gesamt</div>
@@ -64,18 +64,14 @@
             <div class="table">
                 <div class="header">
                     <div style="flex: 1">Wertpapier</div>
-                    <div style="width: 200px; text-align: right">Kurs</div>
-                    <div style="width: 200px; text-align: right">Wert</div>
+                    <div class="right" style="width: 80px">Kurs</div>
+                    <div class="right" style="width: 80px">Wert</div>
                 </div>
 
                 <div>
                     <div style="flex: 1">MSCI World</div>
-                    <div style="width: 200px; text-align: right">
-                        <app-value [value]="9421" />
-                    </div>
-                    <div style="width: 200px; text-align: right">
-                        <app-value [value]="8700000" />
-                    </div>
+                    <div class="right" style="width: 80px"><app-value [value]="9421" /></div>
+                    <div class="right" style="width: 80px"><app-value [value]="8700000" /></div>
                 </div>
             </div>
         </p-panel>
