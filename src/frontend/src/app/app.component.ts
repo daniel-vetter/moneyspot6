@@ -5,7 +5,8 @@ import { MenuComponent } from './menu/menu.component';
 import { GlobalErrorHandlerDialogComponent } from './global-error-handler-dialog/global-error-handler-dialog.component';
 import { ToastModule } from 'primeng/toast';
 import { TopBarComponent } from './top-bar/top-bar.component';
-import * as h from 'highcharts';
+import * as Highcharts from 'highcharts';
+import * as HighchartsStock from 'highcharts/highstock';
 
 @Component({
     selector: 'app-root',
@@ -18,7 +19,12 @@ export class AppComponent implements OnInit {
     constructor() { }
 
     async ngOnInit(): Promise<void> {
-        h.setOptions({
+        Highcharts.setOptions(this.createOptions());
+        HighchartsStock.setOptions(this.createOptions());
+    }
+
+    private createOptions(): Highcharts.Options {
+        return {
             colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
             accessibility: {
                 enabled: false,
@@ -70,6 +76,6 @@ export class AppComponent implements OnInit {
             credits: {
                 enabled: false,
             },
-        });
+        }
     }
 }

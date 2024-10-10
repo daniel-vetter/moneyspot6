@@ -1,0 +1,12 @@
+<div class="vertical">
+    <div class="horizontal" style="gap: 1rem">
+        Aktie:
+        <p-dropdown [options]="stocks" optionLabel="name" optionValue="id" [(ngModel)]="selectedStockId"></p-dropdown>
+    </div>
+
+    <p-panel>
+        @if (chart !== undefined) {
+            <highcharts-chart [Highcharts]="Highcharts" constructorType="stockChart" [options]="chart" style="width: 100%; display: block"></highcharts-chart>
+        }
+    </p-panel>
+</div>

@@ -14,15 +14,19 @@ export class DebugComponent implements OnDestroy, OnInit {
     runningProcesses: RunningProcessResponse[] = [];
     intervall?: any;
 
-    constructor(private debugClient: DebugClient) {}
+    constructor(private debugClient: DebugClient) { }
 
     async OnReprocessTransactionpParsingClicked() {
         await lastValueFrom(this.debugClient.reprocessTransactionParsing());
     }
 
+    async OnReimportStockDataLast30DaysClicked() {
+        await lastValueFrom(this.debugClient.reimportLast30DayStocks());
+    }
+
     ngOnInit(): void {
         this.intervall = setInterval(async () => {
-            this.runningProcesses = await lastValueFrom(this.debugClient.getRunningProcesses());
+            this.runningProcesses = await lastValueFrom(this.debugClient.getRunningAdapters());
         }, 1000);
     }
 

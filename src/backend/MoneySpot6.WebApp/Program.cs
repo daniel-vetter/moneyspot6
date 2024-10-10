@@ -1,12 +1,8 @@
-﻿using MoneySpot6.WebApp.Infrastructure;
-using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
-using NJsonSchema.Generation.TypeMappers;
-using NJsonSchema;
+using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
 
 namespace MoneySpot6.WebApp;
@@ -28,14 +24,8 @@ public class Program
         builder.Services.AddDbContext<Db>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Db")));
         builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
+        builder.Services.AddServiceFromAttributes();
 
-        foreach (var type in typeof(Program).Assembly.GetTypes())
-        {
-            if (type.GetCustomAttribute<SingletonServiceAttribute>() != null)
-                builder.Services.AddSingleton(type);
-            if (type.GetCustomAttribute<ScopedServiceAttribute>() != null)
-                builder.Services.AddScoped(type);
-        }
 
         var app = builder.Build();
         if (await app.Services.CreateTypeScriptClient(args))
@@ -60,16 +50,4 @@ public class Program
 
         await app.RunAsync();
     }
-}
-
-[MeansImplicitUse﻿]
-[AttributeUsage(AttributeTargets.Class)]
-public class SingletonServiceAttribute : Attribute
-{
-}
-
-[MeansImplicitUse﻿]
-[AttributeUsage(AttributeTargets.Class)]
-public class ScopedServiceAttribute : Attribute
-{
 }

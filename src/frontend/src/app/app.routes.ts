@@ -4,6 +4,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { DebugComponent } from './debug/debug.component';
 import { HistoryComponent } from './history/history.component';
 import { IncomeExpenseReportComponent } from './income-expense-report/income-expense-report.component';
+import { StockHistoryComponent } from './stock-history/stock-history.component';
 
 export const routes: Routes = [
     { path: '', component: SummaryComponent },
@@ -11,5 +12,6 @@ export const routes: Routes = [
     { path: 'transactions', component: TransactionsComponent },
     { path: 'history', component: HistoryComponent },
     { path: 'income-expense', component: IncomeExpenseReportComponent },
+    { path: 'stock-history', component: StockHistoryComponent },
     { path: 'debug', component: DebugComponent },
 ];

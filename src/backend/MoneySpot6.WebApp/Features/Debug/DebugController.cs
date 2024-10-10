@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync.Services;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
+using MoneySpot6.WebApp.Features.Stocks.PriceImport;
 
 namespace MoneySpot6.WebApp.Features.Debug
 {
@@ -14,15 +15,17 @@ namespace MoneySpot6.WebApp.Features.Debug
         private readonly Db _db;
         private readonly RawDataParser _rawDataParser;
         private readonly ExternalProcessMonitor _externalProcessMonitor;
+        private readonly StockUpdater _stockUpdater;
 
-        public DebugController(Db db, RawDataParser rawDataParser, ExternalProcessMonitor externalProcessMonitor)
+        public DebugController(Db db, RawDataParser rawDataParser, ExternalProcessMonitor externalProcessMonitor, StockUpdater stockUpdater)
         {
             _db = db;
             _rawDataParser = rawDataParser;
             _externalProcessMonitor = externalProcessMonitor;
+            _stockUpdater = stockUpdater;
         }
 
-        [HttpPost]
+        [HttpPost("ReprocessTransactionParsing")]
         public async Task ReprocessTransactionParsing()
         {
             var transactions = await _db.BankAccountTransactions.AsTracking().ToArrayAsync();
@@ -33,7 +36,14 @@ namespace MoneySpot6.WebApp.Features.Debug
             await _db.SaveChangesAsync();
         }
 
-        public async Task<ImmutableArray<RunningProcessResponse>> GetRunningProcesses()
+        [HttpPost("ReimportLast30DayStocks")]
+        public async Task ReimportLast30DayStocks()
+        {
+            //await _stockUpdater.Update(30, true, CancellationToken.None);
+        }
+
+        [HttpGet("GetRunningAdapters")]
+        public async Task<ImmutableArray<RunningProcessResponse>> GetRunningAdapters()
         {
             return [
                 .._externalProcessMonitor

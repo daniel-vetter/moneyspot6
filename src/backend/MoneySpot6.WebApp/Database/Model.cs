@@ -111,3 +111,26 @@ public enum PaymentProcessor
     None = 0,
     Paypal = 1
 }
+
+[Table("Stocks")]
+public class DbStock
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public required string? Symbol { get; set; }
+    public DateTimeOffset? LastImport { get; set; }
+    public string? LastImportError { get; set; }
+}
+
+[Table("StockPrices")]
+public class DbStockPrice
+{
+    public int Id { get; set; }
+    public required DbStock Stock { get; set; }
+    public required DateOnly Date { get; set; }
+    public required decimal Open { get; set; }
+    public required decimal Close { get; set; }
+    public required decimal High { get; set; }
+    public required decimal Low { get; set; }
+    public required int Volume { get; set; }
+}
