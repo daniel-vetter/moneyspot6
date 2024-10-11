@@ -1,16 +1,17 @@
 ﻿using System.Collections.Immutable;
+using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Stocks.PriceImport.YahooAdapter;
 
 [SingletonService]
 public class YahooStockDateProvider
 {
-    public async Task<ImmutableArray<StockPrice>> Get(DateTimeOffset start, DateTimeOffset end, string symbol, string interval)
+    public async Task<ImmutableArray<StockPrice>> Get(DateTimeOffset start, DateTimeOffset end, string symbol, StockPriceInterval interval)
     {
         var client = new HttpClient();
         client.DefaultRequestHeaders.Host = "query1.finance.yahoo.com";
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
-        var response = await client.GetAsync($"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1={start.ToUnixTimeSeconds()}&period2={end.ToUnixTimeSeconds()}&interval={interval}&includePrePost=true&events=div%7Csplit%7Cearn&&lang=de-DE&region=DE");
+        var response = await client.GetAsync($"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1={start.ToUnixTimeSeconds()}&period2={end.ToUnixTimeSeconds()}&interval={(interval == StockPriceInterval.FiveMinutes ? "5m" : "1d")}&includePrePost=true&events=div%7Csplit%7Cearn&&lang=de-DE&region=DE");
         response.EnsureSuccessStatusCode();
 
         var responseJson = await response.Content.ReadFromJsonAsync<Response>();
@@ -44,11 +45,10 @@ public class YahooStockDateProvider
             timestamps.Length != quote.Volume.Length)
             throw new Exception("Dataset length does not match");
 
-        var r = ImmutableArray.CreateBuilder<StockPrice>(timestamps.Length);
+        var r = ImmutableArray.CreateBuilder<StockPrice>();
         for (var i = 0; i < timestamps.Length; i++)
         {
             var timestamp = DateTimeOffset.FromUnixTimeSeconds(timestamps[i]);
-            var date = new DateOnly(timestamp.Year, timestamp.Month, timestamp.Day);
             var open = quote.Open[i];
             var close = quote.Close[i];
             var high = quote.High[i];
@@ -61,7 +61,7 @@ public class YahooStockDateProvider
             r.Add(new StockPrice(timestamp, open.Value, close.Value, low.Value, high.Value, volume.Value));
         }
 
-        return r.MoveToImmutable();
+        return r.ToImmutable();
     }
 
 

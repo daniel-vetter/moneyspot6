@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Stocks.PriceImport.YahooAdapter;
-using System;
-using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Features.Stocks.PriceImport;
 
@@ -24,113 +22,118 @@ public class StockUpdater
     {
         var allStocks = await _db
             .Stocks
-            .AsTracking()
+            .AsNoTracking()
             .ToArrayAsync();
 
         foreach (var stock in allStocks)
         {
             ct.ThrowIfCancellationRequested();
-
-            if (stock.Symbol == null)
-                continue;
-
-            Exception? error = null;
-            try
-            {
-                var lastEntry = await _db.StockPrices
-                    .Where(x => x.Stock == stock)
-                    .OrderByDescending(x => x.Date)
-                    .Take(1)
-                    .SingleOrDefaultAsync();
-
-                var start = lastEntry?.Date.AddDays(-10) ?? new DateOnly(2009, 1, 1);
-                var end = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
-
-                var timeZone = TimeZoneInfo.Local; //TODO: Save to DB
-                var entries = await _yahooStockDateProvider.Get(ToDateTimeOffsetUtc(start, timeZone), ToDateTimeOffsetUtc(end, timeZone), stock.Symbol, "1d");
-                
-                await Integrate(stock.Id, entries, timeZone);
-            }
-            catch (TaskCanceledException) { }
-            catch (Exception e)
-            {
-                error = e;
-            }
-
-            stock.LastImport = DateTimeOffset.UtcNow;
-            stock.LastImportError = error?.ToString();
-            await _db.SaveChangesAsync();
+            
+            await RunImport(stock.Id, StockPriceInterval.Daily);
+            await RunImport(stock.Id, StockPriceInterval.FiveMinutes);
         }
     }
 
-    static DateTimeOffset ToDateTimeOffsetUtc(DateOnly dateOnly, TimeZoneInfo timeZone)
+    private async Task RunImport(int stockId, StockPriceInterval interval)
     {
-        return new DateTimeOffset(dateOnly, TimeOnly.MinValue, timeZone.GetUtcOffset(dateOnly.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc))).ToUniversalTime();
-    }
-
-    static DateOnly ToDateOnly(DateTimeOffset dateTimeOffset, TimeZoneInfo timeZone)
-    {
-        var r = TimeZoneInfo.ConvertTime(dateTimeOffset, timeZone);
-        return new DateOnly(r.Year, r.Month, r.Day);
-    }
-
-    private async Task Integrate(int stockId, ImmutableArray<StockPrice> stockPrices, TimeZoneInfo timeZone)
-    {
-        if (stockPrices.Length == 0)
-            return;
-
         var stock = await _db
             .Stocks
             .AsTracking()
             .Where(x => x.Id == stockId)
             .SingleAsync();
 
-        var min = stockPrices.Select(x => ToDateOnly(x.Timestamp, timeZone)).Min();
-        var max = stockPrices.Select(x => ToDateOnly(x.Timestamp, timeZone)).Max();
+        if (stock.Symbol == null)
+            return;
 
-        var existingEntries = await _db.StockPrices
-            .AsTracking()
-            .Where(x => x.Stock.Id == stockId)
-            .Where(x => x.Date >= min && x.Date <= max)
-            .ToDictionaryAsync(x => x.Date, x => x);
-
-        var changedEntries = 0;
-        var addedEntries = 0;
-        foreach (var stockPrice in stockPrices)
+        Exception? error = null;
+        try
         {
-            if (existingEntries.TryGetValue(ToDateOnly(stockPrice.Timestamp, timeZone), out var existing))
+            var lastEntry = await _db.StockPrices
+                .Where(x => x.Stock == stock)
+                .Where(x => x.Interval == interval)
+                .OrderByDescending(x => x.Timestamp)
+                .FirstOrDefaultAsync();
+
+            var queryStart = (interval, lastEntry?.Timestamp) switch
             {
-                if (existing.Open != stockPrice.Open ||
-                    existing.Close != stockPrice.Close ||
-                    existing.High != stockPrice.High ||
-                    existing.Low != stockPrice.Low ||
-                    existing.Volume != stockPrice.Volume)
+                (StockPriceInterval.Daily, null) => new DateTimeOffset(2009, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                (StockPriceInterval.Daily, not null) => lastEntry.Timestamp.AddDays(-10),
+                (StockPriceInterval.FiveMinutes, null) => DateTimeOffset.UtcNow.AddDays(-29),
+                (StockPriceInterval.FiveMinutes, not null) => lastEntry.Timestamp.AddHours(-2),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            var queryEnd = DateTimeOffset.UtcNow.AddDays(1);
+
+            var prices = await _yahooStockDateProvider.Get(queryStart, queryEnd, stock.Symbol, interval);
+
+            if (prices.Length == 0)
+                return;
+            
+            var existingEntries = await _db.StockPrices
+                .AsTracking()
+                .Where(x => x.Stock == stock)
+                .Where(x => x.Interval == interval)
+                .Where(x => x.Timestamp >= queryStart && x.Timestamp <= queryEnd)
+                .ToDictionaryAsync(x => x.Timestamp, x => x);
+
+            var changedEntries = 0;
+            var addedEntries = 0;
+            foreach (var stockPrice in prices)
+            {
+                if (existingEntries.TryGetValue(stockPrice.Timestamp, out var existing))
                 {
-                    existing.Open = stockPrice.Open;
-                    existing.Close = stockPrice.Close;
-                    existing.High = stockPrice.High;
-                    existing.Low = stockPrice.Low;
-                    existing.Volume = stockPrice.Volume;
-                    changedEntries++;
+                    if (existing.Open != stockPrice.Open ||
+                        existing.Close != stockPrice.Close ||
+                        existing.High != stockPrice.High ||
+                        existing.Low != stockPrice.Low ||
+                        existing.Volume != stockPrice.Volume)
+                    {
+                        existing.Open = stockPrice.Open;
+                        existing.Close = stockPrice.Close;
+                        existing.High = stockPrice.High;
+                        existing.Low = stockPrice.Low;
+                        existing.Volume = stockPrice.Volume;
+                        changedEntries++;
+                    }
+                }
+                else
+                {
+                    _db.StockPrices.Add(new DbStockPrice
+                    {
+                        Stock = stock,
+                        Timestamp = stockPrice.Timestamp,
+                        Interval = interval,
+                        Open = stockPrice.Open,
+                        Close = stockPrice.Close,
+                        High = stockPrice.High,
+                        Low = stockPrice.Low,
+                        Volume = stockPrice.Volume,
+                    });
+                    addedEntries++;
                 }
             }
-            else
-            {
-                _db.StockPrices.Add(new DbStockPrice
-                {
-                    Stock = stock,
-                    Date = ToDateOnly(stockPrice.Timestamp, timeZone),
-                    Open = stockPrice.Open,
-                    Close = stockPrice.Close,
-                    High = stockPrice.High,
-                    Low = stockPrice.Low,
-                    Volume = stockPrice.Volume,
-                });
-                addedEntries++;
-            }
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Integrated new prices for stock {name} (Id: {id}, Interval: {interval}). Retrieved: {retrieved}, Changed: {changed}, Added: {added}", stock.Name, stock.Id, interval.ToString(), prices.Length, changedEntries, addedEntries);
         }
-        await _db.SaveChangesAsync();
+        catch (TaskCanceledException) { }
+        catch (Exception e)
+        {
+            error = e;
+            _logger.LogError(e, "Integration of new prices for stock {name} (Id: {id}, Interval: {interval}) failed", stock.Name, stock.Id, interval.ToString());
+        }
 
-        _logger.LogInformation("Integrated new prices for stock {name} ({id}). Retrieved: {retrieved}, Changed: {changed}, Added: {added}", stock.Name, stock.Id, stockPrices.Length, changedEntries, addedEntries);
+        switch (interval)
+        {
+            case StockPriceInterval.Daily:
+                stock.LastImportDaily = DateTimeOffset.UtcNow;
+                stock.LastImportErrorDaily = error?.Message;
+                break;
+            case StockPriceInterval.FiveMinutes:
+                stock.LastImport5Min = DateTimeOffset.UtcNow;
+                stock.LastImportError5Min = error?.Message;
+                break;
+            default:
+                throw new ArgumentException("Invalid interval");
+        }
     }
 }

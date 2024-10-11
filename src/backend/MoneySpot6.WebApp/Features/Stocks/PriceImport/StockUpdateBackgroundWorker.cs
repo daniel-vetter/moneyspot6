@@ -21,7 +21,6 @@ public class StockUpdateBackgroundWorker : BackgroundService
                 await using var scope = _serviceProvider.CreateAsyncScope();
                 var updater = scope.ServiceProvider.GetRequiredService<StockUpdater>();
                 await updater.Update(stoppingToken);
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
             catch (TaskCanceledException)
             {
@@ -30,6 +29,11 @@ public class StockUpdateBackgroundWorker : BackgroundService
             catch (Exception e)
             {
                 _logger.LogError(e, "Stock update worker crashed.");
+                
+            }
+            finally
+            {
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken).ContinueWith(_ => {});
             }
         }
     }

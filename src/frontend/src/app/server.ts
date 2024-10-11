@@ -251,7 +251,7 @@ export class StockChartPageClient {
         return _observableOf(null as any);
     }
 
-    getHistory(stockId: number | undefined, start: Date | null | undefined, end: Date | null | undefined): Observable<StockPriceResponse[]> {
+    getHistory(stockId: number | undefined, start: Date | null | undefined, end: Date | null | undefined, interval: StockPriceInterval | undefined): Observable<StockPriceResponse[]> {
         let url_ = this.baseUrl + "/api/StockChartPage/GetHistory?";
         if (stockId === null)
             throw new Error("The parameter 'stockId' cannot be null.");
@@ -261,6 +261,10 @@ export class StockChartPageClient {
             url_ += "start=" + encodeURIComponent(start ? "" + start.toISOString() : "") + "&";
         if (end !== undefined && end !== null)
             url_ += "end=" + encodeURIComponent(end ? "" + end.toISOString() : "") + "&";
+        if (interval === null)
+            throw new Error("The parameter 'interval' cannot be null.");
+        else if (interval !== undefined)
+            url_ += "interval=" + encodeURIComponent("" + interval) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -974,12 +978,12 @@ export interface IStockResponse {
 }
 
 export class StockPriceResponse implements IStockPriceResponse {
-    date?: Date;
-    open?: number;
-    close?: number;
-    high?: number;
-    low?: number;
-    volume?: number;
+    timestamp!: Date;
+    open!: number;
+    close!: number;
+    high!: number;
+    low!: number;
+    volume!: number;
 
     constructor(data?: IStockPriceResponse) {
         if (data) {
@@ -992,7 +996,7 @@ export class StockPriceResponse implements IStockPriceResponse {
 
     init(_data?: any) {
         if (_data) {
-            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : <any>undefined;
             this.open = _data["open"];
             this.close = _data["close"];
             this.high = _data["high"];
@@ -1010,7 +1014,7 @@ export class StockPriceResponse implements IStockPriceResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
+        data["timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>undefined;
         data["open"] = this.open;
         data["close"] = this.close;
         data["high"] = this.high;
@@ -1021,12 +1025,17 @@ export class StockPriceResponse implements IStockPriceResponse {
 }
 
 export interface IStockPriceResponse {
-    date?: Date;
-    open?: number;
-    close?: number;
-    high?: number;
-    low?: number;
-    volume?: number;
+    timestamp: Date;
+    open: number;
+    close: number;
+    high: number;
+    low: number;
+    volume: number;
+}
+
+export enum StockPriceInterval {
+    FiveMinutes = 5,
+    Daily = 1440,
 }
 
 export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {

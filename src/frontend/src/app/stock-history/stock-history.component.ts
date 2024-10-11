@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { StockChartPageClient, StockResponse } from '../server';
+import { StockChartPageClient, StockPriceInterval, StockResponse } from '../server';
 import { lastValueFrom } from 'rxjs';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
@@ -15,8 +15,12 @@ import * as Highcharts from 'highcharts/highstock';
   styleUrl: './stock-history.component.scss'
 })
 export class StockHistoryComponent implements OnInit {
-  stocks: StockResponse[] | undefined;
+  possibleStocks: StockResponse[] | undefined;
   selectedStockId?: number;
+
+  possibleIntervals = ["Täglich", "5 Minuten"]
+  selectedInterval = "5 Minuten";
+
   Highcharts: typeof Highcharts = Highcharts;
   chart?: Highcharts.Options;
 
@@ -25,12 +29,16 @@ export class StockHistoryComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.stocks = await lastValueFrom(this.stockChartPageClient.getStocks());
-    if (this.stocks.length > 0) {
-      this.selectedStockId = this.stocks[0].id;
+    await this.update();
+  }
+
+  async update(): Promise<void> {
+    this.possibleStocks = await lastValueFrom(this.stockChartPageClient.getStocks());
+    if (this.possibleStocks.length > 0) {
+      this.selectedStockId = this.possibleStocks[0].id;
     }
 
-    const data = await lastValueFrom(this.stockChartPageClient.getHistory(this.selectedStockId, undefined, undefined));
+    const data = await lastValueFrom(this.stockChartPageClient.getHistory(this.selectedStockId, undefined, undefined, this.selectedInterval == "5 Minuten" ? StockPriceInterval.FiveMinutes : StockPriceInterval.Daily));
     this.chart = {
       chart: {
         animation: {
@@ -88,11 +96,13 @@ export class StockHistoryComponent implements OnInit {
       },
       series: [
         {
-          type: "line",
-          data: data.flatMap(x => [
-            [new Date(x.date!).setHours(7), x.open],
-            [new Date(x.date!).setHours(16), x.close]
-          ]),
+          type: "ohlc",
+          name: "Preis",
+          data: data.map(x => [+new Date(x.timestamp), x.open, x.high, x.low, x.close]),
+          color: 'var(--red-600)',
+          //lineColor: 'var(--red-900)',
+          upColor: 'var(--green-600)',
+          //upLineColor: 'var(--green-900)',
           animation: {
             duration: 0
           }

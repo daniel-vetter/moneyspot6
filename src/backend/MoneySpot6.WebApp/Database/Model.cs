@@ -118,8 +118,10 @@ public class DbStock
     public int Id { get; set; }
     public required string Name { get; set; }
     public required string? Symbol { get; set; }
-    public DateTimeOffset? LastImport { get; set; }
-    public string? LastImportError { get; set; }
+    public DateTimeOffset? LastImportDaily { get; set; }
+    public string? LastImportErrorDaily { get; set; }
+    public DateTimeOffset? LastImport5Min { get; set; }
+    public string? LastImportError5Min { get; set; }
 }
 
 [Table("StockPrices")]
@@ -127,10 +129,17 @@ public class DbStockPrice
 {
     public int Id { get; set; }
     public required DbStock Stock { get; set; }
-    public required DateOnly Date { get; set; }
+    public required DateTimeOffset Timestamp { get; set; }
+    public required StockPriceInterval Interval { get; set; }
     public required decimal Open { get; set; }
     public required decimal Close { get; set; }
     public required decimal High { get; set; }
     public required decimal Low { get; set; }
     public required int Volume { get; set; }
+}
+
+public enum StockPriceInterval
+{
+    Daily = 1440,
+    FiveMinutes = 5
 }

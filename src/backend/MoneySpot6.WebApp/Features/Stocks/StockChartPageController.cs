@@ -1,8 +1,9 @@
-﻿using System.Collections.Immutable;
-using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace MoneySpot6.WebApp.Features.Stocks
 {
@@ -32,31 +33,29 @@ namespace MoneySpot6.WebApp.Features.Stocks
         }
 
         [HttpGet("GetHistory")]
-        public async Task<ImmutableArray<StockPriceResponse>> GetHistory(int stockId, DateOnly? start, DateOnly? end)
+        public async Task<ImmutableArray<StockPriceResponse>> GetHistory(int stockId, DateTimeOffset? start, DateTimeOffset? end, StockPriceInterval interval)
         {
             IQueryable<DbStockPrice> query = _db.StockPrices
                 .AsNoTracking()
-                .Where(x => x.Stock.Id == stockId);
+                .Where(x => x.Stock.Id == stockId)
+                .Where(x => x.Interval == interval);
             
             if (start.HasValue)
-                query = query.Where(x => x.Date >= start);
+                query = query.Where(x => x.Timestamp >= start);
 
             if (end.HasValue)
-                query = query.Where(x => x.Date < end);
+                query = query.Where(x => x.Timestamp < end);
 
             var entries = await query
-                .OrderBy(x => x.Date)
+                .OrderBy(x => x.Timestamp)
                 .ToArrayAsync();
             
-            var timestamps = ImmutableArray.CreateBuilder<long>(entries.Length);
-            var prices = ImmutableArray.CreateBuilder<decimal>(entries.Length);
-
             var r = ImmutableArray.CreateBuilder<StockPriceResponse>(entries.Length);
             foreach (var entry in entries)
             {
                 r.Add(new StockPriceResponse
                 {
-                    Date = entry.Date,
+                    Timestamp = entry.Timestamp,
                     Open = entry.Open,
                     Close = entry.Close,
                     High = entry.High,
@@ -77,11 +76,11 @@ namespace MoneySpot6.WebApp.Features.Stocks
 
     public class StockPriceResponse
     {
-        public required DateOnly Date { get; init; }
-        public decimal Open { get; init; }
-        public decimal Close { get; init; }
-        public decimal High { get; init; }
-        public decimal Low { get; init; }
-        public decimal Volume { get; init; }
+        [Required] public required DateTimeOffset Timestamp { get; init; }
+        [Required] public decimal Open { get; init; }
+        [Required] public decimal Close { get; init; }
+        [Required] public decimal High { get; init; }
+        [Required] public decimal Low { get; init; }
+        [Required] public decimal Volume { get; init; }
     }
 }
