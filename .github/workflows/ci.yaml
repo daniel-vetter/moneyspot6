@@ -21,4 +21,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: dvetter/moneyspot6:latest
+          tags: dvetter/moneyspot6:${{ github.sha }}
