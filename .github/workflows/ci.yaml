@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  docker:
+  build:
     runs-on: ubuntu-latest
     steps:
       -
@@ -20,8 +20,25 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max`
           push: true
-          tags: dvetter/moneyspot6:${{ github.sha }}
+          tags: dvetter/moneyspot6:latest , dvetter/moneyspot6:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: src/deployment/webapp.yaml
+      - uses: azure/setup-kubectl@v4
+      - name: Set up Kubectl
+        uses: azure/k8s-set-context@v4
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+      - uses: Azure/k8s-deploy@v5
+        with:
+          namespace: 'moneyspot6'
+          manifests: src/deployment/webapp.yaml
+          images: 'dvetter/moneyspot6:${{ github.sha }}'
