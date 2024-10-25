@@ -28,3 +28,36 @@ spec:
             secretKeyRef:
               name: db-cred
               key: ConnectionString
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moneyspot6-web-app-service
+spec:
+  selector:
+    app: moneyspot6
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moneyspot6-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: traefik
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moneyspot6-web-app-service
+                port:
+                  number: 80
+                  
