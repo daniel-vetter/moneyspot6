@@ -22,3 +22,9 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
+        env:
+        - name: ConnectionStrings__Db
+          valueFrom:
+            secretKeyRef:
+              name: db-cred
+              key: ConnectionString
