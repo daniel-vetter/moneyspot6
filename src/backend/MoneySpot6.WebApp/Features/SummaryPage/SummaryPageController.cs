@@ -33,7 +33,7 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
 
             return Ok(new BankAccountSummaryResponse
             {
-                Total = entries.Length == 0 ? 0 : entries.Sum(x => x.Total),
+                Total = entries.Aggregate(0L, (a, b) => a + b.Total),
                 Accounts = [..entries]
             });
         }
@@ -71,13 +71,63 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
                 ExpectedHistory = expected.ToImmutable()
             });
         }
+
+        [HttpGet("GetStockSummary")]
+        public async Task<ActionResult<StockSummaryResponse>> GetStockSummary()
+        {
+            var stocks = await _db.Stocks.AsNoTracking().ToArrayAsync();
+            var result = ImmutableArray.CreateBuilder<StockSummaryEntryResponse>();
+            foreach (var stock in stocks)
+            {
+                var currentPrice = (await _db.StockPrices
+                    .AsNoTracking()
+                    .Where(x => x.Stock.Id == stock.Id)
+                    .Where(x => x.Interval == StockPriceInterval.FiveMinutes)
+                    .OrderByDescending(x => x.Timestamp)
+                    .FirstOrDefaultAsync())?.Close ?? 0;
+
+                var currentAmount = await _db.StockTransactions
+                    .AsNoTracking()
+                    .Where(x => x.Stock.Id == stock.Id)
+                    .Select(x => x.Amount)
+                    .SumAsync();
+                
+                result.Add(new StockSummaryEntryResponse
+                {
+                    Id = stock.Id,
+                    Name = stock.Name,
+                    StockPrice = currentPrice,
+                    Total = currentPrice * currentAmount
+                });
+            }
+
+            return Ok(new StockSummaryResponse
+            {
+                Entries = result.ToImmutable(),
+                Total = result.Aggregate(0m, (a, b) => a + b.Total)
+            });
+        }
+    }
+
+    public record StockSummaryResponse
+    {
+        [Required] public required decimal Total { get; init; }
+        [Required] public required ImmutableArray<StockSummaryEntryResponse> Entries { get; init; }
+    }
+
+    public record StockSummaryEntryResponse
+    {
+        [Required] public long Id { get; init; }
+        [Required] public string Name { get; init; }
+        [Required] public decimal StockPrice { get; init; }
+        [Required] public decimal Total { get; init; }
     }
 
     public record BankAccountEntrySummaryResponse
     {
-        public required int Id { get; init; }
-        public required string Name { get; init; }
-        public required long Total { get; init; }
+        [Required] public required int Id { get; init; }
+        [Required] public required string Name { get; init; }
+        [Required] public required long Total { get; init; }
     }
 
     public record BankAccountTotalGoalResponse

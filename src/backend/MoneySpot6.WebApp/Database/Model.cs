@@ -138,6 +138,16 @@ public class DbStockPrice
     public required int Volume { get; set; }
 }
 
+[Table("StockTransactions")]
+public class DbStockTransaction
+{
+    public int Id { get; set; }
+    public required DbStock Stock { get; set; }
+    public required DateTimeOffset Timestamp { get; set; }
+    public required decimal Amount { get; set; }
+    public required decimal Price { get; set; }
+}
+
 public enum StockPriceInterval
 {
     Daily = 1440,

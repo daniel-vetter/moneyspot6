@@ -364,6 +364,33 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.ToTable("StockPrices");
                 });
 
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbStockTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("StockId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StockId");
+
+                    b.ToTable("StockTransactions");
+                });
+
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbBankAccount", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbBankConnection", "BankConnection")
@@ -387,6 +414,17 @@ namespace MoneySpot6.WebApp.Database.Migrations
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbStockPrice", b =>
+                {
+                    b.HasOne("MoneySpot6.WebApp.Database.DbStock", "Stock")
+                        .WithMany()
+                        .HasForeignKey("StockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Stock");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbStockTransaction", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbStock", "Stock")
                         .WithMany()
