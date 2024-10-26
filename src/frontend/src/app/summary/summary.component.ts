@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom, Subscription } from 'rxjs';
-import { BankAccountSummaryResponse, SummaryPageClient } from '../server';
+import {BankAccountSummaryResponse, StockSummaryResponse, SummaryPageClient} from '../server';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
 import { ValueComponent } from '../common/value/value.component';
@@ -20,7 +20,8 @@ import { minDelay } from '../common/load-delay';
     styleUrl: './summary.component.scss',
 })
 export class SummaryComponent implements OnInit, OnDestroy {
-    bankAccounts?: BankAccountSummaryResponse;
+    bankAccountSummary?: BankAccountSummaryResponse;
+    stockSummary?: StockSummaryResponse;
     total = 0;
     private _onAccountSyncDoneSubscription?: Subscription;
     isLoading = true;
@@ -40,8 +41,14 @@ export class SummaryComponent implements OnInit, OnDestroy {
     }
 
     private async update() {
-        this.bankAccounts = await minDelay(lastValueFrom(this.summaryPageClient.getBankAccountSummary()));
-        this.total = this.bankAccounts.accounts.reduce((a, b) => a + b.total!, 0)!;
+        const bankAccountsPromise = minDelay(lastValueFrom(this.summaryPageClient.getBankAccountSummary()));
+        const stocksPromise = minDelay(lastValueFrom(this.summaryPageClient.getStockSummary()));
+
+        const [bankAccounts, stockSummary] = await Promise.all([bankAccountsPromise, stocksPromise]);
+
+        this.bankAccountSummary = bankAccounts;
+        this.stockSummary = stockSummary;
+        this.total = bankAccounts.accounts.reduce((a, b) => a + b.total, 0)! + stockSummary.total * 100;
         this.isLoading = false;
     }
 }

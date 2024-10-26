@@ -9,10 +9,10 @@
                 <b>Gesamt</b>
             </ng-template>
             <div style="width: 100%; text-align: center"></div>
-            <app-value [value]="total + 8700000" size="3.5rem" />
+            <app-value [value]="total" size="3.5rem" />
         </p-panel>
 
-        @if (bankAccounts) {
+        @if (bankAccountSummary) {
             <p-panel class="accounts">
                 <ng-template pTemplate="header">
                     <div class="horizontal" style="width: 100%">
@@ -21,7 +21,7 @@
                         <div class="spacer"></div>
                         <div class="header-value hidden-on-mobile">
                             <div>Gesamt</div>
-                            <app-value [value]="total" size="1.5rem" />
+                            <app-value [value]="bankAccountSummary.total" size="1.5rem" />
                         </div>
                         <div class="hidden-on-desktop">
                             <app-value [value]="total" size="1.5rem" />
@@ -33,7 +33,7 @@
                         <div style="flex: 1">Konto</div>
                         <div>Guthaben</div>
                     </div>
-                    @for (entry of bankAccounts.accounts; track entry.id) {
+                    @for (entry of bankAccountSummary.accounts; track entry.id) {
                         <div>
                             <div style="flex: 1">
                                 {{ entry.name }}
@@ -49,31 +49,36 @@
 
         <app-goal class="goal"></app-goal>
 
-        <p-panel class="stocks">
-            <ng-template pTemplate="header">
-                <b style="font-size: 1.5rem; flex: 1">Depot</b>
+        @if (stockSummary !== undefined) {
+            <p-panel class="stocks">
+                <ng-template pTemplate="header">
+                    <b style="font-size: 1.5rem; flex: 1">Depot</b>
 
-                <div class="header-value hidden-on-mobile">
-                    <div>Gesamt</div>
-                    <app-value [value]="8700000" size="1.5rem" />
-                </div>
-                <div class="hidden-on-desktop">
-                    <app-value [value]="8700000" size="1.5rem" />
-                </div>
-            </ng-template>
-            <div class="table">
-                <div class="header">
-                    <div style="flex: 1">Wertpapier</div>
-                    <div class="right" style="width: 80px">Kurs</div>
-                    <div class="right" style="width: 80px">Wert</div>
-                </div>
+                    <div class="header-value hidden-on-mobile">
+                        <div>Gesamt</div>
+                        <app-value [value]="stockSummary.total * 100" size="1.5rem" />
+                    </div>
+                    <div class="hidden-on-desktop">
+                        <app-value [value]="8700000" size="1.5rem" />
+                    </div>
+                </ng-template>
+                <div class="table">
+                    <div class="header">
+                        <div style="flex: 1">Wertpapier</div>
+                        <div class="right" style="width: 80px">Kurs</div>
+                        <div class="right" style="width: 80px">Wert</div>
+                    </div>
 
-                <div>
-                    <div style="flex: 1">MSCI World</div>
-                    <div class="right" style="width: 80px"><app-value [value]="9421" /></div>
-                    <div class="right" style="width: 80px"><app-value [value]="8700000" /></div>
+                    @for(entry of stockSummary?.entries; track entry.id) {
+                        <div>
+                            <div style="flex: 1">{{ entry.name }}</div>
+                            <div class="right" style="width: 80px"><app-value [value]="entry.stockPrice * 100" /></div>
+                            <div class="right" style="width: 80px"><app-value [value]="entry.total * 100" /></div>
+                        </div>
+                    }
                 </div>
-            </div>
-        </p-panel>
+            </p-panel>
+        }
+
     </div>
 }

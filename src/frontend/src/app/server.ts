@@ -183,6 +183,54 @@ export class SummaryPageClient {
         }
         return _observableOf(null as any);
     }
+
+    getStockSummary(): Observable<StockSummaryResponse> {
+        let url_ = this.baseUrl + "/api/SummaryPage/GetStockSummary";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetStockSummary(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetStockSummary(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StockSummaryResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StockSummaryResponse>;
+        }));
+    }
+
+    protected processGetStockSummary(response: HttpResponseBase): Observable<StockSummaryResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StockSummaryResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -782,9 +830,9 @@ export interface IBankAccountSummaryResponse {
 }
 
 export class BankAccountEntrySummaryResponse implements IBankAccountEntrySummaryResponse {
-    id?: number;
-    name?: string;
-    total?: number;
+    id!: number;
+    name!: string;
+    total!: number;
 
     constructor(data?: IBankAccountEntrySummaryResponse) {
         if (data) {
@@ -820,9 +868,9 @@ export class BankAccountEntrySummaryResponse implements IBankAccountEntrySummary
 }
 
 export interface IBankAccountEntrySummaryResponse {
-    id?: number;
-    name?: string;
-    total?: number;
+    id: number;
+    name: string;
+    total: number;
 }
 
 export class BankAccountTotalGoalResponse implements IBankAccountTotalGoalResponse {
@@ -935,6 +983,105 @@ export class BalanceEntryResponse implements IBalanceEntryResponse {
 export interface IBalanceEntryResponse {
     date: Date;
     balance: number;
+}
+
+export class StockSummaryResponse implements IStockSummaryResponse {
+    total!: number;
+    entries!: StockSummaryEntryResponse[];
+
+    constructor(data?: IStockSummaryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.entries = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total = _data["total"];
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(StockSummaryEntryResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StockSummaryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new StockSummaryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total"] = this.total;
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IStockSummaryResponse {
+    total: number;
+    entries: StockSummaryEntryResponse[];
+}
+
+export class StockSummaryEntryResponse implements IStockSummaryEntryResponse {
+    id!: number;
+    name!: string;
+    stockPrice!: number;
+    total!: number;
+
+    constructor(data?: IStockSummaryEntryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.stockPrice = _data["stockPrice"];
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): StockSummaryEntryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new StockSummaryEntryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["stockPrice"] = this.stockPrice;
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface IStockSummaryEntryResponse {
+    id: number;
+    name: string;
+    stockPrice: number;
+    total: number;
 }
 
 export class StockResponse implements IStockResponse {
