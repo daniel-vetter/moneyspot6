@@ -51,7 +51,8 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - http:
+    - host: money.dvetter.net
+      http:
         paths:
           - path: /
             pathType: Prefix
