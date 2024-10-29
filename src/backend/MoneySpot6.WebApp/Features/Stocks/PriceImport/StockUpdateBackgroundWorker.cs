@@ -18,6 +18,7 @@ public class StockUpdateBackgroundWorker : BackgroundService
         {
             try
             {
+                using var activity = AppActivitySource.Start("StockUpdate");
                 await using var scope = _serviceProvider.CreateAsyncScope();
                 var updater = scope.ServiceProvider.GetRequiredService<StockUpdater>();
                 await updater.Update(stoppingToken);

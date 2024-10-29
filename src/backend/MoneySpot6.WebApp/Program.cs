@@ -2,8 +2,16 @@
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
+using MoneySpot6.WebApp.Features.Stocks.PriceImport;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
+using Npgsql;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace MoneySpot6.WebApp;
 
@@ -25,7 +33,27 @@ public class Program
         builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
         builder.Services.AddServiceFromAttributes();
-
+        builder.Logging.AddOpenTelemetry(x =>
+        {
+            x.IncludeFormattedMessage = true;
+        });
+        builder.Services.AddOpenTelemetry()
+            .UseOtlpExporter()
+            .WithMetrics(m => m
+                    .AddRuntimeInstrumentation()
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation())
+            .WithTracing(t => t
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation(x =>
+                {
+                    x.EnrichWithHttpResponseMessage = (activity, message) => activity.AddTag("net.peer.name", message.RequestMessage?.RequestUri?.Host);
+                    x.EnrichWithHttpResponseMessage = (activity, message) => activity.AddTag("net.peer.name", message.RequestMessage?.RequestUri?.Host);
+                })
+                .AddNpgsql()
+                .AddSource(AppActivitySource.Name)
+                .SetSampler<AlwaysOnSampler>())
+            .WithLogging();
 
         var app = builder.Build();
         if (await app.Services.CreateTypeScriptClient(args))
