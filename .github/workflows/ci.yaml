@@ -43,3 +43,4 @@ jobs:
           namespace: 'moneyspot6'
           manifests: src/deployment/webapp.yaml
           images: 'dvetter/moneyspot6:${{ github.sha }}'
+          pull-images: false
