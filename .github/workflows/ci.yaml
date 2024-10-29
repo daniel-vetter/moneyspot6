@@ -21,7 +21,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           cache-from: type=gha
-          cache-to: type=gha,mode=max`
+          cache-to: type=gha,mode=max
           push: true
           tags: dvetter/moneyspot6:latest , dvetter/moneyspot6:${{ github.sha }}
 
