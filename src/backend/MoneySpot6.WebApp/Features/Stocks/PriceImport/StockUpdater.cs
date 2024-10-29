@@ -36,6 +36,8 @@ public class StockUpdater
 
     private async Task RunImport(int stockId, StockPriceInterval interval)
     {
+        using var activity = AppActivitySource.Start("StockUpdate " + interval);
+        
         var stock = await _db
             .Stocks
             .AsTracking()

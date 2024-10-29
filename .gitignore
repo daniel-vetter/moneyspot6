@@ -2,3 +2,4 @@
 src/backend/**/bin/Debug
 src/backend/**/obj
 /build
+*.user

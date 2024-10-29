@@ -28,6 +28,12 @@ spec:
             secretKeyRef:
               name: db-cred
               key: ConnectionString
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: http://192.168.178.111:4318
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          value: http/protobuf
+        - name: OTEL_SERVICE_NAME
+          value: MoneySpot6.WebApp
 ---
 apiVersion: v1
 kind: Service
