@@ -16,6 +16,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.Configuration.AddJsonFile("/etc/moneyspot/appsettings.json", true);
         builder.Services.AddSystemd();
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
@@ -33,6 +34,7 @@ public class Program
         {
             x.IncludeFormattedMessage = true;
         });
+        builder.Logging.AddSystemdConsole();
         builder.Services.AddOpenTelemetry()
             .UseOtlpExporter()
             .WithMetrics(m => m
