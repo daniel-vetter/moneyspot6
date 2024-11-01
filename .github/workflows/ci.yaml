@@ -43,10 +43,12 @@ jobs:
         with:
           name: appfiles
           path: ./appfiles
-      - name: SSH Deployment
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: src/deployment/install.sh
+      - name: Updating deployment
         run: |
-          systemctl stop moneyspot
-          rsync -a ./appfiles/ /var/moneyspot
-          chown -R moneyspot:moneyspot /var/moneyspot
-          systemctl start moneyspot
+          chmod +x src/deployment/install.sh
+          src/deployment/install.sh moneyspot prod ./appfiles MoneySpot6.WebApp.dll
+
           

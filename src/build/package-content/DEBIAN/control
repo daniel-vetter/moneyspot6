@@ -1,6 +1,0 @@
-Package: moneyspot
-Version: 1.0
-Maintainer: Daniel Vetter
-Architecture: all
-Description: MoneySpot Web UI
-Depends: aspnetcore-runtime-8.0, default-jre
