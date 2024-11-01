@@ -35,20 +35,12 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: self-hosted
-    if: github.ref == 'refs/heads/master'
+    runs-on: [self-hosted, moneyspot, prod]
     steps:
-      - uses: actions/checkout@v4
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
         with:
-          sparse-checkout: src/deployment/webapp.yaml
-      - uses: azure/setup-kubectl@v4
-      - name: Set up Kubectl
-        uses: azure/k8s-set-context@v4
-        with:
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-      - uses: Azure/k8s-deploy@v5
-        with:
-          namespace: 'moneyspot6'
-          manifests: src/deployment/webapp.yaml
-          images: 'dvetter/moneyspot6:${{ github.sha }}'
-          pull-images: false
+          name: moneyspot.deb
+      - name: SSH Deployment
+        run: dpkg -i moneyspot.deb
+          
