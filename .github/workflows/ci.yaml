@@ -42,5 +42,5 @@ jobs:
         with:
           name: moneyspot.deb
       - name: SSH Deployment
-        run: dpkg -i moneyspot.deb
+        run: apt install ./moneyspot.deb
           
