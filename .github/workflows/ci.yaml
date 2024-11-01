@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p ./build
           TEMPCONTAINER=$(docker create dvetter/moneyspot6:$GITHUB_SHA)
-          docker cp $TEMPCONTAINER:/app/. ./build/var/moneyspot
+          docker cp $TEMPCONTAINER:/app/. ./build
       - name: Create artifact
         uses: actions/upload-artifact@v4
         with:
@@ -42,10 +42,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: appfiles
+          path: ./appfiles
       - name: SSH Deployment
         run: |
           systemctl stop moneyspot
-          rm -r ./var/moneyspot/*
-          mv ./build/ ./var/moneyspot/
+          rsync -a ./appfiles/ /var/moneyspot
           systemctl start moneyspot
           
