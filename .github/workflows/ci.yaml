@@ -38,14 +38,14 @@ jobs:
     needs: build
     runs-on: [self-hosted, moneyspot, prod]
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: src/deployment/install.sh
       - name: Download a single artifact
         uses: actions/download-artifact@v4
         with:
           name: appfiles
           path: ./appfiles
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: src/deployment/install.sh
       - name: Updating deployment
         run: |
           chmod +x src/deployment/install.sh
