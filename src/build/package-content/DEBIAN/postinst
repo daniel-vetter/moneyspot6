@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+# Erstelle den Service-Link und starte den Dienst
+if [ "$1" = "configure" ]; then
+    systemctl daemon-reload
+    systemctl enable moneyspot.service
+    systemctl start moneyspot.service
+fi

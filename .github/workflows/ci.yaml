@@ -24,12 +24,8 @@ jobs:
           tags: dvetter/moneyspot6:latest , dvetter/moneyspot6:${{ github.sha }}
       - name: Create dep package
         run: |
-          mkdir -p ./build/var/moneyspot
-          TEMPCONTAINER=$(docker create dvetter/moneyspot6:${{ github.sha }})
-          docker cp $TEMPCONTAINER:/app/. ./build/var/moneyspot
-          cp -r ./src/deployment/package-content/. ./build/
-          dpkg-deb --build ./build
-          mv build.deb moneyspot.deb
+          chmod +x src/build/create-package.sh
+          ./src/build/create-package.sh
       - name: Create artifact
         uses: actions/upload-artifact@v4
         with:
