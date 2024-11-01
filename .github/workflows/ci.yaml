@@ -47,5 +47,6 @@ jobs:
         run: |
           systemctl stop moneyspot
           rsync -a ./appfiles/ /var/moneyspot
+          chown -R moneyspot:moneyspot /var/moneyspot
           systemctl start moneyspot
           
