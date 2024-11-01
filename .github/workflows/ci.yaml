@@ -22,15 +22,16 @@ jobs:
           cache-to: type=gha,mode=max
           push: true
           tags: dvetter/moneyspot6:latest , dvetter/moneyspot6:${{ github.sha }}
-      - name: Create dep package
+      - name: Extracting files from docker image
         run: |
-          chmod +x src/build/create-package.sh
-          ./src/build/create-package.sh
+          mkdir -p ./build
+          TEMPCONTAINER=$(docker create dvetter/moneyspot6:$GITHUB_SHA)
+          docker cp $TEMPCONTAINER:/app/. ./build/var/moneyspot
       - name: Create artifact
         uses: actions/upload-artifact@v4
         with:
-          name: moneyspot.deb
-          path: moneyspot.deb
+          name: appfiles
+          path: ./build
 
 
   deploy:
@@ -40,7 +41,11 @@ jobs:
       - name: Download a single artifact
         uses: actions/download-artifact@v4
         with:
-          name: moneyspot.deb
+          name: appfiles
       - name: SSH Deployment
-        run: apt install ./moneyspot.deb
+        run: |
+          systemctl stop moneyspot
+          rm -r ./var/moneyspot/*
+          mv ./build/ ./var/moneyspot/
+          systemctl start moneyspot
           
