@@ -83,7 +83,7 @@ echo "done"
 # Sync files
 echo -n "Updating files... "
 mkdir -p "$TARGETDIR"
-rsync -a "$SOURCEDIR/" "$TARGETDIR"
+rsync -avh "$SOURCEDIR/" "$TARGETDIR" --delete --checksum
 chown -R $USERNAME:$GROUPNAME $TARGETDIR
 echo  "done"
 
