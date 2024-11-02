@@ -38,6 +38,7 @@ jobs:
   deployment-prod:
     needs: build
     runs-on: [self-hosted, moneyspot, prod]
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,5 +58,30 @@ jobs:
           OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.178.111:4318
           OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
           OTEL_SERVICE_NAME=moneyspot-app-prod
-          ConnectionStrings__Db=${{ secrets.CONNECTIONSTRING }}
+          ConnectionStrings__Db=${{ secrets.CONNECTIONSTRING_PROD }}
+          EOF
+
+  deployment-staging:
+    needs: build
+    runs-on: [self-hosted, moneyspot, staging]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: src/deployment/install.sh
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: appfiles
+          path: ./appfiles
+      - name: Updating deployment
+        run: |
+          chmod +x src/deployment/install.sh
+          src/deployment/install.sh moneyspot staging ./appfiles MoneySpot6.WebApp.dll
+          cat > /etc/moneyspot-staging/env << EOF
+          ASPNETCORE_ENVIRONMENT=Staging
+          ASPNETCORE_URLS=http://0.0.0.0:3000
+          OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.178.111:4318
+          OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+          OTEL_SERVICE_NAME=moneyspot-app-staging
+          ConnectionStrings__Db=${{ secrets.CONNECTIONSTRING_STAGING }}
           EOF
