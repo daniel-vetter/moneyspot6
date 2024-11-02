@@ -47,6 +47,8 @@ jobs:
           name: appfiles
           path: ./appfiles
       - name: Updating deployment
+        env:
+          CONNECTIONSTRING: ${{ secrets.CONNECTIONSTRING }}
         run: |
           chmod +x src/deployment/install.sh
           src/deployment/install.sh moneyspot prod ./appfiles MoneySpot6.WebApp.dll

@@ -72,6 +72,11 @@ User=$USERNAME
 Group=$GROUPNAME
 Environment="ASPNETCORE_ENVIRONMENT=Production"
 Environment="ASPNETCORE_URLS=http://0.0.0.0:3000"
+Environment="OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.178.111:4318"
+Environment="OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf"
+Environment="OTEL_SERVICE_NAME=http/protobuf"
+Environment="OTEL_SERVICE_NAME=$PROJECTNAME-app-$ENVIRONMENTNAME"
+Environment="ConnectionStrings_Db=$CONNECTIONSTRING"
 
 [Install]
 WantedBy=multi-user.target
