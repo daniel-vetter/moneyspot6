@@ -76,6 +76,8 @@ EnvironmentFile=/etc/$PROJECTNAME-$ENVIRONMENTNAME/env
 WantedBy=multi-user.target
 EOM
 systemctl daemon-reload
+mkdir -p "/etc/$PROJECTNAME-$ENVIRONMENTNAME"
+touch "/etc/$PROJECTNAME-$ENVIRONMENTNAME/env"
 echo "done"
 
 # Sync files
