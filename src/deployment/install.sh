@@ -84,10 +84,11 @@ echo "done"
 echo -n "Updating files... "
 mkdir -p "$TARGETDIR"
 rsync -a "$SOURCEDIR/" "$TARGETDIR"
-chown -R $USERNAME:$GROUPNAME $SOURCEDIR
+chown -R $USERNAME:$GROUPNAME $TARGETDIR
 echo  "done"
 
 # Starting the service
 echo -n "Starting service... "
+systemctl enable $SERVICENAME
 systemctl start $SERVICENAME
 echo "done"

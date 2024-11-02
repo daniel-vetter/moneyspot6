@@ -64,6 +64,7 @@ jobs:
   deployment-staging:
     needs: build
     runs-on: [self-hosted, moneyspot, staging]
+    if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
         with:
