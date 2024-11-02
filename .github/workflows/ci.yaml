@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +35,7 @@ jobs:
           path: ./build
 
 
-  deploy:
+  deployment-prod:
     needs: build
     runs-on: [self-hosted, moneyspot, prod]
     steps:
@@ -55,6 +56,6 @@ jobs:
           ASPNETCORE_URLS=http://0.0.0.0:3000
           OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.178.111:4318
           OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-          OTEL_SERVICE_NAME=$PROJECTNAME-app-$ENVIRONMENTNAME
+          OTEL_SERVICE_NAME=moneyspot-app-prod
           ConnectionStrings__Db=${{ secrets.CONNECTIONSTRING }}
           EOF
