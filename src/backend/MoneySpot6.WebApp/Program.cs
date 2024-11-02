@@ -2,15 +2,11 @@
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
-using MoneySpot6.WebApp.Features.Stocks.PriceImport;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
 using Npgsql;
 using OpenTelemetry;
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace MoneySpot6.WebApp;
@@ -20,7 +16,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        builder.Services.AddSystemd();
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument(x =>
@@ -37,6 +33,7 @@ public class Program
         {
             x.IncludeFormattedMessage = true;
         });
+        builder.Logging.AddSystemdConsole();
         builder.Services.AddOpenTelemetry()
             .UseOtlpExporter()
             .WithMetrics(m => m

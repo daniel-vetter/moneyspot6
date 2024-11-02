@@ -5,42 +5,84 @@ on:
 
 jobs:
   build:
+    
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Set up Docker Buildx
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      -
-        name: Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Build and push
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true
           tags: dvetter/moneyspot6:latest , dvetter/moneyspot6:${{ github.sha }}
+      - name: Extracting files from docker image
+        run: |
+          mkdir -p ./build
+          TEMPCONTAINER=$(docker create dvetter/moneyspot6:$GITHUB_SHA)
+          docker cp $TEMPCONTAINER:/app/. ./build
+      - name: Create artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: appfiles
+          path: ./build
 
-  deploy:
+
+  deployment-prod:
     needs: build
-    runs-on: self-hosted
+    runs-on: [self-hosted, moneyspot, prod]
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: src/deployment/webapp.yaml
-      - uses: azure/setup-kubectl@v4
-      - name: Set up Kubectl
-        uses: azure/k8s-set-context@v4
+          sparse-checkout: src/deployment/install.sh
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
         with:
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-      - uses: Azure/k8s-deploy@v5
+          name: appfiles
+          path: ./appfiles
+      - name: Updating deployment
+        run: |
+          chmod +x src/deployment/install.sh
+          src/deployment/install.sh moneyspot prod ./appfiles MoneySpot6.WebApp.dll
+          cat > /etc/moneyspot-prod/env << EOF
+          ASPNETCORE_ENVIRONMENT=Production
+          ASPNETCORE_URLS=http://0.0.0.0:3000
+          OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.178.111:4318
+          OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+          OTEL_SERVICE_NAME=moneyspot-app-prod
+          ConnectionStrings__Db=${{ secrets.CONNECTIONSTRING_PROD }}
+          EOF
+
+  deployment-staging:
+    needs: build
+    runs-on: [self-hosted, moneyspot, staging]
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v4
         with:
-          namespace: 'moneyspot6'
-          manifests: src/deployment/webapp.yaml
-          images: 'dvetter/moneyspot6:${{ github.sha }}'
-          pull-images: false
+          sparse-checkout: src/deployment/install.sh
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: appfiles
+          path: ./appfiles
+      - name: Updating deployment
+        run: |
+          chmod +x src/deployment/install.sh
+          src/deployment/install.sh moneyspot staging ./appfiles MoneySpot6.WebApp.dll
+          cat > /etc/moneyspot-staging/env << EOF
+          ASPNETCORE_ENVIRONMENT=Staging
+          ASPNETCORE_URLS=http://0.0.0.0:3000
+          OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.178.111:4318
+          OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+          OTEL_SERVICE_NAME=moneyspot-app-staging
+          ConnectionStrings__Db=${{ secrets.CONNECTIONSTRING_STAGING }}
+          EOF
