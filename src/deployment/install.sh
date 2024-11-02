@@ -65,7 +65,7 @@ Description=$PROJECTNAME ($ENVIRONMENTNAME)
 After=network.target
 
 [Service]
-ExecStart=dotnet $SOURCEDIR/$ENTRYPOINT
+ExecStart=dotnet $TARGETDIR/$ENTRYPOINT
 WorkingDirectory=$TARGETDIR
 Restart=on-failure
 User=$USERNAME
@@ -75,7 +75,7 @@ Environment="ASPNETCORE_URLS=http://0.0.0.0:3000"
 Environment="OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.178.111:4318"
 Environment="OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf"
 Environment="OTEL_SERVICE_NAME=$PROJECTNAME-app-$ENVIRONMENTNAME"
-Environment="ConnectionStrings_Db=$CONNECTIONSTRING"
+Environment="ConnectionStrings__Db=$CONNECTIONSTRING"
 
 [Install]
 WantedBy=multi-user.target
