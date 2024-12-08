@@ -36,7 +36,7 @@ release-prod:
   only:
     - master
   script:
-    - export DOCKER_HOST=ssh://root@192.168.178.202
+    - export DOCKER_HOST=ssh://root@192.168.178.200
     - docker stop $NAME || true
     - docker rm $NAME || true
     - docker pull dvetter/$NAME:$CI_COMMIT_SHA
