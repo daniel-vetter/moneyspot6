@@ -1,0 +1,50 @@
+variables:
+  NAME: "moneyspot"
+
+stages:
+  - build
+  - release-staging
+
+build:
+  stage: build
+  script:
+    - docker build . -t dvetter/$NAME -t dvetter/$NAME:latest -t dvetter/$NAME:$CI_COMMIT_SHA
+    - docker push dvetter/$NAME
+    - docker push dvetter/$NAME:latest
+    - docker push dvetter/$NAME:$CI_COMMIT_SHA
+
+release-staging:
+  stage: release-staging  
+  only:
+    - develop
+  script:
+    - export DOCKER_HOST=ssh://root@192.168.178.201
+    - docker stop $NAME || true
+    - docker rm $NAME || true
+    - docker pull dvetter/$NAME:$CI_COMMIT_SHA
+    - >
+      docker run -d --restart always -p 80:80 --name $NAME 
+      -e ASPNETCORE_ENVIRONMENT="Staging"
+      -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.111:4318"
+      -e OTEL_SERVICE_NAME="$NAME-app-staging"
+      -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=moneyspot-db-staging;ApplicationName=moneyspot-staging"
+      dvetter/$NAME:$CI_COMMIT_SHA
+    - docker image prune -af
+
+release-prod:
+  stage: release-staging  
+  only:
+    - master
+  script:
+    - export DOCKER_HOST=ssh://root@192.168.178.202
+    - docker stop $NAME || true
+    - docker rm $NAME || true
+    - docker pull dvetter/$NAME:$CI_COMMIT_SHA
+    - >
+      docker run -d --restart always -p 80:80 --name $NAME 
+      -e ASPNETCORE_ENVIRONMENT="Production"
+      -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.111:4318"
+      -e OTEL_SERVICE_NAME="$NAME-app-prod"
+      -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=moneyspot-db-prod;ApplicationName=moneyspot-prod"
+      dvetter/$NAME:$CI_COMMIT_SHA
+    - docker image prune -af
