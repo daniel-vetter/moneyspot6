@@ -16,7 +16,6 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddSystemd();
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument(x =>
@@ -33,7 +32,6 @@ public class Program
         {
             x.IncludeFormattedMessage = true;
         });
-        builder.Logging.AddSystemdConsole();
         builder.Services.AddOpenTelemetry()
             .UseOtlpExporter()
             .WithMetrics(m => m
