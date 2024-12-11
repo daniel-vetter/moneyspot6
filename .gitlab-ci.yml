@@ -1,5 +1,7 @@
 variables:
   NAME: "moneyspot"
+  HOST_PROD: 192.168.178.200
+  HOST_STAGING: 192.168.178.201
 
 stages:
   - build
@@ -18,7 +20,7 @@ release-staging:
   only:
     - develop
   script:
-    - export DOCKER_HOST=ssh://root@192.168.178.201
+    - export DOCKER_HOST=ssh://root@$HOST_STAGING
     - docker stop $NAME || true
     - docker rm $NAME || true
     - docker pull dvetter/$NAME:$CI_COMMIT_SHA
@@ -26,8 +28,9 @@ release-staging:
       docker run -d --restart always -p 80:80 --name $NAME 
       -e ASPNETCORE_ENVIRONMENT="Staging"
       -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.111:4318"
+      -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       -e OTEL_SERVICE_NAME="$NAME-app-staging"
-      -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=moneyspot-db-staging;ApplicationName=moneyspot-staging"
+      -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=$NAME-db-staging;ApplicationName=$NAME-staging"
       dvetter/$NAME:$CI_COMMIT_SHA
     - docker image prune -af
 
@@ -36,7 +39,7 @@ release-prod:
   only:
     - master
   script:
-    - export DOCKER_HOST=ssh://root@192.168.178.200
+    - export DOCKER_HOST=ssh://root@$HOST_PROD
     - docker stop $NAME || true
     - docker rm $NAME || true
     - docker pull dvetter/$NAME:$CI_COMMIT_SHA
@@ -44,7 +47,8 @@ release-prod:
       docker run -d --restart always -p 80:80 --name $NAME 
       -e ASPNETCORE_ENVIRONMENT="Production"
       -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.111:4318"
+      -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       -e OTEL_SERVICE_NAME="$NAME-app-prod"
-      -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=moneyspot-db-prod;ApplicationName=moneyspot-prod"
+      -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=$NAME-db-prod;ApplicationName=$NAME-prod"
       dvetter/$NAME:$CI_COMMIT_SHA
     - docker image prune -af
