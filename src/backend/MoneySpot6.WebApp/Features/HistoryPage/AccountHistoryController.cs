@@ -28,7 +28,7 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
             [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly startDate,
             [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly endDate)
         {
-            var max = DateOnly.FromDateTime(DateTime.Now);
+            var max = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
             if (startDate > max) startDate = max;
             if (endDate > max) endDate = max;
 

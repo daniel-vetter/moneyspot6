@@ -46,7 +46,7 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
             var targetBalance = 60_000_00;
             var currentBalance = await _balanceProvider.GetCurrentBalance();
             var startBalance = await _balanceProvider.GetBalanceAtStartOf(startDate);
-            var actualHistory = await _balanceProvider.GetBalanceHistory(new DateOnly(2024, 09, 01), DateOnly.FromDateTime(DateTime.Now));
+            var actualHistory = await _balanceProvider.GetBalanceHistory(new DateOnly(2024, 09, 01), DateOnly.FromDateTime(DateTime.Now).AddDays(1));
 
             var change = targetBalance - startBalance;
             var totalDayCount = (targetDate.ToDateTime(TimeOnly.MinValue) - startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
