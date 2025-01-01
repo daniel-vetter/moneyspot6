@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Reflection;
 using Microsoft.Extensions.Options;
 
 namespace MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
@@ -13,9 +14,9 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
 
         var p = new Process();
         p.StartInfo = new ProcessStartInfo();
-        p.StartInfo.FileName = options.Value.FileName;
-        p.StartInfo.Arguments = options.Value.Arguments;
-        p.StartInfo.WorkingDirectory = options.Value.WorkingDirectory;
+        p.StartInfo.FileName = ResolveSolutionDir(options.Value.FileName);
+        p.StartInfo.Arguments = ResolveSolutionDir(options.Value.Arguments);
+        p.StartInfo.WorkingDirectory = ResolveSolutionDir(options.Value.WorkingDirectory);
         p.StartInfo.RedirectStandardInput = true;
         p.StartInfo.RedirectStandardOutput = true;
         if (!p.Start())
@@ -75,6 +76,25 @@ public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<
         {
             throw new Exception("HBCI Adapter was supposed to be killed because the import process was canceled but it is still running after 30 seconds.");
         }
+    }
+
+    private string ResolveSolutionDir(string str)
+    {
+        const string placeholder = "${solutionDir}";
+        if (!str.Contains(placeholder))
+            return str;
+
+        var curDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
+
+        while (true)
+        {
+            if (Directory.Exists(Path.Combine(curDir, ".git")))
+                break;
+
+            curDir = Path.GetFullPath(Path.Combine(curDir, ".."));
+        }
+
+        return str.Replace(placeholder, curDir);
     }
 
     private static async Task<RpcSyncResponse> HandleMessages(RpcBridge rpc, IAdapterCallbackHandler callbackHandler, CancellationToken ct)
