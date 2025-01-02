@@ -1,33 +1,52 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json;
 using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Stocks.PriceImport.YahooAdapter;
 
-[SingletonService]
+[ScopedService]
 public class YahooStockDateProvider
 {
+    private readonly Db _db;
+
+    public YahooStockDateProvider(Db db)
+    {
+        _db = db;
+    }
+
     public async Task<ImmutableArray<StockPrice>> Get(DateTimeOffset start, DateTimeOffset end, string symbol, StockPriceInterval interval)
     {
         var client = new HttpClient();
         client.DefaultRequestHeaders.Host = "query1.finance.yahoo.com";
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
-        var response = await client.GetAsync($"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1={start.ToUnixTimeSeconds()}&period2={end.ToUnixTimeSeconds()}&interval={(interval == StockPriceInterval.FiveMinutes ? "5m" : "1d")}&includePrePost=true&events=div%7Csplit%7Cearn&&lang=de-DE&region=DE");
+        var url = $"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1={start.ToUnixTimeSeconds()}&period2={end.ToUnixTimeSeconds()}&interval={(interval == StockPriceInterval.FiveMinutes ? "5m" : "1d")}&includePrePost=true&events=div%7Csplit%7Cearn&&lang=de-DE&region=DE";
+        var response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
-        var responseJson = await response.Content.ReadFromJsonAsync<Response>();
-        if (responseJson == null)
+        var responseJson = await response.Content.ReadAsStringAsync();
+
+        _db.YahooRequestLog.Add(new DbYahooRequestLog
+        {
+            Url = url,
+            ResponseCode = (int)response.StatusCode,
+            Response = responseJson
+        });
+        await _db.SaveChangesAsync();
+
+        var responseData = JsonSerializer.Deserialize<Response>(responseJson, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        if (responseData == null)
             throw new Exception("Response was null");
 
-        if (responseJson.Chart.Error != null)
-            throw new Exception("JSON contained error: " + responseJson.Chart.Error);
+        if (responseData.Chart.Error != null)
+            throw new Exception("JSON contained error: " + responseData.Chart.Error);
 
-        if (responseJson.Chart.Result == null)
+        if (responseData.Chart.Result == null)
             throw new Exception("No result found");
 
-        if (responseJson.Chart.Result.Length != 1)
+        if (responseData.Chart.Result.Length != 1)
             throw new Exception("Json contained 0 or more than 1 result.");
 
-        var result = responseJson.Chart.Result.Single();
+        var result = responseData.Chart.Result.Single();
 
         var timestamps = result.Timestamp;
         if (timestamps == null)
