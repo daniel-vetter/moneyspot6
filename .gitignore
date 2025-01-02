@@ -1,5 +1,5 @@
 ﻿.vs
-src/backend/**/bin/Debug
-src/backend/**/obj
+src/**/bin/Debug
+src/**/obj
 /build
 *.user

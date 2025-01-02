@@ -70,12 +70,16 @@ public class StockUpdater
 
             if (prices.Length == 0)
                 return;
-            
+
+            // The yahoo provider can return entries outside the given queryStart / queryEnd range.
+            // We need to recalculate the actual start / end date for the db entries to retrieve. 
+            var minReturnedTimestamp = prices.Select(x => x.Timestamp).Min();
+            var maxReturnedTimestamp = prices.Select(x => x.Timestamp).Max();
             var existingEntries = await _db.StockPrices
                 .AsTracking()
                 .Where(x => x.Stock == stock)
                 .Where(x => x.Interval == interval)
-                .Where(x => x.Timestamp >= queryStart && x.Timestamp <= queryEnd)
+                .Where(x => x.Timestamp >= minReturnedTimestamp && x.Timestamp <= maxReturnedTimestamp)
                 .ToDictionaryAsync(x => x.Timestamp, x => x);
 
             var changedEntries = 0;

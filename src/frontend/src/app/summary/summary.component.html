@@ -69,7 +69,7 @@
                         <div class="right" style="width: 80px">Wert</div>
                     </div>
 
-                    @for(entry of stockSummary?.entries; track entry.id) {
+                    @for (entry of stockSummary.entries; track entry.id) {
                         <div>
                             <div style="flex: 1">{{ entry.name }}</div>
                             <div class="right" style="width: 80px"><app-value [value]="entry.stockPrice * 100" /></div>
@@ -79,6 +79,5 @@
                 </div>
             </p-panel>
         }
-
     </div>
 }

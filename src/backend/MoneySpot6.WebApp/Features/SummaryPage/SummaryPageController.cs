@@ -44,9 +44,8 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
             var startDate = new DateOnly(2024, 09, 01);
             var targetDate = new DateOnly(2025, 06, 01);
             var targetBalance = 60_000_00;
-            var currentBalance = await _balanceProvider.GetCurrentBalance();
             var startBalance = await _balanceProvider.GetBalanceAtStartOf(startDate);
-            var actualHistory = await _balanceProvider.GetBalanceHistory(new DateOnly(2024, 09, 01), DateOnly.FromDateTime(DateTime.Now));
+            var actualHistory = await _balanceProvider.GetBalanceHistory(new DateOnly(2024, 09, 01), DateOnly.FromDateTime(DateTime.Now).AddDays(1));
 
             var change = targetBalance - startBalance;
             var totalDayCount = (targetDate.ToDateTime(TimeOnly.MinValue) - startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
@@ -57,19 +56,25 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
                 var value = startBalance + change * percentage;
                 expected.Add(new BalanceEntryResponse(cur, (long)value));
             }
-
-            var remainingMoney = targetBalance - currentBalance;
-            var remainingDays = (targetDate.ToDateTime(TimeOnly.MinValue) - DateTime.Today).TotalDays;
-            var requiredSavingPerDay = remainingMoney / remainingDays;
-
+            
             return Ok(new BankAccountTotalGoalResponse
             {
                 EndBalance = targetBalance,
                 EndDate = targetDate,
-                RequiredSavingPerMonth = (long)(requiredSavingPerDay * 30),
+                RequiredSavingPerMonth = await CalculateSavingRatePerMonth(targetBalance, targetDate),
                 ActualHistory = [..actualHistory.Select(x => new BalanceEntryResponse(x.Date, x.Balance))],
                 ExpectedHistory = expected.ToImmutable()
             });
+        }
+
+        private async Task<long> CalculateSavingRatePerMonth(int targetBalance, DateOnly targetDate)
+        {
+            var today = DateTime.Today;
+            var firstOfMonth = new DateOnly(today.Year, today.Month, 1);
+            var remainingMoney = targetBalance - await _balanceProvider.GetBalanceAtStartOf(firstOfMonth);
+            var remainingDays = (targetDate.ToDateTime(TimeOnly.MinValue) - firstOfMonth.ToDateTime(TimeOnly.MinValue)).TotalDays;
+            var requiredSavingPerDay = remainingMoney / remainingDays;
+            return (long)requiredSavingPerDay * 30;
         }
 
         [HttpGet("GetStockSummary")]
