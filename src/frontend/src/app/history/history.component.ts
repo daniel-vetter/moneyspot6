@@ -19,7 +19,7 @@ import { PanelModule } from 'primeng/panel';
 })
 export class HistoryComponent implements OnInit {
     Highcharts: typeof Highcharts = Highcharts;
-    charts2: Highcharts.Options[] = [];
+    charts: Highcharts.Options[] = [];
     dateRange: [Date, Date];
 
     constructor(private accountHistoryClient: AccountHistoryClient) {
@@ -48,20 +48,8 @@ export class HistoryComponent implements OnInit {
             this.accountHistoryClient.get([1, 2, 3], this.dateRange[0].toISOString().substring(0, 10), this.dateRange[1].toISOString().substring(0, 10)),
         );
 
-        let min = Number.MAX_VALUE;
-        let max = Number.MIN_VALUE;
-
-        for (const n of result.map((x) => x.balance)) {
-            if (n < min) min = n;
-            if (n > max) max = n;
-        }
-
-        const diff = max - min;
-        min -= diff * 0.1;
-        max += diff * 0.1;
-
-        this.charts2 = [];
-        this.charts2.push({
+        this.charts = [];
+        this.charts.push({
             chart: {
                 height: '70%',
             },
@@ -72,10 +60,8 @@ export class HistoryComponent implements OnInit {
                 title: {
                     text: 'Vermögen',
                 },
-                min: min / 100,
-                max: max / 100,
                 endOnTick: false,
-                startOnTick: false,
+                startOnTick: false
             },
             xAxis: {
                 type: 'datetime',
@@ -83,7 +69,22 @@ export class HistoryComponent implements OnInit {
                     text: 'Datum',
                 },
             },
+            plotOptions: {
+                area: {
+                    stacking: "normal"
+                }
+            },
             series: [
+
+                {
+                    name: 'Aktien',
+                    type: 'area',
+                    data: result.map((x) => [x.date.valueOf(), x.stockValue / 100]),
+                    fillOpacity: 0.15,
+                    animation: {
+                        duration: 0
+                    }
+                },
                 {
                     name: 'Alle Konten',
                     type: 'area',

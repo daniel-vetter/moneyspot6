@@ -1242,6 +1242,7 @@ export enum IncomeExpenseGrouping {
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {
     date!: Date;
     balance!: number;
+    stockValue!: number;
 
     constructor(data?: IAccountHistoryBalanceResponse) {
         if (data) {
@@ -1256,6 +1257,7 @@ export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResp
         if (_data) {
             this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
             this.balance = _data["balance"];
+            this.stockValue = _data["stockValue"];
         }
     }
 
@@ -1270,6 +1272,7 @@ export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResp
         data = typeof data === 'object' ? data : {};
         data["date"] = this.date ? formatDate(this.date) : <any>undefined;
         data["balance"] = this.balance;
+        data["stockValue"] = this.stockValue;
         return data;
     }
 }
@@ -1277,6 +1280,7 @@ export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResp
 export interface IAccountHistoryBalanceResponse {
     date: Date;
     balance: number;
+    stockValue: number;
 }
 
 export class RunningProcessResponse implements IRunningProcessResponse {

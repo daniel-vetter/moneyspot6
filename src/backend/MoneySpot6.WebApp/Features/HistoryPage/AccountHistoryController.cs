@@ -15,11 +15,13 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
     {
         private readonly Db _db;
         private readonly BalanceProvider _balanceProvider;
+        private readonly StockDataProvider _stockDataProvider;
 
-        public AccountHistoryController(Db db, BalanceProvider balanceProvider)
+        public AccountHistoryController(Db db, BalanceProvider balanceProvider, StockDataProvider stockDataProvider)
         {
             _db = db;
             _balanceProvider = balanceProvider;
+            _stockDataProvider = stockDataProvider;
         }
 
         [HttpGet]
@@ -32,19 +34,30 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
             if (startDate > max) startDate = max;
             if (endDate > max) endDate = max;
 
-            var history = await _balanceProvider.GetBalanceHistory(startDate, endDate);
+            var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate, endDate);
+            var stockValueHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate, endDate);
 
-            return Ok(history.Select(x => new AccountHistoryBalanceResponse
+            if (balanceHistory.Length != stockValueHistory.Length)
+                throw new Exception("Length does not match.");
+
+            var r = ImmutableArray.CreateBuilder<AccountHistoryBalanceResponse>();
+            for (var i = 0; i < balanceHistory.Length; i++)
             {
-                Date = x.Date,
-                Balance = x.Balance
-            }).ToImmutableArray());
+                r.Add(new AccountHistoryBalanceResponse
+                {
+                    Date = balanceHistory[i].Date,
+                    Balance = balanceHistory[i].Balance,
+                    StockValue = (long)(stockValueHistory[i].Amount * 100m) //TODO
+                });
+            }
+            return r.ToImmutableArray();
         }
     }
-
+    
     public record AccountHistoryBalanceResponse
     {
         [Required] public DateOnly Date { get; init; }
         [Required] public long Balance { get; set; }
+        [Required] public long StockValue { get; set; }
     };
 }
