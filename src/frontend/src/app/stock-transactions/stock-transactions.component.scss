@@ -1,0 +1,26 @@
+.date {
+    min-width: 13rem;
+}
+
+.name {
+    flex: 1;
+}
+
+.amount {
+    flex: 1;
+    max-width: 10rem;
+}
+
+.price {
+    flex: 1;
+    max-width: 10rem;
+}
+
+.total {
+    flex: 1;
+    max-width: 10rem;
+}
+
+.line {
+    cursor: pointer;
+}

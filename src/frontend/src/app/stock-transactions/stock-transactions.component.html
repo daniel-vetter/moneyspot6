@@ -1,0 +1,29 @@
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%; gap: 2rem;">
+            <b style="font-size: 1.4rem">Käufe / Verkäufe</b>
+            <p-button label="Neu" icon="pi pi-plus" [outlined]="true" (click)="onNewClicked()"></p-button>
+            <div class="spacer"></div>
+        </div>
+    </ng-template>
+
+    <div class="table">
+        <div class="horizontal line header hidden-on-mobile">
+            <div class="date oneLine">Datum</div>
+            <div class="name oneLine">Aktie</div>
+            <div class="amount oneLine">Anzahl</div>
+            <div class="price oneLine">Preis</div>
+            <div class="total oneLine">Gesamt</div>
+        </div>
+
+        @for (transaction of transactions; track transaction.id) {
+            <a pRipple class="horizontal line">
+                <div class="date oneLine">{{ transaction.timestamp! | customDateTime }}</div>
+                <div class="name oneLine">{{ transaction.stockName }}</div>
+                <div class="amount oneLine">{{ transaction.amount }}</div>
+                <div class="price oneLine">{{ transaction.price }}</div>
+                <div class="total oneLine">{{ transaction.price * transaction.amount }}</div>
+            </a>
+        }
+    </div>
+</p-panel>

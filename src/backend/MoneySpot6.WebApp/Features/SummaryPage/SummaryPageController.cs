@@ -122,10 +122,10 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
 
     public record StockSummaryEntryResponse
     {
-        [Required] public long Id { get; init; }
-        [Required] public string Name { get; init; }
-        [Required] public decimal StockPrice { get; init; }
-        [Required] public decimal Total { get; init; }
+        [Required] public required long Id { get; init; }
+        [Required] public required string Name { get; init; }
+        [Required] public required decimal StockPrice { get; init; }
+        [Required] public required decimal Total { get; init; }
     }
 
     public record BankAccountEntrySummaryResponse
@@ -137,11 +137,11 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
 
     public record BankAccountTotalGoalResponse
     {
-        [Required] public DateOnly EndDate { get; init; }
-        [Required] public long EndBalance { get; init; }
-        [Required] public long RequiredSavingPerMonth { get; init; }
-        [Required] public ImmutableArray<BalanceEntryResponse> ActualHistory { get; init; }
-        [Required] public ImmutableArray<BalanceEntryResponse> ExpectedHistory { get; init; }
+        [Required] public required DateOnly EndDate { get; init; }
+        [Required] public required long EndBalance { get; init; }
+        [Required] public required long RequiredSavingPerMonth { get; init; }
+        [Required] public required ImmutableArray<BalanceEntryResponse> ActualHistory { get; init; }
+        [Required] public required ImmutableArray<BalanceEntryResponse> ExpectedHistory { get; init; }
     }
 
     public record BalanceEntryResponse([property:Required] DateOnly Date, [property:Required] long Balance);

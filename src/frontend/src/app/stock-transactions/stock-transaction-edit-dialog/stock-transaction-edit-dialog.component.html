@@ -1,0 +1,33 @@
+<form style="height: 100%">
+<div class="vertical" style="padding: 2rem; height: 100%">
+
+    <div class="horizontal key-value">
+        <div>Art:</div>
+        <p-dropdown [options]="types" [(ngModel)]="selectedType" optionLabel="name" optionValue="id" name="selectedType" [style]="{'width': '100%' }" />
+    </div>
+
+    <div class="horizontal key-value">
+        <div>Datum:</div>
+        <p-calendar [(ngModel)]="timestamp" [showTime]="true" hourFormat="24" name="timestamp" [style]="{'width': '100%' }" />
+    </div>
+
+    <div class="horizontal key-value">
+        <div>Anzahl:</div>
+        <input type="text" pInputText [(ngModel)]="amount" name="amount" autocomplete="off" />
+    </div>
+
+    <div class="horizontal key-value">
+        <div>Preis:</div>
+        <input type="text" pInputText [(ngModel)]="price" name="price" autocomplete="off" t />
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="horizontal">
+        <div class="spacer"></div>
+        <p-button [style]="{'min-width': '100px'}"  label="Ok"></p-button>
+        <p-button [outlined]="true" [style]="{'min-width': '100px'}" label="Abbrechen"></p-button>
+    </div>
+
+</div>
+</form>

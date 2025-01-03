@@ -15,7 +15,7 @@ import * as Highcharts from 'highcharts/highstock';
   styleUrl: './stock-history.component.scss'
 })
 export class StockHistoryComponent implements OnInit {
-  possibleStocks: StockResponse[] | undefined;
+  possibleStocks: StockResponse[] | undefined = undefined;
   selectedStockId?: number;
 
   possibleIntervals = ["Täglich", "5 Minuten"]
