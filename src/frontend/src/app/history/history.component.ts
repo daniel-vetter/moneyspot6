@@ -12,10 +12,9 @@ import { PanelModule } from 'primeng/panel';
 
 @Component({
     selector: 'app-history',
-    standalone: true,
     imports: [HighchartsChartModule, CalendarModule, SplitButtonModule, FormsModule, ButtonGroupModule, DaterangePresetSelectorComponent, PanelModule],
     templateUrl: './history.component.html',
-    styleUrl: './history.component.scss',
+    styleUrl: './history.component.scss'
 })
 export class HistoryComponent implements OnInit {
     Highcharts: typeof Highcharts = Highcharts;

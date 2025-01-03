@@ -8,11 +8,10 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts/highstock';
 
 @Component({
-  selector: 'app-stock-history',
-  standalone: true,
-  imports: [DropdownModule, FormsModule, PanelModule, HighchartsChartModule],
-  templateUrl: './stock-history.component.html',
-  styleUrl: './stock-history.component.scss'
+    selector: 'app-stock-history',
+    imports: [DropdownModule, FormsModule, PanelModule, HighchartsChartModule],
+    templateUrl: './stock-history.component.html',
+    styleUrl: './stock-history.component.scss'
 })
 export class StockHistoryComponent implements OnInit {
   possibleStocks: StockResponse[] | undefined = undefined;

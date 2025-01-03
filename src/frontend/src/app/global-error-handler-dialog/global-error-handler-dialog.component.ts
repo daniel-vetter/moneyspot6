@@ -5,10 +5,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-global-error-handler-dialog',
-    standalone: true,
     imports: [DialogModule],
     templateUrl: './global-error-handler-dialog.component.html',
-    styleUrl: './global-error-handler-dialog.component.scss',
+    styleUrl: './global-error-handler-dialog.component.scss'
 })
 export class GlobalErrorHandlerDialogComponent implements OnInit {
     title: string = '';

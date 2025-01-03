@@ -10,10 +10,9 @@ import * as HighchartsStock from 'highcharts/highstock';
 
 @Component({
     selector: 'app-root',
-    standalone: true,
     imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent],
     templateUrl: './app.component.html',
-    styleUrl: './app.component.scss',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
     constructor() { }

@@ -9,10 +9,9 @@ import { CustomDatePipe } from '../../common/custom-date.pipe';
 
 @Component({
     selector: 'app-goal',
-    standalone: true,
     imports: [PanelModule, HighchartsChartModule, ValueComponent, CustomDatePipe],
     templateUrl: './goal.component.html',
-    styleUrl: './goal.component.scss',
+    styleUrl: './goal.component.scss'
 })
 export class GoalComponent implements OnInit {
     Highcharts: typeof Highcharts = Highcharts;

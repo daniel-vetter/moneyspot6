@@ -11,8 +11,7 @@ import {DialogService} from "primeng/dynamicdialog";
 import {StockTransactionEditDialogComponent} from "./stock-transaction-edit-dialog/stock-transaction-edit-dialog.component";
 
 @Component({
-  selector: 'app-stock-transactions',
-  standalone: true,
+    selector: 'app-stock-transactions',
     imports: [
         CustomDateTimePipe,
         PanelModule,
@@ -21,9 +20,9 @@ import {StockTransactionEditDialogComponent} from "./stock-transaction-edit-dial
         ValueComponent,
         ButtonModule
     ],
-  providers: [DialogService],
-  templateUrl: './stock-transactions.component.html',
-  styleUrl: './stock-transactions.component.scss'
+    providers: [DialogService],
+    templateUrl: './stock-transactions.component.html',
+    styleUrl: './stock-transactions.component.scss'
 })
 export class StockTransactionsComponent implements OnInit {
 

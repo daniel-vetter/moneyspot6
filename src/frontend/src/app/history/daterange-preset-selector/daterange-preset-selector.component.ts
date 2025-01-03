@@ -4,10 +4,9 @@ import { ButtonGroupModule } from 'primeng/buttongroup';
 
 @Component({
     selector: 'app-daterange-preset-selector',
-    standalone: true,
     imports: [ButtonGroupModule, ButtonModule],
     templateUrl: './daterange-preset-selector.component.html',
-    styleUrl: './daterange-preset-selector.component.scss',
+    styleUrl: './daterange-preset-selector.component.scss'
 })
 export class DaterangePresetSelectorComponent implements OnChanges {
     currentYear: string = '';

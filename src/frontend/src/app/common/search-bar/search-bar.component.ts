@@ -7,10 +7,9 @@ import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'app-search-bar',
-    standalone: true,
     imports: [ButtonModule, DropdownModule, FormsModule, InputTextModule],
     templateUrl: './search-bar.component.html',
-    styleUrl: './search-bar.component.scss',
+    styleUrl: './search-bar.component.scss'
 })
 export class SearchBarComponent implements OnInit {
     searchText = '';

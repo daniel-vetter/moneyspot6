@@ -10,10 +10,9 @@ import { RippleModule } from 'primeng/ripple';
 
 @Component({
     selector: 'app-menu',
-    standalone: true,
     imports: [MenuModule, BadgeModule, AvatarModule, CommonModule, RippleModule, ButtonModule, DialogModule],
     templateUrl: './menu.component.html',
-    styleUrl: './menu.component.scss',
+    styleUrl: './menu.component.scss'
 })
 export class MenuComponent {
     items: MenuItem[] | undefined;

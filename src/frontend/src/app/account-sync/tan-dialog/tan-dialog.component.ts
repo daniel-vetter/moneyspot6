@@ -6,10 +6,9 @@ import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'app-tan-dialog',
-    standalone: true,
     imports: [ButtonModule, DialogModule, FormsModule, InputTextModule],
     templateUrl: './tan-dialog.component.html',
-    styleUrl: './tan-dialog.component.scss',
+    styleUrl: './tan-dialog.component.scss'
 })
 export class TanDialogComponent {
     visible = false;

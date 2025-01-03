@@ -12,10 +12,9 @@ import { Grouping, GroupingBarComponent } from '../common/grouping-bar/grouping-
 
 @Component({
     selector: 'app-income-expense-report',
-    standalone: true,
     imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, FormsModule, SearchBarComponent, GroupingBarComponent],
     templateUrl: './income-expense-report.component.html',
-    styleUrl: './income-expense-report.component.scss',
+    styleUrl: './income-expense-report.component.scss'
 })
 export class IncomeExpenseReportComponent implements OnInit {
     onSearchSubmit() { }
