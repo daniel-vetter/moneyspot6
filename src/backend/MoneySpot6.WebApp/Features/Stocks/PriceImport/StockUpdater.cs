@@ -86,7 +86,22 @@ public class StockUpdater
             var addedEntries = 0;
             foreach (var stockPrice in prices)
             {
-                if (existingEntries.TryGetValue(stockPrice.Timestamp, out var existing))
+                // Sometimes yahoo provides intraday timestamp that do not match the requested interval.
+                //
+                // When 1d is requested: This results in lots of duplicated entries saved to the database
+                //                       because the timestamp changes every request.
+                //                       To combat this, we remove the time part out of the timestamp
+                //
+                // When 5m is requested: We check if the timestamp matched the 5m interval,
+                //                       otherwise it gets skipped.
+                var timestamp = stockPrice.Timestamp;
+                if (interval == StockPriceInterval.Daily)
+                    timestamp = new DateTimeOffset(timestamp.Year, timestamp.Month, timestamp.Day, 0, 0, 0, TimeSpan.Zero);
+                if (interval == StockPriceInterval.FiveMinutes)
+                    if (timestamp.Second != 0 || (timestamp.Minute % 5) != 0)
+                        continue;
+
+                if (existingEntries.TryGetValue(timestamp, out var existing))
                 {
                     if (existing.Open != stockPrice.Open ||
                         existing.Close != stockPrice.Close ||
@@ -107,7 +122,7 @@ public class StockUpdater
                     _db.StockPrices.Add(new DbStockPrice
                     {
                         Stock = stock,
-                        Timestamp = stockPrice.Timestamp,
+                        Timestamp = timestamp,
                         Interval = interval,
                         Open = stockPrice.Open,
                         Close = stockPrice.Close,
