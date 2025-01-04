@@ -1,4 +1,7 @@
 <p-buttonGroup>
+    <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != '3months'" (onClick)="on3MonthClicked()">3 Monate</p-button>
+    <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != '6months'" (onClick)="on6MonthClicked()">6 Monate</p-button>
+    <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != '12months'" (onClick)="on12MonthClicked()">12 Monate</p-button>
     <p-button [severity]="'secondary'" size="small" [rounded]="true" [outlined]="current != 'current'" (onClick)="onCurrentYearClicked()">{{
         currentYear
     }}</p-button>
