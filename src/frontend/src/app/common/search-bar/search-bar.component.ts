@@ -3,11 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'app-search-bar',
-    imports: [ButtonModule, DropdownModule, FormsModule, InputTextModule],
+    imports: [ButtonModule, DropdownModule, FormsModule, InputTextModule, IconFieldModule, InputIconModule],
     templateUrl: './search-bar.component.html',
     styleUrl: './search-bar.component.scss'
 })
@@ -20,7 +22,7 @@ export class SearchBarComponent implements OnInit {
     constructor(
         private router: Router,
         private activatedRoute: ActivatedRoute,
-    ) {}
+    ) { }
     ngOnInit(): void {
         this.activatedRoute.queryParams.subscribe(async (x) => {
             this.searchText = x['search'] ? x['search'] : '';

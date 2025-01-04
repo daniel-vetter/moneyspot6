@@ -34,42 +34,42 @@ export class AppComponent implements OnInit {
             xAxis: {
                 labels: {
                     style: {
-                        color: 'var(--text-color)',
+                        color: 'var(--p-text-color)',
                     },
                 },
-                lineColor: 'var(--gray-600)',
-                tickColor: 'var(--gray-600)',
+                lineColor: 'var(--p-gray-600)',
+                tickColor: 'var(--p-gray-600)',
                 minorGridLineColor: '#FF0000',
                 gridLineColor: '#FF0000',
             },
             yAxis: {
                 labels: {
                     style: {
-                        color: 'var(--text-color)',
+                        color: 'var(--p-text-color)',
                     },
                 },
-                lineColor: 'var(--gray-600)',
-                gridLineColor: 'var(--gray-600)',
+                lineColor: 'var(--p-gray-600)',
+                gridLineColor: 'var(--p-gray-600)',
             },
             title: {
                 style: {
-                    color: 'var(--text-color)',
-                    font: 'bold 16px var(--font-family)',
+                    color: 'var(--p-text-color)',
+                    font: 'bold 16px var(--p-font-family)',
                 },
             },
             subtitle: {
                 style: {
-                    color: 'var(--text-color)',
-                    font: 'bold 12px var(--font-family)',
+                    color: 'var(--p-text-color)',
+                    font: 'bold 12px var(--p-font-family)',
                 },
             },
             legend: {
                 itemStyle: {
-                    font: '9pt var(--font-family)',
-                    color: 'var(--text-color)',
+                    font: '9pt var(--p-font-family)',
+                    color: 'var(--p-text-color)',
                 },
                 itemHoverStyle: {
-                    color: 'var(--text-color)',
+                    color: 'var(--p-text-color)',
                 },
             },
             credits: {

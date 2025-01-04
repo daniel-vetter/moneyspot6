@@ -98,7 +98,7 @@ public class StockUpdater
                 if (interval == StockPriceInterval.Daily)
                     timestamp = new DateTimeOffset(timestamp.Year, timestamp.Month, timestamp.Day, 0, 0, 0, TimeSpan.Zero);
                 if (interval == StockPriceInterval.FiveMinutes)
-                    if (timestamp.Second != 0 || (timestamp.Minute % 5) != 0)
+                    if (timestamp.Second != 0 || timestamp.Minute % 5 != 0)
                         continue;
 
                 if (existingEntries.TryGetValue(timestamp, out var existing))

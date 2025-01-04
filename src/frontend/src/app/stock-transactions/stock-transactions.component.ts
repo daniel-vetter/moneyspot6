@@ -1,14 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {PanelModule} from "primeng/panel";
-import {PrimeTemplate} from "primeng/api";
-import {Ripple} from "primeng/ripple";
-import {ValueComponent} from "../common/value/value.component";
-import {StockTransactionResponse, StockTransactionsPageClient} from "../server";
-import {lastValueFrom} from "rxjs";
-import {CustomDateTimePipe} from "../common/custom-datetime.pipe";
-import {ButtonModule} from "primeng/button";
-import {DialogService} from "primeng/dynamicdialog";
-import {StockTransactionEditDialogComponent} from "./stock-transaction-edit-dialog/stock-transaction-edit-dialog.component";
+import { Component, OnInit } from '@angular/core';
+import { PanelModule } from "primeng/panel";
+import { PrimeTemplate } from "primeng/api";
+import { Ripple } from "primeng/ripple";
+import { ValueComponent } from "../common/value/value.component";
+import { StockTransactionResponse, StockTransactionsPageClient } from "../server";
+import { lastValueFrom } from "rxjs";
+import { CustomDateTimePipe } from "../common/custom-datetime.pipe";
+import { ButtonModule } from "primeng/button";
+import { DialogService } from "primeng/dynamicdialog";
+import { StockTransactionEditDialogComponent } from "./stock-transaction-edit-dialog/stock-transaction-edit-dialog.component";
 
 @Component({
     selector: 'app-stock-transactions',

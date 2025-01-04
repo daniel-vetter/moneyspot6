@@ -20,6 +20,7 @@
     "@angular/router": "^19.0.5",
     "@angular/service-worker": "^19.0.5",
     "@microsoft/signalr": "^8.0.7",
+    "@primeng/themes": "^19.0.2",
     "highcharts-angular": "^4.0.1",
     "primeicons": "^7.0.0",
     "primeng": "^19.0.2",
