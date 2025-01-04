@@ -24,6 +24,24 @@ export class DaterangePresetSelectorComponent implements OnChanges {
         this.updateHighlight();
     }
 
+    on3MonthClicked() {
+        this.range = this.get3MonthRange();
+        this.rangeChange.emit(this.range);
+        this.updateHighlight();
+    }
+
+    on6MonthClicked() {
+        this.range = this.get6MonthRange();
+        this.rangeChange.emit(this.range);
+        this.updateHighlight();
+    }
+
+    on12MonthClicked() {
+        this.range = this.get12MonthRange();
+        this.rangeChange.emit(this.range);
+        this.updateHighlight();
+    }
+
     onCurrentYearClicked() {
         this.range = this.getCurrentYearRange();
         this.rangeChange.emit(this.range);
@@ -50,6 +68,9 @@ export class DaterangePresetSelectorComponent implements OnChanges {
 
     updateHighlight() {
         this.current = '';
+        if (this.isEqual(this.get3MonthRange(), this.range)) this.current = '3months';
+        if (this.isEqual(this.get6MonthRange(), this.range)) this.current = '6months';
+        if (this.isEqual(this.get12MonthRange(), this.range)) this.current = '12months';
         if (this.isEqual(this.getCurrentYearRange(), this.range)) this.current = 'current';
         if (this.isEqual(this.getLastYearRange(), this.range)) this.current = 'last';
         if (this.isEqual(this.get5YearRange(), this.range)) this.current = '5year';
@@ -63,6 +84,45 @@ export class DaterangePresetSelectorComponent implements OnChanges {
         if (v2[1] === null || undefined) return false;
 
         return v1[0].valueOf() == v2[0].valueOf() && v1[1].valueOf() == v2[1].valueOf();
+    }
+
+    get3MonthRange(): [Date, Date] {
+        const start = new Date();
+        start.setDate(start.getDate() + 1);
+        start.setMonth(start.getMonth() - 3);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date();
+        end.setDate(end.getDate() + 1);
+        end.setHours(0, 0, 0, 0);
+
+        return [start, end];
+    }
+
+    get6MonthRange(): [Date, Date] {
+        const start = new Date();
+        start.setDate(start.getDate() + 1);
+        start.setMonth(start.getMonth() - 6);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date();
+        end.setDate(end.getDate() + 1);
+        end.setHours(0, 0, 0, 0);
+
+        return [start, end];
+    }
+
+    get12MonthRange(): [Date, Date] {
+        const start = new Date();
+        start.setDate(start.getDate() + 1);
+        start.setMonth(start.getMonth() - 12);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date();
+        end.setDate(end.getDate() + 1);
+        end.setHours(0, 0, 0, 0);
+
+        return [start, end];
     }
 
     getCurrentYearRange(): [Date, Date] {

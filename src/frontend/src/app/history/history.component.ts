@@ -23,14 +23,14 @@ export class HistoryComponent implements OnInit {
 
     constructor(private accountHistoryClient: AccountHistoryClient) {
         const start = new Date();
-        start.setMonth(0);
-        start.setDate(1);
+        start.setDate(start.getDate() + 1);
+        start.setMonth(start.getMonth() - 12);
         start.setHours(0, 0, 0, 0);
 
         const end = new Date();
-        end.setMonth(11);
-        end.setDate(1);
+        end.setDate(end.getDate() + 1);
         end.setHours(0, 0, 0, 0);
+
         this.dateRange = [start, end];
     }
 
