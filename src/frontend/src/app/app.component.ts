@@ -7,12 +7,15 @@ import { ToastModule } from 'primeng/toast';
 import { TopBarComponent } from './top-bar/top-bar.component';
 import * as Highcharts from 'highcharts';
 import * as HighchartsStock from 'highcharts/highstock';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent],
+    imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent, ConfirmDialogModule],
     templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
+    styleUrl: './app.component.scss',
+    providers: [ConfirmationService]
 })
 export class AppComponent implements OnInit {
     constructor() { }

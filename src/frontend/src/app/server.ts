@@ -299,7 +299,59 @@ export class StockTransactionsPageClient {
         return _observableOf(null as any);
     }
 
-    createNewTransaction(stockId: number | undefined, amount: number | undefined, price: number | undefined, timestamp: Date | undefined): Observable<FileResponse> {
+    getStockTransaction(id: number | undefined): Observable<StockTransactionResponse> {
+        let url_ = this.baseUrl + "/api/StockTransactionsPage/GetStockTransaction?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetStockTransaction(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetStockTransaction(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StockTransactionResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StockTransactionResponse>;
+        }));
+    }
+
+    protected processGetStockTransaction(response: HttpResponseBase): Observable<StockTransactionResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StockTransactionResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    createNewTransaction(stockId: number | undefined, amount: number | undefined, price: number | undefined, date: string): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/StockTransactionsPage/CreateNewTransaction?";
         if (stockId === null)
             throw new Error("The parameter 'stockId' cannot be null.");
@@ -313,10 +365,10 @@ export class StockTransactionsPageClient {
             throw new Error("The parameter 'price' cannot be null.");
         else if (price !== undefined)
             url_ += "price=" + encodeURIComponent("" + price) + "&";
-        if (timestamp === null)
-            throw new Error("The parameter 'timestamp' cannot be null.");
-        else if (timestamp !== undefined)
-            url_ += "timestamp=" + encodeURIComponent(timestamp ? "" + timestamp.toISOString() : "") + "&";
+        if (date === undefined || date === null)
+            throw new Error("The parameter 'date' must be defined and cannot be null.");
+        else
+            url_ += "date=" + encodeURIComponent("" + date) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -367,7 +419,7 @@ export class StockTransactionsPageClient {
         return _observableOf(null as any);
     }
 
-    updateNewTransaction(id: number, stockId: number | undefined, amount: number | undefined, price: number | undefined, timestamp: Date | undefined): Observable<FileResponse> {
+    updateTransaction(id: number, stockId: number | undefined, amount: number | undefined, price: number | undefined, date: string): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/StockTransactionsPage/UpdateTransaction/{id}?";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -384,10 +436,10 @@ export class StockTransactionsPageClient {
             throw new Error("The parameter 'price' cannot be null.");
         else if (price !== undefined)
             url_ += "price=" + encodeURIComponent("" + price) + "&";
-        if (timestamp === null)
-            throw new Error("The parameter 'timestamp' cannot be null.");
-        else if (timestamp !== undefined)
-            url_ += "timestamp=" + encodeURIComponent(timestamp ? "" + timestamp.toISOString() : "") + "&";
+        if (date === undefined || date === null)
+            throw new Error("The parameter 'date' must be defined and cannot be null.");
+        else
+            url_ += "date=" + encodeURIComponent("" + date) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -399,11 +451,11 @@ export class StockTransactionsPageClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateNewTransaction(response_);
+            return this.processUpdateTransaction(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUpdateNewTransaction(response_ as any);
+                    return this.processUpdateTransaction(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<FileResponse>;
                 }
@@ -412,7 +464,7 @@ export class StockTransactionsPageClient {
         }));
     }
 
-    protected processUpdateNewTransaction(response: HttpResponseBase): Observable<FileResponse> {
+    protected processUpdateTransaction(response: HttpResponseBase): Observable<FileResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1404,7 +1456,7 @@ export class StockTransactionResponse implements IStockTransactionResponse {
     id!: number;
     stockId!: number;
     stockName!: string;
-    timestamp!: Date;
+    date!: Date;
     amount!: number;
     price!: number;
 
@@ -1422,7 +1474,7 @@ export class StockTransactionResponse implements IStockTransactionResponse {
             this.id = _data["id"];
             this.stockId = _data["stockId"];
             this.stockName = _data["stockName"];
-            this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : <any>undefined;
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
             this.amount = _data["amount"];
             this.price = _data["price"];
         }
@@ -1440,7 +1492,7 @@ export class StockTransactionResponse implements IStockTransactionResponse {
         data["id"] = this.id;
         data["stockId"] = this.stockId;
         data["stockName"] = this.stockName;
-        data["timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>undefined;
+        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
         data["amount"] = this.amount;
         data["price"] = this.price;
         return data;
@@ -1451,7 +1503,7 @@ export interface IStockTransactionResponse {
     id: number;
     stockId: number;
     stockName: string;
-    timestamp: Date;
+    date: Date;
     amount: number;
     price: number;
 }

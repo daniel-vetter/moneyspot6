@@ -2,8 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using NJsonSchema.Annotations;
+using NJsonSchema;
 
 namespace MoneySpot6.WebApp.Features.StockTransactions;
 
@@ -30,15 +33,37 @@ public class StockTransactionsPageController : Controller
                 StockName = x.Stock.Name,
                 Amount = x.Amount,
                 Price = x.Price,
-                Timestamp = x.Timestamp,
+                Date = x.Date,
             })
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.Id)
             .ToArrayAsync();
 
         return Ok(ImmutableCollectionsMarshal.AsImmutableArray(transactions));
     }
 
+    [HttpGet("GetStockTransaction")]
+    public async Task<ActionResult<StockTransactionResponse>> GetStockTransaction(int id)
+    {
+        var transaction = await _db.StockTransactions
+            .AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new StockTransactionResponse
+            {
+                Id = x.Id,
+                StockId = x.Stock.Id,
+                StockName = x.Stock.Name,
+                Amount = x.Amount,
+                Price = x.Price,
+                Date = x.Date,
+            })
+            .SingleOrDefaultAsync();
+
+        return Ok(transaction);
+    }
+
     [HttpPost("CreateNewTransaction")]
-    public async Task<ActionResult> CreateNewTransaction(int stockId, decimal amount, decimal price, DateTimeOffset timestamp)
+    public async Task<ActionResult> CreateNewTransaction(int stockId, decimal amount, decimal price, [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly date)
     {
         var stock = await _db.Stocks
             .AsTracking()
@@ -52,7 +77,7 @@ public class StockTransactionsPageController : Controller
             Stock = stock,
             Amount = amount,
             Price = price,
-            Timestamp = timestamp
+            Date = date
         });
         await _db.SaveChangesAsync();
 
@@ -60,7 +85,7 @@ public class StockTransactionsPageController : Controller
     }
     
     [HttpPost("UpdateTransaction/{id}")]
-    public async Task<ActionResult> UpdateNewTransaction(int id, int stockId, decimal amount, decimal price, DateTimeOffset timestamp)
+    public async Task<ActionResult> UpdateTransaction(int id, int stockId, decimal amount, decimal price, [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly date)
     {
         var transaction = await _db.StockTransactions
             .AsTracking()
@@ -79,7 +104,7 @@ public class StockTransactionsPageController : Controller
         transaction.Stock = stock;
         transaction.Amount = amount;
         transaction.Price = price;
-        transaction.Timestamp = timestamp;
+        transaction.Date = date;
         await _db.SaveChangesAsync();
 
         return Ok();
@@ -122,7 +147,7 @@ public record StockTransactionResponse
     [Required] public int Id { get; init; }
     [Required] public required int StockId { get; init; }
     [Required] public required string StockName { get; init; }
-    [Required] public required DateTimeOffset Timestamp { get; init; }
+    [Required] public required DateOnly Date { get; init; }
     [Required] public required decimal Amount { get; init; }
     [Required] public required decimal Price { get; init; }
 }

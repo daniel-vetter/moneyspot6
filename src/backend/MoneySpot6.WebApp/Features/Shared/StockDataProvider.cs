@@ -83,21 +83,21 @@ public class StockDataProvider
     /// </summary>
     public async Task<ImmutableArray<OwnedStockAmount>> GetDailyOwnedStockAmount(int stockId, DateOnly start, DateOnly end)
     {
-        var startDto = new DateTimeOffset(start.Year, start.Month, start.Day, 0, 0, 0, 0, 0, TimeSpan.Zero);
-        var endDto = new DateTimeOffset(end.Year, end.Month, end.Day, 0, 0, 0, 0, 0, TimeSpan.Zero);
+        var startDto = new DateOnly(start.Year, start.Month, start.Day);
+        var endDto = new DateOnly(end.Year, end.Month, end.Day);
 
         var curAmount = await _db.StockTransactions
             .AsNoTracking()
             .Where(x => x.Stock.Id == stockId)
-            .Where(x => x.Timestamp < startDto)
+            .Where(x => x.Date < startDto)
             .SumAsync(x => x.Amount);
 
         var stockTransactions = (await _db.StockTransactions
                 .AsNoTracking()
                 .Where(x => x.Stock.Id == stockId)
-                .Where(x => x.Timestamp >= startDto && x.Timestamp < endDto)
+                .Where(x => x.Date >= startDto && x.Date < endDto)
                 .ToImmutableArrayAsync())
-            .GroupBy(x => DateOnly.FromDateTime(x.Timestamp.Date))
+            .GroupBy(x => x.Date)
             .ToImmutableDictionary(x => x.Key, x => x.Sum(y => y.Amount));
 
         var result = ImmutableArray.CreateBuilder<OwnedStockAmount>();
