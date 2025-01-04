@@ -19,13 +19,11 @@
                 <div class="total oneLine">Gesamt</div>
             </div>
 
-            <p>No transactions found.</p>
-
             @for (transaction of transactions; track transaction.id) {
                 <a pRipple class="horizontal line" (click)="onTransactionClicked(transaction)">
                     <div class="date oneLine">{{ transaction.date! | customDate }}</div>
                     <div class="name oneLine">{{ transaction.stockName }}</div>
-                    <div class="amount oneLine">{{ transaction.amount | number }}</div>
+                    <div class="amount oneLine">{{ transaction.amount | number: "" : "de-de" }}</div>
                     <div class="price oneLine"><app-value [value]="transaction.price * 100"></app-value></div>
                     <div class="total oneLine"><app-value [value]="transaction.price * 100 * transaction.amount"></app-value></div>
                 </a>
