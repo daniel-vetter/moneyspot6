@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Infrastructure;
 
 namespace MoneySpot6.WebApp.Features.Shared
 {
@@ -8,10 +9,12 @@ namespace MoneySpot6.WebApp.Features.Shared
     public class BalanceProvider
     {
         private readonly Db _db;
+        private readonly StockDataProvider _stockDataProvider;
 
-        public BalanceProvider(Db db)
+        public BalanceProvider(Db db, StockDataProvider stockDataProvider)
         {
             _db = db;
+            _stockDataProvider = stockDataProvider;
         }
 
         public async Task<long> GetCurrentBalance(ImmutableArray<int>? accountIds = null)

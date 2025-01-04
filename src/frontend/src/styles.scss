@@ -1,5 +1,3 @@
-@import "primeng/resources/themes/aura-dark-blue/theme.css";
-@import "primeng/resources/primeng.css";
 @import "primeicons/primeicons.css";
 
 :root {
@@ -12,6 +10,7 @@ body {
     height: 100%;
     padding: 0;
     margin: 0;
+    font-family: "Inter var", sans-serif
 }
 
 //Fixing dialogs
@@ -93,7 +92,7 @@ body {
     display: flex;
     flex-direction: column;
     padding-right: 0.5rem;
-    border-right: 1px solid var(--gray-600);
+    border-right: 1px solid var(--p-gray-600);
 }
 
 .right {
@@ -107,7 +106,7 @@ body {
 
     > *.header {
         font-weight: bold;
-        border-bottom: 1px solid var(--gray-600);
+        border-bottom: 1px solid var(--p-gray-600);
     }
 
     > * {
@@ -128,10 +127,6 @@ body {
     margin: 0;
     padding: 0;
     max-height: inherit;
-}
-
-.p-dialog-content {
-    padding: 0;
 }
 
 .vertical {

@@ -160,7 +160,7 @@ namespace MoneySpot6.WebApp.Database
     {
         public int Id { get; set; }
         public required DbStock Stock { get; set; }
-        public required DateTimeOffset Timestamp { get; set; }
+        public required DateOnly Date { get; set; }
         public required decimal Amount { get; set; }
         public required decimal Price { get; set; }
     }

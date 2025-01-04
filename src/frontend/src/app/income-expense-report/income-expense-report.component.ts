@@ -12,10 +12,9 @@ import { Grouping, GroupingBarComponent } from '../common/grouping-bar/grouping-
 
 @Component({
     selector: 'app-income-expense-report',
-    standalone: true,
     imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, FormsModule, SearchBarComponent, GroupingBarComponent],
     templateUrl: './income-expense-report.component.html',
-    styleUrl: './income-expense-report.component.scss',
+    styleUrl: './income-expense-report.component.scss'
 })
 export class IncomeExpenseReportComponent implements OnInit {
     onSearchSubmit() { }
@@ -102,7 +101,7 @@ export class IncomeExpenseReportComponent implements OnInit {
             if (line.total > 0) {
                 const percent = ((line.total / max) * 100) / 2;
                 line.bar = {
-                    color: 'var(--green-600)',
+                    color: 'var(--p-green-600)',
                     left: 50,
                     width: percent,
                     radius: '0 0.5rem 0.5rem 0',
@@ -110,7 +109,7 @@ export class IncomeExpenseReportComponent implements OnInit {
             } else {
                 const percent = ((-line.total / max) * 100) / 2;
                 line.bar = {
-                    color: 'var(--red-600)',
+                    color: 'var(--p-red-600)',
                     left: 50 - percent,
                     width: percent,
                     radius: '0.5rem 0 0 0.5rem',

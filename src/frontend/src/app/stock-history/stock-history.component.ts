@@ -9,13 +9,12 @@ import * as Highcharts from 'highcharts/highstock';
 
 @Component({
   selector: 'app-stock-history',
-  standalone: true,
   imports: [DropdownModule, FormsModule, PanelModule, HighchartsChartModule],
   templateUrl: './stock-history.component.html',
   styleUrl: './stock-history.component.scss'
 })
 export class StockHistoryComponent implements OnInit {
-  possibleStocks: StockResponse[] | undefined;
+  possibleStocks: StockResponse[] | undefined = undefined;
   selectedStockId?: number;
 
   possibleIntervals = ["Täglich", "5 Minuten"]
@@ -99,10 +98,8 @@ export class StockHistoryComponent implements OnInit {
           type: "ohlc",
           name: "Preis",
           data: data.map(x => [+new Date(x.timestamp), x.open, x.high, x.low, x.close]),
-          color: 'var(--red-600)',
-          //lineColor: 'var(--red-900)',
-          upColor: 'var(--green-600)',
-          //upLineColor: 'var(--green-900)',
+          color: 'var(--p-red-600)',
+          upColor: 'var(--p-green-600)',
           animation: {
             duration: 0
           }

@@ -14,10 +14,9 @@ import { GlobalEvents } from '../common/global-events';
 
 @Component({
     selector: 'app-account-sync',
-    standalone: true,
     imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ProgressSpinnerModule, PanelModule, TanDialogComponent, MessagesModule, ToastModule],
     templateUrl: './account-sync.component.html',
-    styleUrl: './account-sync.component.scss',
+    styleUrl: './account-sync.component.scss'
 })
 export class AccountSyncComponent {
     isVisible = false;

@@ -5,10 +5,9 @@ import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
     selector: 'app-grouping-bar',
-    standalone: true,
     imports: [DropdownModule, FormsModule],
     templateUrl: './grouping-bar.component.html',
-    styleUrl: './grouping-bar.component.scss',
+    styleUrl: './grouping-bar.component.scss'
 })
 export class GroupingBarComponent implements OnInit {
     constructor(

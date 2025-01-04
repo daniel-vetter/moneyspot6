@@ -13,10 +13,9 @@ import { Grouping, GroupingBarComponent } from '../common/grouping-bar/grouping-
 
 @Component({
     selector: 'app-transactions',
-    standalone: true,
     imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent],
     templateUrl: './transactions.component.html',
-    styleUrl: './transactions.component.scss',
+    styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent implements OnInit {
     transactions: TransactionResponse[] = [];

@@ -2,10 +2,9 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
     selector: 'app-value',
-    standalone: true,
     imports: [],
     templateUrl: './value.component.html',
-    styleUrl: './value.component.scss',
+    styleUrl: './value.component.scss'
 })
 export class ValueComponent implements OnChanges {
     @Input() value: number | undefined;

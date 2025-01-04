@@ -11,7 +11,7 @@ ul {
 }
 
 li:hover {
-    background-color: var(--surface-200);
+    background-color: var(--p-surface-800);
 }
 
 a {
@@ -20,11 +20,10 @@ a {
     display: block;
     height: 100%;
     width: 100%;
-    color: var(--text-color);
+    color: var(--p-text-color);
 }
 
 .active {
-    background-color: var(--surface-200);
-    color: var(--highlight-text-color);
-    background: var(--highlight-bg);
+    color: var(--p-highlight-text-color);
+    background: var(--p-highlight-background);
 }

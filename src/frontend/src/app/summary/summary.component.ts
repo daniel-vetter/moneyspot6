@@ -14,10 +14,9 @@ import { minDelay } from '../common/load-delay';
 
 @Component({
     selector: 'app-summary',
-    standalone: true,
     imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent, ProgressSpinnerModule],
     templateUrl: './summary.component.html',
-    styleUrl: './summary.component.scss',
+    styleUrl: './summary.component.scss'
 })
 export class SummaryComponent implements OnInit, OnDestroy {
     bankAccountSummary?: BankAccountSummaryResponse;

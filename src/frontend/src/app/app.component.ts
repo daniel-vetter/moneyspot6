@@ -7,13 +7,15 @@ import { ToastModule } from 'primeng/toast';
 import { TopBarComponent } from './top-bar/top-bar.component';
 import * as Highcharts from 'highcharts';
 import * as HighchartsStock from 'highcharts/highstock';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'app-root',
-    standalone: true,
-    imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent],
+    imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent, ConfirmDialogModule],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
+    providers: [ConfirmationService]
 })
 export class AppComponent implements OnInit {
     constructor() { }
@@ -35,42 +37,42 @@ export class AppComponent implements OnInit {
             xAxis: {
                 labels: {
                     style: {
-                        color: 'var(--text-color)',
+                        color: 'var(--p-text-color)',
                     },
                 },
-                lineColor: 'var(--gray-600)',
-                tickColor: 'var(--gray-600)',
+                lineColor: 'var(--p-gray-600)',
+                tickColor: 'var(--p-gray-600)',
                 minorGridLineColor: '#FF0000',
                 gridLineColor: '#FF0000',
             },
             yAxis: {
                 labels: {
                     style: {
-                        color: 'var(--text-color)',
+                        color: 'var(--p-text-color)',
                     },
                 },
-                lineColor: 'var(--gray-600)',
-                gridLineColor: 'var(--gray-600)',
+                lineColor: 'var(--p-gray-600)',
+                gridLineColor: 'var(--p-gray-600)',
             },
             title: {
                 style: {
-                    color: 'var(--text-color)',
-                    font: 'bold 16px var(--font-family)',
+                    color: 'var(--p-text-color)',
+                    font: 'bold 16px var(--p-font-family)',
                 },
             },
             subtitle: {
                 style: {
-                    color: 'var(--text-color)',
-                    font: 'bold 12px var(--font-family)',
+                    color: 'var(--p-text-color)',
+                    font: 'bold 12px var(--p-font-family)',
                 },
             },
             legend: {
                 itemStyle: {
-                    font: '9pt var(--font-family)',
-                    color: 'var(--text-color)',
+                    font: '9pt var(--p-font-family)',
+                    color: 'var(--p-text-color)',
                 },
                 itemHoverStyle: {
-                    color: 'var(--text-color)',
+                    color: 'var(--p-text-color)',
                 },
             },
             credits: {
