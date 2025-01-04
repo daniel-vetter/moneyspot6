@@ -66,14 +66,20 @@ export class StockTransactionEditDialogComponent implements OnInit {
     if (this.form.value.type == 1) {
       amount = amount * -1;
     }
-
     if (this.id === undefined) {
-      await lastValueFrom(this.client.createNewTransaction(this.form.value.stock, amount, this.form.value.price, this.form.value.date!.toISOString().substring(0, 10)));
+      await lastValueFrom(this.client.createNewTransaction(this.form.value.stock, amount, this.form.value.price, this.toDateOnlyStr(this.form.value.date)));
     } else {
-      await lastValueFrom(this.client.updateTransaction(this.id, this.form.value.stock, amount, this.form.value.price, this.form.value.date!.toISOString().substring(0, 10)));
+      await lastValueFrom(this.client.updateTransaction(this.id, this.form.value.stock, amount, this.form.value.price, this.toDateOnlyStr(this.form.value.date)));
     }
 
     this.dynamicDialogRef.close();
+  }
+
+  toDateOnlyStr(date: Date | undefined) {
+    if (date === undefined) {
+      throw Error("no date provided");
+    }
+    return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
   }
 
   onCancelClicked() {
