@@ -35,9 +35,9 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
             if (endDate > max) endDate = max;
 
             var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate, endDate);
-            var stockValueHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate, endDate);
+            var stockHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate, endDate);
 
-            if (balanceHistory.Length != stockValueHistory.Length)
+            if (balanceHistory.Length != stockHistory.Length)
                 throw new Exception("Length does not match.");
 
             var r = ImmutableArray.CreateBuilder<AccountHistoryBalanceResponse>();
@@ -47,7 +47,8 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
                 {
                     Date = balanceHistory[i].Date,
                     Balance = balanceHistory[i].Balance,
-                    StockValue = (long)(stockValueHistory[i].Amount * 100m) //TODO
+                    StockValue = (long)(stockHistory[i].CurrentValue * 100m), //TODO
+                    StockInvested = (long)(stockHistory[i].InvestedValue * 100m) //TODO
                 });
             }
             return r.ToImmutableArray();
@@ -59,5 +60,6 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
         [Required] public DateOnly Date { get; init; }
         [Required] public long Balance { get; set; }
         [Required] public long StockValue { get; set; }
+        [Required] public long StockInvested { get; set; }
     };
 }

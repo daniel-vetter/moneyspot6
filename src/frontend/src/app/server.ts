@@ -1707,6 +1707,7 @@ export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResp
     date!: Date;
     balance!: number;
     stockValue!: number;
+    stockInvested!: number;
 
     constructor(data?: IAccountHistoryBalanceResponse) {
         if (data) {
@@ -1722,6 +1723,7 @@ export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResp
             this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
             this.balance = _data["balance"];
             this.stockValue = _data["stockValue"];
+            this.stockInvested = _data["stockInvested"];
         }
     }
 
@@ -1737,6 +1739,7 @@ export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResp
         data["date"] = this.date ? formatDate(this.date) : <any>undefined;
         data["balance"] = this.balance;
         data["stockValue"] = this.stockValue;
+        data["stockInvested"] = this.stockInvested;
         return data;
     }
 }
@@ -1745,6 +1748,7 @@ export interface IAccountHistoryBalanceResponse {
     date: Date;
     balance: number;
     stockValue: number;
+    stockInvested: number;
 }
 
 export class RunningProcessResponse implements IRunningProcessResponse {
