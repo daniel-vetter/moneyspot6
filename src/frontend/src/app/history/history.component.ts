@@ -74,7 +74,15 @@ export class HistoryComponent implements OnInit {
                 }
             },
             series: [
-
+                {
+                    name: 'Konten',
+                    type: 'area',
+                    data: result.map((x) => [x.date.valueOf(), x.balance / 100]),
+                    fillOpacity: 0.15,
+                    animation: {
+                        duration: 0
+                    }
+                },
                 {
                     name: 'Aktien',
                     type: 'area',
@@ -85,10 +93,9 @@ export class HistoryComponent implements OnInit {
                     }
                 },
                 {
-                    name: 'Alle Konten',
-                    type: 'area',
-                    data: result.map((x) => [x.date.valueOf(), x.balance / 100]),
-                    fillOpacity: 0.15,
+                    name: 'Investment',
+                    type: 'line',
+                    data: result.map((x) => [x.date.valueOf(), x.stockInvested / 100]),
                     animation: {
                         duration: 0
                     }
