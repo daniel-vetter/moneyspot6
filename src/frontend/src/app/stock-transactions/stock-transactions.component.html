@@ -1,33 +1,104 @@
-<p-panel>
-    <ng-template pTemplate="header">
-        <div class="horizontal" style="width: 100%; gap: 2rem">
-            <b style="font-size: 1.4rem">Käufe / Verkäufe</b>
-            <div class="spacer"></div>
-            <p-button label="Neu" icon="pi pi-plus" [outlined]="true" (click)="onNewClicked()"></p-button>
-        </div>
-    </ng-template>
-
-    @if (transactions?.length === 0) {
-        <p>Keine Transaktionen gefunden.</p>
-    } @else {
-        <div class="table">
-            <div class="horizontal line header hidden-on-mobile">
-                <div class="date oneLine">Datum</div>
-                <div class="name oneLine">Aktie</div>
-                <div class="amount oneLine">Anzahl</div>
-                <div class="price oneLine">Preis</div>
-                <div class="total oneLine">Gesamt</div>
+<div class="vertical">
+    <p-panel>
+        <ng-template pTemplate="header">
+            <div class="horizontal" style="width: 100%; gap: 2rem">
+                <h1>Portfolio</h1>
             </div>
+        </ng-template>
+        @if (portfolio() !== undefined) {
+            <div class="table2">
+                <div class="horizontal double-header">
+                    <div class="w3">Gekauft</div>
+                    <div class="w4">Verkauft</div>
+                    <div class="w4">Verbleibend</div>
+                </div>
+                <div class="horizontal header">
+                    <div class="w1">Wertpapier</div>
+                    <div class="w1 right">Anzahl</div>
+                    <div class="w1 right">Preis</div>
 
-            @for (transaction of transactions; track transaction.id) {
-                <a pRipple class="horizontal line" (click)="onTransactionClicked(transaction)">
-                    <div class="date oneLine">{{ transaction.date! | customDate }}</div>
-                    <div class="name oneLine">{{ transaction.stockName }}</div>
-                    <div class="amount oneLine">{{ transaction.amount | number: "" : "de-de" }}</div>
-                    <div class="price oneLine"><app-value [value]="transaction.price * 100"></app-value></div>
-                    <div class="total oneLine"><app-value [value]="transaction.price * 100 * transaction.amount"></app-value></div>
-                </a>
+                    <div class="w1 right">Anzahl</div>
+                    <div class="w1 right">Preis</div>
+                    <div class="w1 right">Steuer</div>
+                    <div class="w1 right">Gewinn</div>
+
+                    <div class="w1 right">Anzahl</div>
+                    <div class="w1 right">Preis</div>
+                    <div class="w1 right">Steuer</div>
+                    <div class="w1 right">Gewinn</div>
+                </div>
+                @for (stock of portfolio(); track stock) {
+                    <a pRipple class="horizontal clickable nostyle" [routerLink]="['orders', stock.stockId]">
+                        <div class="w1">{{ stock.stockName }}</div>
+                        <div class="w1 right">{{ stock.purchaseAmount | number: "1.1-1" : "de-de" }}</div>
+                        <div class="w1 right">
+                            <app-value [value]="stock.purchasePrice * 100" color="none"></app-value>
+                        </div>
+
+                        @if (stock.soldAmount === 0) {
+                            <div class="w1 right">-</div>
+                            <div class="w1 right">-</div>
+                            <div class="w1 right">-</div>
+                            <div class="w1 right">-</div>
+                        } @else {
+                            <div class="w1 right">
+                                {{ stock.soldAmount | number: "1.1-1" : "de-de" }}
+                            </div>
+                            <div class="w1 right">
+                                <app-value [value]="stock.soldPrice * 100" color="none"></app-value>
+                            </div>
+                            <div class="w1 right">
+                                <app-value [value]="stock.soldTax * 100" color="none"></app-value>
+                            </div>
+                            <div class="w1 right">{{ (stock.soldPrice / stock.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
+                        }
+
+                        <div class="w1 right">{{ stock.remainingAmount | number: "1.1-1" : "de-de" }}</div>
+                        <div class="w1 right">
+                            <app-value [value]="stock.remainingPrice * 100" color="none"></app-value>
+                        </div>
+                        <div class="w1 right">
+                            <app-value [value]="stock.remainingTax * 100" color="none"></app-value>
+                        </div>
+                        <div class="w1 right">{{ (stock.remainingPrice / stock.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
+                    </a>
+                }
+            </div>
+        }
+    </p-panel>
+
+    <p-panel>
+        <ng-template pTemplate="header">
+            <div class="horizontal" style="width: 100%; gap: 2rem">
+                <h1>Käufe / Verkäufe</h1>
+                <div class="spacer"></div>
+                <p-button label="Neu" icon="pi pi-plus" [outlined]="true" (click)="onNewClicked()"></p-button>
+            </div>
+        </ng-template>
+        @if (transactions() !== undefined) {
+            @if (transactions()?.length === 0) {
+                <p>Keine Transaktionen gefunden.</p>
+            } @else {
+                <div class="table2">
+                    <div class="horizontal header">
+                        <div class="w1">Datum</div>
+                        <div class="w4">Aktie</div>
+                        <div class="w1 right">Anzahl</div>
+                        <div class="w1 right">Preis</div>
+                        <div class="w1 right">Total</div>
+                    </div>
+
+                    @for (transaction of transactions(); track transaction.id) {
+                        <a pRipple class="horizontal clickable" (click)="onTransactionClicked(transaction)">
+                            <div class="w1">{{ transaction.date! | customDate }}</div>
+                            <div class="w4">{{ transaction.stockName }}</div>
+                            <div class="w1 right">{{ transaction.amount | number: "" : "de-de" }}</div>
+                            <div class="w1 right"><app-value [value]="transaction.price * 100"></app-value></div>
+                            <div class="w1 right"><app-value [value]="transaction.price * 100 * transaction.amount"></app-value></div>
+                        </a>
+                    }
+                </div>
             }
-        </div>
-    }
-</p-panel>
+        }
+    </p-panel>
+</div>

@@ -95,10 +95,6 @@ body {
     border-right: 1px solid var(--p-gray-600);
 }
 
-.right {
-    text-align: right;
-}
-
 .table {
     display: flex;
     flex-direction: column;
@@ -139,7 +135,7 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 .spacer {
@@ -177,4 +173,54 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+.table2 {
+    margin: 0.5rem -0.5rem;
+
+    &>*>* {
+        padding: 0.5rem;
+    }
+}
+
+.right {
+    text-align: right !important;
+}
+
+.header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.double-header>* {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.w1 {
+    flex: 1
+}
+
+.w2 {
+    flex: 2
+}
+
+.w3 {
+    flex: 3
+}
+
+.w4 {
+    flex: 4
+}
+
+.nostyle {
+    text-decoration: none;
+    color: inherit;
+}
+
+.clickable {
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
 }

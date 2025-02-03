@@ -22,10 +22,10 @@ export class StockTransactionEditDialogComponent implements OnInit {
 
 
   constructor(private dynamicDialogRef: DynamicDialogRef, dialogConfig: DynamicDialogConfig, private client: StockTransactionsPageClient, private confirmationService: ConfirmationService) {
-    dialogConfig.header = "Neue Transaktion";
+    this.id = dialogConfig.data.id;
+    dialogConfig.header = this.id === undefined ? "Neue Transaktion" : "Transaktion bearbeiten";
     dialogConfig.width = "500px";
     dialogConfig.height = "620px";
-    this.id = dialogConfig.data.id;
   }
 
   id: number | undefined;

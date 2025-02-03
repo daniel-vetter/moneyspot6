@@ -1,12 +1,14 @@
-﻿using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
-using NJsonSchema.Annotations;
+using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema;
+using NJsonSchema.Annotations;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
+using MoneySpot6.WebApp.Features.Shared;
 
 namespace MoneySpot6.WebApp.Features.StockTransactions;
 
@@ -15,31 +17,65 @@ namespace MoneySpot6.WebApp.Features.StockTransactions;
 public class StockTransactionsPageController : Controller
 {
     private readonly Db _db;
+    private readonly StockDataProvider _stockDataProvider;
+    private readonly PortfolioProvider _portfolioProvider;
 
-    public StockTransactionsPageController(Db db)
+    public StockTransactionsPageController(Db db, StockDataProvider stockDataProvider, PortfolioProvider portfolioProvider)
     {
         _db = db;
+        _stockDataProvider = stockDataProvider;
+        _portfolioProvider = portfolioProvider;
     }
-    
+
     [HttpGet("GetStockTransactions")]
-    public async Task<ActionResult<ImmutableArray<StockTransactionResponse>>> GetStockTransactions()
+    public async Task<ActionResult<ImmutableArray<StockTransactionResponse>>> GetStockTransactions() //TODO: StockId
     {
         var transactions = await _db.StockTransactions
             .AsNoTracking()
             .Select(x => new StockTransactionResponse
             {
                 Id = x.Id,
-                StockId = x.Stock.Id,
-                StockName = x.Stock.Name,
                 Amount = x.Amount,
-                Price = x.Price,
                 Date = x.Date,
+                Price = x.Price,
+                StockId = x.Stock.Id,
+                StockName = x.Stock.Name
             })
-            .OrderByDescending(x => x.Date)
-            .ThenByDescending(x => x.Id)
-            .ToArrayAsync();
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.Id)
+            .ToImmutableArrayAsync();
 
-        return Ok(ImmutableCollectionsMarshal.AsImmutableArray(transactions));
+        return Ok(transactions);
+    }
+
+    [HttpGet("GetPortfolio")]
+    public async Task<ActionResult<ImmutableArray<PortfolioStockResponse>>> GetPortfolio()
+    {
+        return Ok((await _portfolioProvider.GetPortfolio()).Select(x => new PortfolioStockResponse
+        {
+            StockId = x.StockId,
+            StockName = x.StockName,
+            PurchaseAmount = x.PurchaseAmount,
+            PurchasePrice = x.PurchasePrice,
+            SoldAmount = x.SoldAmount,
+            SoldPrice = x.SoldPrice,
+            SoldTax = x.SoldTax,
+            RemainingAmount = x.RemainingAmount,
+            RemainingPrice = x.RemainingPrice,
+            RemainingTax = x.RemainingTax,
+            Purchases = x.Purchases.Select(y => new PortfolioStockPurchaseResponse
+            {
+                Date = y.Date,
+                PurchaseAmount = y.PurchaseAmount,
+                PurchasePrice = y.PurchasePrice,
+                SoldAmount = y.SoldAmount,
+                SoldPrice = y.SoldPrice,
+                SoldTax = y.SoldTax,
+                RemainingAmount = y.RemainingAmount,
+                RemainingPrice = y.RemainingPrice,
+                RemainingTax = y.RemainingTax
+            }).ToImmutableArray()
+        }).ToImmutableArray());
     }
 
     [HttpGet("GetStockTransaction")]
@@ -83,17 +119,17 @@ public class StockTransactionsPageController : Controller
 
         return Ok();
     }
-    
+
     [HttpPost("UpdateTransaction/{id}")]
     public async Task<ActionResult> UpdateTransaction(int id, int stockId, decimal amount, decimal price, [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly date)
     {
         var transaction = await _db.StockTransactions
             .AsTracking()
             .SingleOrDefaultAsync(x => x.Id == id);
-        
+
         if (transaction == null)
             return BadRequest("Invalid stock id");
-        
+
         var stock = await _db.Stocks
             .AsTracking()
             .SingleOrDefaultAsync(x => x.Id == stockId);
@@ -116,10 +152,10 @@ public class StockTransactionsPageController : Controller
         var transaction = await _db.StockTransactions
             .AsTracking()
             .SingleOrDefaultAsync(x => x.Id == id);
-        
+
         if (transaction == null)
             return BadRequest("Invalid stock id");
-        
+
         _db.StockTransactions.Remove(transaction);
         await _db.SaveChangesAsync();
 
@@ -137,9 +173,37 @@ public class StockTransactionsPageController : Controller
                 Name = x.Name
             })
             .ToArrayAsync();
-        
+
         return ImmutableCollectionsMarshal.AsImmutableArray(stocks);
     }
+}
+
+public class PortfolioStockResponse
+{
+    [Required] public required int StockId { get; set; }
+    [Required] public required string StockName { get; set; }
+    [Required] public required decimal PurchaseAmount { get; set; }
+    [Required] public required decimal PurchasePrice { get; set; }
+    [Required] public required decimal SoldAmount { get; set; }
+    [Required] public required decimal SoldPrice { get; set; }
+    [Required] public required decimal SoldTax { get; set; }
+    [Required] public required decimal RemainingAmount { get; set; }
+    [Required] public required decimal RemainingPrice { get; set; }
+    [Required] public required decimal RemainingTax { get; set; }
+    [Required] public required ImmutableArray<PortfolioStockPurchaseResponse> Purchases { get; set; }
+}
+
+public class PortfolioStockPurchaseResponse
+{
+    [Required] public required DateOnly Date { get; set; }
+    [Required] public required decimal PurchaseAmount { get; set; }
+    [Required] public required decimal PurchasePrice { get; set; }
+    [Required] public required decimal SoldAmount { get; set; }
+    [Required] public required decimal SoldPrice { get; set; }
+    [Required] public required decimal SoldTax { get; set; }
+    [Required] public required decimal RemainingAmount { get; set; }
+    [Required] public required decimal RemainingPrice { get; set; }
+    [Required] public required decimal RemainingTax { get; set; }
 }
 
 public record StockTransactionResponse
