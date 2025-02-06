@@ -299,6 +299,61 @@ export class StockTransactionsPageClient {
         return _observableOf(null as any);
     }
 
+    getPortfolio(): Observable<PortfolioStockResponse[]> {
+        let url_ = this.baseUrl + "/api/StockTransactionsPage/GetPortfolio";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPortfolio(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPortfolio(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PortfolioStockResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PortfolioStockResponse[]>;
+        }));
+    }
+
+    protected processGetPortfolio(response: HttpResponseBase): Observable<PortfolioStockResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PortfolioStockResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     getStockTransaction(id: number | undefined): Observable<StockTransactionResponse> {
         let url_ = this.baseUrl + "/api/StockTransactionsPage/GetStockTransaction?";
         if (id === null)
@@ -1506,6 +1561,161 @@ export interface IStockTransactionResponse {
     date: Date;
     amount: number;
     price: number;
+}
+
+export class PortfolioStockResponse implements IPortfolioStockResponse {
+    stockId!: number;
+    stockName!: string;
+    purchaseAmount!: number;
+    purchasePrice!: number;
+    soldAmount!: number;
+    soldPrice!: number;
+    soldTax!: number;
+    remainingAmount!: number;
+    remainingPrice!: number;
+    remainingTax!: number;
+    purchases!: PortfolioStockPurchaseResponse[];
+
+    constructor(data?: IPortfolioStockResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.purchases = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.stockId = _data["stockId"];
+            this.stockName = _data["stockName"];
+            this.purchaseAmount = _data["purchaseAmount"];
+            this.purchasePrice = _data["purchasePrice"];
+            this.soldAmount = _data["soldAmount"];
+            this.soldPrice = _data["soldPrice"];
+            this.soldTax = _data["soldTax"];
+            this.remainingAmount = _data["remainingAmount"];
+            this.remainingPrice = _data["remainingPrice"];
+            this.remainingTax = _data["remainingTax"];
+            if (Array.isArray(_data["purchases"])) {
+                this.purchases = [] as any;
+                for (let item of _data["purchases"])
+                    this.purchases!.push(PortfolioStockPurchaseResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PortfolioStockResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PortfolioStockResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["stockId"] = this.stockId;
+        data["stockName"] = this.stockName;
+        data["purchaseAmount"] = this.purchaseAmount;
+        data["purchasePrice"] = this.purchasePrice;
+        data["soldAmount"] = this.soldAmount;
+        data["soldPrice"] = this.soldPrice;
+        data["soldTax"] = this.soldTax;
+        data["remainingAmount"] = this.remainingAmount;
+        data["remainingPrice"] = this.remainingPrice;
+        data["remainingTax"] = this.remainingTax;
+        if (Array.isArray(this.purchases)) {
+            data["purchases"] = [];
+            for (let item of this.purchases)
+                data["purchases"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IPortfolioStockResponse {
+    stockId: number;
+    stockName: string;
+    purchaseAmount: number;
+    purchasePrice: number;
+    soldAmount: number;
+    soldPrice: number;
+    soldTax: number;
+    remainingAmount: number;
+    remainingPrice: number;
+    remainingTax: number;
+    purchases: PortfolioStockPurchaseResponse[];
+}
+
+export class PortfolioStockPurchaseResponse implements IPortfolioStockPurchaseResponse {
+    date!: Date;
+    purchaseAmount!: number;
+    purchasePrice!: number;
+    soldAmount!: number;
+    soldPrice!: number;
+    soldTax!: number;
+    remainingAmount!: number;
+    remainingPrice!: number;
+    remainingTax!: number;
+
+    constructor(data?: IPortfolioStockPurchaseResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.purchaseAmount = _data["purchaseAmount"];
+            this.purchasePrice = _data["purchasePrice"];
+            this.soldAmount = _data["soldAmount"];
+            this.soldPrice = _data["soldPrice"];
+            this.soldTax = _data["soldTax"];
+            this.remainingAmount = _data["remainingAmount"];
+            this.remainingPrice = _data["remainingPrice"];
+            this.remainingTax = _data["remainingTax"];
+        }
+    }
+
+    static fromJS(data: any): PortfolioStockPurchaseResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PortfolioStockPurchaseResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
+        data["purchaseAmount"] = this.purchaseAmount;
+        data["purchasePrice"] = this.purchasePrice;
+        data["soldAmount"] = this.soldAmount;
+        data["soldPrice"] = this.soldPrice;
+        data["soldTax"] = this.soldTax;
+        data["remainingAmount"] = this.remainingAmount;
+        data["remainingPrice"] = this.remainingPrice;
+        data["remainingTax"] = this.remainingTax;
+        return data;
+    }
+}
+
+export interface IPortfolioStockPurchaseResponse {
+    date: Date;
+    purchaseAmount: number;
+    purchasePrice: number;
+    soldAmount: number;
+    soldPrice: number;
+    soldTax: number;
+    remainingAmount: number;
+    remainingPrice: number;
+    remainingTax: number;
 }
 
 export class StockListEntryResponse implements IStockListEntryResponse {

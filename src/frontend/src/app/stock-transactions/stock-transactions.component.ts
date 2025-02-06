@@ -1,16 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { PanelModule } from "primeng/panel";
 import { PrimeTemplate } from "primeng/api";
 import { Ripple } from "primeng/ripple";
 import { ValueComponent } from "../common/value/value.component";
-import { StockTransactionResponse, StockTransactionsPageClient } from "../server";
+import { PortfolioStockResponse, StockTransactionResponse, StockTransactionsPageClient } from "../server";
 import { firstValueFrom, lastValueFrom } from "rxjs";
-import { CustomDateTimePipe } from "../common/custom-datetime.pipe";
 import { ButtonModule } from "primeng/button";
 import { DialogService } from "primeng/dynamicdialog";
 import { StockTransactionEditDialogComponent } from "./stock-transaction-edit-dialog/stock-transaction-edit-dialog.component";
-import { DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { CustomDatePipe } from "../common/custom-date.pipe";
+import { TabsModule } from 'primeng/tabs';
+import { RouterLink, RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-stock-transactions',
@@ -21,14 +22,17 @@ import { CustomDatePipe } from "../common/custom-date.pipe";
         ValueComponent,
         ButtonModule,
         DecimalPipe,
-        CustomDatePipe
+        CustomDatePipe,
+        TabsModule,
+        RouterModule
     ],
     providers: [DialogService],
     templateUrl: './stock-transactions.component.html',
     styleUrl: './stock-transactions.component.scss'
 })
 export class StockTransactionsComponent implements OnInit {
-    transactions?: StockTransactionResponse[];
+    transactions = signal<StockTransactionResponse[] | undefined>(undefined);
+    portfolio = signal<PortfolioStockResponse[] | undefined>(undefined);
 
     constructor(private stockTransactionsPageClient: StockTransactionsPageClient, private dialogService: DialogService) {
     }
@@ -48,14 +52,16 @@ export class StockTransactionsComponent implements OnInit {
         this.update();
     }
     async update() {
-        this.transactions = await lastValueFrom(this.stockTransactionsPageClient.getStockTransactions());
+        this.portfolio.set((await lastValueFrom(this.stockTransactionsPageClient.getPortfolio())).reverse());
+        this.transactions.set((await lastValueFrom(this.stockTransactionsPageClient.getStockTransactions())).reverse());
     }
 
     async onTransactionClicked(transaction: StockTransactionResponse) {
         const dlg = this.dialogService.open(StockTransactionEditDialogComponent, {
             data: {
                 id: transaction.id
-            }
+            },
+            modal: true
         });
 
         await firstValueFrom(dlg.onClose);

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.StockTransactions;
 using MoneySpot6.WebApp.Infrastructure;
 
 namespace MoneySpot6.WebApp.Features.Shared;
@@ -158,6 +161,25 @@ public class StockDataProvider
         }
         return result.ToImmutable();
     }
+
+    /// <summary>
+    /// Returns the current price of all stocks
+    /// </summary>
+    public async Task<ImmutableDictionary<int, decimal>> GetStockPrices()
+    {
+        return await _db.StockPrices
+            .AsNoTracking()
+            .Where(x => x.Interval == StockPriceInterval.FiveMinutes)
+            .GroupBy(x => x.Stock.Id)
+            .Select(x => new
+            {
+                StockId = x.Key,
+                Price = x.OrderByDescending(y => y.Timestamp).First()
+            })
+            .ToImmutableDictionaryAsync(x => x.StockId, x => x.Price.Close);
+    }
+
+   
 }
 
 public record StockValue(DateOnly Date, decimal Value);

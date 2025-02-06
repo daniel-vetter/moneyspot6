@@ -1,0 +1,68 @@
+<div class="vertical">
+    <p-panel>
+        <ng-template pTemplate="header">
+            <div class="horizontal" style="width: 100%; gap: 2rem">
+                <h1>{{ stock()?.stockName }}</h1>
+            </div>
+        </ng-template>
+
+        <div class="table2">
+            <div class="horizontal double-header">
+                <div class="w3">Gekauft</div>
+                <div class="w4">Verkauft</div>
+                <div class="w4">Verbleibend</div>
+            </div>
+            <div class="horizontal header">
+                <div class="w1">Datum</div>
+                <div class="w1 right">Anzahl</div>
+                <div class="w1 right">Preis</div>
+
+                <div class="w1 right">Anzahl</div>
+                <div class="w1 right">Preis</div>
+                <div class="w1 right">Steuer</div>
+                <div class="w1 right">Gewinn</div>
+
+                <div class="w1 right">Anzahl</div>
+                <div class="w1 right">Preis</div>
+                <div class="w1 right">Steuer</div>
+                <div class="w1 right">Gewinn</div>
+            </div>
+            @for (purchase of stock()?.purchases; track purchase) {
+                <a pRipple class="horizontal clickable nostyle">
+                    <div class="w1">{{ purchase.date | customDate }}</div>
+                    <div class="w1 right">{{ purchase.purchaseAmount | number: "1.1-1" : "de-de" }}</div>
+                    <div class="w1 right">
+                        <app-value [value]="purchase.purchasePrice * 100" color="none"></app-value>
+                    </div>
+
+                    @if (purchase.soldAmount === 0) {
+                        <div class="w1 right">-</div>
+                        <div class="w1 right">-</div>
+                        <div class="w1 right">-</div>
+                        <div class="w1 right">-</div>
+                    } @else {
+                        <div class="w1 right">
+                            {{ purchase.soldAmount | number: "1.1-1" : "de-de" }}
+                        </div>
+                        <div class="w1 right">
+                            <app-value [value]="purchase.soldPrice * 100" color="none"></app-value>
+                        </div>
+                        <div class="w1 right">
+                            <app-value [value]="purchase.soldTax * 100" color="none"></app-value>
+                        </div>
+                        <div class="w1 right">{{ (purchase.soldPrice / purchase.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
+                    }
+
+                    <div class="w1 right">{{ purchase.remainingAmount | number: "1.1-1" : "de-de" }}</div>
+                    <div class="w1 right">
+                        <app-value [value]="purchase.remainingPrice * 100" color="none"></app-value>
+                    </div>
+                    <div class="w1 right">
+                        <app-value [value]="purchase.remainingTax * 100" color="none"></app-value>
+                    </div>
+                    <div class="w1 right">{{ (purchase.remainingPrice / purchase.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
+                </a>
+            }
+        </div>
+    </p-panel>
+</div>
