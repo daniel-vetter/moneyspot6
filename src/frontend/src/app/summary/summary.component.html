@@ -6,7 +6,7 @@
     <div class="dashboard">
         <p-panel class="total">
             <ng-template pTemplate="header">
-                <b>Gesamt</b>
+                <h1>Gesamt</h1>
             </ng-template>
             <div style="width: 100%; text-align: center"></div>
             <app-value [value]="total" size="3.5rem" />
@@ -16,7 +16,7 @@
             <p-panel class="accounts">
                 <ng-template pTemplate="header">
                     <div class="horizontal" style="width: 100%">
-                        <b style="font-size: 1.5rem">Kontostand</b>
+                        <h1>Kontostand</h1>
                         <app-account-sync class="hidden-on-mobile"></app-account-sync>
                         <div class="spacer"></div>
                         <div class="header-value hidden-on-mobile">
@@ -52,8 +52,8 @@
         @if (stockSummary !== undefined) {
             <p-panel class="stocks">
                 <ng-template pTemplate="header">
-                    <b style="font-size: 1.5rem; flex: 1">Depot</b>
-
+                    <h1>Depot</h1>
+                    <div class="spacer"></div>
                     <div class="header-value hidden-on-mobile">
                         <div>Gesamt</div>
                         <app-value [value]="stockSummary.total * 100" size="1.5rem" />

@@ -20,6 +20,6 @@
 }
 
 .line:not(.header):hover {
-    background: var(--p-surface-800);
-    color: var(--p-highlight-text-color);
+    color: var(--p-navigation-item-focus-color);
+        background: var(--p-navigation-item-focus-background);
 }

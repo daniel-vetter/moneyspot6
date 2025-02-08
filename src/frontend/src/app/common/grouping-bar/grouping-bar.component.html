@@ -1,4 +1,11 @@
 <span>
     <span class="hidden-on-mobile">Gruppierung: </span>
-    <p-dropdown [options]="groupOptions" [(ngModel)]="selectedGrouping" optionLabel="name" optionValue="key" (onChange)="onGroupingChanged($event)" />
+    <p-dropdown
+        [options]="groupOptions"
+        [(ngModel)]="selectedGrouping"
+        optionLabel="name"
+        optionValue="key"
+        [style]="{ 'min-width': '150px' }"
+        (onChange)="onGroupingChanged($event)"
+    />
 </span>

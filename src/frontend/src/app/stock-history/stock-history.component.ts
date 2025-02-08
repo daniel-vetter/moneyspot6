@@ -52,7 +52,7 @@ export class StockHistoryComponent implements OnInit {
         type: "datetime"
       },
       rangeSelector: {
-        selected: 3,
+        selected: 1,
         buttons: [{
           type: 'day',
           count: 1,

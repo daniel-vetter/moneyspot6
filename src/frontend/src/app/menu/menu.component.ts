@@ -11,7 +11,7 @@ import { RippleModule } from 'primeng/ripple';
 
 @Component({
     selector: 'app-menu',
-    imports: [MenuModule, BadgeModule, AvatarModule, CommonModule, RippleModule, ButtonModule, DialogModule, RouterLink, RouterLinkActive],
+    imports: [MenuModule, BadgeModule, AvatarModule, CommonModule, RippleModule, ButtonModule, DialogModule, RouterLink, RouterLinkActive, MenuModule],
     templateUrl: './menu.component.html',
     styleUrl: './menu.component.scss'
 })

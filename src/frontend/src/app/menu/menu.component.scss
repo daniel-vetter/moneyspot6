@@ -10,20 +10,21 @@ ul {
     margin: 0;
 }
 
-li:hover {
-    background-color: var(--p-surface-800);
-}
-
 a {
     text-decoration: none;
-    padding: 1.5rem 1rem;
+    padding: 1rem 1rem;
     display: block;
     height: 100%;
     width: 100%;
-    color: var(--p-text-color);
+    color: var(--p-text-color)
 }
 
 .active {
-    color: var(--p-highlight-text-color);
-    background: var(--p-highlight-background);
+    color: var(--p-navigation-item-active-color) !important;
+    background: var(--p-navigation-item-active-background) !important;
+}
+
+a:hover {
+    color: var(--p-navigation-item-focus-color);
+    background: var(--p-navigation-item-focus-background);
 }
