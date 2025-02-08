@@ -9,13 +9,15 @@ import { GlobalErrorHandler } from './global-error-handler-dialog/global-error-h
 import { provideServiceWorker } from '@angular/service-worker';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import Lara from '@primeng/themes/lara';
+import Nora from '@primeng/themes/nora';
 import { definePreset } from '@primeng/themes';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 
 registerLocaleData(localeDe)
 
-const MyPreset = definePreset(Aura, {
+const MyPreset = definePreset(Nora, {
     semantic: {
         primary: {
             50: '{blue.50}',
@@ -29,7 +31,33 @@ const MyPreset = definePreset(Aura, {
             800: '{blue.800}',
             900: '{blue.900}',
             950: '{blue.950}'
-        }
+        },
+        surface: {
+            0: '#ffffff',
+            50: '{zinc.50}',
+            100: '{zinc.100}',
+            200: '{zinc.200}',
+            300: '{zinc.300}',
+            400: '{zinc.400}',
+            500: '{zinc.500}',
+            600: '{zinc.600}',
+            700: '{zinc.700}',
+            800: '{zinc.800}',
+            900: '{zinc.900}',
+            950: '{zinc.950}'
+        },
+        colorScheme: {
+            light: {
+                navigation: {
+                    item: {
+                        focusBackground: '{surface.200}',
+                        focusColor: "{primary.hover.color}",
+                        activeBackground: '{primary.color}',
+                        activeColor: "{primary.contrast.color}",
+                    }
+                }
+            }
+        },
     }
 });
 
@@ -51,7 +79,9 @@ export const appConfig: ApplicationConfig = {
             theme: {
                 preset: MyPreset,
                 options: {
-                    darkModeSelector: '.dark-mode'
+                    darkModeSelector: '.dark-mode',
+                    refix: 'p',
+                    cssLayer: false
                 }
             }
         }),

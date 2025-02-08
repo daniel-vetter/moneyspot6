@@ -31,6 +31,10 @@ export class AppComponent implements OnInit {
             accessibility: {
                 enabled: false,
             },
+            credits: {
+                enabled: false,
+            },
+            /*
             chart: {
                 backgroundColor: '#18181b',
             },
@@ -74,10 +78,8 @@ export class AppComponent implements OnInit {
                 itemHoverStyle: {
                     color: 'var(--p-text-color)',
                 },
-            },
-            credits: {
-                enabled: false,
-            },
+            }
+            */
         }
     }
 }

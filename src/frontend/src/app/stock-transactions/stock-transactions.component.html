@@ -8,12 +8,12 @@
         @if (portfolio() !== undefined) {
             <div class="table2">
                 <div class="horizontal double-header">
-                    <div class="w3">Gekauft</div>
+                    <div class="w4">Gekauft</div>
                     <div class="w4">Verkauft</div>
                     <div class="w4">Verbleibend</div>
                 </div>
                 <div class="horizontal header">
-                    <div class="w1">Wertpapier</div>
+                    <div class="w2">Wertpapier</div>
                     <div class="w1 right">Anzahl</div>
                     <div class="w1 right">Preis</div>
 
@@ -29,7 +29,7 @@
                 </div>
                 @for (stock of portfolio(); track stock) {
                     <a pRipple class="horizontal clickable nostyle" [routerLink]="['orders', stock.stockId]">
-                        <div class="w1">{{ stock.stockName }}</div>
+                        <div class="w2 oneLine">{{ stock.stockName }}</div>
                         <div class="w1 right">{{ stock.purchaseAmount | number: "1.1-1" : "de-de" }}</div>
                         <div class="w1 right">
                             <app-value [value]="stock.purchasePrice * 100" color="none"></app-value>

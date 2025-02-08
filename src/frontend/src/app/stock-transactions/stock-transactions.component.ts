@@ -45,7 +45,8 @@ export class StockTransactionsComponent implements OnInit {
         const dlg = this.dialogService.open(StockTransactionEditDialogComponent, {
             data: {
                 id: undefined
-            }
+            },
+            modal: true
         });
 
         await firstValueFrom(dlg.onClose);

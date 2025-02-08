@@ -7,6 +7,9 @@
     </div>
 
     <p-panel>
+        <p-header>
+            <h1>Verlauf</h1>
+        </p-header>
         @if (chart !== undefined) {
             <highcharts-chart [Highcharts]="Highcharts" constructorType="stockChart" [options]="chart" style="width: 100%; display: block"></highcharts-chart>
         }
