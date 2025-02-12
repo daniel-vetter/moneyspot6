@@ -11,7 +11,6 @@ namespace MoneySpot6.WebApp.Database
         public DbSet<DbStock> Stocks { get; init; }
         public DbSet<DbStockPrice> StockPrices { get; init; }
         public DbSet<DbStockTransaction> StockTransactions { get; init; }
-        public DbSet<DbYahooRequestLog> YahooRequestLog { get; set; }
 
         public Db(DbContextOptions<Db> options) : base(options)
         {
@@ -169,14 +168,5 @@ namespace MoneySpot6.WebApp.Database
     {
         Daily = 1440,
         FiveMinutes = 5
-    }
-
-    [Table("YahooRequestLogs")]
-    public class DbYahooRequestLog
-    {
-        public int Id { get; set; }
-        public required string Url { get; set; }
-        public required int ResponseCode { get; set; }
-        public required string Response { get; set; }
     }
 }
