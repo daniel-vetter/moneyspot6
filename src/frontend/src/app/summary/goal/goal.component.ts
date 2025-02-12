@@ -42,7 +42,7 @@ export class GoalComponent implements OnInit {
                 {
                     name: 'Aktuell',
                     type: 'line',
-                    data: r.actualHistory.map((x) => [x.date.valueOf(), x.balance / 100]),
+                    data: r.actualHistory.map((x) => [x.date.valueOf(), Math.round(x.balance * 100) / 100]),
                     animation: {
                         duration: 0
                     }
@@ -51,7 +51,7 @@ export class GoalComponent implements OnInit {
                     name: 'Erwartet',
                     type: 'line',
                     dashStyle: 'ShortDash',
-                    data: r.expectedHistory.map((x) => [x.date.valueOf(), x.balance / 100]),
+                    data: r.expectedHistory.map((x) => [x.date.valueOf(), Math.round(x.balance * 100) / 100]),
                     animation: {
                         duration: 0
                     }

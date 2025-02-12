@@ -21,7 +21,7 @@ export class ValueComponent implements OnChanges {
             this.valueStr = '-';
             this.class = '';
         } else {
-            this.valueStr = this.format.format(this.value / 100);
+            this.valueStr = this.format.format(this.value);
 
             let v = this.value;
 

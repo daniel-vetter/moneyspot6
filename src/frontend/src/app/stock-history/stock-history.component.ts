@@ -97,7 +97,7 @@ export class StockHistoryComponent implements OnInit {
         {
           type: "ohlc",
           name: "Preis",
-          data: data.map(x => [+new Date(x.timestamp), x.open, x.high, x.low, x.close]),
+          data: data.map(x => [+new Date(x.timestamp), Math.round(x.open * 100) / 100, Math.round(x.high * 100) / 100, Math.round(x.low * 100) / 100, Math.round(x.close * 100) / 100]),
           color: 'var(--p-red-600)',
           upColor: 'var(--p-green-600)',
           animation: {

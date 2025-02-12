@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom, Subscription } from 'rxjs';
-import {BankAccountSummaryResponse, StockSummaryResponse, SummaryPageClient} from '../server';
+import { BankAccountSummaryResponse, StockSummaryResponse, SummaryPageClient } from '../server';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
 import { ValueComponent } from '../common/value/value.component';
@@ -28,7 +28,7 @@ export class SummaryComponent implements OnInit, OnDestroy {
     constructor(
         private summaryPageClient: SummaryPageClient,
         private globalEvents: GlobalEvents,
-    ) {}
+    ) { }
 
     async ngOnInit(): Promise<void> {
         this._onAccountSyncDoneSubscription = this.globalEvents.onAccountSyncDone.subscribe(async () => await this.update());
@@ -47,7 +47,7 @@ export class SummaryComponent implements OnInit, OnDestroy {
 
         this.bankAccountSummary = bankAccounts;
         this.stockSummary = stockSummary;
-        this.total = bankAccounts.accounts.reduce((a, b) => a + b.total, 0)! + stockSummary.total * 100;
+        this.total = bankAccounts.accounts.reduce((a, b) => a + b.total, 0)! + stockSummary.total;
         this.isLoading = false;
     }
 }
