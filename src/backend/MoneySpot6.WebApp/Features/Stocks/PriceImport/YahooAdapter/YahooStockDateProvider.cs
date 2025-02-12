@@ -24,15 +24,6 @@ public class YahooStockDateProvider
         response.EnsureSuccessStatusCode();
 
         var responseJson = await response.Content.ReadAsStringAsync();
-
-        _db.YahooRequestLog.Add(new DbYahooRequestLog
-        {
-            Url = url,
-            ResponseCode = (int)response.StatusCode,
-            Response = responseJson
-        });
-        await _db.SaveChangesAsync();
-
         var responseData = JsonSerializer.Deserialize<Response>(responseJson, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         if (responseData == null)
             throw new Exception("Response was null");

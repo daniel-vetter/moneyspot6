@@ -33,7 +33,7 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
 
             return Ok(new BankAccountSummaryResponse
             {
-                Total = entries.Aggregate(0L, (a, b) => a + b.Total),
+                Total = entries.Aggregate(0m, (a, b) => a + b.Total),
                 Accounts = [..entries]
             });
         }
@@ -43,18 +43,18 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
         {
             var startDate = new DateOnly(2024, 09, 01);
             var targetDate = new DateOnly(2025, 06, 01);
-            var targetBalance = 60_000_00;
+            var targetBalance = 60_000m;
             var startBalance = await _balanceProvider.GetBalanceAtStartOf(startDate);
             var actualHistory = await _balanceProvider.GetBalanceHistory(new DateOnly(2024, 09, 01), DateOnly.FromDateTime(DateTime.Now).AddDays(1));
 
             var change = targetBalance - startBalance;
-            var totalDayCount = (targetDate.ToDateTime(TimeOnly.MinValue) - startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+            var totalDayCount = (decimal)(targetDate.ToDateTime(TimeOnly.MinValue) - startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
             var expected = ImmutableArray.CreateBuilder<BalanceEntryResponse>();
             for (var cur = startDate; cur <= targetDate; cur = cur.AddDays(1))
             {
                 var percentage = expected.Count / totalDayCount;
                 var value = startBalance + change * percentage;
-                expected.Add(new BalanceEntryResponse(cur, (long)value));
+                expected.Add(new BalanceEntryResponse(cur, value));
             }
             
             return Ok(new BankAccountTotalGoalResponse
@@ -67,14 +67,14 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
             });
         }
 
-        private async Task<long> CalculateSavingRatePerMonth(int targetBalance, DateOnly targetDate)
+        private async Task<decimal> CalculateSavingRatePerMonth(decimal targetBalance, DateOnly targetDate)
         {
             var today = DateTime.Today;
             var firstOfMonth = new DateOnly(today.Year, today.Month, 1);
             var remainingMoney = targetBalance - await _balanceProvider.GetBalanceAtStartOf(firstOfMonth);
-            var remainingDays = (targetDate.ToDateTime(TimeOnly.MinValue) - firstOfMonth.ToDateTime(TimeOnly.MinValue)).TotalDays;
+            var remainingDays = (decimal)(targetDate.ToDateTime(TimeOnly.MinValue) - firstOfMonth.ToDateTime(TimeOnly.MinValue)).TotalDays;
             var requiredSavingPerDay = remainingMoney / remainingDays;
-            return (long)requiredSavingPerDay * 30;
+            return requiredSavingPerDay * 30m;
         }
 
         [HttpGet("GetStockSummary")]
@@ -122,7 +122,7 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
 
     public record StockSummaryEntryResponse
     {
-        [Required] public required long Id { get; init; }
+        [Required] public required int Id { get; init; }
         [Required] public required string Name { get; init; }
         [Required] public required decimal StockPrice { get; init; }
         [Required] public required decimal Total { get; init; }
@@ -132,23 +132,23 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
     {
         [Required] public required int Id { get; init; }
         [Required] public required string Name { get; init; }
-        [Required] public required long Total { get; init; }
+        [Required] public required decimal Total { get; init; }
     }
 
     public record BankAccountTotalGoalResponse
     {
         [Required] public required DateOnly EndDate { get; init; }
-        [Required] public required long EndBalance { get; init; }
-        [Required] public required long RequiredSavingPerMonth { get; init; }
+        [Required] public required decimal EndBalance { get; init; }
+        [Required] public required decimal RequiredSavingPerMonth { get; init; }
         [Required] public required ImmutableArray<BalanceEntryResponse> ActualHistory { get; init; }
         [Required] public required ImmutableArray<BalanceEntryResponse> ExpectedHistory { get; init; }
     }
 
-    public record BalanceEntryResponse([property:Required] DateOnly Date, [property:Required] long Balance);
+    public record BalanceEntryResponse([property:Required] DateOnly Date, [property:Required] decimal Balance);
 
     public record BankAccountSummaryResponse
     {
         [Required] public required ImmutableArray<BankAccountEntrySummaryResponse> Accounts { get; init; }
-        [Required] public required long Total { get; init; }
+        [Required] public required decimal Total { get; init; }
     }
 }

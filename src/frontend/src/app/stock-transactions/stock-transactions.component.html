@@ -32,7 +32,7 @@
                         <div class="w2 oneLine">{{ stock.stockName }}</div>
                         <div class="w1 right">{{ stock.purchaseAmount | number: "1.1-1" : "de-de" }}</div>
                         <div class="w1 right">
-                            <app-value [value]="stock.purchasePrice * 100" color="none"></app-value>
+                            <app-value [value]="stock.purchasePrice" color="none"></app-value>
                         </div>
 
                         @if (stock.soldAmount === 0) {
@@ -55,10 +55,10 @@
 
                         <div class="w1 right">{{ stock.remainingAmount | number: "1.1-1" : "de-de" }}</div>
                         <div class="w1 right">
-                            <app-value [value]="stock.remainingPrice * 100" color="none"></app-value>
+                            <app-value [value]="stock.remainingPrice" color="none"></app-value>
                         </div>
                         <div class="w1 right">
-                            <app-value [value]="stock.remainingTax * 100" color="none"></app-value>
+                            <app-value [value]="stock.remainingTax" color="none"></app-value>
                         </div>
                         <div class="w1 right">{{ (stock.remainingPrice / stock.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
                     </a>
@@ -93,8 +93,8 @@
                             <div class="w1">{{ transaction.date! | customDate }}</div>
                             <div class="w4">{{ transaction.stockName }}</div>
                             <div class="w1 right">{{ transaction.amount | number: "" : "de-de" }}</div>
-                            <div class="w1 right"><app-value [value]="transaction.price * 100"></app-value></div>
-                            <div class="w1 right"><app-value [value]="transaction.price * 100 * transaction.amount"></app-value></div>
+                            <div class="w1 right"><app-value [value]="transaction.price"></app-value></div>
+                            <div class="w1 right"><app-value [value]="transaction.price * transaction.amount"></app-value></div>
                         </a>
                     }
                 </div>

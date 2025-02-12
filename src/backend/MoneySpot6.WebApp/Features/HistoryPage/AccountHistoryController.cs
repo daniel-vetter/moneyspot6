@@ -47,8 +47,8 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
                 {
                     Date = balanceHistory[i].Date,
                     Balance = balanceHistory[i].Balance,
-                    StockValue = (long)(stockHistory[i].CurrentValue * 100m), //TODO
-                    StockInvested = (long)(stockHistory[i].InvestedValue * 100m) //TODO
+                    StockValue = stockHistory[i].CurrentValue,
+                    StockInvested = stockHistory[i].InvestedValue
                 });
             }
             return r.ToImmutableArray();
@@ -58,8 +58,8 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
     public record AccountHistoryBalanceResponse
     {
         [Required] public DateOnly Date { get; init; }
-        [Required] public long Balance { get; set; }
-        [Required] public long StockValue { get; set; }
-        [Required] public long StockInvested { get; set; }
+        [Required] public decimal Balance { get; set; }
+        [Required] public decimal StockValue { get; set; }
+        [Required] public decimal StockInvested { get; set; }
     };
 }

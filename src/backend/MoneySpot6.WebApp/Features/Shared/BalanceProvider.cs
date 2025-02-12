@@ -17,19 +17,19 @@ namespace MoneySpot6.WebApp.Features.Shared
             _stockDataProvider = stockDataProvider;
         }
 
-        public async Task<long> GetCurrentBalance(ImmutableArray<int>? accountIds = null)
+        public async Task<decimal> GetCurrentBalance(ImmutableArray<int>? accountIds = null)
         {
             if (accountIds.HasValue == false)
                 return await _db.BankAccounts.Select(x => x.Balance).SumAsync();
             return await _db.BankAccounts.Where(x => accountIds.Value.Contains(x.Id)).Select(x => x.Balance).SumAsync();
         }
 
-        public async Task<long> GetBalanceAtStartOf(DateOnly date, ImmutableArray<int>? accountIds = null)
+        public async Task<decimal> GetBalanceAtStartOf(DateOnly date, ImmutableArray<int>? accountIds = null)
         {
             if (accountIds == null)
                 accountIds = [.. await _db.BankAccounts.Select(x => x.Id).ToArrayAsync()];
 
-            long sum = 0;
+            decimal sum = 0;
             foreach (var accountId in accountIds)
             {
                 var balance = await _db.BankAccountTransactions
@@ -64,7 +64,7 @@ namespace MoneySpot6.WebApp.Features.Shared
                     .Where(x => x.BankAccount.Id == accountId && x.Raw.Date < startDate)
                     .OrderByDescending(x => x.Raw.Date)
                     .ThenByDescending(x => x.Id)
-                    .Select(x => (long?)x.Raw.NewBalance)
+                    .Select(x => (decimal?)x.Raw.NewBalance)
                     .FirstOrDefaultAsync();
 
                 // Find all balance changes
@@ -82,7 +82,7 @@ namespace MoneySpot6.WebApp.Features.Shared
                     .ToDictionary(x => x.Key, x => x.Last().NewBalance);
 
                 // Apply the values
-                var balance = startBalance ?? 0L;
+                var balance = startBalance ?? 0m;
                 for (var cur = startDate; cur < endDate; cur = cur.AddDays(1))
                 {
                     if (balanceChanges.TryGetValue(cur, out var balanceOfThisDay))
@@ -97,9 +97,9 @@ namespace MoneySpot6.WebApp.Features.Shared
 
         private record ChangeableBalanceHistoryEntry(DateOnly Date)
         {
-            public long Balance { get; set; }
+            public decimal Balance { get; set; }
         }
     }
 
-    public record BalanceHistoryEntry(DateOnly Date, long Balance);
+    public record BalanceHistoryEntry(DateOnly Date, decimal Balance);
 }

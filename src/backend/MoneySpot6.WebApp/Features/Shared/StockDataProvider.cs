@@ -100,7 +100,7 @@ public class StockDataProvider
                 PriceSum = x.Sum(y => y.Price * y.Amount)
             })
             .SingleOrDefaultAsync();
-
+        
         var curAmount = cur?.AmountSum ?? 0;
         var curPrice = cur?.PriceSum ?? 0;
 

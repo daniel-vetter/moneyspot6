@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20250212212907_Remove Yahoo API tracking table")]
+    partial class RemoveYahooAPItrackingtable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,8 +42,8 @@ namespace MoneySpot6.WebApp.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("numeric");
+                    b.Property<long>("Balance")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("BankCode")
                         .IsRequired()
@@ -165,11 +168,11 @@ namespace MoneySpot6.WebApp.Database.Migrations
                             b1.Property<string>("Additional")
                                 .HasColumnType("text");
 
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
+                            b1.Property<long>("Amount")
+                                .HasColumnType("bigint");
 
-                            b1.Property<decimal?>("ChargeAmount")
-                                .HasColumnType("numeric");
+                            b1.Property<long?>("ChargeAmount")
+                                .HasColumnType("bigint");
 
                             b1.Property<string>("Code")
                                 .HasColumnType("text");
@@ -198,11 +201,11 @@ namespace MoneySpot6.WebApp.Database.Migrations
                             b1.Property<string>("MandateId")
                                 .HasColumnType("text");
 
-                            b1.Property<decimal>("NewBalance")
-                                .HasColumnType("numeric");
+                            b1.Property<long>("NewBalance")
+                                .HasColumnType("bigint");
 
-                            b1.Property<decimal?>("OriginalAmount")
-                                .HasColumnType("numeric");
+                            b1.Property<long?>("OriginalAmount")
+                                .HasColumnType("bigint");
 
                             b1.Property<string>("Primanota")
                                 .HasColumnType("text");

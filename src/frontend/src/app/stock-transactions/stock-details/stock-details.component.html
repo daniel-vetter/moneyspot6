@@ -32,7 +32,7 @@
                     <div class="w1">{{ purchase.date | customDate }}</div>
                     <div class="w1 right">{{ purchase.purchaseAmount | number: "1.1-1" : "de-de" }}</div>
                     <div class="w1 right">
-                        <app-value [value]="purchase.purchasePrice * 100" color="none"></app-value>
+                        <app-value [value]="purchase.purchasePrice" color="none"></app-value>
                     </div>
 
                     @if (purchase.soldAmount === 0) {
@@ -45,20 +45,20 @@
                             {{ purchase.soldAmount | number: "1.1-1" : "de-de" }}
                         </div>
                         <div class="w1 right">
-                            <app-value [value]="purchase.soldPrice * 100" color="none"></app-value>
+                            <app-value [value]="purchase.soldPrice" color="none"></app-value>
                         </div>
                         <div class="w1 right">
-                            <app-value [value]="purchase.soldTax * 100" color="none"></app-value>
+                            <app-value [value]="purchase.soldTax" color="none"></app-value>
                         </div>
                         <div class="w1 right">{{ (purchase.soldPrice / purchase.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
                     }
 
                     <div class="w1 right">{{ purchase.remainingAmount | number: "1.1-1" : "de-de" }}</div>
                     <div class="w1 right">
-                        <app-value [value]="purchase.remainingPrice * 100" color="none"></app-value>
+                        <app-value [value]="purchase.remainingPrice" color="none"></app-value>
                     </div>
                     <div class="w1 right">
-                        <app-value [value]="purchase.remainingTax * 100" color="none"></app-value>
+                        <app-value [value]="purchase.remainingTax" color="none"></app-value>
                     </div>
                     <div class="w1 right">{{ (purchase.remainingPrice / purchase.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
                 </a>

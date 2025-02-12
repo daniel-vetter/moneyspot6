@@ -63,7 +63,7 @@ namespace MoneySpot6.WebApp.Features.IncomeExpensesPage
     {
         public int? Year { get; set; }
         public int? Month { get; set; }
-        [Required] public long Income { get; set; }
-        [Required] public long Expense { get; set; }
+        [Required] public decimal Income { get; set; }
+        [Required] public decimal Expense { get; set; }
     }
 }

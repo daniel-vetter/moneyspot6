@@ -11,7 +11,6 @@ namespace MoneySpot6.WebApp.Database
         public DbSet<DbStock> Stocks { get; init; }
         public DbSet<DbStockPrice> StockPrices { get; init; }
         public DbSet<DbStockTransaction> StockTransactions { get; init; }
-        public DbSet<DbYahooRequestLog> YahooRequestLog { get; set; }
 
         public Db(DbContextOptions<Db> options) : base(options)
         {
@@ -53,7 +52,7 @@ namespace MoneySpot6.WebApp.Database
         public required string CustomerId { get; set; }
         public required string AccountType { get; set; }
         public required string Type { get; set; }
-        public required long Balance { get; set; }
+        public required decimal Balance { get; set; }
 
     }
 
@@ -74,10 +73,10 @@ namespace MoneySpot6.WebApp.Database
         public required CounterpartyAccount Counterparty { get; set; }
         public string? Purpose { get; set; }
         public string? Code { get; set; }
-        public long Amount { get; set; }
-        public long? OriginalAmount { get; set; }
-        public long? ChargeAmount { get; set; }
-        public long NewBalance { get; set; }
+        public decimal Amount { get; set; }
+        public decimal? OriginalAmount { get; set; }
+        public decimal? ChargeAmount { get; set; }
+        public decimal NewBalance { get; set; }
         public bool IsCancelation { get; set; }
         public string? CustomerReference { get; set; }
         public string? InstituteReference { get; set; }
@@ -169,14 +168,5 @@ namespace MoneySpot6.WebApp.Database
     {
         Daily = 1440,
         FiveMinutes = 5
-    }
-
-    [Table("YahooRequestLogs")]
-    public class DbYahooRequestLog
-    {
-        public int Id { get; set; }
-        public required string Url { get; set; }
-        public required int ResponseCode { get; set; }
-        public required string Response { get; set; }
     }
 }

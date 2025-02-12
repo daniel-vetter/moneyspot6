@@ -62,6 +62,6 @@ namespace MoneySpot6.WebApp.Features.TransactionPage
         public required DateOnly Date { get; init; }
         public required string? Name { get; init; }
         public required string? Purpose { get; init; }
-        public required long Value { get; init; }
+        public required decimal Value { get; init; }
     }
 }

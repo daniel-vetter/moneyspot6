@@ -70,7 +70,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                         Type = account.Type,
                         AccountType = account.AccountType,
                         Currency = account.Currency,
-                        Balance = account.Balance
+                        Balance = account.Balance / 100.0m
                     };
                     await db.BankAccounts.AddAsync(dbAccount);
                 }
@@ -113,11 +113,11 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                         Country = rpcTransaction.AccountCountry.TrimToNull(),
                     },
                     Purpose = string.Join("\n", rpcTransaction.Usage).TrimToNull(),
-                    NewBalance = rpcTransaction.Balance,
+                    NewBalance = rpcTransaction.Balance / 100.0m,
                     AddKey = rpcTransaction.AddKey.TrimToNull(),
                     Additional = rpcTransaction.Additional.TrimToNull(),
-                    Amount = rpcTransaction.Amount,
-                    ChargeAmount = rpcTransaction.ChargeAmount,
+                    Amount = rpcTransaction.Amount / 100.0m,
+                    ChargeAmount = rpcTransaction.ChargeAmount / 100.0m,
                     Code = rpcTransaction.Code.TrimToNull(),
                     CustomerReference = rpcTransaction.CustomerReference.TrimToNull(),
                     Date = rpcTransaction.Date,
@@ -127,7 +127,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                     IsSepa = rpcTransaction.IsSepa,
                     IsCancelation = rpcTransaction.IsCancelation,
                     MandateId = rpcTransaction.MandateId.TrimToNull(),
-                    OriginalAmount = rpcTransaction.OriginalAmount,
+                    OriginalAmount = rpcTransaction.OriginalAmount / 100.0m,
                     Primanota = rpcTransaction.Primanota.TrimToNull(),
                     PurposeCode = rpcTransaction.PurposeCode.TrimToNull(),
                     Text = rpcTransaction.Text.TrimToNull()
