@@ -85,7 +85,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                     dbAccount.Type = account.Type;
                     dbAccount.AccountType = account.AccountType;
                     dbAccount.Currency = account.Currency;
-                    dbAccount.Balance = account.Balance;
+                    dbAccount.Balance = account.Balance / 100.0m;
                 }
 
                 newTransactions.AddRange(await MergeTransactions(dbAccount, account.Transactions));
