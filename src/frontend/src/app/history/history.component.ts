@@ -60,13 +60,23 @@ export class HistoryComponent implements OnInit {
                     text: 'Vermögen',
                 },
                 endOnTick: false,
-                startOnTick: false
+                startOnTick: false,
+                labels: {
+                    style: {
+                        fontSize: "1rem"
+                    }
+                }
             },
             xAxis: {
                 type: 'datetime',
                 title: {
                     text: 'Datum',
                 },
+                labels: {
+                    style: {
+                        fontSize: "1rem"
+                    }
+                }
             },
             plotOptions: {
                 area: {
@@ -74,7 +84,10 @@ export class HistoryComponent implements OnInit {
                 }
             },
             tooltip: {
-                shared: true
+                shared: true,
+                style: {
+                    fontSize: "1rem"
+                }
             },
             series: [
                 {

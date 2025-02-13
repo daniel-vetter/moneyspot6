@@ -34,12 +34,25 @@ export class GoalComponent implements OnInit {
             },
             yAxis: {
                 title: undefined,
+                labels: {
+                    style: {
+                        fontSize: "1rem"
+                    }
+                }
             },
             xAxis: {
                 type: 'datetime',
+                labels: {
+                    style: {
+                        fontSize: "1rem"
+                    }
+                }
             },
             tooltip: {
-                shared: true
+                shared: true,
+                style: {
+                    fontSize: "1rem"
+                }
             },
             series: [
                 {
