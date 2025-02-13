@@ -38,6 +38,9 @@ export class GoalComponent implements OnInit {
             xAxis: {
                 type: 'datetime',
             },
+            tooltip: {
+                shared: true
+            },
             series: [
                 {
                     name: 'Aktuell',

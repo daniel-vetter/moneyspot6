@@ -73,6 +73,9 @@ export class HistoryComponent implements OnInit {
                     stacking: "normal"
                 }
             },
+            tooltip: {
+                shared: true
+            },
             series: [
                 {
                     name: 'Konten',
