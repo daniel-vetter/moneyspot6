@@ -57,21 +57,23 @@ export class IncomeExpenseReportComponent implements OnInit {
             if (currentBlock === undefined || currentBlock.id != groupId) {
                 currentBlock = {
                     id: groupId,
-                    name: groupId,
+                    name: this.getGroupId(entry).toString(),
                     lines: [],
                     income: 0,
                     expense: 0,
+                    stockBalance: 0,
                     total: 0,
                 };
                 blocks.push(currentBlock);
             }
 
             currentBlock.lines.push({
-                id: (entry.year ?? 0) * 12 + (entry.month ?? 0),
-                name: this.getName(entry.year, entry.month),
+                id: entry.month,
+                name: this.getLineName(entry.month),
                 expense: entry.expense,
                 income: entry.income,
-                total: entry.income - entry.expense,
+                stockBalance: entry.stockBalance,
+                total: entry.income - entry.expense + entry.stockBalance,
                 bar: <any>{}!,
             });
         }
@@ -87,6 +89,7 @@ export class IncomeExpenseReportComponent implements OnInit {
             block.total += line.total;
             block.income += line.income;
             block.expense += line.expense;
+            block.stockBalance += line.stockBalance;
         }
     }
 
@@ -119,18 +122,20 @@ export class IncomeExpenseReportComponent implements OnInit {
     }
 
     getGroupId(entry: IncomeExpenseEntryResponse) {
-        if ((entry.year === undefined || entry.year === null) && (entry.month === undefined || entry.month === null)) return 'Gesamt';
-        if (entry.year !== undefined && entry.year !== null && (entry.month === undefined || entry.month === null)) return 'Gesamt';
-        if (entry.year !== undefined && entry.year !== null && entry.month !== undefined && entry.month !== null) return entry.year.toString();
-        throw new Error('Invalid Entry');
+        if (this.grouping === "None") return "Gesamt";
+        if (this.grouping === "Yearly") return "Gesamt"
+        if (this.grouping === "Monthly") return Math.floor(entry.month / 13).toString();
+        throw Error("Invalid grouping");
     }
 
-    private getName(year?: number, month?: number) {
-        if (year === undefined || year === null) return 'Gesamt';
-        if (month === undefined || month === null) {
-            return year.toString();
+    private getLineName(month: number) {
+        if (month === 0) return 'Gesamt';
+        const y = Math.floor(month / 13);
+        const m = month % 13;
+        if (m === 0) {
+            return y.toString();
         }
-        return ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'][month - 1] + ' ' + year;
+        return ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'][m - 1] + ' ' + y;
     }
 }
 
@@ -139,6 +144,7 @@ interface Line {
     name: string;
     income: number;
     expense: number;
+    stockBalance: number;
     total: number;
     bar: Bar;
 }
@@ -156,5 +162,6 @@ interface Block {
     lines: Line[];
     income: number;
     expense: number;
+    stockBalance: number;
     total: number;
 }

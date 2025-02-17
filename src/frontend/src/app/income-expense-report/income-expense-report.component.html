@@ -24,6 +24,11 @@
                     </div>
 
                     <div class="header-value hidden-on-mobile">
+                        <div>Aktien</div>
+                        <app-value [value]="block.stockBalance" size="1.5rem" />
+                    </div>
+
+                    <div class="header-value hidden-on-mobile">
                         <div>Gesamt</div>
                         <app-value [value]="block.total" size="1.5rem" />
                     </div>
@@ -38,6 +43,7 @@
                     <div class="name">Zeitraum</div>
                     <div class="value">Einnahmen</div>
                     <div class="value">Ausgaben</div>
+                    <div class="value">Aktien</div>
                     <div class="value">Gesamt</div>
                     <div class="hidden-on-mobile"></div>
                 </div>
@@ -46,6 +52,7 @@
                         <div class="name">{{ line.name }}</div>
                         <div class="value"><app-value [value]="line.income" /></div>
                         <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
+                        <div class="value"><app-value [value]="line.stockBalance" /></div>
                         <div class="value"><app-value [value]="line.total" /></div>
                         <div class="horizontal hidden-on-mobile" style="position: relative; flex: 1; align-items: center">
                             <div
