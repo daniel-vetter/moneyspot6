@@ -37,18 +37,18 @@ namespace MoneySpot6.WebApp.Features.HistoryPage
             var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate, endDate);
             var stockHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate, endDate);
 
-            if (balanceHistory.Length != stockHistory.Length)
+            if (balanceHistory.Start != stockHistory.Start || balanceHistory.End != stockHistory.End)
                 throw new Exception("Length does not match.");
 
             var r = ImmutableArray.CreateBuilder<AccountHistoryBalanceResponse>();
-            for (var i = 0; i < balanceHistory.Length; i++)
+            for (var date = balanceHistory.Start; date < balanceHistory.End; date = date.AddDays(1))
             {
                 r.Add(new AccountHistoryBalanceResponse
                 {
-                    Date = balanceHistory[i].Date,
-                    Balance = balanceHistory[i].Balance,
-                    StockValue = stockHistory[i].CurrentValue,
-                    StockInvested = stockHistory[i].InvestedValue
+                    Date = date,
+                    Balance = balanceHistory[date],
+                    StockValue = stockHistory[date].EndOfDay.CurrentValue,
+                    StockInvested = stockHistory[date].EndOfDay.InvestedValue
                 });
             }
             return r.ToImmutableArray();

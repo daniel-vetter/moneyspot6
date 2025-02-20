@@ -62,7 +62,7 @@ namespace MoneySpot6.WebApp.Features.SummaryPage
                 EndBalance = targetBalance,
                 EndDate = targetDate,
                 RequiredSavingPerMonth = await CalculateSavingRatePerMonth(targetBalance, targetDate),
-                ActualHistory = [..actualHistory.Select(x => new BalanceEntryResponse(x.Date, x.Balance))],
+                ActualHistory = [..actualHistory.Select(x => new BalanceEntryResponse(x.Key, x.Value))],
                 ExpectedHistory = expected.ToImmutable()
             });
         }

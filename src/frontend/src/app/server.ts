@@ -1860,10 +1860,10 @@ export enum StockPriceInterval {
 }
 
 export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
-    year?: number | undefined;
-    month?: number | undefined;
+    month!: number;
     income!: number;
     expense!: number;
+    stockBalance!: number;
 
     constructor(data?: IIncomeExpenseEntryResponse) {
         if (data) {
@@ -1876,10 +1876,10 @@ export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
 
     init(_data?: any) {
         if (_data) {
-            this.year = _data["year"];
             this.month = _data["month"];
             this.income = _data["income"];
             this.expense = _data["expense"];
+            this.stockBalance = _data["stockBalance"];
         }
     }
 
@@ -1892,19 +1892,19 @@ export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["year"] = this.year;
         data["month"] = this.month;
         data["income"] = this.income;
         data["expense"] = this.expense;
+        data["stockBalance"] = this.stockBalance;
         return data;
     }
 }
 
 export interface IIncomeExpenseEntryResponse {
-    year?: number | undefined;
-    month?: number | undefined;
+    month: number;
     income: number;
     expense: number;
+    stockBalance: number;
 }
 
 export enum IncomeExpenseGrouping {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Common;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Infrastructure;
 
@@ -45,16 +46,10 @@ namespace MoneySpot6.WebApp.Features.Shared
             return sum;
         }
 
-        public async Task<ImmutableArray<BalanceHistoryEntry>> GetBalanceHistory(DateOnly startDate, DateOnly endDate, ImmutableArray<int>? accountIds = null)
+        public async Task<ImmutableTimeline<decimal>> GetBalanceHistory(DateOnly startDate, DateOnly endDate, ImmutableArray<int>? accountIds = null)
         {
-            var resultList = new List<ChangeableBalanceHistoryEntry>();
-            for (var cur = startDate; cur < endDate; cur = cur.AddDays(1))
-                resultList.Add(new ChangeableBalanceHistoryEntry(cur));
-
-            var resultIndex = resultList.ToDictionary(x => x.Date, x => x);
-
-            if (accountIds == null)
-                accountIds = [..await _db.BankAccounts.Select(x => x.Id).ToArrayAsync()];
+            accountIds ??= [..await _db.BankAccounts.Select(x => x.Id).ToArrayAsync()];
+            var balances = new decimal[endDate.DayNumber - startDate.DayNumber];
 
             // Go through each requested account and add the balance
             foreach (var accountId in accountIds)
@@ -88,18 +83,11 @@ namespace MoneySpot6.WebApp.Features.Shared
                     if (balanceChanges.TryGetValue(cur, out var balanceOfThisDay))
                         balance = balanceOfThisDay;
 
-                    resultIndex[cur].Balance += balance;
+                    balances[cur.DayNumber - startDate.DayNumber] += balance;
                 }
             }
 
-            return [..resultList.Select(x => new BalanceHistoryEntry(x.Date, x.Balance))];
-        }
-
-        private record ChangeableBalanceHistoryEntry(DateOnly Date)
-        {
-            public decimal Balance { get; set; }
+            return ImmutableTimeline.Create(startDate, endDate, balances);
         }
     }
-
-    public record BalanceHistoryEntry(DateOnly Date, decimal Balance);
 }

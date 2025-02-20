@@ -1,10 +1,8 @@
-﻿using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Common;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.StockTransactions;
 using MoneySpot6.WebApp.Infrastructure;
+using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Features.Shared;
 
@@ -22,10 +20,22 @@ public class StockDataProvider
     /// Returns the price of a single stock over a time range.
     /// Result contains an entry for each day.
     /// </summary>
-    public async Task<ImmutableArray<StockValue>> GetStockValueDailyHistory(int stockId, DateOnly start, DateOnly end)
+    public async Task<ImmutableTimeline<StartAndEnd<decimal>>> GetDailyStockPrice(int stockId, DateOnly start, DateOnly end)
     {
         var startDto = new DateTimeOffset(start.Year, start.Month, start.Day, 0, 0, 0, 0, 0, TimeSpan.Zero);
         var endDto = new DateTimeOffset(end.Year, end.Month, end.Day, 0, 0, 0, 0, 0, TimeSpan.Zero);
+
+        var lastBeforeStart = await _db.StockPrices
+            .AsNoTracking()
+            .Where(x => x.Stock.Id == stockId)
+            .Where(x => x.Interval == StockPriceInterval.Daily)
+            .Where(x => x.Timestamp < startDto)
+            .OrderByDescending(x => x.Timestamp)
+            .FirstOrDefaultAsync();
+
+        var startValue = lastBeforeStart == null
+            ? new StartAndEnd<decimal>(0, 0)
+            : new StartAndEnd<decimal>(lastBeforeStart.Close, lastBeforeStart.Close);
 
         var entries = await _db.StockPrices
             .AsNoTracking()
@@ -36,60 +46,21 @@ public class StockDataProvider
 
         var entriesByDay = entries
             .GroupBy(x => DateOnly.FromDateTime(x.Timestamp.DateTime))
-            .ToDictionary(x => x.Key, x => x.ToImmutableArray());
+            .ToDictionary(x => x.Key, x => new StartAndEnd<decimal>(x.First().Open, x.First().Close));
 
-        var result = ImmutableArray.CreateBuilder<StockValue>();
-        for (var curDay = start; curDay < end; curDay = curDay.AddDays(1))
-        {
-            if (entriesByDay.TryGetValue(curDay, out var entriesOfCurDay))
-            {
-                var entry = entriesOfCurDay
-                    .OrderByDescending(x => x.Timestamp)
-                    .First();
-
-                result.Add(new StockValue(curDay, entry.Close));
-            }
-            else
-            {
-                if (result.Count == 0)
-                {
-                    var lastBeforeStart = await _db.StockPrices
-                        .AsNoTracking()
-                        .Where(x => x.Stock.Id == stockId)
-                        .Where(x => x.Interval == StockPriceInterval.Daily)
-                        .Where(x => x.Timestamp < startDto)
-                        .OrderByDescending(x => x.Timestamp)
-                        .FirstOrDefaultAsync();
-
-                    if (lastBeforeStart == null)
-                    {
-                        result.Add(new(curDay, 0m));
-                    }
-                    else
-                    {
-                        result.Add(new(curDay, lastBeforeStart.Close));
-                    }
-                }
-                else
-                {
-                    result.Add(new StockValue(curDay, result[^1].Value));
-                }
-            }
-        }
-
-        return result.ToImmutable();
+        return ImmutableTimeline.CreateContinuous(start, end, startValue, entriesByDay);
     }
 
     /// <summary>
     /// Returns the amount and price (when bought) of a stock over a time range.
     /// Result contains an entry for each day.
     /// </summary>
-    public async Task<ImmutableArray<BoughtStock>> GetOwnershipDailyHistory(int stockId, DateOnly start, DateOnly end)
+    public async Task<ImmutableTimeline<StartAndEnd<StockOwnership>>> GetDailyStockOwnership(int stockId, DateOnly start, DateOnly end)
     {
         var startDto = new DateOnly(start.Year, start.Month, start.Day);
         var endDto = new DateOnly(end.Year, end.Month, end.Day);
 
-        var cur = await _db.StockTransactions
+        var startValues = await _db.StockTransactions
             .AsNoTracking()
             .Where(x => x.Stock.Id == stockId)
             .Where(x => x.Date < startDto)
@@ -100,9 +71,6 @@ public class StockDataProvider
                 PriceSum = x.Sum(y => y.Price * y.Amount)
             })
             .SingleOrDefaultAsync();
-        
-        var curAmount = cur?.AmountSum ?? 0;
-        var curPrice = cur?.PriceSum ?? 0;
 
         var stockTransactions = (await _db.StockTransactions
                 .AsNoTracking()
@@ -110,56 +78,63 @@ public class StockDataProvider
                 .Where(x => x.Date >= startDto && x.Date < endDto)
                 .ToImmutableArrayAsync())
             .GroupBy(x => x.Date)
+            .OrderBy(x => x.Key)
+            .ToImmutableArray()
             .ToImmutableDictionary(x => x.Key, x => new
             {
-                Amount = x.Sum(y => y.Amount), 
+                Amount = x.Sum(y => y.Amount),
                 Price = x.Sum(y => y.Price * y.Amount)
             });
 
-        var result = ImmutableArray.CreateBuilder<BoughtStock>();
-        for (var curDate = start; curDate < end; curDate = curDate.AddDays(1))
+        var r = new StartAndEnd<StockOwnership>[end.DayNumber - start.DayNumber];
+        var curAmount = startValues?.AmountSum ?? 0;
+        var curPrice = startValues?.PriceSum ?? 0;
+        for (var cur = start; cur < end; cur = cur.AddDays(1))
         {
-            if (stockTransactions.TryGetValue(curDate, out var changeAtDay))
+            var before = new StockOwnership(curAmount, curPrice);
+            if (stockTransactions.TryGetValue(cur, out var stockTransaction))
             {
-                curAmount += changeAtDay.Amount;
-                curPrice += changeAtDay.Price;
+                curAmount += stockTransaction.Amount;
+                curPrice += stockTransaction.Price;
             }
-            
-            result.Add(new BoughtStock(curDate, curAmount, curPrice));
+            var after = new StockOwnership(curAmount, curPrice);
+
+            r[cur.DayNumber - start.DayNumber] = new StartAndEnd<StockOwnership>(before, after);
         }
-        return result.ToImmutable();
+        return ImmutableTimeline.Create(start, end, r);
     }
 
     /// <summary>
     /// Returns the value of owned stock over a time range.
-    /// /// Result contains an entry for each day.
+    /// Result contains an entry for each day (end of day).
     /// </summary>
-    public async Task<ImmutableArray<OwnedStockValue>> GetDailyOwnedStockValue(DateOnly start, DateOnly end, ImmutableArray<int>? stockIds = null)
+    public async Task<ImmutableTimeline<StartAndEnd<OwnedStockValue>>> GetDailyOwnedStockValue(DateOnly start, DateOnly end, ImmutableArray<int>? stockIds = null)
     {
         stockIds ??= await _db.Stocks.Select(x => x.Id).ToImmutableArrayAsync();
-
-        var result = ImmutableArray.CreateBuilder<OwnedStockValue>();
-        for (var curDay = start; curDay < end; curDay = curDay.AddDays(1))
-            result.Add(new OwnedStockValue(curDay, 0, 0));
-
+        var r = new StartAndEnd<OwnedStockValue>[end.DayNumber - start.DayNumber];
         foreach (var stockId in stockIds)
         {
-            var owned = await GetOwnershipDailyHistory(stockId, start, end);
-            var value = await GetStockValueDailyHistory(stockId, start, end);
+            var stockValueTimeline = await GetDailyStockPrice(stockId, start, end);
+            var ownedStockTimeline = await GetDailyStockOwnership(stockId, start, end);
 
-            if (owned.Length != result.Count || value.Length != result.Count)
-                throw new Exception("Length of lists is not equal.");
-
-            for (var i = 0; i < owned.Length; i++)
+            for (var date = start; date < end; date = date.AddDays(1))
             {
-                result[i] = result[i] with
-                {
-                    CurrentValue = result[i].CurrentValue + owned[i].Amount * value[i].Value,
-                    InvestedValue = result[i].InvestedValue + owned[i].PriceBoughtFor
-                };
+                var ownedStock = ownedStockTimeline[date];
+                var stockValue = stockValueTimeline[date];
+
+                r[date.DayNumber - start.DayNumber] = new StartAndEnd<OwnedStockValue>(
+                    new OwnedStockValue(
+                        ownedStock.StartOfDay.Amount * stockValue.StartOfDay,
+                        ownedStock.StartOfDay.PriceBoughtFor
+                    ),
+                    new OwnedStockValue(
+                        ownedStock.EndOfDay.Amount * stockValue.EndOfDay,
+                        ownedStock.EndOfDay.PriceBoughtFor
+                    )
+                );
             }
         }
-        return result.ToImmutable();
+        return ImmutableTimeline.Create(start, end, r);
     }
 
     /// <summary>
@@ -178,10 +153,8 @@ public class StockDataProvider
             })
             .ToImmutableDictionaryAsync(x => x.StockId, x => x.Price.Close);
     }
-
-   
 }
 
-public record StockValue(DateOnly Date, decimal Value);
-public record BoughtStock(DateOnly Date, decimal Amount, decimal PriceBoughtFor);
-public record OwnedStockValue(DateOnly Date, decimal CurrentValue, decimal InvestedValue);
+public record StartAndEnd<T>(T StartOfDay, T EndOfDay);
+public record StockOwnership(decimal Amount, decimal PriceBoughtFor);
+public record OwnedStockValue(decimal CurrentValue, decimal InvestedValue);
