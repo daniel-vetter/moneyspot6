@@ -44,7 +44,7 @@ namespace MoneySpot6.WebApp.Features.IncomeExpensesPage
                 return Ok(ImmutableArray<IncomeExpenseEntryResponse>.Empty);
 
             var (stockQueryStart, stockQueryEnd) = GetMinMaxGroupDate(groups.Select(x => x.GroupKey).Min(), groups.Select(x => x.GroupKey).Max());
-            var stocks = await _stockDataProvider.GetDailyOwnedStockValue(stockQueryStart, stockQueryEnd);
+            var stocks = await _stockDataProvider.GetDailyOwnedStockValue(stockQueryStart, stockQueryEnd.AddDays(1));
 
             var result = groups.Select(x =>
                 {
@@ -55,7 +55,7 @@ namespace MoneySpot6.WebApp.Features.IncomeExpensesPage
                         Month = x.GroupKey,
                         Income = x.Income,
                         Expense = x.Expense,
-                        StockBalance = stocks[groupEnd.AddDays(-1)].EndOfDay.CurrentValue - stocks[groupStart].StartOfDay.CurrentValue
+                        StockBalance = stocks[groupEnd].StartOfDay.CurrentValue - stocks[groupStart].StartOfDay.CurrentValue
                     };
                 })
             .ToArray();

@@ -8,20 +8,21 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SearchBarComponent } from '../common/search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
-import { Grouping, GroupingBarComponent } from '../common/grouping-bar/grouping-bar.component';
+import { ViewGrouping, GroupingBarComponent, ViewData } from '../common/grouping-bar/grouping-bar.component';
 
 @Component({
     selector: 'app-income-expense-report',
-    imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, FormsModule, SearchBarComponent, GroupingBarComponent],
+    imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, SearchBarComponent, GroupingBarComponent],
     templateUrl: './income-expense-report.component.html',
     styleUrl: './income-expense-report.component.scss'
 })
 export class IncomeExpenseReportComponent implements OnInit {
+    dataType: ViewData = 'AccountAndStocks';
     onSearchSubmit() { }
     lines: Line[] = [];
     blocks: Block[] = [];
     searchText?: string;
-    grouping: Grouping = 'Monthly';
+    grouping: ViewGrouping = 'Monthly';
 
     constructor(
         private incomeExpenseClient: IncomeExpenseClient,
@@ -32,6 +33,7 @@ export class IncomeExpenseReportComponent implements OnInit {
         this.activatedRoute.queryParams.subscribe(async (x) => {
             this.searchText = x['search'];
             this.grouping = x['grouping'] ?? 'Monthly';
+            this.dataType = x['view'] ?? 'AccountAndStocks';
             await this.update();
         });
     }
@@ -73,7 +75,10 @@ export class IncomeExpenseReportComponent implements OnInit {
                 expense: entry.expense,
                 income: entry.income,
                 stockBalance: entry.stockBalance,
-                total: entry.income - entry.expense + entry.stockBalance,
+                total: this.dataType === "Account"
+                    ? entry.income - entry.expense
+                    : this.dataType === "Stocks" ? entry.stockBalance
+                        : entry.income - entry.expense + entry.stockBalance,
                 bar: <any>{}!,
             });
         }

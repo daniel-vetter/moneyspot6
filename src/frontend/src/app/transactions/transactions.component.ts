@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
 import { SearchBarComponent } from '../common/search-bar/search-bar.component';
-import { Grouping, GroupingBarComponent } from '../common/grouping-bar/grouping-bar.component';
+import { ViewGrouping, GroupingBarComponent } from '../common/grouping-bar/grouping-bar.component';
 
 @Component({
     selector: 'app-transactions',
@@ -23,7 +23,7 @@ export class TransactionsComponent implements OnInit {
     blocksHidden: Block[] = [];
     searchText: string = '';
     isLoading = false;
-    selectedGrouping: Grouping = 'Monthly';
+    selectedGrouping: ViewGrouping = 'Monthly';
 
     constructor(
         private transactionPageClient: TransactionPageClient,
