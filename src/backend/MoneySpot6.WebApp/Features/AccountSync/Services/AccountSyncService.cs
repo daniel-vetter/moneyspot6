@@ -136,7 +136,7 @@ namespace MoneySpot6.WebApp.Features.AccountSync.Services
                 // Check if the same entry already exist
                 var existingTransaction = await db.BankAccountTransactions
                     .AsNoTracking()
-                    .SingleOrDefaultAsync(x =>
+                    .FirstOrDefaultAsync(x =>
                         x.BankAccount.Id == dbAccount.Id &&
                         x.Raw.Date == rawData.Date &&
                         x.Raw.Amount == rawData.Amount &&
