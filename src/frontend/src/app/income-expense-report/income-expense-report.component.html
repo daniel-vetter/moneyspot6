@@ -1,5 +1,5 @@
 <div class="vertical">
-    <div class="horizontal">
+    <div class="horizontal" style="gap: 0.5rem">
         <app-search-bar></app-search-bar>
         <div class="spacer"></div>
         <app-grouping-bar [showDataTypeSelection]="true"></app-grouping-bar>
@@ -13,7 +13,7 @@
 
                     <div class="spacer"></div>
 
-                    @if (dataType === "Account" || dataType === "AccountAndStocks") {
+                    @if (dataType === "Account") {
                         <div class="header-value hidden-on-mobile">
                             <div>Einnahmen</div>
                             <app-value [value]="block.income" size="1.5rem" />
@@ -23,19 +23,46 @@
                             <div>Ausgaben</div>
                             <app-value [value]="block.expense" color="reverse" size="1.5rem" />
                         </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Gesamt</div>
+                            <app-value [value]="block.accountBalance" size="1.5rem" />
+                        </div>
                     }
 
-                    @if (dataType === "AccountAndStocks") {
+                    @if (dataType === "Stocks") {
                         <div class="header-value hidden-on-mobile">
-                            <div>Aktien</div>
+                            <div>Gesamt</div>
                             <app-value [value]="block.stockBalance" size="1.5rem" />
                         </div>
                     }
 
-                    <div class="header-value hidden-on-mobile">
-                        <div>Gesamt</div>
-                        <app-value [value]="block.total" size="1.5rem" />
-                    </div>
+                    @if (dataType === "AccountAndStocks") {
+                        <div class="header-value hidden-on-mobile">
+                            <div>Einnahmen</div>
+                            <app-value [value]="block.income" size="1.5rem" />
+                        </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Ausgaben</div>
+                            <app-value [value]="block.expense" color="reverse" size="1.5rem" />
+                        </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Konto Bilanz</div>
+                            <app-value [value]="block.accountBalance" size="1.5rem" />
+                        </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Aktien Bilanz</div>
+                            <app-value [value]="block.stockBalance" size="1.5rem" />
+                        </div>
+
+                        <div class="header-value hidden-on-mobile">
+                            <div>Gesamt</div>
+                            <app-value [value]="block.total" size="1.5rem" />
+                        </div>
+                    }
 
                     <div class="hidden-on-desktop">
                         <app-value [value]="block.total" size="1.5rem" />
@@ -45,14 +72,19 @@
             <div class="table">
                 <div class="header hidden-on-mobile">
                     <div class="name">Zeitraum</div>
-                    @if (dataType === "Account" || dataType === "AccountAndStocks") {
+                    @if (dataType === "Account") {
                         <div class="value">Einnahmen</div>
                         <div class="value">Ausgaben</div>
+                        <div class="value">Gesamt</div>
                     }
-                    @if (dataType === "Stocks" || dataType === "AccountAndStocks") {
-                        <div class="value">Aktien</div>
+                    @if (dataType === "Stocks") {
+                        <div class="value">Bilanz</div>
                     }
-                    @if (dataType === "Account" || dataType === "AccountAndStocks") {
+                    @if (dataType === "AccountAndStocks") {
+                        <div class="value">Einnahmen</div>
+                        <div class="value">Ausgaben</div>
+                        <div class="value">Konto Bilanz</div>
+                        <div class="value">Aktien Bilanz</div>
                         <div class="value">Gesamt</div>
                     }
                     <div class="hidden-on-mobile"></div>
@@ -60,14 +92,19 @@
                 @for (line of block.lines; track line.id) {
                     <a class="line hidden-on-mobile" pRipple>
                         <div class="name">{{ line.name }}</div>
-                        @if (dataType === "Account" || dataType === "AccountAndStocks") {
+                        @if (dataType === "Account") {
                             <div class="value"><app-value [value]="line.income" /></div>
                             <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
+                            <div class="value"><app-value [value]="line.accountBalance" /></div>
                         }
-                        @if (dataType === "Stocks" || dataType === "AccountAndStocks") {
+                        @if (dataType === "Stocks") {
                             <div class="value"><app-value [value]="line.stockBalance" /></div>
                         }
-                        @if (dataType === "Account" || dataType === "AccountAndStocks") {
+                        @if (dataType === "AccountAndStocks") {
+                            <div class="value"><app-value [value]="line.income" /></div>
+                            <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
+                            <div class="value"><app-value [value]="line.accountBalance" /></div>
+                            <div class="value"><app-value [value]="line.stockBalance" /></div>
                             <div class="value"><app-value [value]="line.total" /></div>
                         }
                         <div class="horizontal hidden-on-mobile" style="position: relative; flex: 1; align-items: center">

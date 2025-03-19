@@ -63,6 +63,7 @@ export class IncomeExpenseReportComponent implements OnInit {
                     lines: [],
                     income: 0,
                     expense: 0,
+                    accountBalance: 0,
                     stockBalance: 0,
                     total: 0,
                 };
@@ -74,11 +75,9 @@ export class IncomeExpenseReportComponent implements OnInit {
                 name: this.getLineName(entry.month),
                 expense: entry.expense,
                 income: entry.income,
+                accountBalance: entry.income - entry.expense,
                 stockBalance: entry.stockBalance,
-                total: this.dataType === "Account"
-                    ? entry.income - entry.expense
-                    : this.dataType === "Stocks" ? entry.stockBalance
-                        : entry.income - entry.expense + entry.stockBalance,
+                total: entry.income - entry.expense + entry.stockBalance,
                 bar: <any>{}!,
             });
         }
@@ -91,23 +90,26 @@ export class IncomeExpenseReportComponent implements OnInit {
     }
     calcTotals(block: Block) {
         for (const line of block.lines) {
-            block.total += line.total;
             block.income += line.income;
             block.expense += line.expense;
+            block.accountBalance += line.accountBalance;
             block.stockBalance += line.stockBalance;
+            block.total += line.total;
         }
     }
 
     calcBars(lines: Line[]) {
+
         let max = 0;
         for (const line of lines) {
-            max = Math.max(max, Math.abs(line.total));
+            max = Math.max(max, Math.abs(this.dataType == "AccountAndStocks" ? line.total : this.dataType == "Account" ? line.accountBalance : line.stockBalance));
         }
         max *= 1.2;
 
         for (const line of lines) {
-            if (line.total > 0) {
-                const percent = ((line.total / max) * 100) / 2;
+            const total = this.dataType == "AccountAndStocks" ? line.total : this.dataType == "Account" ? line.accountBalance : line.stockBalance;
+            if (total > 0) {
+                const percent = ((total / max) * 100) / 2;
                 line.bar = {
                     color: 'var(--p-green-600)',
                     left: 50,
@@ -115,7 +117,7 @@ export class IncomeExpenseReportComponent implements OnInit {
                     radius: '0 0.5rem 0.5rem 0',
                 };
             } else {
-                const percent = ((-line.total / max) * 100) / 2;
+                const percent = ((-total / max) * 100) / 2;
                 line.bar = {
                     color: 'var(--p-red-600)',
                     left: 50 - percent,
@@ -149,6 +151,7 @@ interface Line {
     name: string;
     income: number;
     expense: number;
+    accountBalance: number;
     stockBalance: number;
     total: number;
     bar: Bar;
@@ -167,6 +170,7 @@ interface Block {
     lines: Line[];
     income: number;
     expense: number;
+    accountBalance: number;
     stockBalance: number;
     total: number;
 }
