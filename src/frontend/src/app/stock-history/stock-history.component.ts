@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { StockChartPageClient, StockPriceInterval, StockResponse } from '../server';
 import { lastValueFrom } from 'rxjs';
-import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts/highstock';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-stock-history',
-  imports: [DropdownModule, FormsModule, PanelModule, HighchartsChartModule],
+  imports: [SelectModule, FormsModule, PanelModule, HighchartsChartModule],
   templateUrl: './stock-history.component.html',
   styleUrl: './stock-history.component.scss'
 })

@@ -1,11 +1,11 @@
 import { Component, input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 
 @Component({
     selector: 'app-grouping-bar',
-    imports: [DropdownModule, FormsModule],
+    imports: [SelectModule, FormsModule],
     templateUrl: './grouping-bar.component.html',
     styleUrl: './grouping-bar.component.scss'
 })

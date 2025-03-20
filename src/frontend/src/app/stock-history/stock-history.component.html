@@ -1,9 +1,9 @@
 <div class="vertical">
     <div class="horizontal" style="gap: 1rem">
         Aktie:
-        <p-dropdown [options]="possibleStocks" optionLabel="name" optionValue="id" [(ngModel)]="selectedStockId"></p-dropdown>
+        <p-select [options]="possibleStocks" optionLabel="name" optionValue="id" [(ngModel)]="selectedStockId"></p-select>
         Interval:
-        <p-dropdown [options]="possibleIntervals" [(ngModel)]="selectedInterval" (ngModelChange)="update()"></p-dropdown>
+        <p-select [options]="possibleIntervals" [(ngModel)]="selectedInterval" (ngModelChange)="update()"></p-select>
     </div>
 
     <p-panel>
