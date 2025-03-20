@@ -1,11 +1,15 @@
 <p-buttongroup>
-    <p-button [severity]="'secondary'" outlined="true" [className]="current == '3months' ? 'active' : ''" (onClick)="on3MonthClicked()">3 Monate</p-button>
-    <p-button [severity]="'secondary'" outlined="true" [className]="current == '6months' ? 'active' : ''" (onClick)="on6MonthClicked()">6 Monate</p-button>
-    <p-button [severity]="'secondary'" outlined="true" [className]="current == '12months' ? 'active' : ''" (onClick)="on12MonthClicked()">12 Monate</p-button>
-    <p-button [severity]="'secondary'" outlined="true" [className]="current == 'current' ? 'active' : ''" (onClick)="onCurrentYearClicked()">{{
+    <p-button [severity]="current !== '3months' ? 'secondary' : 'primary'" [outlined]="current !== '3months'" (onClick)="on3MonthClicked()">3 Monate</p-button>
+    <p-button [severity]="current !== '6months' ? 'secondary' : 'primary'" [outlined]="current !== '6months'" (onClick)="on6MonthClicked()">6 Monate</p-button>
+    <p-button [severity]="current !== '12months' ? 'secondary' : 'primary'" [outlined]="current !== '12months'" (onClick)="on12MonthClicked()"
+        >12 Monate</p-button
+    >
+    <p-button [severity]="current !== 'current' ? 'secondary' : 'primary'" [outlined]="current !== 'current'" (onClick)="onCurrentYearClicked()">{{
         currentYear
     }}</p-button>
-    <p-button [severity]="'secondary'" outlined="true" [className]="current == 'last' ? 'active' : ''" (onClick)="onLastYearClicked()">{{ lastYear }}</p-button>
-    <p-button [severity]="'secondary'" outlined="true" [className]="current == '5year' ? 'active' : ''" (onClick)="on5YearClicked()">5 Jahre</p-button>
-    <p-button [severity]="'secondary'" outlined="true" [className]="current == 'all' ? 'active' : ''" (onClick)="onAllClicked()">Alle</p-button>
+    <p-button [severity]="current !== 'last' ? 'secondary' : 'primary'" [outlined]="current !== 'last'" (onClick)="onLastYearClicked()">{{
+        lastYear
+    }}</p-button>
+    <p-button [severity]="current !== '5year' ? 'secondary' : 'primary'" [outlined]="current !== '5year'" (onClick)="on5YearClicked()">5 Jahre</p-button>
+    <p-button [severity]="current !== 'all' ? 'secondary' : 'primary'" [outlined]="current !== 'all'" (onClick)="onAllClicked()">Alle</p-button>
 </p-buttongroup>

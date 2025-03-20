@@ -1,7 +1,7 @@
 <div class="horizontal">
     @if (showDataTypeSelection()) {
         <span class="hidden-on-mobile">Ansicht: </span>
-        <p-dropdown
+        <p-select
             [options]="dataOptions"
             [(ngModel)]="selectedData"
             optionLabel="name"
@@ -11,7 +11,7 @@
         />
     }
     <span class="hidden-on-mobile">Gruppierung: </span>
-    <p-dropdown
+    <p-select
         [options]="viewGroupOptions"
         [(ngModel)]="selectedViewGrouping"
         optionLabel="name"

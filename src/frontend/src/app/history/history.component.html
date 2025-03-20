@@ -1,6 +1,6 @@
 <div class="vertical">
     <div class="horizontal vertical-on-mobile">
-        <p-calendar selectionMode="range" [(ngModel)]="dateRange" (ngModelChange)="update()" view="month" dateFormat="mm/yy" />
+        <p-datepicker [(ngModel)]="dateRange" (ngModelChange)="update()" selectionMode="range" view="month" dateFormat="mm/yy" />
         <app-daterange-preset-selector [(range)]="dateRange" (rangeChange)="update()"></app-daterange-preset-selector>
     </div>
 

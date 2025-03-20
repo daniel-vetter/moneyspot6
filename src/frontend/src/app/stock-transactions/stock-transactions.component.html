@@ -27,7 +27,7 @@
                     <div class="w1 right">Steuer</div>
                     <div class="w1 right">Gewinn</div>
                 </div>
-                @for (stock of portfolio(); track stock) {
+                @for (stock of portfolio(); track stock.stockId) {
                     <a pRipple class="horizontal clickable nostyle" [routerLink]="['orders', stock.stockId]">
                         <div class="w2 oneLine">{{ stock.stockName }}</div>
                         <div class="w1 right">{{ stock.purchaseAmount | number: "1.1-1" : "de-de" }}</div>
