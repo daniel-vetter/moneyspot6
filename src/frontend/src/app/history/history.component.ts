@@ -9,10 +9,11 @@ import { FormsModule } from '@angular/forms';
 import { ButtonGroupModule } from 'primeng/buttongroup';
 import { DaterangePresetSelectorComponent } from './daterange-preset-selector/daterange-preset-selector.component';
 import { PanelModule } from 'primeng/panel';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
     selector: 'app-history',
-    imports: [HighchartsChartModule, CalendarModule, SplitButtonModule, FormsModule, ButtonGroupModule, DaterangePresetSelectorComponent, PanelModule],
+    imports: [HighchartsChartModule, DatePickerModule, SplitButtonModule, FormsModule, ButtonGroupModule, DaterangePresetSelectorComponent, PanelModule],
     templateUrl: './history.component.html',
     styleUrl: './history.component.scss'
 })
