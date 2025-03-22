@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build_backend
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build_backend
 WORKDIR /source
 COPY src/backend .
 RUN dotnet publish -c release -o /app
@@ -13,10 +13,10 @@ WORKDIR /source
 COPY src/hbci-adapter .
 RUN chmod +x ./gradlew && ./gradlew --no-daemon jar
 
-FROM alpine
+FROM alpine:3.21.3
 WORKDIR /app
 RUN apk update
-RUN apk add openjdk21 aspnetcore8-runtime
+RUN apk add openjdk21 aspnetcore9-runtime
 COPY --from=build_backend /app /app
 COPY --from=build_frontend /source/dist/money-spot6.client/browser /app/wwwroot
 COPY --from=build_hbci-adapter /source/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar /app/hbci-adapter/HbciAdapter6.jar

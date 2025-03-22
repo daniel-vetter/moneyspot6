@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Stocks.PriceImport.YahooAdapter;
