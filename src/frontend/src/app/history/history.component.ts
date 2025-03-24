@@ -81,7 +81,15 @@ export class HistoryComponent implements OnInit {
             },
             plotOptions: {
                 area: {
-                    stacking: "normal"
+                    stacking: "normal",
+                    marker: {
+                        enabled: false
+                    }
+                },
+                line: {
+                    marker: {
+                        enabled: false
+                    }
                 }
             },
             tooltip: {
