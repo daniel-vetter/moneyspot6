@@ -93,7 +93,6 @@ export class DaterangePresetSelectorComponent implements OnChanges {
         start.setHours(0, 0, 0, 0);
 
         const end = new Date();
-        end.setDate(end.getDate() + 1);
         end.setHours(0, 0, 0, 0);
 
         return [start, end];
@@ -106,7 +105,6 @@ export class DaterangePresetSelectorComponent implements OnChanges {
         start.setHours(0, 0, 0, 0);
 
         const end = new Date();
-        end.setDate(end.getDate() + 1);
         end.setHours(0, 0, 0, 0);
 
         return [start, end];
@@ -119,7 +117,6 @@ export class DaterangePresetSelectorComponent implements OnChanges {
         start.setHours(0, 0, 0, 0);
 
         const end = new Date();
-        end.setDate(end.getDate() + 1);
         end.setHours(0, 0, 0, 0);
 
         return [start, end];
@@ -133,7 +130,7 @@ export class DaterangePresetSelectorComponent implements OnChanges {
 
         const end = new Date();
         end.setMonth(11);
-        end.setDate(1);
+        end.setDate(31);
         end.setHours(0, 0, 0, 0);
 
         return [start, end];
@@ -149,7 +146,7 @@ export class DaterangePresetSelectorComponent implements OnChanges {
         const end = new Date();
         end.setFullYear(end.getFullYear() - 1);
         end.setMonth(11);
-        end.setDate(1);
+        end.setDate(31);
         end.setHours(0, 0, 0, 0);
 
         return [start, end];
@@ -165,7 +162,7 @@ export class DaterangePresetSelectorComponent implements OnChanges {
         const end = new Date();
         end.setFullYear(end.getFullYear());
         end.setMonth(11);
-        end.setDate(1);
+        end.setDate(31);
         end.setHours(0, 0, 0, 0);
 
         return [start, end];
@@ -180,8 +177,6 @@ export class DaterangePresetSelectorComponent implements OnChanges {
 
         const end = new Date();
         end.setFullYear(end.getFullYear());
-        end.setMonth(0);
-        end.setDate(1);
         end.setHours(0, 0, 0, 0);
 
         return [start, end];
