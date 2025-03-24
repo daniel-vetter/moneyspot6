@@ -28,7 +28,6 @@ export class HistoryComponent implements OnInit {
         start.setHours(0, 0, 0, 0);
 
         const end = new Date();
-        end.setDate(end.getDate() + 1);
         end.setHours(0, 0, 0, 0);
 
         this.dateRange = [start, end];
@@ -38,14 +37,22 @@ export class HistoryComponent implements OnInit {
         await this.update();
     }
 
+    convertDate(date: Date, addDay = false): string {
+        const converted = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0));
+        if (addDay) {
+            converted.setDate(converted.getDate() + 1);
+        }
+        return converted.toISOString().substring(0, 10);
+    }
+
+
     async update() {
         if (this.dateRange[0] === null || this.dateRange[0] === undefined) return;
         if (this.dateRange[1] === null || this.dateRange[1] === undefined) return;
 
-        // TODO: DateTime is wrong time zone
-        const result = await lastValueFrom(
-            this.accountHistoryClient.get([1, 2, 3], this.dateRange[0].toISOString().substring(0, 10), this.dateRange[1].toISOString().substring(0, 10)),
-        );
+        const start = this.convertDate(this.dateRange[0]);
+        const end = this.convertDate(this.dateRange[1], true);
+        const result = await lastValueFrom(this.accountHistoryClient.get([1, 2, 3], start, end));
 
         this.charts = [];
         this.charts.push({
