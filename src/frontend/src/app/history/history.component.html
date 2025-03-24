@@ -8,7 +8,7 @@
         <ng-template pTemplate="header">
             <h1>Gesamt</h1>
         </ng-template>
-        @for (chart of charts; track chart) {
+        @for (chart of charts; track chart.index) {
             <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; display: block"></highcharts-chart>
         }
     </p-panel>

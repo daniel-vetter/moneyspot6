@@ -18,7 +18,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 })
 export class HistoryComponent implements OnInit {
     Highcharts: typeof Highcharts = Highcharts;
-    charts: Highcharts.Options[] = [];
+    charts: (Highcharts.Options & { index: number })[] = [];
     dateRange: [Date, Date];
 
     constructor(private accountHistoryClient: AccountHistoryClient) {
@@ -49,6 +49,7 @@ export class HistoryComponent implements OnInit {
 
         this.charts = [];
         this.charts.push({
+            index: this.charts.length,
             chart: {
                 height: '70%',
             },
