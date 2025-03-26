@@ -87,7 +87,7 @@ public class Program
 
         app.MapControllers();
         app.MapHub<AccountSyncHub>("/api/account-sync");
-        app.MapFallbackToFile("/index.html");
+        app.MapFallbackToFile("/index.html").AllowAnonymous();
 
         using (var scope = app.Services.CreateScope())
             await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
