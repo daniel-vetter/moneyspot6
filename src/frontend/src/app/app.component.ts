@@ -9,6 +9,9 @@ import * as Highcharts from 'highcharts';
 import * as HighchartsStock from 'highcharts/highstock';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { AuthClient } from './server';
+import { lastValueFrom } from 'rxjs';
+declare var google: any;
 
 @Component({
     selector: 'app-root',
@@ -18,11 +21,25 @@ import { ConfirmationService } from 'primeng/api';
     providers: [ConfirmationService]
 })
 export class AppComponent implements OnInit {
-    constructor() { }
+    isLoggedIn = false;
+    constructor(private authClient: AuthClient) { }
 
     async ngOnInit(): Promise<void> {
         Highcharts.setOptions(this.createOptions());
         HighchartsStock.setOptions(this.createOptions());
+
+        const currentUserResponse = await lastValueFrom(this.authClient.getCurrent());
+
+        if (!currentUserResponse.user) {
+            google.accounts.id.initialize({
+                client_id: '753503482461-u9og0m5ql1l5gcvl5jqk4vjmg61pongl.apps.googleusercontent.com',
+                login_uri: window.location.protocol + "//" + window.location.host + "/api/Auth/Login",
+                ux_mode: 'redirect'
+            });
+            google.accounts.id.renderButton(document.body, {});
+        } else {
+            this.isLoggedIn = true;
+        }
     }
 
     private createOptions(): Highcharts.Options {
@@ -33,53 +50,7 @@ export class AppComponent implements OnInit {
             },
             credits: {
                 enabled: false,
-            },
-            /*
-            chart: {
-                backgroundColor: '#18181b',
-            },
-            xAxis: {
-                labels: {
-                    style: {
-                        color: 'var(--p-text-color)',
-                    },
-                },
-                lineColor: 'var(--p-gray-600)',
-                tickColor: 'var(--p-gray-600)',
-                minorGridLineColor: '#FF0000',
-                gridLineColor: '#FF0000',
-            },
-            yAxis: {
-                labels: {
-                    style: {
-                        color: 'var(--p-text-color)',
-                    },
-                },
-                lineColor: 'var(--p-gray-600)',
-                gridLineColor: 'var(--p-gray-600)',
-            },
-            title: {
-                style: {
-                    color: 'var(--p-text-color)',
-                    font: 'bold 16px var(--p-font-family)',
-                },
-            },
-            subtitle: {
-                style: {
-                    color: 'var(--p-text-color)',
-                    font: 'bold 12px var(--p-font-family)',
-                },
-            },
-            legend: {
-                itemStyle: {
-                    font: '9pt var(--p-font-family)',
-                    color: 'var(--p-text-color)',
-                },
-                itemHoverStyle: {
-                    color: 'var(--p-text-color)',
-                },
             }
-            */
         }
     }
 }

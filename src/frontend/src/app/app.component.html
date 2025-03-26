@@ -1,18 +1,20 @@
-<div class="flex-col" style="width: 100%; flex: 1">
-    <div class="only-mobile">
-        <app-top-bar></app-top-bar>
-    </div>
-    <div class="flex-row" style="width: 100%; flex: 1; align-items: start; overflow: hidden">
-        <div class="only-desktop">
-            <app-menu></app-menu>
+@if (isLoggedIn) {
+    <div class="flex-col" style="width: 100%; flex: 1">
+        <div class="only-mobile">
+            <app-top-bar></app-top-bar>
         </div>
-        <div class="wrapper">
-            <div class="content">
-                <router-outlet></router-outlet>
+        <div class="flex-row" style="width: 100%; flex: 1; align-items: start; overflow: hidden">
+            <div class="only-desktop">
+                <app-menu></app-menu>
+            </div>
+            <div class="wrapper">
+                <div class="content">
+                    <router-outlet></router-outlet>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
 <app-global-error-handler-dialog />
 <p-confirmdialog />
