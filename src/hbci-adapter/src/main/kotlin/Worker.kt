@@ -21,24 +21,24 @@ class Worker(val rpc: RpcBridge) {
         var passport: HBCIPassport? = null
         try {
 
-            log(SEVERITY_INFO, "Connecting...")
+            log(SEVERITY_INFO, "Verbindung wird hergestellt...")
             passport = createPassport(request.AccountId, request.BankCode)
             handle = HBCIHandler(request.HbciVersion, passport)
 
-            log(SEVERITY_INFO, "Retrieving list of accounts...")
+            log(SEVERITY_INFO, "Lade Kontoliste...")
             val accounts = passport.accounts ?: emptyArray();
 
-            log(SEVERITY_INFO, "Requesting transactions...")
+            log(SEVERITY_INFO, "Datensätze werden abgefragt...")
             val startDate = if (request.StartDate == null) null else SimpleDateFormat("yyyy-MM-dd").parse(request.StartDate)
             val jobs = createQueryJobs(accounts, handle, startDate)
             val status = handle.execute()
 
-            log(SEVERITY_INFO, "Processing response...")
+            log(SEVERITY_INFO, "Antworten werden verarbeitet...")
             if (!validateHbciResult(status, jobs))
                 return
             rpc.send(mapResultToRpcModel(jobs))
 
-            log(SEVERITY_INFO, "Done")
+            log(SEVERITY_INFO, "Synchronisation erfolgreich abgeschlossen")
 
         }
         catch(e: Exception) {
