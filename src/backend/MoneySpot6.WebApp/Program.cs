@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
@@ -21,7 +18,6 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddHttpContextAccessor();
         builder.Services.AddOpenApiDocument(x =>
         {
             x.DefaultResponseReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
@@ -32,20 +28,6 @@ public class Program
         builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
         builder.Services.AddServiceFromAttributes();
-        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
-        {
-            x.Events = new CookieAuthenticationEvents
-            {
-                OnRedirectToLogin = ctx => { ctx.Response.StatusCode = 401; return Task.CompletedTask; },
-                OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = 403; return Task.CompletedTask; }
-            };
-        });
-        builder.Services.AddAuthorization(x =>
-        {
-            x.FallbackPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build();
-        });
         builder.Logging.AddOpenTelemetry(x =>
         {
             x.IncludeFormattedMessage = true;
@@ -81,9 +63,6 @@ public class Program
             app.UseOpenApi();
             app.UseSwaggerUi();
         }
-
-        app.UseAuthentication();
-        app.UseAuthorization();
 
         app.MapControllers();
         app.MapHub<AccountSyncHub>("/api/account-sync");
