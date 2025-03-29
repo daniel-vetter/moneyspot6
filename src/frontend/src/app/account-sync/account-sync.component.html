@@ -1,8 +1,8 @@
 <p-button icon="pi pi-sync" (click)="onSyncButtonClicked()" size="small" outlined="true" [rounded]="false" severity="primary" />
-<p-dialog [modal]="true" [(visible)]="isVisible" closable="false" [showHeader]="false" pad>
-    <div class="horizontal" style="align-items: center; padding: 3rem">
+<p-dialog [modal]="true" [(visible)]="isVisible" closable="false" [showHeader]="true" header="Buchnungen werden geladen...">
+    <div class="horizontal" style="align-items: center; padding-top: 1rem; padding-bottom: 1rem; width: 400px">
         <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: var(--p-primary-color)"></i>
-        <span class="p-dialog-title">Buchungen werden geladen...</span>
+        <span>{{ logMessage }}</span>
     </div>
 </p-dialog>
 <app-tan-dialog></app-tan-dialog>

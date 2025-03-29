@@ -11,22 +11,24 @@ import { MessagesModule } from 'primeng/messages';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { GlobalEvents } from '../common/global-events';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @Component({
     selector: 'app-account-sync',
-    imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ProgressSpinnerModule, PanelModule, TanDialogComponent, MessagesModule, ToastModule],
+    imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ProgressSpinnerModule, PanelModule, TanDialogComponent, MessagesModule, ToastModule, ProgressBarModule],
     templateUrl: './account-sync.component.html',
     styleUrl: './account-sync.component.scss'
 })
 export class AccountSyncComponent {
     isVisible = false;
+    logMessage = '';
 
     @ViewChild(TanDialogComponent) tanDialog!: TanDialogComponent;
 
     constructor(
         private messageService: MessageService,
         private globalEvents: GlobalEvents,
-    ) {}
+    ) { }
 
     async onSyncButtonClicked() {
         this.isVisible = true;
@@ -48,6 +50,11 @@ export class AccountSyncComponent {
         connection.on('requestSecurityMechanismCanceled', () => {
             throw Error('Not implemented');
         });
+
+        connection.on('logMessage', (severity, message) => {
+            if (severity >= 1)
+                this.logMessage = message;
+        })
 
         await connection.start();
         const result = await connection.invoke('start');
