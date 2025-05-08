@@ -7,13 +7,6 @@ namespace MoneySpot6.WebApp.Features.Stocks.PriceImport.YahooAdapter;
 [ScopedService]
 public class YahooStockDateProvider
 {
-    private readonly Db _db;
-
-    public YahooStockDateProvider(Db db)
-    {
-        _db = db;
-    }
-
     public async Task<ImmutableArray<StockPrice>> Get(DateTimeOffset start, DateTimeOffset end, string symbol, StockPriceInterval interval)
     {
         var client = new HttpClient();

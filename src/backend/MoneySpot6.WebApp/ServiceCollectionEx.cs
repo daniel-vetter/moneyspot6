@@ -1,5 +1,5 @@
-﻿using JetBrains.Annotations;
-using System.Reflection;
+﻿using System.Reflection;
+using JetBrains.Annotations;
 
 namespace MoneySpot6.WebApp;
 
@@ -33,14 +33,14 @@ public static class ServiceCollectionEx
     }
 }
 
-[MeansImplicitUse﻿]
+[MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Class)]
 public class SingletonServiceAttribute<TServiceType> : SingletonServiceAttribute
 {
     public SingletonServiceAttribute() : base(typeof(TServiceType)) { }
 }
 
-[MeansImplicitUse﻿]
+[MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Class)]
 public class SingletonServiceAttribute : Attribute
 {
@@ -52,14 +52,14 @@ public class SingletonServiceAttribute : Attribute
     }
 }
 
-[MeansImplicitUse﻿]
+[MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Class)]
 public class ScopedServiceAttribute<TServiceType> : ScopedServiceAttribute
 {
     public ScopedServiceAttribute() : base(typeof(TServiceType)) { }
 }
 
-[MeansImplicitUse﻿]
+[MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Class)]
 public class ScopedServiceAttribute : Attribute
 {

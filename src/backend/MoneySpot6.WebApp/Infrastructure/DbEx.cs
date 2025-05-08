@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Runtime.InteropServices;
+using Microsoft.EntityFrameworkCore;
 
 namespace MoneySpot6.WebApp.Infrastructure;
 

@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Shared;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema;
 using NJsonSchema.Annotations;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
-using MoneySpot6.WebApp.Features.Shared;
 
 namespace MoneySpot6.WebApp.Features.StockTransactions;
 
@@ -17,13 +17,11 @@ namespace MoneySpot6.WebApp.Features.StockTransactions;
 public class StockTransactionsPageController : Controller
 {
     private readonly Db _db;
-    private readonly StockDataProvider _stockDataProvider;
     private readonly PortfolioProvider _portfolioProvider;
 
-    public StockTransactionsPageController(Db db, StockDataProvider stockDataProvider, PortfolioProvider portfolioProvider)
+    public StockTransactionsPageController(Db db, PortfolioProvider portfolioProvider)
     {
         _db = db;
-        _stockDataProvider = stockDataProvider;
         _portfolioProvider = portfolioProvider;
     }
 
