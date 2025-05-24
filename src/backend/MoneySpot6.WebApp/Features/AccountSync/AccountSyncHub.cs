@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System.Collections.Immutable;
+using Microsoft.AspNetCore.SignalR;
 using MoneySpot6.WebApp.Features.AccountSync.Services;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
-using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Features.AccountSync;
 

@@ -52,7 +52,7 @@ export class HistoryComponent implements OnInit {
 
         const start = this.convertDate(this.dateRange[0]);
         const end = this.convertDate(this.dateRange[1], true);
-        const result = await lastValueFrom(this.accountHistoryClient.get([1, 2, 3], start, end));
+        const result = await lastValueFrom(this.accountHistoryClient.get(start, end));
 
         this.charts = [];
         this.charts.push({

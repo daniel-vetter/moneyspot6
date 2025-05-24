@@ -1,6 +1,6 @@
-﻿using MoneySpot6.WebApp.Database;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Shared;
 
