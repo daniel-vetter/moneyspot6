@@ -11,9 +11,21 @@ public class Db : DbContext
     public DbSet<DbStock> Stocks { get; init; }
     public DbSet<DbStockPrice> StockPrices { get; init; }
     public DbSet<DbStockTransaction> StockTransactions { get; init; }
+    public DbSet<DbCategory> Categories { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .Entity<DbCategory>()
+            .HasOne<DbCategory>()
+            .WithMany()
+            .HasForeignKey(x => x.ParentId);
+
+        base.OnModelCreating(modelBuilder);
     }
 }
 
@@ -162,6 +174,14 @@ public class DbStockTransaction
     public required DateOnly Date { get; set; }
     public required decimal Amount { get; set; }
     public required decimal Price { get; set; }
+}
+
+[Table("Categories")]
+public class DbCategory
+{
+    public int Id { get; set; }
+    public int? ParentId { get; set; }
+    public required string Name { get; set; }
 }
 
 public enum StockPriceInterval

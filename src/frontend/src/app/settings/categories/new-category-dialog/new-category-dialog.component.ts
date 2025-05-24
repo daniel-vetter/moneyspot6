@@ -1,0 +1,80 @@
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { CategoryConfigurationClient, CreateCategoryRequest, CreateCategoryValidationErrorResponse, UpdateCategoryRequest, UpdateCategoryValidationErrorResponse } from '../../../server';
+import { lastValueFrom } from 'rxjs';
+import { MessageModule } from 'primeng/message';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-new-category-dialog',
+  imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule],
+  templateUrl: './new-category-dialog.component.html',
+  styleUrl: './new-category-dialog.component.scss'
+})
+export class NewCategoryDialogComponent implements OnInit {
+  id: undefined | number;
+  form = new FormGroup({
+    name: new FormControl<string | undefined>(undefined, { nonNullable: true, validators: [Validators.required] })
+  });
+  parentId: number | undefined;
+
+  constructor(dialogConfig: DynamicDialogConfig, private dialogRef: DynamicDialogRef, private categoryConfigurationClient: CategoryConfigurationClient) {
+    this.id = dialogConfig.data.id;
+    this.parentId = dialogConfig.data.parentId;
+    dialogConfig.header = this.id === undefined ? "Neue Kategorie" : "Kategorie bearbeiten";
+    dialogConfig.width = "500px";
+    dialogConfig.height = "620px";
+  }
+
+  async ngOnInit() {
+    if (this.id !== undefined) {
+      const cat = await lastValueFrom(this.categoryConfigurationClient.getCategory(this.id));
+      this.form.setValue({
+        name: cat.name
+      });
+    }
+  }
+
+  onCancelClicked() {
+    this.dialogRef.close();
+  }
+  async onSubmit() {
+    this.form.disable()
+
+    try {
+      if (this.id === undefined) {
+        await lastValueFrom(this.categoryConfigurationClient.create(new CreateCategoryRequest({
+          name: this.form.value.name,
+          parentId: this.parentId
+        })));
+      }
+      else {
+        await lastValueFrom(this.categoryConfigurationClient.update(new UpdateCategoryRequest({
+          id: this.id,
+          name: this.form.value.name
+        })));
+      }
+    } catch (error) {
+      if (error instanceof CreateCategoryValidationErrorResponse || error instanceof UpdateCategoryValidationErrorResponse) {
+        queueMicrotask(() => {
+          if (error.missingName)
+            this.form.controls.name.setErrors({ missingName: true });
+          if (error.nameAlreadyInUse)
+            this.form.controls.name.setErrors({ nameAlreadyInUse: true });
+          if (error instanceof CreateCategoryValidationErrorResponse) {
+            if (error.invalidParent)
+              this.form.controls.name.setErrors({ invalidParent: true });
+          }
+        });
+      }
+      return;
+    }
+    finally {
+      this.form.enable();
+    }
+    this.dialogRef.close();
+  }
+}

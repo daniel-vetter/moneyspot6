@@ -7,6 +7,7 @@ import { IncomeExpenseReportComponent } from './income-expense-report/income-exp
 import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { StockTransactionsComponent } from "./stock-transactions/stock-transactions.component";
 import { StockDetailsComponent } from './stock-transactions/stock-details/stock-details.component';
+import { SettingsComponent } from './settings/settings.component';
 
 export const routes: Routes = [
     { path: '', component: SummaryComponent },
@@ -17,5 +18,6 @@ export const routes: Routes = [
     { path: 'stock-transactions', component: StockTransactionsComponent },
     { path: 'stock-transactions/orders/:id', component: StockDetailsComponent },
     { path: 'stock-history', component: StockHistoryComponent },
+    { path: 'settings', component: SettingsComponent },
     { path: 'debug', component: DebugComponent },
 ];

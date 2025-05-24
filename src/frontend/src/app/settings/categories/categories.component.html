@@ -1,0 +1,30 @@
+<h1>Kategorien</h1>
+<p>
+    <p-button label="Neue Kategorie" (onClick)="onNewCategoryClicked(undefined)" />
+</p>
+@if (entries.length > 0) {
+<p-treetable [value]="entries" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+    <ng-template #header>
+        <tr>
+            <th>Name</th>
+            <th>Zuweisungen</th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-rowNode let-rowData="rowData">
+        <tr [ttRow]="rowNode">
+            <td>
+                <p-treetable-toggler [rowNode]="rowNode" />
+                {{ rowData.name }}
+            </td>
+            <td>{{ rowData.usages }}</td>
+            <td>
+                <p-button icon="pi pi-plus" (onClick)="onNewCategoryClicked(rowData.id)" title="Unterkategorie hinzufügen" rounded="true" [style]="{ 'margin-right': '.5em' }" />
+                <p-button icon="pi pi-pencil" (onClick)="onEditCategoryClicked(rowData.id)" title="Unterkategorie hinzufügen" rounded="true" [style]="{ 'margin-right': '.5em' }" />
+                <p-button icon="pi pi-trash" (onClick)="onDeleteCategoryClicked(rowData.id)" severity="warn" title="Kategorie löschen" rounded="true"
+                    [style]="{ 'margin-right': '.5em' }" />
+            </td>
+        </tr>
+    </ng-template>
+</p-treetable>
+}
