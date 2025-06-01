@@ -19,7 +19,7 @@ export class GoalComponent implements OnInit {
 
     targetValue = 0;
     targetDate!: Date;
-    requiredSavingPerMonth = 0;
+    requiredSavingPerMonth: number | undefined = undefined;
 
     constructor(private summaryPageClient: SummaryPageClient) { }
 

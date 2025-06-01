@@ -1640,7 +1640,7 @@ export interface IBankAccountEntrySummaryResponse {
 export class BankAccountTotalGoalResponse implements IBankAccountTotalGoalResponse {
     endDate!: Date;
     endBalance!: number;
-    requiredSavingPerMonth!: number;
+    requiredSavingPerMonth?: number | undefined;
     actualHistory!: BalanceEntryResponse[];
     expectedHistory!: BalanceEntryResponse[];
 
@@ -1704,7 +1704,7 @@ export class BankAccountTotalGoalResponse implements IBankAccountTotalGoalRespon
 export interface IBankAccountTotalGoalResponse {
     endDate: Date;
     endBalance: number;
-    requiredSavingPerMonth: number;
+    requiredSavingPerMonth?: number | undefined;
     actualHistory: BalanceEntryResponse[];
     expectedHistory: BalanceEntryResponse[];
 }

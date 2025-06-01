@@ -67,12 +67,14 @@ public class SummaryPageController : Controller
         });
     }
 
-    private async Task<decimal> CalculateSavingRatePerMonth(decimal targetBalance, DateOnly targetDate)
+    private async Task<decimal?> CalculateSavingRatePerMonth(decimal targetBalance, DateOnly targetDate)
     {
         var today = DateTime.Today;
         var firstOfMonth = new DateOnly(today.Year, today.Month, 1);
         var remainingMoney = targetBalance - await _balanceProvider.GetBalanceAtStartOf(firstOfMonth);
         var remainingDays = (decimal)(targetDate.ToDateTime(TimeOnly.MinValue) - firstOfMonth.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        if (remainingDays <= 0)
+            return null;
         var requiredSavingPerDay = remainingMoney / remainingDays;
         return requiredSavingPerDay * 30m;
     }
@@ -139,7 +141,7 @@ public record BankAccountTotalGoalResponse
 {
     [Required] public required DateOnly EndDate { get; init; }
     [Required] public required decimal EndBalance { get; init; }
-    [Required] public required decimal RequiredSavingPerMonth { get; init; }
+    public required decimal? RequiredSavingPerMonth { get; init; }
     [Required] public required ImmutableArray<BalanceEntryResponse> ActualHistory { get; init; }
     [Required] public required ImmutableArray<BalanceEntryResponse> ExpectedHistory { get; init; }
 }
