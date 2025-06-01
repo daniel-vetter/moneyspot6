@@ -4,20 +4,20 @@
     </ng-template>
 
     @if (chart !== undefined) {
-        <highcharts-chart
-            [Highcharts]="Highcharts"
-            [options]="chart"
-            style="width: 100%; height: 300px; display: block; padding-bottom: 1rem"
-        ></highcharts-chart>
-        <div class="vertical">
-            <div class="horizontal">
-                <div style="flex: 1">Ziel:</div>
-                <div style="text-align: right"><app-value [value]="targetValue" /> am {{ targetDate | customDate }}</div>
-            </div>
-            <div class="horizontal">
-                <div style="flex: 1">Benötigte Sparrate pro Monat:</div>
-                <div style="text-align: right"><app-value [value]="requiredSavingPerMonth" /></div>
-            </div>
+    <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; height: 300px; display: block; padding-bottom: 1rem"></highcharts-chart>
+    <div class="vertical">
+        <div class="horizontal">
+            <div style="flex: 1">Ziel:</div>
+            <div style="text-align: right"><app-value [value]="targetValue" /> am {{ targetDate | customDate }}</div>
         </div>
+        <div class="horizontal">
+            <div style="flex: 1">Benötigte Sparrate pro Monat:</div>
+            @if (requiredSavingPerMonth === null || requiredSavingPerMonth === undefined) {
+            <div style="text-align: right">-</div>
+            } @else {
+            <div style="text-align: right"><app-value [value]="requiredSavingPerMonth" /></div>
+            }
+        </div>
+    </div>
     }
 </p-panel>
