@@ -26,7 +26,7 @@ public class IncomeExpenseController : Controller
     {
         var groups = await _db
             .BankAccountTransactions
-            .Where(x => string.IsNullOrWhiteSpace(search) || (EF.Functions.ILike(x.Parsed.Purpose!, "%" + search + "%") || EF.Functions.ILike(x.Parsed.Name!, "%" + search + "%")))
+            .Where(x => string.IsNullOrWhiteSpace(search) || (EF.Functions.ILike(x.Final.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Final.Name, "%" + search + "%")))
             .GroupBy(x =>
                 grouping == IncomeExpenseGrouping.None ? 0 :
                 grouping == IncomeExpenseGrouping.Year ? x.Final.Date.Year * 13 :

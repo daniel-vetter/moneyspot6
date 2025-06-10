@@ -34,7 +34,7 @@ public class TransactionPageController : Controller
             .ThenByDescending(x => x.Id);
 
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(x => EF.Functions.ILike(x.Parsed.Purpose!, "%" + search + "%") || EF.Functions.ILike(x.Parsed.Name!, "%" + search + "%"));
+            query = query.Where(x => EF.Functions.ILike(x.Final.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Final.Name, "%" + search + "%"));
 
         var entries = await query.Select(x => new
         {
