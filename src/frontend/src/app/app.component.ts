@@ -9,6 +9,8 @@ import * as Highcharts from 'highcharts';
 import * as HighchartsStock from 'highcharts/highstock';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { AuthClient } from './server';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-root',
@@ -18,9 +20,16 @@ import { ConfirmationService } from 'primeng/api';
     providers: [ConfirmationService]
 })
 export class AppComponent implements OnInit {
-    constructor() { }
+    isLoggedIn: boolean = false;
+    constructor(private authClient: AuthClient) { }
 
     async ngOnInit(): Promise<void> {
+        const currentUser = await lastValueFrom(this.authClient.getUserDetails());
+        if (currentUser === undefined || currentUser === null) {
+            window.location.href = '/api/Auth/Login';
+            return;
+        }
+        this.isLoggedIn = true;
         Highcharts.setOptions(this.createOptions());
         HighchartsStock.setOptions(this.createOptions());
     }

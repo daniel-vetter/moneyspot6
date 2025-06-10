@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
@@ -16,7 +19,12 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(x =>
+        {
+            x.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build()));
+        });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument(x =>
         {
@@ -50,10 +58,42 @@ public class Program
                 .SetSampler<AlwaysOnSampler>())
             .WithLogging();
 
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                options.Authority = builder.Configuration.GetValue<string>("Auth:Authority");
+                options.ClientId = builder.Configuration.GetValue<string>("Auth:ClientId");
+                options.ClientSecret = builder.Configuration.GetValue<string>("Auth:ClientSecret");
+                options.ResponseType = "code";
+                options.SaveTokens = true;
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "name"
+                };
+
+                options.Events.OnRedirectToIdentityProvider = ctx =>
+                {
+                    if (!string.IsNullOrWhiteSpace(builder.Configuration.GetValue<string>("Domain")))
+                        ctx.ProtocolMessage.RedirectUri = builder.Configuration.GetValue<string>("Domain") + "/signin-oidc";
+                    return Task.CompletedTask;
+                };
+
+            });
+
         var app = builder.Build();
         if (await app.Services.CreateTypeScriptClient(args))
             return;
 
+        
         app.UseResponseCompression();
         app.UseDefaultFiles();
         app.UseStaticFiles();
@@ -64,6 +104,8 @@ public class Program
             app.UseSwaggerUi();
         }
 
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.MapControllers();
         app.MapHub<AccountSyncHub>("/api/account-sync");
         app.MapFallbackToFile("/index.html");
