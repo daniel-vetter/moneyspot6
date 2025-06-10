@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TransactionEntryResponse, TransactionPageClient, TransactionResponse } from '../server';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ValueComponent } from '../common/value/value.component';
 import { CustomDatePipe } from '../common/custom-date.pipe';
 import { PanelModule } from 'primeng/panel';
@@ -10,10 +10,14 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
 import { SearchBarComponent } from '../common/search-bar/search-bar.component';
 import { ViewGrouping, GroupingBarComponent } from '../common/grouping-bar/grouping-bar.component';
+import { DialogService } from 'primeng/dynamicdialog';
+import { TransactionDetailsDialogComponent } from './transaction-details-dialog/transaction-details-dialog.component';
+import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-transactions',
-    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent],
+    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule],
+    providers: [DialogService],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.scss'
 })
@@ -27,6 +31,7 @@ export class TransactionsComponent implements OnInit {
 
     constructor(
         private transactionPageClient: TransactionPageClient,
+        private dialogService: DialogService,
         private router: Router,
         private activatedRoute: ActivatedRoute,
     ) { }
@@ -39,9 +44,12 @@ export class TransactionsComponent implements OnInit {
         });
     }
 
-    async update() {
-        this.blocksShown = [];
-        this.isLoading = true;
+    async update(keepState: boolean = false) {
+        const curShownBlockCount = this.blocksShown.length
+        if (keepState == false) {
+            this.blocksShown = [];
+            this.isLoading = true;
+        }
         const response = await lastValueFrom(this.transactionPageClient.getTransactions(this.searchText === '' ? undefined : this.searchText));
         this.isLoading = false;
         const blocks: Block[] = [];
@@ -60,25 +68,25 @@ export class TransactionsComponent implements OnInit {
                 blocks.push(currentBlock);
             }
 
-            currentBlock.total += transaction.value!;
-            currentBlock.income += transaction.value! > 0 ? transaction.value! : 0;
-            currentBlock.expense += transaction.value! < 0 ? -transaction.value! : 0;
+            currentBlock.total += transaction.amount!;
+            currentBlock.income += transaction.amount! > 0 ? transaction.amount! : 0;
+            currentBlock.expense += transaction.amount! < 0 ? -transaction.amount! : 0;
             currentBlock.transactions.push(transaction);
         }
 
         this.blocksHidden = blocks;
         this.blocksShown = [];
-        this.showMore();
+        this.showMore(keepState ? curShownBlockCount : undefined);
     }
 
-    showMore() {
+    showMore(blocksToShow: number | undefined = undefined) {
         let totalEntriesShown = 0;
         while (this.blocksHidden.length > 0) {
             const toMove = this.blocksHidden.shift()!;
             totalEntriesShown += toMove.transactions.length;
             this.blocksShown.push(toMove);
 
-            if (totalEntriesShown > 1000) {
+            if ((blocksToShow == undefined && totalEntriesShown > 1000) || (blocksToShow !== undefined && this.blocksShown.length >= blocksToShow)) {
                 break;
             }
         }
@@ -101,6 +109,21 @@ export class TransactionsComponent implements OnInit {
             );
         if (this.selectedGrouping === 'Yearly') return date.getFullYear().toString();
         throw Error('Invalid group: ' + this.selectedGrouping);
+    }
+
+    async openTransaction(transaction: TransactionEntryResponse) {
+        console.log("Clicked");
+        const dlg = this.dialogService.open(TransactionDetailsDialogComponent, {
+            data: {
+                id: transaction.id,
+            },
+            focusOnShow: false
+        });
+
+        const result = await firstValueFrom(dlg.onClose)
+        if (result === true) {
+            await this.update(true);
+        }
     }
 }
 

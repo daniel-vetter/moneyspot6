@@ -5,11 +5,6 @@
 	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=115f8432_002D7053_002D429b_002Da349_002D1fcc4234df4e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2B3EEC8B-6194-4E3E-B813-273F64BA3966::net8.0::MoneySpot6.WebApp.Tests.SepaParserTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2B3EEC8B-6194-4E3E-B813-273F64BA3966::net8.0::MoneySpot6.WebApp.Tests.SepaParser2Tests.Test1&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2B3EEC8B-6194-4E3E-B813-273F64BA3966::net8.0::MoneySpot6.WebApp.Tests.RawDataParserTests.Test1&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2B3EEC8B-6194-4E3E-B813-273F64BA3966::net8.0::MoneySpot6.WebApp.Tests.RawDataParserTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2B3EEC8B-6194-4E3E-B813-273F64BA3966::net8.0::MoneySpot6.WebApp.Tests.TimelineTests.Test&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2B3EEC8B-6194-4E3E-B813-273F64BA3966::net8.0::MoneySpot6.WebApp.Tests.TimelineTests.Test2&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::2B3EEC8B-6194-4E3E-B813-273F64BA3966::net9.0::MoneySpot6.WebApp.Tests.RawDataParserTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

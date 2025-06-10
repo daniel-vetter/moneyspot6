@@ -29,13 +29,13 @@ public class IncomeExpenseController : Controller
             .Where(x => string.IsNullOrWhiteSpace(search) || (EF.Functions.ILike(x.Parsed.Purpose!, "%" + search + "%") || EF.Functions.ILike(x.Parsed.Name!, "%" + search + "%")))
             .GroupBy(x =>
                 grouping == IncomeExpenseGrouping.None ? 0 :
-                grouping == IncomeExpenseGrouping.Year ? x.Raw.Date.Year * 13 :
-                x.Raw.Date.Year * 13 + x.Raw.Date.Month)
+                grouping == IncomeExpenseGrouping.Year ? x.Final.Date.Year * 13 :
+                x.Final.Date.Year * 13 + x.Final.Date.Month)
             .Select(x => new
             {
                 GroupKey = x.Key,
-                Income = x.Sum(y => Math.Max(0, y.Raw.Amount)),
-                Expense = -x.Sum(y => Math.Min(0, y.Raw.Amount)),
+                Income = x.Sum(y => Math.Max(0, y.Final.Amount)),
+                Expense = -x.Sum(y => Math.Min(0, y.Final.Amount)),
             })
             .OrderBy(x => x.GroupKey)
             .ToArrayAsync();

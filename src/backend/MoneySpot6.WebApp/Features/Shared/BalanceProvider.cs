@@ -31,10 +31,10 @@ public class BalanceProvider
         foreach (var accountId in accountIds)
         {
             var balance = await _db.BankAccountTransactions
-                .OrderByDescending(x => x.Raw.Date)
+                .OrderByDescending(x => x.Final.Date)
                 .ThenByDescending(x => x.Id)
                 .Where(x => x.BankAccount.Id == accountId)
-                .Where(x => x.Raw.Date < date)
+                .Where(x => x.Final.Date < date)
                 .Select(x => x.Raw.NewBalance)
                 .FirstOrDefaultAsync();
 

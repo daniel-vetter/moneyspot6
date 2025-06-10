@@ -75,6 +75,113 @@ export class TransactionPageClient {
         }
         return _observableOf(null as any);
     }
+
+    update(update: TransactionDetailsUpdateRequest): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/TransactionPage";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(update);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    get(id: number): Observable<TransactionDetailsResponse> {
+        let url_ = this.baseUrl + "/api/TransactionPage/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TransactionDetailsResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TransactionDetailsResponse>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<TransactionDetailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TransactionDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -1484,12 +1591,11 @@ export interface ITransactionResponse {
 
 export class TransactionEntryResponse implements ITransactionEntryResponse {
     id?: number;
-    icon?: string | undefined;
-    iconColor?: string | undefined;
     date?: Date;
     name?: string | undefined;
     purpose?: string | undefined;
-    value?: number;
+    categoryName?: string | undefined;
+    amount?: number;
 
     constructor(data?: ITransactionEntryResponse) {
         if (data) {
@@ -1503,12 +1609,11 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.icon = _data["icon"];
-            this.iconColor = _data["iconColor"];
             this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
             this.name = _data["name"];
             this.purpose = _data["purpose"];
-            this.value = _data["value"];
+            this.categoryName = _data["categoryName"];
+            this.amount = _data["amount"];
         }
     }
 
@@ -1522,24 +1627,326 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["icon"] = this.icon;
-        data["iconColor"] = this.iconColor;
         data["date"] = this.date ? formatDate(this.date) : <any>undefined;
         data["name"] = this.name;
         data["purpose"] = this.purpose;
-        data["value"] = this.value;
+        data["categoryName"] = this.categoryName;
+        data["amount"] = this.amount;
         return data;
     }
 }
 
 export interface ITransactionEntryResponse {
     id?: number;
-    icon?: string | undefined;
-    iconColor?: string | undefined;
     date?: Date;
     name?: string | undefined;
     purpose?: string | undefined;
-    value?: number;
+    categoryName?: string | undefined;
+    amount?: number;
+}
+
+export class TransactionDetailsResponse implements ITransactionDetailsResponse {
+    id!: number;
+    baseDetails!: TransactionBaseDetails;
+    overriddenDetails!: TransactionOverrideDetails;
+    note!: string;
+
+    constructor(data?: ITransactionDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.baseDetails = new TransactionBaseDetails();
+            this.overriddenDetails = new TransactionOverrideDetails();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.baseDetails = _data["baseDetails"] ? TransactionBaseDetails.fromJS(_data["baseDetails"]) : new TransactionBaseDetails();
+            this.overriddenDetails = _data["overriddenDetails"] ? TransactionOverrideDetails.fromJS(_data["overriddenDetails"]) : new TransactionOverrideDetails();
+            this.note = _data["note"];
+        }
+    }
+
+    static fromJS(data: any): TransactionDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransactionDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["baseDetails"] = this.baseDetails ? this.baseDetails.toJSON() : <any>undefined;
+        data["overriddenDetails"] = this.overriddenDetails ? this.overriddenDetails.toJSON() : <any>undefined;
+        data["note"] = this.note;
+        return data;
+    }
+}
+
+export interface ITransactionDetailsResponse {
+    id: number;
+    baseDetails: TransactionBaseDetails;
+    overriddenDetails: TransactionOverrideDetails;
+    note: string;
+}
+
+export class TransactionBaseDetails implements ITransactionBaseDetails {
+    date?: Date;
+    purpose?: string;
+    name?: string;
+    bankCode?: string;
+    accountNumber?: string;
+    iban?: string;
+    bic?: string;
+    amount?: number;
+    categoryId?: number | undefined;
+    endToEndReference?: string;
+    customerReference?: string;
+    mandateReference?: string;
+    creditorIdentifier?: string;
+    originatorIdentifier?: string;
+    alternateInitiator?: string;
+    alternateReceiver?: string;
+    paymentProcessor?: PaymentProcessor;
+
+    constructor(data?: ITransactionBaseDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.purpose = _data["purpose"];
+            this.name = _data["name"];
+            this.bankCode = _data["bankCode"];
+            this.accountNumber = _data["accountNumber"];
+            this.iban = _data["iban"];
+            this.bic = _data["bic"];
+            this.amount = _data["amount"];
+            this.categoryId = _data["categoryId"];
+            this.endToEndReference = _data["endToEndReference"];
+            this.customerReference = _data["customerReference"];
+            this.mandateReference = _data["mandateReference"];
+            this.creditorIdentifier = _data["creditorIdentifier"];
+            this.originatorIdentifier = _data["originatorIdentifier"];
+            this.alternateInitiator = _data["alternateInitiator"];
+            this.alternateReceiver = _data["alternateReceiver"];
+            this.paymentProcessor = _data["paymentProcessor"];
+        }
+    }
+
+    static fromJS(data: any): TransactionBaseDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransactionBaseDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
+        data["purpose"] = this.purpose;
+        data["name"] = this.name;
+        data["bankCode"] = this.bankCode;
+        data["accountNumber"] = this.accountNumber;
+        data["iban"] = this.iban;
+        data["bic"] = this.bic;
+        data["amount"] = this.amount;
+        data["categoryId"] = this.categoryId;
+        data["endToEndReference"] = this.endToEndReference;
+        data["customerReference"] = this.customerReference;
+        data["mandateReference"] = this.mandateReference;
+        data["creditorIdentifier"] = this.creditorIdentifier;
+        data["originatorIdentifier"] = this.originatorIdentifier;
+        data["alternateInitiator"] = this.alternateInitiator;
+        data["alternateReceiver"] = this.alternateReceiver;
+        data["paymentProcessor"] = this.paymentProcessor;
+        return data;
+    }
+}
+
+export interface ITransactionBaseDetails {
+    date?: Date;
+    purpose?: string;
+    name?: string;
+    bankCode?: string;
+    accountNumber?: string;
+    iban?: string;
+    bic?: string;
+    amount?: number;
+    categoryId?: number | undefined;
+    endToEndReference?: string;
+    customerReference?: string;
+    mandateReference?: string;
+    creditorIdentifier?: string;
+    originatorIdentifier?: string;
+    alternateInitiator?: string;
+    alternateReceiver?: string;
+    paymentProcessor?: PaymentProcessor;
+}
+
+export enum PaymentProcessor {
+    None = 0,
+    Paypal = 1,
+}
+
+export class TransactionOverrideDetails implements ITransactionOverrideDetails {
+    date?: Date | undefined;
+    purpose?: string | undefined;
+    name?: string | undefined;
+    bankCode?: string | undefined;
+    accountNumber?: string | undefined;
+    iban?: string | undefined;
+    bic?: string | undefined;
+    amount?: number | undefined;
+    categoryId?: number | undefined;
+    endToEndReference?: string | undefined;
+    customerReference?: string | undefined;
+    mandateReference?: string | undefined;
+    creditorIdentifier?: string | undefined;
+    originatorIdentifier?: string | undefined;
+    alternateInitiator?: string | undefined;
+    alternateReceiver?: string | undefined;
+    paymentProcessor?: PaymentProcessor | undefined;
+
+    constructor(data?: ITransactionOverrideDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.purpose = _data["purpose"];
+            this.name = _data["name"];
+            this.bankCode = _data["bankCode"];
+            this.accountNumber = _data["accountNumber"];
+            this.iban = _data["iban"];
+            this.bic = _data["bic"];
+            this.amount = _data["amount"];
+            this.categoryId = _data["categoryId"];
+            this.endToEndReference = _data["endToEndReference"];
+            this.customerReference = _data["customerReference"];
+            this.mandateReference = _data["mandateReference"];
+            this.creditorIdentifier = _data["creditorIdentifier"];
+            this.originatorIdentifier = _data["originatorIdentifier"];
+            this.alternateInitiator = _data["alternateInitiator"];
+            this.alternateReceiver = _data["alternateReceiver"];
+            this.paymentProcessor = _data["paymentProcessor"];
+        }
+    }
+
+    static fromJS(data: any): TransactionOverrideDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransactionOverrideDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
+        data["purpose"] = this.purpose;
+        data["name"] = this.name;
+        data["bankCode"] = this.bankCode;
+        data["accountNumber"] = this.accountNumber;
+        data["iban"] = this.iban;
+        data["bic"] = this.bic;
+        data["amount"] = this.amount;
+        data["categoryId"] = this.categoryId;
+        data["endToEndReference"] = this.endToEndReference;
+        data["customerReference"] = this.customerReference;
+        data["mandateReference"] = this.mandateReference;
+        data["creditorIdentifier"] = this.creditorIdentifier;
+        data["originatorIdentifier"] = this.originatorIdentifier;
+        data["alternateInitiator"] = this.alternateInitiator;
+        data["alternateReceiver"] = this.alternateReceiver;
+        data["paymentProcessor"] = this.paymentProcessor;
+        return data;
+    }
+}
+
+export interface ITransactionOverrideDetails {
+    date?: Date | undefined;
+    purpose?: string | undefined;
+    name?: string | undefined;
+    bankCode?: string | undefined;
+    accountNumber?: string | undefined;
+    iban?: string | undefined;
+    bic?: string | undefined;
+    amount?: number | undefined;
+    categoryId?: number | undefined;
+    endToEndReference?: string | undefined;
+    customerReference?: string | undefined;
+    mandateReference?: string | undefined;
+    creditorIdentifier?: string | undefined;
+    originatorIdentifier?: string | undefined;
+    alternateInitiator?: string | undefined;
+    alternateReceiver?: string | undefined;
+    paymentProcessor?: PaymentProcessor | undefined;
+}
+
+export class TransactionDetailsUpdateRequest implements ITransactionDetailsUpdateRequest {
+    id!: number;
+    overriddenDetails!: TransactionOverrideDetails;
+    note!: string;
+
+    constructor(data?: ITransactionDetailsUpdateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.overriddenDetails = new TransactionOverrideDetails();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.overriddenDetails = _data["overriddenDetails"] ? TransactionOverrideDetails.fromJS(_data["overriddenDetails"]) : new TransactionOverrideDetails();
+            this.note = _data["note"];
+        }
+    }
+
+    static fromJS(data: any): TransactionDetailsUpdateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransactionDetailsUpdateRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["overriddenDetails"] = this.overriddenDetails ? this.overriddenDetails.toJSON() : <any>undefined;
+        data["note"] = this.note;
+        return data;
+    }
+}
+
+export interface ITransactionDetailsUpdateRequest {
+    id: number;
+    overriddenDetails: TransactionOverrideDetails;
+    note: string;
 }
 
 export class BankAccountSummaryResponse implements IBankAccountSummaryResponse {

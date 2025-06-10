@@ -76,6 +76,9 @@ public class DbBankAccountTransaction
     public required DbBankAccount BankAccount { get; set; }
     public required DbBankAccountTransactionRawData Raw { get; set; }
     public required DbBankAccountTransactionParsedData Parsed { get; set; }
+    public required DbBankAccountTransactionOverrideData Overridden { get; set; }
+    public required DbBankAccountTransactionFinalData Final { get; set; }
+    public required string Note { get; set; }
 }
 
 [ComplexType]
@@ -104,6 +107,28 @@ public class DbBankAccountTransactionRawData
 }
 
 [ComplexType]
+public class DbBankAccountTransactionOverrideData
+{
+    public DateOnly? Date { get; set; }
+    public string? Purpose { get; set; }
+    public string? Name { get; set; }
+    public string? BankCode { get; set; }
+    public string? AccountNumber { get; set; }
+    public string? Iban { get; set; }
+    public string? Bic { get; set; }
+    public decimal? Amount { get; set; }
+    public int? CategoryId { get; set; }
+    public string? EndToEndReference { get; set; }
+    public string? CustomerReference { get; set; }
+    public string? MandateReference { get; set; }
+    public string? CreditorIdentifier { get; set; }
+    public string? OriginatorIdentifier { get; set; }
+    public string? AlternateInitiator { get; set; }
+    public string? AlternateReceiver { get; set; }
+    public PaymentProcessor? PaymentProcessor { get; set; }
+}
+
+[ComplexType]
 public class CounterpartyAccount
 {
     public string? Name { get; set; }
@@ -118,19 +143,44 @@ public class CounterpartyAccount
 [ComplexType]
 public class DbBankAccountTransactionParsedData
 {
-    public string? Purpose { get; set; }
-    public string? Name { get; set; }
-    public string? BankCode { get; set; }
-    public string? AccountNumber { get; set; }
-    public string? Iban { get; set; }
-    public string? Bic { get; set; }
-    public string? EndToEndReference { get; set; }
-    public string? CustomerReference { get; set; }
-    public string? MandateReference { get; set; }
-    public string? CreditorIdentifier { get; set; }
-    public string? OriginatorIdentifier { get; set; }
-    public string? AlternateInitiator { get; set; }
-    public string? AlternateReceiver { get; set; }
+    public required DateOnly Date { get; set; }
+    public required string Purpose { get; set; }
+    public required string Name { get; set; }
+    public required string BankCode { get; set; }
+    public required string AccountNumber { get; set; }
+    public required string Iban { get; set; }
+    public required string Bic { get; set; }
+    public required decimal Amount { get; set; }
+    public int? CategoryId { get; set; }
+    public required string EndToEndReference { get; set; }
+    public required string CustomerReference { get; set; }
+    public required string MandateReference { get; set; }
+    public required string CreditorIdentifier { get; set; }
+    public required string OriginatorIdentifier { get; set; }
+    public required string AlternateInitiator { get; set; }
+    public required string AlternateReceiver { get; set; }
+    public required PaymentProcessor PaymentProcessor { get; set; }
+}
+
+[ComplexType]
+public class DbBankAccountTransactionFinalData
+{
+    public required DateOnly Date { get; set; }
+    public string Purpose { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string BankCode { get; set; } = "";
+    public string AccountNumber { get; set; } = "";
+    public string Iban { get; set; } = "";
+    public string Bic { get; set; } = "";
+    public decimal Amount { get; set; }
+    public int? CategoryId { get; set; }
+    public string EndToEndReference { get; set; } = "";
+    public string CustomerReference { get; set; } = "";
+    public string MandateReference { get; set; } = "";
+    public string CreditorIdentifier { get; set; } = "";
+    public string OriginatorIdentifier { get; set; } = "";
+    public string AlternateInitiator { get; set; } = "";
+    public string AlternateReceiver { get; set; } = "";
     public PaymentProcessor PaymentProcessor { get; set; } = PaymentProcessor.None;
 }
 
