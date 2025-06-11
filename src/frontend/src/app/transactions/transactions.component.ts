@@ -86,7 +86,7 @@ export class TransactionsComponent implements OnInit {
             totalEntriesShown += toMove.transactions.length;
             this.blocksShown.push(toMove);
 
-            if ((blocksToShow == undefined && totalEntriesShown > 1000) || (blocksToShow !== undefined && this.blocksShown.length >= blocksToShow)) {
+            if ((blocksToShow == undefined && totalEntriesShown > 500) || (blocksToShow !== undefined && this.blocksShown.length >= blocksToShow)) {
                 break;
             }
         }
