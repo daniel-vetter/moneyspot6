@@ -11,6 +11,18 @@
     flex: 1;
 }
 
+
+.category {
+    flex: 1;
+    max-width: 10%;
+}
+
+.value {
+    flex: 1;
+    max-width: 8%;
+    text-align: right;
+}
+
 .icon {
     width: 1rem;
 }
@@ -21,5 +33,5 @@
 
 .line:not(.header):hover {
     color: var(--p-navigation-item-focus-color);
-        background: var(--p-navigation-item-focus-background);
+    background: var(--p-navigation-item-focus-background);
 }

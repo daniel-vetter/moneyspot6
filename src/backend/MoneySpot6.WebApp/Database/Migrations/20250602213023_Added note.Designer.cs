@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20250602213023_Added note")]
+    partial class Addednote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,9 +153,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
-
                             b1.Property<string>("EndToEndReference")
                                 .IsRequired()
                                 .HasColumnType("text");
@@ -274,9 +274,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
                             b1.Property<string>("CustomerReference")
                                 .IsRequired()
                                 .HasColumnType("text");
-
-                            b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
 
                             b1.Property<string>("EndToEndReference")
                                 .IsRequired()

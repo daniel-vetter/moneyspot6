@@ -26,13 +26,12 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            CustomerReference = "2024-07-03T00:59:10:0112",
-            Purpose = "Schulden",
-            Iban = "DE32845686328746832746",
-            Bic = "DEXXGHFXS",
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithCustomerReference("2024-07-03T00:59:10:0112")
+            .WithPurpose("Schulden")
+            .WithIban("DE32845686328746832746")
+            .WithBic("DEXXGHFXS")
+            .Build());
     }
 
     [Test]
@@ -53,11 +52,10 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Ein komischer.Verwendungszweck auf mehreren Zeilen Hier kommt nochwas",
-            AlternateInitiator = "Das ist ein..Test//Text mit Zeilen-Umbruch"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Ein komischer.Verwendungszweck auf mehreren Zeilen Hier kommt nochwas")
+            .WithAlternateInitiator("Das ist ein..Test//Text mit Zeilen-Umbruch")
+            .Build());
     }
 
     [Test]
@@ -76,10 +74,9 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Das folgende Tag gibts nichtFoooABCD+Gehoert zum Verwendungszweck",
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Das folgende Tag gibts nichtFoooABCD+Gehoert zum Verwendungszweck")
+            .Build());
     }
 
     [Test]
@@ -99,11 +96,10 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Das folgende Tag gibts nichtFooo ABCD+ Leerzeichen hinter dem Tag stoeren nicht",
-            CustomerReference = "und hier stoeren sie auch nicht, sind aber nicht teil des Value"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Das folgende Tag gibts nichtFooo ABCD+ Leerzeichen hinter dem Tag stoeren nicht")
+            .WithCustomerReference("und hier stoeren sie auch nicht, sind aber nicht teil des Value")
+            .Build());
     }
 
     [Test]
@@ -120,10 +116,9 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Nur eine Zeile"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Nur eine Zeile")
+            .Build());
     }
 
     [Test]
@@ -140,10 +135,9 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = ""
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("")
+            .Build());
     }
 
     [Test]
@@ -158,10 +152,9 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = ""
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("")
+            .Build());
     }
 
     [Test]
@@ -180,11 +173,10 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Das ist eine Zeile ohne Tag Fooo",
-            CustomerReference = "Und hier kommen ploetzlich noch Tags. Der Teil bis zum ersten Tag ist dann eigentlich der Verwendungszweck"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Das ist eine Zeile ohne Tag Fooo")
+            .WithCustomerReference("Und hier kommen ploetzlich noch Tags. Der Teil bis zum ersten Tag ist dann eigentlich der Verwendungszweck")
+            .Build());
     }
 
     [Test]
@@ -203,11 +195,10 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Wir koennen auchmit",
-            CustomerReference = "Doppelpunkt als Separatur umgehen"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Wir koennen auchmit")
+            .WithCustomerReference("Doppelpunkt als Separatur umgehen")
+            .Build());
     }
 
     [Test]
@@ -226,11 +217,10 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Das geht sogar gemischt",
-            Iban = "DE1234567890"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Das geht sogar gemischt")
+            .WithIban("DE1234567890")
+            .Build());
     }
 
     [Test]
@@ -247,13 +237,12 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "",
-            Iban = "DE49390500000000012345",
-            Bic = "AACSDE33",
-            AlternateInitiator = "NetAachen"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("")
+            .WithIban("DE49390500000000012345")
+            .WithBic("AACSDE33")
+            .WithAlternateInitiator("NetAachen")
+            .Build());
     }
 
     [Test]
@@ -273,13 +262,12 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Verwendungszweck",
-            EndToEndReference = "1234567890123456789",
-            Iban = "DE12345678901234567890",
-            Bic = "ABCDEFGH"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Verwendungszweck")
+            .WithEndToEndReference("1234567890123456789")
+            .WithIban("DE12345678901234567890")
+            .WithBic("ABCDEFGH")
+            .Build());
     }
 
     [Test]
@@ -298,10 +286,9 @@ internal class RawDataParserTests
 
         var result = Parse(raw);
 
-        result.ShouldBeEquivalentTo(new DbBankAccountTransactionParsedData
-        {
-            Purpose = "Das ist Zeile 123"
-        });
+        result.ShouldBeEquivalentTo(new ParsedDataBuilder()
+            .WithPurpose("Das ist Zeile 123")
+            .Build());
     }
 
 }

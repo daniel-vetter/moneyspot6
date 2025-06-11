@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20250527151100_Changed parsed transaction details to non nullable")]
+    partial class Changedparsedtransactiondetailstononnullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,138 +107,9 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.Property<int>("BankAccountId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.ComplexProperty<Dictionary<string, object>>("Final", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Final#DbBankAccountTransactionFinalData", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<string>("AccountNumber")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("AlternateInitiator")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("AlternateReceiver")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
-
-                            b1.Property<string>("BankCode")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Bic")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<int?>("CategoryId")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("CreditorIdentifier")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("CustomerReference")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
-
-                            b1.Property<string>("EndToEndReference")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Iban")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("MandateReference")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Name")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("OriginatorIdentifier")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<int>("PaymentProcessor")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Purpose")
-                                .IsRequired()
-                                .HasColumnType("text");
-                        });
-
-                    b.ComplexProperty<Dictionary<string, object>>("Overridden", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Overridden#DbBankAccountTransactionOverrideData", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<string>("AccountNumber")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("AlternateInitiator")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("AlternateReceiver")
-                                .HasColumnType("text");
-
-                            b1.Property<decimal?>("Amount")
-                                .HasColumnType("numeric");
-
-                            b1.Property<string>("BankCode")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Bic")
-                                .HasColumnType("text");
-
-                            b1.Property<int?>("CategoryId")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("CreditorIdentifier")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("CustomerReference")
-                                .HasColumnType("text");
-
-                            b1.Property<DateOnly?>("Date")
-                                .HasColumnType("date");
-
-                            b1.Property<string>("EndToEndReference")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Iban")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("MandateReference")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Name")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("OriginatorIdentifier")
-                                .HasColumnType("text");
-
-                            b1.Property<int?>("PaymentProcessor")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Purpose")
-                                .HasColumnType("text");
-                        });
 
                     b.ComplexProperty<Dictionary<string, object>>("Parsed", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Parsed#DbBankAccountTransactionParsedData", b1 =>
                         {
@@ -253,9 +127,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
-
                             b1.Property<string>("BankCode")
                                 .IsRequired()
                                 .HasColumnType("text");
@@ -264,9 +135,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.Property<int?>("CategoryId")
-                                .HasColumnType("integer");
-
                             b1.Property<string>("CreditorIdentifier")
                                 .IsRequired()
                                 .HasColumnType("text");
@@ -274,9 +142,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
                             b1.Property<string>("CustomerReference")
                                 .IsRequired()
                                 .HasColumnType("text");
-
-                            b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
 
                             b1.Property<string>("EndToEndReference")
                                 .IsRequired()

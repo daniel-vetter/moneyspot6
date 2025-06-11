@@ -10,10 +10,10 @@ stages:
 build:
   stage: build
   script:
-    - docker build . -t dvetter/$NAME -t dvetter/$NAME:latest -t dvetter/$NAME:$CI_COMMIT_SHA
-    - docker push dvetter/$NAME
-    - docker push dvetter/$NAME:latest
-    - docker push dvetter/$NAME:$CI_COMMIT_SHA
+    - docker build . -t docker.dvetter.net/$NAME/$NAME -t docker.dvetter.net/$NAME/$NAME:latest -t docker.dvetter.net/$NAME/$NAME:$CI_COMMIT_SHA
+    - docker push docker.dvetter.net/$NAME/$NAME
+    - docker push docker.dvetter.net/$NAME/$NAME:latest
+    - docker push docker.dvetter.net/$NAME/$NAME:$CI_COMMIT_SHA
 
 release-staging:
   stage: release-staging  
@@ -23,7 +23,7 @@ release-staging:
     - export DOCKER_HOST=ssh://root@$HOST_STAGING
     - docker stop $NAME || true
     - docker rm $NAME || true
-    - docker pull dvetter/$NAME:$CI_COMMIT_SHA
+    - docker pull docker.dvetter.net/$NAME/$NAME:$CI_COMMIT_SHA
     - >
       docker run -d --restart always -p 80:80 --name $NAME 
       -e ASPNETCORE_ENVIRONMENT="Staging"
@@ -31,7 +31,7 @@ release-staging:
       -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       -e OTEL_SERVICE_NAME="$NAME-app-staging"
       -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=$NAME-db-staging;ApplicationName=$NAME-staging"
-      dvetter/$NAME:$CI_COMMIT_SHA
+      docker.dvetter.net/$NAME/$NAME:$CI_COMMIT_SHA
     - docker image prune -af
 
 release-prod:
@@ -42,7 +42,7 @@ release-prod:
     - export DOCKER_HOST=ssh://root@$HOST_PROD
     - docker stop $NAME || true
     - docker rm $NAME || true
-    - docker pull dvetter/$NAME:$CI_COMMIT_SHA
+    - docker pull docker.dvetter.net/$NAME/$NAME:$CI_COMMIT_SHA
     - >
       docker run -d --restart always -p 80:80 --name $NAME 
       -e ASPNETCORE_ENVIRONMENT="Production"
@@ -50,5 +50,5 @@ release-prod:
       -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       -e OTEL_SERVICE_NAME="$NAME-app-prod"
       -e ConnectionStrings__Db="User ID=postgres;Password=$DB_PASSWORD;Host=192.168.178.105;Port=5432;Database=$NAME-db-prod;ApplicationName=$NAME-prod"
-      dvetter/$NAME:$CI_COMMIT_SHA
+      docker.dvetter.net/$NAME/$NAME:$CI_COMMIT_SHA
     - docker image prune -af

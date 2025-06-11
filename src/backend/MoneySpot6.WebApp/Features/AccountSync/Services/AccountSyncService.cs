@@ -7,7 +7,7 @@ using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
 namespace MoneySpot6.WebApp.Features.AccountSync.Services;
 
 [ScopedService]
-public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, ExternalDataProvider externalDataProvider, RawDataParser rawDataParser)
+public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, ExternalDataProvider externalDataProvider, TransactionDetailsCalculator transactionDetailsCalculator)
 {
     public async Task<ImmutableArray<int>> Sync(IAdapterCallbackHandler callbackHandler, CancellationToken ct)
     {
@@ -153,14 +153,19 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
             if (existingTransaction != null)
                 continue;
 
-            // Parse the raw data and persist it to the db
-            var parsedDate = rawDataParser.Parse(rawData);
+            var parsed = transactionDetailsCalculator.Parse(rawData);
+            var overrides = new DbBankAccountTransactionOverrideData();
+            var final = transactionDetailsCalculator.GetFinal(parsed, overrides);
+
             var newTrans = new DbBankAccountTransaction
             {
                 Source = "Sync",
                 BankAccount = dbAccount,
                 Raw = rawData,
-                Parsed = parsedDate
+                Parsed = parsed,
+                Overridden = overrides,
+                Final = final,
+                Note = ""
             };
 
             db.BankAccountTransactions.Add(newTrans); 

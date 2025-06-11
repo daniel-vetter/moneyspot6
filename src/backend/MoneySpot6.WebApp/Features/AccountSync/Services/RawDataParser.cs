@@ -20,19 +20,22 @@ public class RawDataParser
 
         var result = new DbBankAccountTransactionParsedData
         {
-            Name = TrimToNull(rawData.Counterparty.Name + rawData.Counterparty.Name2),
-            BankCode = TrimToNull(rawData.Counterparty.BankCode),
-            AccountNumber = TrimToNull(rawData.Counterparty.Number),
-            Purpose = TrimToNull(parsedPurpose.GetValueOrDefault(Header.SVWZ)),
-            Bic = TrimToNull(parsedPurpose.GetValueOrDefault(Header.BIC)),
-            Iban = TrimToNull(parsedPurpose.GetValueOrDefault(Header.IBAN)),
-            EndToEndReference = TrimToNull(parsedPurpose.GetValueOrDefault(Header.EREF)),
-            CustomerReference = TrimToNull(parsedPurpose.GetValueOrDefault(Header.KREF)),
-            MandateReference = TrimToNull(parsedPurpose.GetValueOrDefault(Header.MREF)),
-            CreditorIdentifier = TrimToNull(parsedPurpose.GetValueOrDefault(Header.CRED)),
-            OriginatorIdentifier = TrimToNull(parsedPurpose.GetValueOrDefault(Header.DBET)),
-            AlternateInitiator = TrimToNull(parsedPurpose.GetValueOrDefault(Header.ABWA)),
-            AlternateReceiver = TrimToNull(parsedPurpose.GetValueOrDefault(Header.ABWE)),
+            Date = rawData.Date,
+            Name = rawData.Counterparty.Name + rawData.Counterparty.Name2.TrimToEmptyString(),
+            BankCode = rawData.Counterparty.BankCode.TrimToEmptyString(),
+            AccountNumber = rawData.Counterparty.Number.TrimToEmptyString(),
+            Purpose = parsedPurpose.GetValueOrDefault(Header.SVWZ).TrimToEmptyString(),
+            Bic = parsedPurpose.GetValueOrDefault(Header.BIC).TrimToEmptyString(),
+            Iban = parsedPurpose.GetValueOrDefault(Header.IBAN).TrimToEmptyString(),
+            Amount = rawData.Amount,
+            CategoryId = null,
+            EndToEndReference = parsedPurpose.GetValueOrDefault(Header.EREF).TrimToEmptyString(),
+            CustomerReference = parsedPurpose.GetValueOrDefault(Header.KREF).TrimToEmptyString(),
+            MandateReference = parsedPurpose.GetValueOrDefault(Header.MREF).TrimToEmptyString(),
+            CreditorIdentifier = parsedPurpose.GetValueOrDefault(Header.CRED).TrimToEmptyString(),
+            OriginatorIdentifier = parsedPurpose.GetValueOrDefault(Header.DBET).TrimToEmptyString(),
+            AlternateInitiator = parsedPurpose.GetValueOrDefault(Header.ABWA).TrimToEmptyString(),
+            AlternateReceiver = parsedPurpose.GetValueOrDefault(Header.ABWE).TrimToEmptyString(),
             PaymentProcessor = PaymentProcessor.None
         };
 
@@ -44,9 +47,7 @@ public class RawDataParser
 
     private void FixPaypal(DbBankAccountTransactionParsedData result)
     {
-        if (result.Name == null ||
-            result.Purpose == null ||
-            !result.Name.Contains("PayPal", StringComparison.InvariantCultureIgnoreCase))
+        if (result.Name == "" || result.Purpose == "" || !result.Name.Contains("PayPal", StringComparison.InvariantCultureIgnoreCase))
             return;
             
         var index = result.Purpose.IndexOf("Ihr Einkauf", StringComparison.CurrentCultureIgnoreCase);
@@ -60,8 +61,8 @@ public class RawDataParser
 
         var name = purpose.Substring(bei + 3);
 
-        result.Name = name.TrimToNull();
-        result.Purpose = purpose.TrimToNull();
+        result.Name = name.TrimToEmptyString();
+        result.Purpose = purpose.TrimToEmptyString();
         result.PaymentProcessor = PaymentProcessor.Paypal;
     }
 
@@ -76,29 +77,20 @@ public class RawDataParser
     {
         bool IsOnlyDigits(string text) => text.All(x => x is >= '0' and <= '9');
 
-        if (result.BankCode != null && result.BankCode == result.Bic)
+        if (result.BankCode != "" && result.BankCode == result.Bic)
         {
             if (IsOnlyDigits(result.BankCode))
-                result.Bic = null;
+                result.Bic = "";
             else
-                result.BankCode = null;
+                result.BankCode = "";
         }
 
-        if (result.AccountNumber != null && result.AccountNumber == result.Iban)
+        if (result.AccountNumber != "" && result.AccountNumber == result.Iban)
         {
             if (IsOnlyDigits(result.AccountNumber))
-                result.Iban = null;
+                result.Iban = "";
             else
-                result.AccountNumber = null;
+                result.AccountNumber = "";
         }
-    }
-
-    private string? TrimToNull(string? val)
-    {
-        if (val == null)
-            return null;
-
-        var r = val.Trim();
-        return r.Length == 0 ? null : r;
     }
 }

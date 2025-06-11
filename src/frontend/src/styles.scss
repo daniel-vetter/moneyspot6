@@ -60,10 +60,12 @@ body {
     @extend .flex-row;
     gap: 1rem;
 }
+
 .flex-row-2 {
     @extend .flex-row;
     gap: 2rem;
 }
+
 .flex-row-3 {
     @extend .flex-row;
     gap: 3rem;
@@ -79,10 +81,12 @@ body {
     @extend .flex-col;
     gap: 1rem;
 }
+
 .flex-col-2 {
     @extend .flex-col;
     gap: 2rem;
 }
+
 .flex-col-3 {
     @extend .flex-col;
     gap: 3rem;
@@ -101,16 +105,16 @@ body {
     flex-direction: column;
     width: 100%;
 
-    > *.header {
+    >*.header {
         font-weight: bold;
         border-bottom: 1px solid var(--p-gray-600);
     }
 
-    > * {
+    >* {
         display: flex;
         padding: 0.5rem;
 
-        > div:not(:last-child) {
+        >div:not(:last-child) {
             padding-right: 1rem;
         }
     }
@@ -147,9 +151,11 @@ body {
     .only-mobile {
         display: none !important;
     }
+
     .hidden-on-desktop {
         display: none !important;
     }
+
     .horizontal-on-mobile {
         flex-direction: row;
     }
@@ -159,9 +165,11 @@ body {
     .only-desktop {
         display: none !important;
     }
+
     .hidden-on-mobile {
         display: none !important;
     }
+
     .vertical-on-mobile {
         flex-direction: column;
         align-items: start;
@@ -233,8 +241,26 @@ body {
     }
 }
 
-h1 { 
+h1 {
     font-weight: bold;
     font-size: 1.5rem;
     margin: 0;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 0.2rem;
+    font-size: 90%;
+}
+
+.w-full {
+    width: 100%;
+}
+
+p-datepicker {
+    width: 100%;
 }
