@@ -29,14 +29,13 @@ public class TransactionPageController : Controller
 
         IQueryable<DbBankAccountTransaction> query = _db.BankAccountTransactions
             .AsNoTracking()
-            .Include(x => x.BankAccount)
             .OrderByDescending(x => x.Raw.Date)
             .ThenByDescending(x => x.Id);
-
+            
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(x => EF.Functions.ILike(x.Final.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Final.Name, "%" + search + "%"));
 
-        var entries = await query.Select(x => new
+        var entries = query.Select(x => new
         {
             x.Id,
             x.Final.Date,
@@ -44,11 +43,12 @@ public class TransactionPageController : Controller
             x.Final.Purpose,
             x.Final.CategoryId,
             x.Final.Amount
-        }).ToArrayAsync();
+        }).AsAsyncEnumerable();
 
-        var r = new TransactionResponse
+        var b = ImmutableArray.CreateBuilder<TransactionEntryResponse>();
+        await foreach (var x in entries)
         {
-            Entries = [..entries.Select(x => new TransactionEntryResponse
+            b.Add(new TransactionEntryResponse
             {
                 Id = x.Id,
                 Date = x.Date,
@@ -56,10 +56,13 @@ public class TransactionPageController : Controller
                 Purpose = x.Purpose,
                 CategoryName = x.CategoryId.HasValue && categories.TryGetValue(x.CategoryId.Value, out var catName) ? catName : null,
                 Amount = x.Amount
-            })]
-        };
+            });
+        }
 
-        return Ok(r);
+        return Ok(new TransactionResponse
+        {
+            Entries = b.ToImmutable()
+        });
     }
 
     [HttpGet("{id}")]
