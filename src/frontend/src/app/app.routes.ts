@@ -8,6 +8,7 @@ import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { StockTransactionsComponent } from "./stock-transactions/stock-transactions.component";
 import { StockDetailsComponent } from './stock-transactions/stock-details/stock-details.component';
 import { SettingsComponent } from './settings/settings.component';
+import { CategoriesComponent } from './categories/categories.component';
 
 export const routes: Routes = [
     { path: '', component: SummaryComponent },
@@ -15,6 +16,7 @@ export const routes: Routes = [
     { path: 'transactions', component: TransactionsComponent },
     { path: 'history', component: HistoryComponent },
     { path: 'income-expense', component: IncomeExpenseReportComponent },
+    { path: 'categories', component: CategoriesComponent },
     { path: 'stock-transactions', component: StockTransactionsComponent },
     { path: 'stock-transactions/orders/:id', component: StockDetailsComponent },
     { path: 'stock-history', component: StockHistoryComponent },

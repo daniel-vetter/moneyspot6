@@ -12,6 +12,7 @@ import { ConfirmationService } from 'primeng/api';
 import { AuthClient } from './server';
 import { lastValueFrom } from 'rxjs';
 
+
 @Component({
     selector: 'app-root',
     imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent, ConfirmDialogModule],

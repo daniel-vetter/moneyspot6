@@ -1546,6 +1546,74 @@ export class CategoryConfigurationClient {
 }
 
 @Injectable({providedIn: 'root'})
+export class CategoryPageClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getSankeyData(start: string, end: string): Observable<SankeyDataResponse> {
+        let url_ = this.baseUrl + "/api/CategoryPage/GetSankeyData?";
+        if (start === undefined || start === null)
+            throw new Error("The parameter 'start' must be defined and cannot be null.");
+        else
+            url_ += "start=" + encodeURIComponent("" + start) + "&";
+        if (end === undefined || end === null)
+            throw new Error("The parameter 'end' must be defined and cannot be null.");
+        else
+            url_ += "end=" + encodeURIComponent("" + end) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSankeyData(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSankeyData(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SankeyDataResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SankeyDataResponse>;
+        }));
+    }
+
+    protected processGetSankeyData(response: HttpResponseBase): Observable<SankeyDataResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SankeyDataResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({providedIn: 'root'})
 export class AuthClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -3142,6 +3210,150 @@ export class UpdateCategoryRequest implements IUpdateCategoryRequest {
 export interface IUpdateCategoryRequest {
     id?: number;
     name?: string;
+}
+
+export class SankeyDataResponse implements ISankeyDataResponse {
+    nodes?: NodeResponse[];
+    connections?: ConnectionResponse[];
+
+    constructor(data?: ISankeyDataResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["nodes"])) {
+                this.nodes = [] as any;
+                for (let item of _data["nodes"])
+                    this.nodes!.push(NodeResponse.fromJS(item));
+            }
+            if (Array.isArray(_data["connections"])) {
+                this.connections = [] as any;
+                for (let item of _data["connections"])
+                    this.connections!.push(ConnectionResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SankeyDataResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new SankeyDataResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.nodes)) {
+            data["nodes"] = [];
+            for (let item of this.nodes)
+                data["nodes"].push(item.toJSON());
+        }
+        if (Array.isArray(this.connections)) {
+            data["connections"] = [];
+            for (let item of this.connections)
+                data["connections"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ISankeyDataResponse {
+    nodes?: NodeResponse[];
+    connections?: ConnectionResponse[];
+}
+
+export class NodeResponse implements INodeResponse {
+    id!: string;
+    name!: string;
+    column!: number;
+
+    constructor(data?: INodeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.column = _data["column"];
+        }
+    }
+
+    static fromJS(data: any): NodeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new NodeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["column"] = this.column;
+        return data;
+    }
+}
+
+export interface INodeResponse {
+    id: string;
+    name: string;
+    column: number;
+}
+
+export class ConnectionResponse implements IConnectionResponse {
+    from!: string;
+    to!: string;
+    amount!: number;
+
+    constructor(data?: IConnectionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.from = _data["from"];
+            this.to = _data["to"];
+            this.amount = _data["amount"];
+        }
+    }
+
+    static fromJS(data: any): ConnectionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConnectionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["from"] = this.from;
+        data["to"] = this.to;
+        data["amount"] = this.amount;
+        return data;
+    }
+}
+
+export interface IConnectionResponse {
+    from: string;
+    to: string;
+    amount: number;
 }
 
 export class UserDetails implements IUserDetails {
