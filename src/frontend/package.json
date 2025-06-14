@@ -21,6 +21,7 @@
     "@angular/service-worker": "^19.2.3",
     "@microsoft/signalr": "^8.0.7",
     "@primeng/themes": "^19.0.10",
+    "highcharts": "^12.2.0",
     "highcharts-angular": "^4.0.1",
     "primeicons": "^7.0.0",
     "primeng": "^19.0.10",
