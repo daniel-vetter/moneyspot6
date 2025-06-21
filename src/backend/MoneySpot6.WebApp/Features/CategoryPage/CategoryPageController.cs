@@ -187,7 +187,9 @@ public class ConnectionBuilder
         return _connections
             .GroupBy(x => (x.From, x.To))
             .Select(x => new Connection(x.Key.From, x.Key.To, x.Select(y => y.Value).Sum()))
-            .OrderBy(x => x.From.Id)
+            .OrderBy(x => x.From.Column)
+            .ThenBy(x => x.From.Id)
+            .OrderBy(x => x.To.Column)
             .ThenBy(x => x.To.Id)
             .ToArray();
     }
