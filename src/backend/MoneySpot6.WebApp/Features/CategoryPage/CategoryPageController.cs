@@ -153,6 +153,21 @@ public class Categories
             id = next.ParentId!.Value;
         }
     }
+
+    public IEnumerable<Category> GetPath(int category)
+    {
+        var r = new List<Category>();
+        var cur = _list[category];
+        while (true)
+        {
+            r.Add(cur);
+            if (!cur.ParentId.HasValue)
+                break;
+            cur = _list[cur.ParentId.Value];
+        }
+        r.Reverse();
+        return r.ToImmutableArray();
+    }
 }
 
 public class ConnectionBuilder
@@ -172,6 +187,8 @@ public class ConnectionBuilder
         return _connections
             .GroupBy(x => (x.From, x.To))
             .Select(x => new Connection(x.Key.From, x.Key.To, x.Select(y => y.Value).Sum()))
+            .OrderBy(x => x.From.Id)
+            .ThenBy(x => x.To.Id)
             .ToArray();
     }
 
@@ -193,7 +210,10 @@ public class ConnectionBuilder
 
     private Node GetNode(int? categoryId, bool isIncome)
     {
-        var id = categoryId == null ? "root" : (isIncome ? "in" : "out") + categoryId.Value;
+        var id = categoryId.HasValue 
+            ? (isIncome ? "in>" : "out>") + string.Join(">", _categories.GetPath(categoryId.Value).Select(x => $"{x.Name}@{x.Id}").ToArray()) 
+            : "root";
+
         if (_nodes.TryGetValue(id, out var existing))
             return existing;
 
@@ -229,7 +249,10 @@ public class ConnectionBuilder
             return [];
 
         var offset = 0 - _nodes.Values.Select(x => x.Column).Min();
-        return _nodes.Values.Select(x => new Node(x.Id, x.Name, x.IsIncome, x.Column + offset)).ToArray();
+        return _nodes.Values
+            .Select(x => new Node(x.Id, x.Name, x.IsIncome, x.Column + offset))
+            .OrderBy(x => x.Id)
+            .ToArray();
     }
 }
 
