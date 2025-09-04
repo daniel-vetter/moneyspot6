@@ -1,5 +1,11 @@
 {
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
-    "html.format.wrapLineLength": 180
+    "html.format.wrapLineLength": 180,
+    "files.exclude": {
+        "dist": true,
+        "node_modules": true,
+        ".idea": true,
+        ".angular": true
+    }
 }
