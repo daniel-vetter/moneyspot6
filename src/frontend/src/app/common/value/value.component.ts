@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, computed, input, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
     selector: 'app-value',
@@ -6,43 +6,44 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
     templateUrl: './value.component.html',
     styleUrl: './value.component.scss'
 })
-export class ValueComponent implements OnChanges {
-    @Input() value: number | undefined;
-    @Input() size: string | undefined;
-    @Input() color: 'default' | 'reverse' | 'none' = 'default';
+export class ValueComponent {
+    public value = input<number | undefined>()
+    public size = input<string | undefined>()
+    public color = input<'default' | 'reverse' | 'none'>('default')
 
-    format = new Intl.NumberFormat('de-de', { style: 'currency', currency: 'EUR' });
+    private format = new Intl.NumberFormat('de-de', { style: 'currency', currency: 'EUR' });
 
-    valueStr = '-';
-    class = '';
-
-    ngOnChanges(changes: SimpleChanges): void {
-        if (this.value === undefined) {
-            this.valueStr = '-';
-            this.class = '';
+    class = computed(() => {
+        if (this.value() === undefined) {
+            return '';
         } else {
-            this.valueStr = this.format.format(this.value);
-
-            let v = this.value;
-
-            this.class = '';
-            if (this.color === 'default') {
-                if (v > 0) {
-                    this.class = 'green';
+            if (this.color() === 'default') {
+                if (this.value()! > 0) {
+                    return 'green';
                 }
-                if (v < 0) {
-                    this.class = 'red';
+                if (this.value()! < 0) {
+                    return 'red';
                 }
             }
 
-            if (this.color === 'reverse') {
-                if (v < 0) {
-                    this.class = 'green';
+            if (this.color() === 'reverse') {
+                if (this.value()! > 0) {
+                    return 'red';
                 }
-                if (v > 0) {
-                    this.class = 'red';
+                if (this.value()! < 0) {
+                    return 'green';
                 }
             }
         }
-    }
+        throw Error("unreachable");
+    });
+
+    valueStr = computed(() => {
+        const v = this.value();
+        if (v === undefined) {
+            return '-';
+        } else {
+            return this.format.format(v)
+        }
+    });
 }
