@@ -2,14 +2,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
     selector: 'app-search-bar',
-    imports: [ButtonModule, DropdownModule, FormsModule, InputTextModule, IconFieldModule, InputIconModule],
+    imports: [ButtonModule, SelectModule, FormsModule, InputTextModule, IconFieldModule, InputIconModule],
     templateUrl: './search-bar.component.html',
     styleUrl: './search-bar.component.scss'
 })

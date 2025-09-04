@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TanDialogComponent } from './tan-dialog/tan-dialog.component';
 import { PanelModule } from 'primeng/panel';
-import { MessagesModule } from 'primeng/messages';
+import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { GlobalEvents } from '../common/global-events';
@@ -15,7 +15,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 
 @Component({
     selector: 'app-account-sync',
-    imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ProgressSpinnerModule, PanelModule, TanDialogComponent, MessagesModule, ToastModule, ProgressBarModule],
+    imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ProgressSpinnerModule, PanelModule, TanDialogComponent, MessageModule, ToastModule, ProgressBarModule],
     templateUrl: './account-sync.component.html',
     styleUrl: './account-sync.component.scss'
 })
