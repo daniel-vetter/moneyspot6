@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DropdownModule } from "primeng/dropdown";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { InputTextModule } from "primeng/inputtext";
@@ -19,9 +19,15 @@ import { ConfirmationService } from 'primeng/api';
   styleUrl: './stock-transaction-edit-dialog.component.scss'
 })
 export class StockTransactionEditDialogComponent implements OnInit {
+  private dynamicDialogRef = inject(DynamicDialogRef);
+  private client = inject(StockTransactionsPageClient);
+  private confirmationService = inject(ConfirmationService);
 
 
-  constructor(private dynamicDialogRef: DynamicDialogRef, dialogConfig: DynamicDialogConfig, private client: StockTransactionsPageClient, private confirmationService: ConfirmationService) {
+
+  constructor() {
+    const dialogConfig = inject(DynamicDialogConfig);
+
     this.id = dialogConfig.data.id;
     dialogConfig.header = this.id === undefined ? "Neue Transaktion" : "Transaktion bearbeiten";
     dialogConfig.width = "500px";

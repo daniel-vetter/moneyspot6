@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { PanelModule } from "primeng/panel";
 import { PrimeTemplate } from "primeng/api";
 import { Ripple } from "primeng/ripple";
@@ -31,11 +31,11 @@ import { RouterLink, RouterModule } from '@angular/router';
     styleUrl: './stock-transactions.component.scss'
 })
 export class StockTransactionsComponent implements OnInit {
+    private stockTransactionsPageClient = inject(StockTransactionsPageClient);
+    private dialogService = inject(DialogService);
+
     transactions = signal<StockTransactionResponse[] | undefined>(undefined);
     portfolio = signal<PortfolioStockResponse[] | undefined>(undefined);
-
-    constructor(private stockTransactionsPageClient: StockTransactionsPageClient, private dialogService: DialogService) {
-    }
 
     async ngOnInit(): Promise<void> {
         await this.update();

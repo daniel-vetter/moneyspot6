@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -14,15 +14,13 @@ import { InputTextModule } from 'primeng/inputtext';
     styleUrl: './search-bar.component.scss'
 })
 export class SearchBarComponent implements OnInit {
+    private router = inject(Router);
+    private activatedRoute = inject(ActivatedRoute);
+
     searchText = '';
     get showClearButton() {
         return this.searchText != '';
     }
-
-    constructor(
-        private router: Router,
-        private activatedRoute: ActivatedRoute,
-    ) { }
     ngOnInit(): void {
         this.activatedRoute.queryParams.subscribe(async (x) => {
             this.searchText = x['search'] ? x['search'] : '';

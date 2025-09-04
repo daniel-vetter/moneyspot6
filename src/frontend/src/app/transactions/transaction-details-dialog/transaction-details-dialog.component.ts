@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -20,6 +20,10 @@ import { TextareaModule } from 'primeng/textarea';
   styleUrl: './transaction-details-dialog.component.scss'
 })
 export class TransactionDetailsDialogComponent implements OnInit {
+  private dynamicDialogRef = inject(DynamicDialogRef);
+  private transactionPageClient = inject(TransactionPageClient);
+  private categoryConfigurationClient = inject(CategoryConfigurationClient);
+
   transaction!: TransactionDetailsResponse;
 
   dateOverriden = false;
@@ -62,7 +66,9 @@ export class TransactionDetailsDialogComponent implements OnInit {
   id: number;
   categoryNodes: TreeNode[] = [];
 
-  constructor(private dynamicDialogRef: DynamicDialogRef, dialogConfig: DynamicDialogConfig, private transactionPageClient: TransactionPageClient, private categoryConfigurationClient: CategoryConfigurationClient) {
+  constructor() {
+    const dialogConfig = inject(DynamicDialogConfig);
+
     this.id = dialogConfig.data.id;
     dialogConfig.modal = true;
     dialogConfig.width = "700px";

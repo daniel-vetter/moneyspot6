@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ConfirmationService, TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { TreeTableModule } from 'primeng/treetable';
@@ -16,12 +16,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
+  private dialogService = inject(DialogService);
+  private categoryConfigurationClient = inject(CategoryConfigurationClient);
+  private confirmationService = inject(ConfirmationService);
+
 
   entries: TreeNode[] = [];
-
-  constructor(private dialogService: DialogService, private categoryConfigurationClient: CategoryConfigurationClient, private confirmationService: ConfirmationService) {
-
-  }
 
   async onNewCategoryClicked(parentId: number | undefined) {
     const dlg = this.dialogService.open(NewCategoryDialogComponent, {

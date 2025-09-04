@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import * as Highcharts from 'highcharts';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { AccountHistoryClient } from '../server';
@@ -17,11 +17,13 @@ import { DatePickerModule } from 'primeng/datepicker';
     styleUrl: './history.component.scss'
 })
 export class HistoryComponent implements OnInit {
+    private accountHistoryClient = inject(AccountHistoryClient);
+
     Highcharts: typeof Highcharts = Highcharts;
     charts: (Highcharts.Options & { index: number })[] = [];
     dateRange: [Date, Date];
 
-    constructor(private accountHistoryClient: AccountHistoryClient) {
+    constructor() {
         const start = new Date();
         start.setDate(start.getDate() + 1);
         start.setMonth(start.getMonth() - 12);

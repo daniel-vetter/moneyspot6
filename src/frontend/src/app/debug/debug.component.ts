@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { DebugClient, RunningProcessResponse } from '../server';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom } from 'rxjs';
@@ -10,10 +10,10 @@ import { lastValueFrom } from 'rxjs';
     styleUrl: './debug.component.scss'
 })
 export class DebugComponent implements OnDestroy, OnInit {
+    private debugClient = inject(DebugClient);
+
     runningProcesses: RunningProcessResponse[] = [];
     intervall?: any;
-
-    constructor(private debugClient: DebugClient) { }
 
     async OnReprocessTransactionpParsingClicked() {
         await lastValueFrom(this.debugClient.reprocessTransactionParsing());

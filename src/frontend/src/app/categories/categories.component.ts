@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as HighchartsStock from 'highcharts/highstock';
@@ -16,13 +16,15 @@ import { DaterangePresetSelectorComponent } from '../history/daterange-preset-se
   styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
+  private categoryPageClient = inject(CategoryPageClient);
+
 
 
   Highcharts: typeof HighchartsStock = HighchartsStock;
   charts: (Highcharts.Options & { index: number })[] = [];
   dateRange: [Date, Date];
 
-  constructor(private categoryPageClient: CategoryPageClient) {
+  constructor() {
     const start = new Date();
     start.setDate(start.getDate() + 1);
     start.setMonth(start.getMonth() - 12);

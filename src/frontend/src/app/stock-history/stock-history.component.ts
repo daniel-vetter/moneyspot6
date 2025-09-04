@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { StockChartPageClient, StockPriceInterval, StockResponse } from '../server';
 import { lastValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,8 @@ import { SelectModule } from 'primeng/select';
   styleUrl: './stock-history.component.scss'
 })
 export class StockHistoryComponent implements OnInit {
+  private stockChartPageClient = inject(StockChartPageClient);
+
   possibleStocks: StockResponse[] | undefined = undefined;
   selectedStockId?: number;
 
@@ -22,10 +24,6 @@ export class StockHistoryComponent implements OnInit {
 
   Highcharts: typeof Highcharts = Highcharts;
   chart?: Highcharts.Options;
-
-  constructor(private stockChartPageClient: StockChartPageClient) {
-
-  }
 
   async ngOnInit(): Promise<void> {
     await this.update();

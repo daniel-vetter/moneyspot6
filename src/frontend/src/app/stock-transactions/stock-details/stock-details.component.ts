@@ -1,4 +1,4 @@
-import { Component, resource, signal } from '@angular/core';
+import { Component, resource, signal, inject } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
 import { ValueComponent } from '../../common/value/value.component';
 import { DecimalPipe } from '@angular/common';
@@ -14,11 +14,16 @@ import { CustomDatePipe } from '../../common/custom-date.pipe';
   styleUrl: './stock-details.component.scss'
 })
 export class StockDetailsComponent {
+  private stockTransactionsPageClient = inject(StockTransactionsPageClient);
+
   readonly stock = signal<PortfolioStockResponse | undefined>(undefined);
 
   readonly currentStockId = signal(0);
 
-  constructor(activatedRoute: ActivatedRoute, private stockTransactionsPageClient: StockTransactionsPageClient) {
+  constructor() {
+    const activatedRoute = inject(ActivatedRoute);
+    const stockTransactionsPageClient = this.stockTransactionsPageClient;
+
     activatedRoute.paramMap.subscribe(async x => {
       const id = +x.get("id")!;
       const response = (await lastValueFrom(stockTransactionsPageClient.getPortfolio()))

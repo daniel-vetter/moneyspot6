@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { TransactionEntryResponse, TransactionPageClient, TransactionResponse } from '../server';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ValueComponent } from '../common/value/value.component';
@@ -22,19 +22,17 @@ import { TagModule } from 'primeng/tag';
     styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent implements OnInit {
+    private transactionPageClient = inject(TransactionPageClient);
+    private dialogService = inject(DialogService);
+    private router = inject(Router);
+    private activatedRoute = inject(ActivatedRoute);
+
     transactions: TransactionResponse[] = [];
     blocksShown: Block[] = [];
     blocksHidden: Block[] = [];
     searchText: string = '';
     isLoading = false;
     selectedGrouping: ViewGrouping = 'Monthly';
-
-    constructor(
-        private transactionPageClient: TransactionPageClient,
-        private dialogService: DialogService,
-        private router: Router,
-        private activatedRoute: ActivatedRoute,
-    ) { }
 
     async ngOnInit(): Promise<void> {
         this.activatedRoute.queryParams.subscribe(async (x) => {

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { ButtonModule } from 'primeng/button';
@@ -20,15 +20,13 @@ import { ProgressBarModule } from 'primeng/progressbar';
     styleUrl: './account-sync.component.scss'
 })
 export class AccountSyncComponent {
+    private messageService = inject(MessageService);
+    private globalEvents = inject(GlobalEvents);
+
     isVisible = false;
     logMessage = '';
 
     @ViewChild(TanDialogComponent) tanDialog!: TanDialogComponent;
-
-    constructor(
-        private messageService: MessageService,
-        private globalEvents: GlobalEvents,
-    ) { }
 
     async onSyncButtonClicked() {
         this.isVisible = true;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { GlobalErrorCallback } from './global-error-callback';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -10,15 +10,13 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     styleUrl: './global-error-handler-dialog.component.scss'
 })
 export class GlobalErrorHandlerDialogComponent implements OnInit {
+    private globalErrorCallback = inject(GlobalErrorCallback);
+    private domSanitizer = inject(DomSanitizer);
+
     title: string = '';
     message: string = '';
     stack: string = '';
     src?: SafeResourceUrl;
-
-    constructor(
-        private globalErrorCallback: GlobalErrorCallback,
-        private domSanitizer: DomSanitizer,
-    ) {}
 
     visible = false;
 

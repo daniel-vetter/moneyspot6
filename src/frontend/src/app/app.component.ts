@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { MenuComponent } from './menu/menu.component';
@@ -21,8 +21,9 @@ import { lastValueFrom } from 'rxjs';
     providers: [ConfirmationService]
 })
 export class AppComponent implements OnInit {
+    private authClient = inject(AuthClient);
+
     isLoggedIn: boolean = false;
-    constructor(private authClient: AuthClient) { }
 
     async ngOnInit(): Promise<void> {
         const currentUser = await lastValueFrom(this.authClient.getUserDetails());
