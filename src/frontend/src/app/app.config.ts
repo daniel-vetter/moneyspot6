@@ -1,15 +1,11 @@
 import { ApplicationConfig, ErrorHandler, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MessageService } from 'primeng/api';
 import { provideHttpClient } from '@angular/common/http';
 import { GlobalErrorHandler } from './global-error-handler-dialog/global-error-handler';
-import { provideServiceWorker } from '@angular/service-worker';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
-import Lara from '@primeng/themes/lara';
 import Nora from '@primeng/themes/nora';
 import { definePreset } from '@primeng/themes';
 import { registerLocaleData } from '@angular/common';
