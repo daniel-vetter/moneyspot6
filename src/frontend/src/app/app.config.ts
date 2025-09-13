@@ -1,15 +1,11 @@
 import { ApplicationConfig, ErrorHandler, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MessageService } from 'primeng/api';
 import { provideHttpClient } from '@angular/common/http';
 import { GlobalErrorHandler } from './global-error-handler-dialog/global-error-handler';
-import { provideServiceWorker } from '@angular/service-worker';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
-import Lara from '@primeng/themes/lara';
 import Nora from '@primeng/themes/nora';
 import { definePreset } from '@primeng/themes';
 import { registerLocaleData } from '@angular/common';
@@ -32,22 +28,22 @@ const MyPreset = definePreset(Nora, {
             900: '{blue.900}',
             950: '{blue.950}'
         },
-        surface: {
-            0: '#ffffff',
-            50: '{zinc.50}',
-            100: '{zinc.100}',
-            200: '{zinc.200}',
-            300: '{zinc.300}',
-            400: '{zinc.400}',
-            500: '{zinc.500}',
-            600: '{zinc.600}',
-            700: '{zinc.700}',
-            800: '{zinc.800}',
-            900: '{zinc.900}',
-            950: '{zinc.950}'
-        },
         colorScheme: {
             light: {
+                surface: {
+                    0: '#ffffff',
+                    50: '{zinc.50}',
+                    100: '{zinc.100}',
+                    200: '{zinc.200}',
+                    300: '{zinc.300}',
+                    400: '{zinc.400}',
+                    500: '{zinc.500}',
+                    600: '{zinc.600}',
+                    700: '{zinc.700}',
+                    800: '{zinc.800}',
+                    900: '{zinc.900}',
+                    950: '{zinc.950}'
+                },
                 navigation: {
                     item: {
                         focusBackground: '{surface.200}',
@@ -57,7 +53,7 @@ const MyPreset = definePreset(Nora, {
                     }
                 }
             }
-        },
+        }
     }
 });
 

@@ -1,12 +1,11 @@
-import { ErrorHandler, Injectable, NgZone } from '@angular/core';
+import { ErrorHandler, Injectable, NgZone, inject } from '@angular/core';
 import { GlobalErrorCallback } from './global-error-callback';
 
 @Injectable({ providedIn: 'root' })
 export class GlobalErrorHandler implements ErrorHandler {
-    constructor(
-        private globalErrorCallback: GlobalErrorCallback,
-        private zone: NgZone,
-    ) {}
+    private globalErrorCallback = inject(GlobalErrorCallback);
+    private zone = inject(NgZone);
+
 
     handleError(error: any) {
         console.error('Error from global error handler', error);

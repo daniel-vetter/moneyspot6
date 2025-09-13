@@ -2,12 +2,12 @@
     <div class="vertical" style="height: 100%">
         <div class="horizontal key-value">
             <div>Aktie:</div>
-            <p-dropdown [options]="stocks" formControlName="stock" optionLabel="name" optionValue="id" name="stock" [style]="{ width: '100%' }" />
+            <p-select [options]="stocks" formControlName="stock" optionLabel="name" optionValue="id" name="stock" [style]="{ width: '100%' }" />
         </div>
 
         <div class="horizontal key-value">
             <div>Art:</div>
-            <p-dropdown [options]="types" formControlName="type" optionLabel="name" optionValue="id" name="selectedType" [style]="{ width: '100%' }" />
+            <p-select [options]="types" formControlName="type" optionLabel="name" optionValue="id" name="selectedType" [style]="{ width: '100%' }" />
         </div>
 
         <div class="horizontal key-value">
@@ -29,7 +29,7 @@
 
         <div class="horizontal">
             @if (id !== undefined) {
-                <p-button icon="pi pi-trash" (onClick)="onDeleteClicked()" severity="danger" />
+            <p-button icon="pi pi-trash" (onClick)="onDeleteClicked()" severity="danger" />
             }
             <div class="spacer"></div>
             <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>

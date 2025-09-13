@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MenuComponent } from '../menu/menu.component';
@@ -13,10 +13,9 @@ import { AccountSyncComponent } from "../account-sync/account-sync.component";
     styleUrl: './top-bar.component.scss'
 })
 export class TopBarComponent implements OnInit {
-    constructor(
-        private dialogService: DialogService,
-        private router: Router,
-    ) { }
+    private dialogService = inject(DialogService);
+    private router = inject(Router);
+
 
     _dlg: DynamicDialogRef | undefined;
 

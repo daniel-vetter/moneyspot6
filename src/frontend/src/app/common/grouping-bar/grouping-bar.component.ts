@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SelectModule } from 'primeng/select';
@@ -10,13 +10,11 @@ import { SelectModule } from 'primeng/select';
     styleUrl: './grouping-bar.component.scss'
 })
 export class GroupingBarComponent implements OnInit {
+    private activatedRoute = inject(ActivatedRoute);
+    private router = inject(Router);
+
 
     showDataTypeSelection = input<Boolean>();
-
-    constructor(
-        private activatedRoute: ActivatedRoute,
-        private router: Router,
-    ) { }
 
     ngOnInit(): void {
         this.activatedRoute.queryParams.subscribe((x) => {

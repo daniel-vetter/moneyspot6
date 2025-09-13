@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { BankAccountSummaryResponse, StockSummaryResponse, SummaryPageClient } from '../server';
@@ -19,16 +19,14 @@ import { minDelay } from '../common/load-delay';
     styleUrl: './summary.component.scss'
 })
 export class SummaryComponent implements OnInit, OnDestroy {
+    private summaryPageClient = inject(SummaryPageClient);
+    private globalEvents = inject(GlobalEvents);
+
     bankAccountSummary?: BankAccountSummaryResponse;
     stockSummary?: StockSummaryResponse;
     total = 0;
     private _onAccountSyncDoneSubscription?: Subscription;
     isLoading = true;
-
-    constructor(
-        private summaryPageClient: SummaryPageClient,
-        private globalEvents: GlobalEvents,
-    ) { }
 
     async ngOnInit(): Promise<void> {
         this._onAccountSyncDoneSubscription = this.globalEvents.onAccountSyncDone.subscribe(async () => await this.update());

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { IncomeExpenseClient, IncomeExpenseEntryResponse, IncomeExpenseGrouping } from '../server';
 import { lastValueFrom } from 'rxjs';
 import { ValueComponent } from '../common/value/value.component';
@@ -17,17 +17,15 @@ import { ViewGrouping, GroupingBarComponent, ViewData } from '../common/grouping
     styleUrl: './income-expense-report.component.scss'
 })
 export class IncomeExpenseReportComponent implements OnInit {
+    private incomeExpenseClient = inject(IncomeExpenseClient);
+    private activatedRoute = inject(ActivatedRoute);
+
     dataType: ViewData = 'AccountAndStocks';
     onSearchSubmit() { }
     lines: Line[] = [];
     blocks: Block[] = [];
     searchText?: string;
     grouping: ViewGrouping = 'Monthly';
-
-    constructor(
-        private incomeExpenseClient: IncomeExpenseClient,
-        private activatedRoute: ActivatedRoute,
-    ) { }
 
     async ngOnInit(): Promise<void> {
         this.activatedRoute.queryParams.subscribe(async (x) => {

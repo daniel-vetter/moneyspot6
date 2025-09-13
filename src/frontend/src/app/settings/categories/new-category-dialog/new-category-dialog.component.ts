@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -15,13 +15,18 @@ import { CommonModule } from '@angular/common';
   styleUrl: './new-category-dialog.component.scss'
 })
 export class NewCategoryDialogComponent implements OnInit {
+  private dialogRef = inject(DynamicDialogRef);
+  private categoryConfigurationClient = inject(CategoryConfigurationClient);
+
   id: undefined | number;
   form = new FormGroup({
     name: new FormControl<string | undefined>(undefined, { nonNullable: true, validators: [Validators.required] })
   });
   parentId: number | undefined;
 
-  constructor(dialogConfig: DynamicDialogConfig, private dialogRef: DynamicDialogRef, private categoryConfigurationClient: CategoryConfigurationClient) {
+  constructor() {
+    const dialogConfig = inject(DynamicDialogConfig);
+
     this.id = dialogConfig.data.id;
     this.parentId = dialogConfig.data.parentId;
     dialogConfig.header = this.id === undefined ? "Neue Kategorie" : "Kategorie bearbeiten";

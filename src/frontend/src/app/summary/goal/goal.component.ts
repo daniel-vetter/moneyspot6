@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
 import { SummaryPageClient } from '../../server';
 import { lastValueFrom } from 'rxjs';
@@ -14,14 +14,14 @@ import { CustomDatePipe } from '../../common/custom-date.pipe';
     styleUrl: './goal.component.scss'
 })
 export class GoalComponent implements OnInit {
+    private summaryPageClient = inject(SummaryPageClient);
+
     Highcharts: typeof Highcharts = Highcharts;
     chart?: Highcharts.Options = undefined;
 
     targetValue = 0;
     targetDate!: Date;
     requiredSavingPerMonth: number | undefined = undefined;
-
-    constructor(private summaryPageClient: SummaryPageClient) { }
 
     async ngOnInit(): Promise<void> {
         const r = await lastValueFrom(this.summaryPageClient.getBankAccountGoal());
