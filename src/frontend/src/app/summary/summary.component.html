@@ -1,83 +1,83 @@
 @if (isLoading) {
-    <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem">
-        <p-progressSpinner></p-progressSpinner>
-    </div>
+<div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem">
+    <p-progressSpinner></p-progressSpinner>
+</div>
 } @else {
-    <div class="dashboard">
-        <p-panel class="total">
-            <ng-template pTemplate="header">
-                <h1>Gesamt</h1>
-            </ng-template>
-            <div style="width: 100%; text-align: center"></div>
-            <app-value [value]="total" size="3.5rem" />
-        </p-panel>
+<div class="dashboard">
+    <p-panel class="total">
+        <ng-template pTemplate="header">
+            <h1>Gesamt</h1>
+        </ng-template>
+        <div style="width: 100%; text-align: center"></div>
+        <app-value [value]="total" size="3.5rem" />
+    </p-panel>
 
-        @if (bankAccountSummary) {
-            <p-panel class="accounts">
-                <ng-template pTemplate="header">
-                    <div class="horizontal" style="width: 100%">
-                        <h1>Kontostand</h1>
-                        <app-account-sync class="hidden-on-mobile"></app-account-sync>
-                        <div class="spacer"></div>
-                        <div class="header-value hidden-on-mobile">
-                            <div>Gesamt</div>
-                            <app-value [value]="bankAccountSummary.total" size="1.5rem" />
-                        </div>
-                        <div class="hidden-on-desktop">
-                            <app-value [value]="bankAccountSummary.total" size="1.5rem" />
-                        </div>
-                    </div>
-                </ng-template>
-                <div class="table">
-                    <div class="header">
-                        <div style="flex: 1">Konto</div>
-                        <div>Guthaben</div>
-                    </div>
-                    @for (entry of bankAccountSummary.accounts; track entry.id) {
-                        <div>
-                            <div style="flex: 1">
-                                {{ entry.name }}
-                            </div>
-                            <div>
-                                <app-value [value]="entry.total" />
-                            </div>
-                        </div>
-                    }
+    @if (bankAccountSummary) {
+    <p-panel class="accounts">
+        <ng-template pTemplate="header">
+            <div class="horizontal" style="width: 100%">
+                <h1>Kontostand</h1>
+                <app-account-sync class="hidden-on-mobile"></app-account-sync>
+                <div class="spacer"></div>
+                <div class="header-value hidden-on-mobile">
+                    <div>Gesamt</div>
+                    <app-value [value]="bankAccountSummary.total" size="1.5rem" />
                 </div>
-            </p-panel>
-        }
-
-        <app-goal class="goal"></app-goal>
-
-        @if (stockSummary !== undefined) {
-            <p-panel class="stocks">
-                <ng-template pTemplate="header">
-                    <h1>Depot</h1>
-                    <div class="spacer"></div>
-                    <div class="header-value hidden-on-mobile">
-                        <div>Gesamt</div>
-                        <app-value [value]="stockSummary.total" size="1.5rem" />
-                    </div>
-                    <div class="hidden-on-desktop">
-                        <app-value [value]="stockSummary.total" size="1.5rem" />
-                    </div>
-                </ng-template>
-                <div class="table">
-                    <div class="header">
-                        <div style="flex: 1">Wertpapier</div>
-                        <div class="right" style="width: 80px">Kurs</div>
-                        <div class="right" style="width: 80px">Wert</div>
-                    </div>
-
-                    @for (entry of stockSummary.entries; track entry.id) {
-                        <div>
-                            <div style="flex: 1">{{ entry.name }}</div>
-                            <div class="right" style="width: 80px"><app-value [value]="entry.stockPrice" /></div>
-                            <div class="right" style="width: 80px"><app-value [value]="entry.total" /></div>
-                        </div>
-                    }
+                <div class="hidden-on-desktop">
+                    <app-value [value]="bankAccountSummary.total" size="1.5rem" />
                 </div>
-            </p-panel>
-        }
-    </div>
+            </div>
+        </ng-template>
+        <div class="table">
+            <div class="header">
+                <div style="flex: 1">Konto</div>
+                <div>Guthaben</div>
+            </div>
+            @for (entry of bankAccountSummary.accounts; track entry.id) {
+            <div>
+                <div style="flex: 1">
+                    {{ entry.name }}
+                </div>
+                <div>
+                    <app-value [value]="entry.total" />
+                </div>
+            </div>
+            }
+        </div>
+    </p-panel>
+    }
+
+    <app-goal class="goal"></app-goal>
+
+    @if (stockSummary !== undefined) {
+    <p-panel class="stocks">
+        <ng-template pTemplate="header">
+            <h1>Depot</h1>
+            <div class="spacer"></div>
+            <div class="header-value hidden-on-mobile">
+                <div>Gesamt</div>
+                <app-value [value]="stockSummary.total" size="1.5rem" />
+            </div>
+            <div class="hidden-on-desktop">
+                <app-value [value]="stockSummary.total" size="1.5rem" />
+            </div>
+        </ng-template>
+        <div class="table">
+            <div class="header">
+                <div style="flex: 1">Wertpapier</div>
+                <div class="right" style="width: 80px">Kurs</div>
+                <div class="right" style="width: 80px">Wert</div>
+            </div>
+
+            @for (entry of stockSummary.entries; track entry.id) {
+            <div>
+                <div style="flex: 1">{{ entry.name }}</div>
+                <div class="right" style="width: 80px"><app-value [value]="entry.stockPrice" /></div>
+                <div class="right" style="width: 80px"><app-value [value]="entry.total" /></div>
+            </div>
+            }
+        </div>
+    </p-panel>
+    }
+</div>
 }

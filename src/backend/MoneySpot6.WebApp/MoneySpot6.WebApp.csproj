@@ -36,6 +36,10 @@
 		<Folder Include="wwwroot\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\MoneySpot6.ServiceDefaults\MoneySpot6.ServiceDefaults.csproj" />
+	</ItemGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Debug'">
 		<Exec Command="dotnet $(ProjectDir)\$(OutDir)\MoneySpot6.WebApp.dll --generateTypeScriptClient $(ProjectDir)\..\..\frontend\src\app\server.ts" />
 	</Target>

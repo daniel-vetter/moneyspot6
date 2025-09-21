@@ -112,6 +112,11 @@ public class StockDataProvider
     {
         stockIds ??= await _db.Stocks.Select(x => x.Id).ToImmutableArrayAsync();
         var r = new StartAndEnd<OwnedStockValue>[end.DayNumber - start.DayNumber];
+        for (var i = 0;i < r.Length;i++)
+        {
+            r[i] = new StartAndEnd<OwnedStockValue>(new OwnedStockValue(0, 0), new OwnedStockValue(0, 0));
+        }
+
         foreach (var stockId in stockIds)
         {
             var stockValueTimeline = await GetDailyStockPrice(stockId, start, end);
