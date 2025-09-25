@@ -25,6 +25,7 @@ public class Program
                 .RequireAuthenticatedUser()
                 .Build()));
         });
+        builder.AddServiceDefaults();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument(x =>
         {
@@ -36,28 +37,6 @@ public class Program
         builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
         builder.Services.AddServiceFromAttributes();
-        builder.Logging.AddOpenTelemetry(x =>
-        {
-            x.IncludeFormattedMessage = true;
-        });
-        builder.Services.AddOpenTelemetry()
-            .UseOtlpExporter()
-            .WithMetrics(m => m
-                    .AddRuntimeInstrumentation()
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation())
-            .WithTracing(t => t
-                .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation(x =>
-                {
-                    x.EnrichWithHttpResponseMessage = (activity, message) => activity.AddTag("net.peer.name", message.RequestMessage?.RequestUri?.Host);
-                    x.EnrichWithHttpResponseMessage = (activity, message) => activity.AddTag("net.peer.name", message.RequestMessage?.RequestUri?.Host);
-                })
-                .AddNpgsql()
-                .AddSource(AppActivitySource.Name)
-                .SetSampler<AlwaysOnSampler>())
-            .WithLogging();
-
         builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = "Cookies";
@@ -107,6 +86,7 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+        app.MapDefaultEndpoints();
         app.MapHub<AccountSyncHub>("/api/account-sync");
         app.MapFallbackToFile("/index.html");
 

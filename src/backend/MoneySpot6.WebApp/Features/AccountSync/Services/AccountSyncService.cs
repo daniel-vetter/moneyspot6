@@ -27,7 +27,7 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
             userId: connection.UserId,
             customerId: connection.CustomerId,
             pin: connection.Pin,
-            startDate: connection.LastSuccessfulSync?.AddDays(-2),
+            startDate: connection.LastSuccessfulSync.HasValue ? connection.LastSuccessfulSync.Value.AddDays(-2) : DateTimeOffset.UtcNow.AddDays(-10),
             callbackHandler: callbackHandler,
             ct
         );
