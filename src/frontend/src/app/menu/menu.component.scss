@@ -1,6 +1,7 @@
 :host {
-    height: 100%;
-    display: blocK;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     min-width: 230px;
 }
 
@@ -8,6 +9,10 @@ ul {
     list-style: none;
     padding: 1rem;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.5rem;
 }
 
 a {
@@ -16,7 +21,8 @@ a {
     display: block;
     height: 100%;
     width: 100%;
-    color: var(--p-text-color)
+    color: var(--p-text-color);
+    border-radius: 8px;
 }
 
 .active {
@@ -27,4 +33,10 @@ a {
 a:hover {
     color: var(--p-navigation-item-focus-color);
     background: var(--p-navigation-item-focus-background);
+}
+
+i {
+    margin-right: 0.5rem;
+    width: 16px;
+    text-align: center;
 }

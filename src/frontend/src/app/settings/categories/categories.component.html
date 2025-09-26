@@ -1,30 +1,45 @@
-<h1>Kategorien</h1>
-<p>
-    <p-button label="Neue Kategorie" (onClick)="onNewCategoryClicked(undefined)" />
-</p>
-@if (entries.length > 0) {
-<p-treetable [value]="entries" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
-    <ng-template #header>
-        <tr>
-            <th>Name</th>
-            <th>Zuweisungen</th>
-            <th></th>
-        </tr>
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%">
+            <h1>Kategorien</h1>
+            <div class="spacer"></div>
+            <p-button label="Neue Kategorie" (onClick)="onNewCategoryClicked(undefined)" />
+        </div>
     </ng-template>
-    <ng-template #body let-rowNode let-rowData="rowData">
-        <tr [ttRow]="rowNode">
-            <td>
-                <p-treetable-toggler [rowNode]="rowNode" />
-                {{ rowData.name }}
-            </td>
-            <td>{{ rowData.usages }}</td>
-            <td>
-                <p-button icon="pi pi-plus" (onClick)="onNewCategoryClicked(rowData.id)" title="Unterkategorie hinzufügen" rounded="true" [style]="{ 'margin-right': '.5em' }" />
-                <p-button icon="pi pi-pencil" (onClick)="onEditCategoryClicked(rowData.id)" title="Unterkategorie hinzufügen" rounded="true" [style]="{ 'margin-right': '.5em' }" />
-                <p-button icon="pi pi-trash" (onClick)="onDeleteCategoryClicked(rowData.id)" severity="warn" title="Kategorie löschen" rounded="true"
-                    [style]="{ 'margin-right': '.5em' }" />
-            </td>
-        </tr>
-    </ng-template>
-</p-treetable>
-}
+    @if (entries.length > 0) {
+    <p-treetable [value]="entries" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+        <ng-template #header>
+            <tr>
+                <th>Name</th>
+                <th>Zuweisungen</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-rowNode let-rowData="rowData">
+            <tr [ttRow]="rowNode">
+                <td>
+                    <p-treetable-toggler [rowNode]="rowNode" />
+                    {{ rowData.name }}
+                </td>
+                <td>{{ rowData.usages }}</td>
+                <td style="text-align: right;">
+                    <p-button icon="pi pi-plus" (onClick)="onNewCategoryClicked(rowData.id)" title="Unterkategorie hinzufügen" rounded="true" [style]="{ 'margin-right': '.5em' }"
+                        variant="text" />
+                    <p-button icon="pi pi-pencil" (onClick)="onEditCategoryClicked(rowData.id)" title="Unterkategorie hinzufügen" rounded="true"
+                        [style]="{ 'margin-right': '.5em' }" variant="text" />
+                    <p-button icon="pi pi-trash" (onClick)="onDeleteCategoryClicked(rowData.id)" severity="warn" title="Kategorie löschen" rounded="true" variant="text"
+                        [style]="{ 'margin-right': '.5em' }" />
+                </td>
+            </tr>
+        </ng-template>
+    </p-treetable>
+    } @else {
+    <div class="vertical" style="align-items: center; padding: 2rem; color: var(--text-secondary-color)">
+        <i class="pi pi-folder-open" style="font-size: 4rem"></i>
+        <div style="height: 1rem"></div>
+        <div>Es sind noch keine Kategorien angelegt.</div>
+        <div>Über den Button "Neue Kategorie" können Kategorien hinzugefügt werden.</div>
+    </div>
+    }
+
+</p-panel>
