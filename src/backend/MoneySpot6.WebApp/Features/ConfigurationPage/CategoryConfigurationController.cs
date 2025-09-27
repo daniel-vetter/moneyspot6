@@ -1,8 +1,9 @@
-﻿using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace MoneySpot6.WebApp.Features.ConfigurationPage;
 
@@ -33,6 +34,8 @@ public class CategoryConfigurationController : Controller
                     {
                         Id = x.Id,
                         Name = x.Name,
+                        AutoAssignmentCounterpartyRegex = x.AutoAssignmentCounterpartyRegex,
+                        AutoAssignmentPurposeRegex = x.AutoAssignmentPurposeRegex,
                         Usages = 0,
                         Children = GetChildren(x.Id)
                     }).OrderBy(x => x.Name)
@@ -109,17 +112,33 @@ public class CategoryConfigurationController : Controller
             .Where(x => x.ParentId == request.ParentId)
             .ToArrayAsync();
 
+        CreateCategoryValidationErrorResponse? badRequestResponse = null;
         if (neighbors.Any(x => x.Name.Trim().Equals(request.Name.Trim(), StringComparison.InvariantCultureIgnoreCase)))
         {
-            return BadRequest(new CreateCategoryValidationErrorResponse
-            {
-                NameAlreadyInUse = true
-            });
+            badRequestResponse ??= new CreateCategoryValidationErrorResponse();
+            badRequestResponse.NameAlreadyInUse = true;
         }
+
+        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentCounterpartyRegex) && !IsValidRegex(request.AutoAssignmentCounterpartyRegex))
+        {
+            badRequestResponse ??= new CreateCategoryValidationErrorResponse();
+            badRequestResponse.InvalidAutoAssignmentCounterpartyRegex = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentPurposeRegex) && !IsValidRegex(request.AutoAssignmentPurposeRegex))
+        {
+            badRequestResponse ??= new CreateCategoryValidationErrorResponse();
+            badRequestResponse.InvalidAutoAssignmentPurposeRegex = true;
+        }
+
+        if (badRequestResponse != null)
+            return BadRequest(badRequestResponse);
 
         var newCategory = new DbCategory
         {
             Name = request.Name,
+            AutoAssignmentCounterpartyRegex = request.AutoAssignmentCounterpartyRegex,
+            AutoAssignmentPurposeRegex = request.AutoAssignmentPurposeRegex,
             ParentId = request.ParentId
         };
 
@@ -127,6 +146,19 @@ public class CategoryConfigurationController : Controller
         await _db.SaveChangesAsync();
 
         return Ok(newCategory.Id);
+    }
+
+    private static bool IsValidRegex(string pattern)
+    {
+        try
+        {
+            Regex.Match("", pattern);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+        return true;
     }
 
     [HttpPost("Update")]
@@ -153,16 +185,32 @@ public class CategoryConfigurationController : Controller
             .Where(x => x.ParentId == cat.ParentId)
             .ToArrayAsync();
 
+        UpdateCategoryValidationErrorResponse? badRequestResponse = null;
         if (neighbors.Any(x => x.Name.Trim().Equals(request.Name.Trim(), StringComparison.InvariantCultureIgnoreCase) && x.Id != request.Id))
         {
-            return BadRequest(new UpdateCategoryValidationErrorResponse
-            {
-                NameAlreadyInUse = true
-            });
+            badRequestResponse ??= new UpdateCategoryValidationErrorResponse();
+            badRequestResponse.NameAlreadyInUse = true;
         }
 
-        cat.Name = request.Name;
+        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentCounterpartyRegex) && !IsValidRegex(request.AutoAssignmentCounterpartyRegex))
+        {
+            badRequestResponse ??= new UpdateCategoryValidationErrorResponse();
+            badRequestResponse.InvalidAutoAssignmentCounterpartyRegex = true;
+        }
 
+        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentPurposeRegex) && !IsValidRegex(request.AutoAssignmentPurposeRegex))
+        {
+            badRequestResponse ??= new UpdateCategoryValidationErrorResponse();
+            badRequestResponse.InvalidAutoAssignmentPurposeRegex = true;
+        }
+
+        if (badRequestResponse != null)
+            return BadRequest(badRequestResponse);
+
+        cat.Name = request.Name;
+        cat.AutoAssignmentCounterpartyRegex = request.AutoAssignmentCounterpartyRegex;
+        cat.AutoAssignmentPurposeRegex = request.AutoAssignmentPurposeRegex;
+        
         await _db.SaveChangesAsync();
         return Ok();
     }
@@ -187,12 +235,14 @@ public class CategoryConfigurationController : Controller
     }
 }
 
-public record CreateCategoryRequest(string Name, int? ParentId);
-public record UpdateCategoryRequest(int Id, string Name);
+public record CreateCategoryRequest(string Name, string AutoAssignmentCounterpartyRegex, string AutoAssignmentPurposeRegex, int? ParentId);
+public record UpdateCategoryRequest(int Id, string Name, string AutoAssignmentCounterpartyRegex, string AutoAssignmentPurposeRegex);
 public record CategoryResponse
 {
     [Required] public int Id { get; init; }
     [Required] public required string Name { get; init; }
+    [Required] public required string AutoAssignmentCounterpartyRegex { get; init; }
+    [Required] public required string AutoAssignmentPurposeRegex { get; init; }
     [Required] public required int Usages { get; init; }
     [Required] public required ImmutableArray<CategoryResponse> Children { get; init; }
 }
@@ -202,10 +252,15 @@ public record CreateCategoryValidationErrorResponse
     [Required] public bool MissingName { get; set; }
     [Required] public bool NameAlreadyInUse { get; set; }
     [Required] public bool InvalidParent { get; set; }
+    [Required] public bool InvalidAutoAssignmentCounterpartyRegex { get; set; }
+    [Required] public bool InvalidAutoAssignmentPurposeRegex { get; set; }
+
 }
 
 public record UpdateCategoryValidationErrorResponse
 {
     [Required] public bool MissingName { get; set; }
     [Required] public bool NameAlreadyInUse { get; set; }
+    [Required] public bool InvalidAutoAssignmentCounterpartyRegex { get; set; }
+    [Required] public bool InvalidAutoAssignmentPurposeRegex { get; set; }
 }

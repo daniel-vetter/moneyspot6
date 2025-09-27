@@ -1,0 +1,12 @@
+.section-header {
+    margin: 1rem 0 0.5rem 0;
+
+    h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-color);
+        border-bottom: 1px solid var(--surface-border);
+        padding-bottom: 0.5rem;
+    }
+}

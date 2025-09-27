@@ -9,77 +9,89 @@ import { MessageModule } from 'primeng/message';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-new-category-dialog',
-  imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule],
-  templateUrl: './new-category-dialog.component.html',
-  styleUrl: './new-category-dialog.component.scss'
+    selector: 'app-new-category-dialog',
+    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule],
+    templateUrl: './new-category-dialog.component.html',
+    styleUrl: './new-category-dialog.component.scss'
 })
 export class NewCategoryDialogComponent implements OnInit {
-  private dialogRef = inject(DynamicDialogRef);
-  private categoryConfigurationClient = inject(CategoryConfigurationClient);
+    private dialogRef = inject(DynamicDialogRef);
+    private categoryConfigurationClient = inject(CategoryConfigurationClient);
 
-  id: undefined | number;
-  form = new FormGroup({
-    name: new FormControl<string | undefined>(undefined, { nonNullable: true, validators: [Validators.required] })
-  });
-  parentId: number | undefined;
+    id: undefined | number;
+    form = new FormGroup({
+        name: new FormControl<string | undefined>(undefined, { nonNullable: true, validators: [Validators.required] }),
+        counterAccount: new FormControl<string | undefined>(undefined),
+        purpose: new FormControl<string | undefined>(undefined)
+    });
+    parentId: number | undefined;
 
-  constructor() {
-    const dialogConfig = inject(DynamicDialogConfig);
+    constructor() {
+        const dialogConfig = inject(DynamicDialogConfig);
 
-    this.id = dialogConfig.data.id;
-    this.parentId = dialogConfig.data.parentId;
-    dialogConfig.header = this.id === undefined ? "Neue Kategorie" : "Kategorie bearbeiten";
-    dialogConfig.width = "500px";
-    dialogConfig.height = "620px";
-  }
-
-  async ngOnInit() {
-    if (this.id !== undefined) {
-      const cat = await lastValueFrom(this.categoryConfigurationClient.getCategory(this.id));
-      this.form.setValue({
-        name: cat.name
-      });
+        this.id = dialogConfig.data.id;
+        this.parentId = dialogConfig.data.parentId;
+        dialogConfig.header = this.id === undefined ? "Neue Kategorie" : "Kategorie bearbeiten";
+        dialogConfig.width = "500px";
+        dialogConfig.height = "620px";
     }
-  }
 
-  onCancelClicked() {
-    this.dialogRef.close();
-  }
-  async onSubmit() {
-    this.form.disable()
+    async ngOnInit() {
+        if (this.id !== undefined) {
+            const cat = await lastValueFrom(this.categoryConfigurationClient.getCategory(this.id));
+            this.form.setValue({
+                name: cat.name,
+                counterAccount: cat.autoAssignmentCounterpartyRegex,
+                purpose: cat.autoAssignmentPurposeRegex
+            });
+        }
+    }
 
-    try {
-      if (this.id === undefined) {
-        await lastValueFrom(this.categoryConfigurationClient.create(new CreateCategoryRequest({
-          name: this.form.value.name,
-          parentId: this.parentId
-        })));
-      }
-      else {
-        await lastValueFrom(this.categoryConfigurationClient.update(new UpdateCategoryRequest({
-          id: this.id,
-          name: this.form.value.name
-        })));
-      }
-    } catch (error) {
-      if (error instanceof CreateCategoryValidationErrorResponse || error instanceof UpdateCategoryValidationErrorResponse) {
-        queueMicrotask(() => {
-          if (error.missingName)
-            this.form.controls.name.setErrors({ missingName: true });
-          if (error.nameAlreadyInUse)
-            this.form.controls.name.setErrors({ nameAlreadyInUse: true });
-          if (error instanceof CreateCategoryValidationErrorResponse) {
-            if (error.invalidParent)
-              this.form.controls.name.setErrors({ invalidParent: true });
-          }
-        });
-      }
-      return;
+    onCancelClicked() {
+        this.dialogRef.close();
     }
-    finally {
-      this.form.enable();
+    async onSubmit() {
+        this.form.disable()
+
+        try {
+            if (this.id === undefined) {
+                await lastValueFrom(this.categoryConfigurationClient.create(new CreateCategoryRequest({
+                    name: this.form.value.name,
+                    autoAssignmentCounterpartyRegex: this.form.value.counterAccount || "",
+                    autoAssignmentPurposeRegex: this.form.value.purpose || "",
+                    parentId: this.parentId
+                })));
+            }
+            else {
+                await lastValueFrom(this.categoryConfigurationClient.update(new UpdateCategoryRequest({
+                    id: this.id,
+                    name: this.form.value.name,
+                    autoAssignmentCounterpartyRegex: this.form.value.counterAccount || "",
+                    autoAssignmentPurposeRegex: this.form.value.purpose || ""
+                })));
+            }
+        } catch (error) {
+            if (error instanceof CreateCategoryValidationErrorResponse || error instanceof UpdateCategoryValidationErrorResponse) {
+                queueMicrotask(() => {
+                    if (error.missingName)
+                        this.form.controls.name.setErrors({ missingName: true });
+                    if (error.nameAlreadyInUse)
+                        this.form.controls.name.setErrors({ nameAlreadyInUse: true });
+                    if (error.invalidAutoAssignmentCounterpartyRegex)
+                        this.form.controls.counterAccount.setErrors({ invalid: true });
+                    if (error.invalidAutoAssignmentPurposeRegex)
+                        this.form.controls.purpose.setErrors({ invalid: true });
+                    if (error instanceof CreateCategoryValidationErrorResponse) {
+                        if (error.invalidParent)
+                            this.form.controls.name.setErrors({ invalidParent: true });
+                    }
+                });
+            }
+            return;
+        }
+        finally {
+            this.form.enable();
+        }
+        this.dialogRef.close();
     }
-    this.dialogRef.close();
-  }
 }
