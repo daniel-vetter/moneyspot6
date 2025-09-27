@@ -33,7 +33,7 @@ public class Program
             x.Title = "MoneySpot6 API";
         });
         builder.Services.AddSignalR();
-        builder.Services.AddDbContext<Db>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Db")));
+        builder.AddNpgsqlDbContext<Db>("db");
         builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
         builder.Services.AddServiceFromAttributes();
