@@ -232,6 +232,8 @@ public class DbCategory
     public int Id { get; set; }
     public int? ParentId { get; set; }
     public required string Name { get; set; }
+    public required string AutoAssignmentCounterpartyRegex { get; set; }
+    public required string AutoAssignmentPurposeRegex { get; set; }
 }
 
 public enum StockPriceInterval

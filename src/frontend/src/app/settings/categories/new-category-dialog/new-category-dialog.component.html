@@ -8,8 +8,32 @@
             </div>
             <div>
                 <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['required']">Ein Name muss angegeben werden.</p-message>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">
-                    Es existiert bereits eine Kategorie mit diesem Name.</p-message>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">Es existiert bereits eine Kategorie
+                    mit diesem Name.</p-message>
+            </div>
+        </div>
+
+        <div style="height: 1rem;;"></div>
+
+        <b>Automatische Zuordnung</b>
+
+        <div class="form-field">
+            <div>Gegenkonto (RegEx):</div>
+            <div class="" style="width: 100%;">
+                <input type="text" pInputText formControlName="counterAccount" name="counterAccount" autocomplete="off" style="width: 100%;" width="100%" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('counterAccount')?.errors?.['invalid']">Ungültiger RegEx.</p-message>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <div>Verwendungszweck (RegEx):</div>
+            <div class="" style="width: 100%;">
+                <input type="text" pInputText formControlName="purpose" name="purpose" autocomplete="off" style="width: 100%;" width="100%" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('purpose')?.errors?.['invalid']">Ungültiger RegEx.</p-message>
             </div>
         </div>
 

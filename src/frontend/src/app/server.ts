@@ -2992,6 +2992,8 @@ export interface IRunningProcessResponse {
 export class CategoryResponse implements ICategoryResponse {
     id!: number;
     name!: string;
+    autoAssignmentCounterpartyRegex!: string;
+    autoAssignmentPurposeRegex!: string;
     usages!: number;
     children!: CategoryResponse[];
 
@@ -3011,6 +3013,8 @@ export class CategoryResponse implements ICategoryResponse {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.autoAssignmentCounterpartyRegex = _data["autoAssignmentCounterpartyRegex"];
+            this.autoAssignmentPurposeRegex = _data["autoAssignmentPurposeRegex"];
             this.usages = _data["usages"];
             if (Array.isArray(_data["children"])) {
                 this.children = [] as any;
@@ -3031,6 +3035,8 @@ export class CategoryResponse implements ICategoryResponse {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["autoAssignmentCounterpartyRegex"] = this.autoAssignmentCounterpartyRegex;
+        data["autoAssignmentPurposeRegex"] = this.autoAssignmentPurposeRegex;
         data["usages"] = this.usages;
         if (Array.isArray(this.children)) {
             data["children"] = [];
@@ -3044,6 +3050,8 @@ export class CategoryResponse implements ICategoryResponse {
 export interface ICategoryResponse {
     id: number;
     name: string;
+    autoAssignmentCounterpartyRegex: string;
+    autoAssignmentPurposeRegex: string;
     usages: number;
     children: CategoryResponse[];
 }
@@ -3052,6 +3060,8 @@ export class CreateCategoryValidationErrorResponse implements ICreateCategoryVal
     missingName!: boolean;
     nameAlreadyInUse!: boolean;
     invalidParent!: boolean;
+    invalidAutoAssignmentCounterpartyRegex!: boolean;
+    invalidAutoAssignmentPurposeRegex!: boolean;
 
     constructor(data?: ICreateCategoryValidationErrorResponse) {
         if (data) {
@@ -3067,6 +3077,8 @@ export class CreateCategoryValidationErrorResponse implements ICreateCategoryVal
             this.missingName = _data["missingName"];
             this.nameAlreadyInUse = _data["nameAlreadyInUse"];
             this.invalidParent = _data["invalidParent"];
+            this.invalidAutoAssignmentCounterpartyRegex = _data["invalidAutoAssignmentCounterpartyRegex"];
+            this.invalidAutoAssignmentPurposeRegex = _data["invalidAutoAssignmentPurposeRegex"];
         }
     }
 
@@ -3082,6 +3094,8 @@ export class CreateCategoryValidationErrorResponse implements ICreateCategoryVal
         data["missingName"] = this.missingName;
         data["nameAlreadyInUse"] = this.nameAlreadyInUse;
         data["invalidParent"] = this.invalidParent;
+        data["invalidAutoAssignmentCounterpartyRegex"] = this.invalidAutoAssignmentCounterpartyRegex;
+        data["invalidAutoAssignmentPurposeRegex"] = this.invalidAutoAssignmentPurposeRegex;
         return data;
     }
 }
@@ -3090,10 +3104,14 @@ export interface ICreateCategoryValidationErrorResponse {
     missingName: boolean;
     nameAlreadyInUse: boolean;
     invalidParent: boolean;
+    invalidAutoAssignmentCounterpartyRegex: boolean;
+    invalidAutoAssignmentPurposeRegex: boolean;
 }
 
 export class CreateCategoryRequest implements ICreateCategoryRequest {
     name?: string;
+    autoAssignmentCounterpartyRegex?: string;
+    autoAssignmentPurposeRegex?: string;
     parentId?: number | undefined;
 
     constructor(data?: ICreateCategoryRequest) {
@@ -3108,6 +3126,8 @@ export class CreateCategoryRequest implements ICreateCategoryRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.autoAssignmentCounterpartyRegex = _data["autoAssignmentCounterpartyRegex"];
+            this.autoAssignmentPurposeRegex = _data["autoAssignmentPurposeRegex"];
             this.parentId = _data["parentId"];
         }
     }
@@ -3122,6 +3142,8 @@ export class CreateCategoryRequest implements ICreateCategoryRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["autoAssignmentCounterpartyRegex"] = this.autoAssignmentCounterpartyRegex;
+        data["autoAssignmentPurposeRegex"] = this.autoAssignmentPurposeRegex;
         data["parentId"] = this.parentId;
         return data;
     }
@@ -3129,12 +3151,16 @@ export class CreateCategoryRequest implements ICreateCategoryRequest {
 
 export interface ICreateCategoryRequest {
     name?: string;
+    autoAssignmentCounterpartyRegex?: string;
+    autoAssignmentPurposeRegex?: string;
     parentId?: number | undefined;
 }
 
 export class UpdateCategoryValidationErrorResponse implements IUpdateCategoryValidationErrorResponse {
     missingName!: boolean;
     nameAlreadyInUse!: boolean;
+    invalidAutoAssignmentCounterpartyRegex!: boolean;
+    invalidAutoAssignmentPurposeRegex!: boolean;
 
     constructor(data?: IUpdateCategoryValidationErrorResponse) {
         if (data) {
@@ -3149,6 +3175,8 @@ export class UpdateCategoryValidationErrorResponse implements IUpdateCategoryVal
         if (_data) {
             this.missingName = _data["missingName"];
             this.nameAlreadyInUse = _data["nameAlreadyInUse"];
+            this.invalidAutoAssignmentCounterpartyRegex = _data["invalidAutoAssignmentCounterpartyRegex"];
+            this.invalidAutoAssignmentPurposeRegex = _data["invalidAutoAssignmentPurposeRegex"];
         }
     }
 
@@ -3163,6 +3191,8 @@ export class UpdateCategoryValidationErrorResponse implements IUpdateCategoryVal
         data = typeof data === 'object' ? data : {};
         data["missingName"] = this.missingName;
         data["nameAlreadyInUse"] = this.nameAlreadyInUse;
+        data["invalidAutoAssignmentCounterpartyRegex"] = this.invalidAutoAssignmentCounterpartyRegex;
+        data["invalidAutoAssignmentPurposeRegex"] = this.invalidAutoAssignmentPurposeRegex;
         return data;
     }
 }
@@ -3170,11 +3200,15 @@ export class UpdateCategoryValidationErrorResponse implements IUpdateCategoryVal
 export interface IUpdateCategoryValidationErrorResponse {
     missingName: boolean;
     nameAlreadyInUse: boolean;
+    invalidAutoAssignmentCounterpartyRegex: boolean;
+    invalidAutoAssignmentPurposeRegex: boolean;
 }
 
 export class UpdateCategoryRequest implements IUpdateCategoryRequest {
     id?: number;
     name?: string;
+    autoAssignmentCounterpartyRegex?: string;
+    autoAssignmentPurposeRegex?: string;
 
     constructor(data?: IUpdateCategoryRequest) {
         if (data) {
@@ -3189,6 +3223,8 @@ export class UpdateCategoryRequest implements IUpdateCategoryRequest {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.autoAssignmentCounterpartyRegex = _data["autoAssignmentCounterpartyRegex"];
+            this.autoAssignmentPurposeRegex = _data["autoAssignmentPurposeRegex"];
         }
     }
 
@@ -3203,6 +3239,8 @@ export class UpdateCategoryRequest implements IUpdateCategoryRequest {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["autoAssignmentCounterpartyRegex"] = this.autoAssignmentCounterpartyRegex;
+        data["autoAssignmentPurposeRegex"] = this.autoAssignmentPurposeRegex;
         return data;
     }
 }
@@ -3210,6 +3248,8 @@ export class UpdateCategoryRequest implements IUpdateCategoryRequest {
 export interface IUpdateCategoryRequest {
     id?: number;
     name?: string;
+    autoAssignmentCounterpartyRegex?: string;
+    autoAssignmentPurposeRegex?: string;
 }
 
 export class SankeyDataResponse implements ISankeyDataResponse {
