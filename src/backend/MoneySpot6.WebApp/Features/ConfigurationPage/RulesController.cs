@@ -20,7 +20,7 @@ namespace MoneySpot6.WebApp.Features.ConfigurationPage
         [HttpGet("GetAll")]
         public async Task<ImmutableArray<RuleResponse>> GetAll()
         {
-            var rules = await _db.Rules.ToArrayAsync();
+            var rules = await _db.Rules.OrderBy(x => x.SortIndex).ToArrayAsync();
             return rules.Select(x => new RuleResponse
             {
                 Id = x.Id,
@@ -62,10 +62,13 @@ namespace MoneySpot6.WebApp.Features.ConfigurationPage
                     NameAlreadyInUse = true
                 });
 
+            var maxSortKey = await _db.Rules.MaxAsync(x => (int?)x.SortIndex) ?? 0;
+
             _db.Rules.Add(new DbRule
             {
                 Name = request.Name,
-                Script = request.Script
+                Script = request.Script,
+                SortIndex = maxSortKey + 1
             });
 
             await _db.SaveChangesAsync();
@@ -97,6 +100,28 @@ namespace MoneySpot6.WebApp.Features.ConfigurationPage
             await _db.SaveChangesAsync();
             return Ok();
         }
+
+        [HttpPost("Reorder")]
+        public async Task<IActionResult> Reorder(ReorderRulesRequest request)
+        {
+            //Check for dublicates
+            if (request.Ids.Distinct().Count() != request.Ids.Length)
+                return BadRequest();
+
+            var allRules = await _db.Rules.ToDictionaryAsync(x => x.Id, x => x);
+
+            //Check for requested ids that do not exist
+            foreach(var id in request.Ids)
+                if (!allRules.ContainsKey(id))
+                    return BadRequest();
+
+            for (int i = 0; i < request.Ids.Length; i++)
+                allRules[request.Ids[i]].SortIndex = i + 1;
+
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
+
 
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(int id)
@@ -135,5 +160,10 @@ namespace MoneySpot6.WebApp.Features.ConfigurationPage
     {
         [Required] public bool MissingName { get; set; }
         [Required] public bool NameAlreadyInUse { get; set; }
+    }
+
+    public record ReorderRulesRequest
+    {
+        [Required] public ImmutableArray<int> Ids { get; set; }
     }
 }

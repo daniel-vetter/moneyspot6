@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableRowReorderEvent } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { TreeTableModule } from 'primeng/treetable';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { EditRuleComponent } from './edit-rule/edit-rule.component';
-import { RuleResponse, RulesClient } from '../../server';
+import { ReorderRulesRequest, RuleResponse, RulesClient } from '../../server';
 import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 
@@ -18,7 +18,6 @@ import { ConfirmationService } from 'primeng/api';
     styleUrl: './rules.component.scss'
 })
 export class RulesComponent implements OnInit {
-
     private dialogRef: DynamicDialogRef | undefined;
     private ruleClient = inject(RulesClient);
     private dialogService = inject(DialogService);
@@ -65,6 +64,14 @@ export class RulesComponent implements OnInit {
             }
         });
     }
+
+    async onRowReorder(e: TableRowReorderEvent) {
+        const rules = this.rules();
+        const ids = rules.map(r => r.id!);
+
+        await lastValueFrom(this.ruleClient.reorder(new ReorderRulesRequest({ ids: ids })));
+    }
+
 
     private async update() {
         this.rules.set(await lastValueFrom(this.ruleClient.getAll()));

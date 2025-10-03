@@ -13,10 +13,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CreateRuleRequest, RulesClient, RuleValidationErrorResponse, UpdateRuleRequest } from '../../../server';
 import { lastValueFrom } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-edit-rule',
-    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule],
+    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule],
     templateUrl: './edit-rule.component.html',
     styleUrl: './edit-rule.component.scss'
 })

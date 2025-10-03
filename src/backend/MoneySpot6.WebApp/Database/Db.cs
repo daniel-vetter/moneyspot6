@@ -241,6 +241,7 @@ public class DbCategory
 public class DbRule
 {
     public int Id { get; set; }
+    public int SortIndex { get; set; }
     public required string Name { get; set; }
     public required string Script { get; set; }
 }

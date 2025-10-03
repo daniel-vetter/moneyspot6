@@ -9,15 +9,20 @@
 
     @if (rules().length > 0) {
 
-    <p-table [value]="rules()" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+    <p>Regeln werden von oben nach unten abgearbeitet. Die letzte treffende Regel gewinnt.</p>
+
+    <p-table [value]="rules()" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}" [reorderableColumns]="true" (onRowReorder)="onRowReorder($event)">
         <ng-template pTemplate="header">
             <tr>
                 <th>Name</th>
                 <th></th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-rule>
-            <tr>
+        <ng-template pTemplate="body" let-rule let-index="rowIndex">
+            <tr [pReorderableRow]="index">
+                <td style="width: 1rem;">
+                    <span class="pi pi-bars" pReorderableRowHandle></span>
+                </td>
                 <td>{{ rule.name }}</td>
                 <td style="text-align: right;">
                     <p-button icon="pi pi-pencil" (onClick)="onEditRule(rule)" title="Regel bearbeiten" rounded="true" [style]="{ 'margin-right': '.5em' }" variant="text" />
