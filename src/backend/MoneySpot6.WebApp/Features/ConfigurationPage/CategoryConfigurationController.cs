@@ -254,7 +254,6 @@ public record CreateCategoryValidationErrorResponse
     [Required] public bool InvalidParent { get; set; }
     [Required] public bool InvalidAutoAssignmentCounterpartyRegex { get; set; }
     [Required] public bool InvalidAutoAssignmentPurposeRegex { get; set; }
-
 }
 
 public record UpdateCategoryValidationErrorResponse

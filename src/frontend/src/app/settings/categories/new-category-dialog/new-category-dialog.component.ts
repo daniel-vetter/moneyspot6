@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
     styleUrl: './new-category-dialog.component.scss'
 })
 export class NewCategoryDialogComponent implements OnInit {
+    private dialogConfig = inject(DynamicDialogConfig);
     private dialogRef = inject(DynamicDialogRef);
     private categoryConfigurationClient = inject(CategoryConfigurationClient);
 
@@ -27,13 +28,11 @@ export class NewCategoryDialogComponent implements OnInit {
     parentId: number | undefined;
 
     constructor() {
-        const dialogConfig = inject(DynamicDialogConfig);
-
-        this.id = dialogConfig.data.id;
-        this.parentId = dialogConfig.data.parentId;
-        dialogConfig.header = this.id === undefined ? "Neue Kategorie" : "Kategorie bearbeiten";
-        dialogConfig.width = "500px";
-        dialogConfig.height = "620px";
+        this.id = this.dialogConfig.data.id;
+        this.parentId = this.dialogConfig.data.parentId;
+        this.dialogConfig.header = this.id === undefined ? "Neue Kategorie" : "Kategorie bearbeiten";
+        this.dialogConfig.width = "500px";
+        this.dialogConfig.height = "620px";
     }
 
     async ngOnInit() {

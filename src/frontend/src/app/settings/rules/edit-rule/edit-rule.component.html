@@ -1,0 +1,25 @@
+<form style="height: 100%; padding-top: 0.5rem" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+
+        <div class="form-field">
+            <div>Name:</div>
+            <div class="" style="width: 100%;">
+                <input type="text" pInputText formControlName="name" name="name" autocomplete="off" style="width: 100%;" width="100%" autofocus />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['required']">Ein Name muss angegeben werden.</p-message>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">Es existiert bereits eine Regel mit
+                    diesem Name.</p-message>
+            </div>
+        </div>
+
+
+        <div #container style="padding-top: 2px; flex: 1; border: 1px solid var(--p-panel-border-color)"></div>
+
+        <div class="horizontal">
+            <div class="spacer"></div>
+            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
+            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok"></p-button>
+        </div>
+    </div>
+</form>

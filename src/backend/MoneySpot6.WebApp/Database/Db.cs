@@ -12,6 +12,7 @@ public class Db : DbContext
     public DbSet<DbStockPrice> StockPrices { get; init; }
     public DbSet<DbStockTransaction> StockTransactions { get; init; }
     public DbSet<DbCategory> Categories { get; init; }
+    public DbSet<DbRule> Rules { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -234,6 +235,14 @@ public class DbCategory
     public required string Name { get; set; }
     public required string AutoAssignmentCounterpartyRegex { get; set; }
     public required string AutoAssignmentPurposeRegex { get; set; }
+}
+
+[Table("Rules")]
+public class DbRule
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public required string Script { get; set; }
 }
 
 public enum StockPriceInterval
