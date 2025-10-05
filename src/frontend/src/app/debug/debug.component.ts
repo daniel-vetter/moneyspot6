@@ -23,6 +23,11 @@ export class DebugComponent implements OnDestroy, OnInit {
         await lastValueFrom(this.debugClient.reimportLast30DayStocks());
     }
 
+    async OnReseedDatabaseClicked() {
+        await lastValueFrom(this.debugClient.reseedDatabase());
+    }
+
+
     ngOnInit(): void {
         this.intervall = setInterval(async () => {
             this.runningProcesses = await lastValueFrom(this.debugClient.getRunningAdapters());

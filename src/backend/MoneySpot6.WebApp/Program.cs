@@ -5,14 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.AccountSync;
 using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
-using MoneySpot6.WebApp.Features.ConfigurationPage;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
-using Npgsql;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
-using System.Diagnostics;
 
 namespace MoneySpot6.WebApp;
 
