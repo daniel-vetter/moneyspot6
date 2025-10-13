@@ -25,6 +25,8 @@
     "codemirror": "^6.0.2",
     "highcharts": "^12.2.0",
     "highcharts-angular": "^4.0.1",
+    "monaco-editor": "^0.53.0",
+    "monaco-yaml": "^5.4.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.1.1",
     "rxjs": "~7.8.2",

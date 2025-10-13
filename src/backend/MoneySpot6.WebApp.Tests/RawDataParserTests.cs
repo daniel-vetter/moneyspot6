@@ -1,5 +1,5 @@
 ﻿using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.AccountSync.Services;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Parsing;
 using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests;

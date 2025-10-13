@@ -306,6 +306,62 @@ namespace MoneySpot6.WebApp.Database.Migrations
                                 .HasColumnType("text");
                         });
 
+                    b.ComplexProperty<Dictionary<string, object>>("Processed", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Processed#DbBankAccountTransactionProcessedData", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("AccountNumber")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("AlternateInitiator")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("AlternateReceiver")
+                                .HasColumnType("text");
+
+                            b1.Property<decimal?>("Amount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<string>("BankCode")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Bic")
+                                .HasColumnType("text");
+
+                            b1.Property<int?>("CategoryId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("CreditorIdentifier")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("CustomerReference")
+                                .HasColumnType("text");
+
+                            b1.Property<DateOnly?>("Date")
+                                .HasColumnType("date");
+
+                            b1.Property<string>("EndToEndReference")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Iban")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MandateReference")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Name")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("OriginatorIdentifier")
+                                .HasColumnType("text");
+
+                            b1.Property<int?>("PaymentProcessor")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Purpose")
+                                .HasColumnType("text");
+                        });
+
                     b.ComplexProperty<Dictionary<string, object>>("Raw", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Raw#DbBankAccountTransactionRawData", b1 =>
                         {
                             b1.IsRequired();
@@ -482,16 +538,24 @@ namespace MoneySpot6.WebApp.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CompiledCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Script")
+                    b.Property<string>("OriginalCode")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("SortIndex")
                         .HasColumnType("integer");
+
+                    b.Property<string>("SourceMap")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

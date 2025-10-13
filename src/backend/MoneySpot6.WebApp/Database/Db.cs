@@ -75,9 +75,29 @@ public class DbBankAccountTransaction
     public int Id { get; set; }
     public required string Source { get; set; }
     public required DbBankAccount BankAccount { get; set; }
+    /// <summary>
+    /// Raw data as imported from the bank
+    /// </summary>
     public required DbBankAccountTransactionRawData Raw { get; set; }
+
+    /// <summary>
+    /// Parsed data from the raw data. This cleans things up like extracting extracting IBAN/BIC/Name from the purpose field
+    /// </summary>
     public required DbBankAccountTransactionParsedData Parsed { get; set; }
+
+    /// <summary>
+    /// Processed data contains all values set by the rule engine
+    /// </summary>
+    public required DbBankAccountTransactionProcessedData Processed { get; set; }
+
+    /// <summary>
+    /// Overriden values set by the user
+    /// </summary>
     public required DbBankAccountTransactionOverrideData Overridden { get; set; }
+
+    /// <summary>
+    /// The final data used for displaying and statistics. This is a merge of the Parsed, Processed and Overridden data.
+    /// </summary>
     public required DbBankAccountTransactionFinalData Final { get; set; }
     public required string Note { get; set; }
 }
@@ -105,6 +125,71 @@ public class DbBankAccountTransactionRawData
     public string? EndToEndId { get; set; }
     public string? PurposeCode { get; set; }
     public string? MandateId { get; set; }
+}
+
+[ComplexType]
+public class DbBankAccountTransactionParsedData
+{
+    public required DateOnly Date { get; set; }
+    public required string Purpose { get; set; }
+    public required string Name { get; set; }
+    public required string BankCode { get; set; }
+    public required string AccountNumber { get; set; }
+    public required string Iban { get; set; }
+    public required string Bic { get; set; }
+    public required decimal Amount { get; set; }
+    public int? CategoryId { get; set; }
+    public required string EndToEndReference { get; set; }
+    public required string CustomerReference { get; set; }
+    public required string MandateReference { get; set; }
+    public required string CreditorIdentifier { get; set; }
+    public required string OriginatorIdentifier { get; set; }
+    public required string AlternateInitiator { get; set; }
+    public required string AlternateReceiver { get; set; }
+    public required PaymentProcessor PaymentProcessor { get; set; }
+
+    public static DbBankAccountTransactionParsedData Default => new()
+    {
+        AccountNumber = "",
+        AlternateInitiator = "",
+        Date = default,
+        Purpose = "",
+        Name = "",
+        BankCode = "",
+        Iban = "",
+        Bic = "",
+        Amount = 0,
+        EndToEndReference = "",
+        CustomerReference = "",
+        MandateReference = "",
+        CreditorIdentifier = "",
+        OriginatorIdentifier = "",
+        AlternateReceiver = "",
+        PaymentProcessor = PaymentProcessor.None
+    };
+}
+
+
+[ComplexType]
+public class DbBankAccountTransactionProcessedData
+{
+    public DateOnly? Date { get; set; }
+    public string? Purpose { get; set; }
+    public string? Name { get; set; }
+    public string? BankCode { get; set; }
+    public string? AccountNumber { get; set; }
+    public string? Iban { get; set; }
+    public string? Bic { get; set; }
+    public decimal? Amount { get; set; }
+    public int? CategoryId { get; set; }
+    public string? EndToEndReference { get; set; }
+    public string? CustomerReference { get; set; }
+    public string? MandateReference { get; set; }
+    public string? CreditorIdentifier { get; set; }
+    public string? OriginatorIdentifier { get; set; }
+    public string? AlternateInitiator { get; set; }
+    public string? AlternateReceiver { get; set; }
+    public PaymentProcessor? PaymentProcessor { get; set; }
 }
 
 [ComplexType]
@@ -142,28 +227,6 @@ public class CounterpartyAccount
 }
 
 [ComplexType]
-public class DbBankAccountTransactionParsedData
-{
-    public required DateOnly Date { get; set; }
-    public required string Purpose { get; set; }
-    public required string Name { get; set; }
-    public required string BankCode { get; set; }
-    public required string AccountNumber { get; set; }
-    public required string Iban { get; set; }
-    public required string Bic { get; set; }
-    public required decimal Amount { get; set; }
-    public int? CategoryId { get; set; }
-    public required string EndToEndReference { get; set; }
-    public required string CustomerReference { get; set; }
-    public required string MandateReference { get; set; }
-    public required string CreditorIdentifier { get; set; }
-    public required string OriginatorIdentifier { get; set; }
-    public required string AlternateInitiator { get; set; }
-    public required string AlternateReceiver { get; set; }
-    public required PaymentProcessor PaymentProcessor { get; set; }
-}
-
-[ComplexType]
 public class DbBankAccountTransactionFinalData
 {
     public required DateOnly Date { get; set; }
@@ -183,6 +246,26 @@ public class DbBankAccountTransactionFinalData
     public string AlternateInitiator { get; set; } = "";
     public string AlternateReceiver { get; set; } = "";
     public PaymentProcessor PaymentProcessor { get; set; } = PaymentProcessor.None;
+    
+    public static DbBankAccountTransactionFinalData Default => new()
+    {
+        AccountNumber = "",
+        AlternateInitiator = "",
+        Date = default,
+        Purpose = "",
+        Name = "",
+        BankCode = "",
+        Iban = "",
+        Bic = "",
+        Amount = 0,
+        EndToEndReference = "",
+        CustomerReference = "",
+        MandateReference = "",
+        CreditorIdentifier = "",
+        OriginatorIdentifier = "",
+        AlternateReceiver = "",
+        PaymentProcessor = PaymentProcessor.None
+    };
 }
 
 public enum PaymentProcessor
@@ -243,7 +326,9 @@ public class DbRule
     public int Id { get; set; }
     public int SortIndex { get; set; }
     public required string Name { get; set; }
-    public required string Script { get; set; }
+    public required string OriginalCode { get; set; }
+    public required string CompiledCode { get; set; }
+    public required string SourceMap { get; set; }
 }
 
 public enum StockPriceInterval

@@ -10,6 +10,7 @@ import { ReorderRulesRequest, RuleResponse, RulesClient } from '../../server';
 import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 
+
 @Component({
     selector: 'app-rules',
     imports: [PanelModule, ButtonModule, TableModule, CommonModule],

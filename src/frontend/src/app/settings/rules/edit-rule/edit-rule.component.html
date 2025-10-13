@@ -13,13 +13,17 @@
             </div>
         </div>
 
+        <div>
+            <div #container style="flex: 1; border: 1px solid var(--p-panel-border-color); height: 500px;"></div>
+        </div>
 
-        <div #container style="padding-top: 2px; flex: 1; border: 1px solid var(--p-panel-border-color)"></div>
+
+        <p-message [severity]="infoMessageSeverity" variant="outlined">{{ infoMessage }}</p-message>
 
         <div class="horizontal">
             <div class="spacer"></div>
             <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
-            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok"></p-button>
+            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid || codeError !== undefined || codeErrorStillThinking === true" label="Ok"></p-button>
         </div>
     </div>
 </form>

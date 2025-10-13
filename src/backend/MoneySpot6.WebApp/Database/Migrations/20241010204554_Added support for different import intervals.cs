@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MoneySpot6.WebApp.Features.Stocks.PriceImport.YahooAdapter;
 
 #nullable disable
 

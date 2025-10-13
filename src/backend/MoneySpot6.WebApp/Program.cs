@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.AccountSync;
-using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
+using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+using MoneySpot6.WebApp.Features.Ui.AccountSync;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
 
