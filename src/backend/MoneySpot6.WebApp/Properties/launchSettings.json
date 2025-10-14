@@ -4,7 +4,7 @@
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "http://localhost:5182/swagger/",
       "applicationUrl": "http://localhost:5182",
       "environmentVariables": {

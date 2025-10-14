@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host 127.0.0.1",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -19,10 +19,14 @@
     "@angular/platform-browser-dynamic": "^20.2.4",
     "@angular/router": "^20.2.4",
     "@angular/service-worker": "^20.2.4",
+    "@codemirror/lang-javascript": "^6.2.4",
     "@microsoft/signalr": "^9.0.6",
     "@primeng/themes": "^20.1.1",
+    "codemirror": "^6.0.2",
     "highcharts": "^12.2.0",
     "highcharts-angular": "^4.0.1",
+    "monaco-editor": "^0.54.0",
+    "monaco-yaml": "^5.4.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.1.1",
     "rxjs": "~7.8.2",

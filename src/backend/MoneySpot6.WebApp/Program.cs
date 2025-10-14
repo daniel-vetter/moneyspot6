@@ -3,14 +3,10 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.AccountSync;
-using MoneySpot6.WebApp.Features.AccountSync.Services.Adapter;
+using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+using MoneySpot6.WebApp.Features.Ui.AccountSync;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
-using Npgsql;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 
 namespace MoneySpot6.WebApp;
 
@@ -65,14 +61,9 @@ public class Program
                         ctx.ProtocolMessage.RedirectUri = builder.Configuration.GetValue<string>("Domain") + "/signin-oidc";
                     return Task.CompletedTask;
                 };
-
             });
 
-        var app = builder.Build();
-        if (await app.Services.CreateTypeScriptClient(args))
-            return;
-
-        
+        var app = builder.Build();        
         app.UseResponseCompression();
         app.UseDefaultFiles();
         app.UseStaticFiles();
@@ -89,6 +80,9 @@ public class Program
         app.MapDefaultEndpoints();
         app.MapHub<AccountSyncHub>("/api/account-sync");
         app.MapFallbackToFile("/index.html");
+
+        if (await app.Services.CreateTypeScriptClient(args))
+            return;
 
         using (var scope = app.Services.CreateScope())
             await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
