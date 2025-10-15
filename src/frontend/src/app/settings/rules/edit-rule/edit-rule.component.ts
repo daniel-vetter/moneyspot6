@@ -59,7 +59,7 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
     async ngAfterViewInit(): Promise<void> {
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
             target: monaco.languages.typescript.ScriptTarget.ES2020,
-            module: monaco.languages.typescript.ModuleKind.None,
+            module: monaco.languages.typescript.ModuleKind.ES2015,
             sourceMap: true,
             allowJs: true,
             checkJs: true,

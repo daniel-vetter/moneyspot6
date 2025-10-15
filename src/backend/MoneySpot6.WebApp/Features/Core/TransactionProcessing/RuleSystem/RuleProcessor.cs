@@ -1,10 +1,14 @@
-﻿using System.Collections.Immutable;
+﻿using InfluxDB.Client.Api.Domain;
 using Jint;
 using Jint.Native;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Infrastructure;
-using Newtonsoft.Json.Linq;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.RuleSystem;
 
@@ -30,26 +34,18 @@ public class RuleProcessor
 
         var allCategoryKeys = await _ruleCategoryKeyProvider.GetAll();
 
-        var results = ImmutableArray.CreateBuilder<DbBankAccountTransactionProcessedData>(parsed.Length);
-        foreach (var p in parsed)
-            results.Add(Process(p, allRules, allCategoryKeys));
-
-        return results.ToImmutable();
+        return Process(parsed, allRules, allCategoryKeys);
     }
 
-    private DbBankAccountTransactionProcessedData Process(DbBankAccountTransactionParsedData parsed, ImmutableArray<DbRule> rules, ImmutableArray<CategoryKey> categoryKeys)
+    private ImmutableArray<DbBankAccountTransactionProcessedData> Process(ImmutableArray<DbBankAccountTransactionParsedData> parsedEntries, ImmutableArray<DbRule> rules, ImmutableArray<CategoryKey> categoryKeys)
     {
-        var changes = new DbBankAccountTransactionProcessedData();
-
-        foreach (var rule in rules)
+        using var engine = new Jint.Engine(x =>
         {
-            using var engine = new Jint.Engine(x =>
-            {
-                x.LimitMemory(4 * 1024 * 1024);
-                x.TimeoutInterval(TimeSpan.FromSeconds(3));
-            });
+            x.LimitMemory(4 * 1024 * 1024);
+            x.TimeoutInterval(TimeSpan.FromSeconds(30));
+        });
 
-            var preCode = $$"""
+        var globalCode = $$"""
                            class Transaction {
                          
                                constructor(inner) {
@@ -65,7 +61,7 @@ public class RuleProcessor
                                } 
                                
                                get name() { 
-                                return this.inner.Name; 
+                                   return this.inner.Name; 
                                }
                                set name(value) { 
                                    this.inner.Name = value;
@@ -180,13 +176,37 @@ public class RuleProcessor
                            const Category = Object.freeze({
                              {{string.Join(",\n", categoryKeys.Select(x => $"{x.Name}: {x.Id}").ToArray())}}
                            });
-                           
 
-                           function _run(t) { 
-                               run(new Transaction(t)); 
-                           }
                            """;
+        engine.Execute(globalCode);
 
+        foreach (var rule in rules)
+        {
+            engine.Modules.Add("rule" + rule.Id, rule.CompiledCode);
+        }
+
+        var mainModuleCode = new StringBuilder();
+        foreach (var rule in rules)
+            mainModuleCode.AppendLine($$"""import { run as runRule{{rule.Id}} } from 'rule{{rule.Id}}'""");
+
+        mainModuleCode.AppendLine("export function runAll(data) {");
+        mainModuleCode.AppendLine("    const wrapped = new Transaction(data);");        
+        foreach(var rule in rules)
+        {
+            mainModuleCode.AppendLine("    try {");
+            mainModuleCode.AppendLine("        runRule" + rule.Id + "(wrapped);");
+            mainModuleCode.AppendLine("    } catch {"); //TODO
+            mainModuleCode.AppendLine("    }");
+        }
+        mainModuleCode.AppendLine("}");
+        engine.Modules.Add("main", mainModuleCode.ToString());
+
+        var mainModul = engine.Modules.Import("main");
+        var runAll = mainModul.Get("runAll");
+
+        var result = ImmutableArray.CreateBuilder<DbBankAccountTransactionProcessedData>(parsedEntries.Length);
+        foreach (var parsed in parsedEntries)
+        {
             var data = new TransactionData
             {
                 Purpose = parsed.Purpose,
@@ -206,16 +226,8 @@ public class RuleProcessor
                 AlternateReceiver = parsed.AlternateReceiver,
             };
 
-            try
-            {
-                engine.Execute(preCode);
-                engine.Execute(rule.CompiledCode);
-                engine.Call("_run", JsValue.FromObject(engine, data));
-            }
-            catch (JintException e)
-            {
-                _logger.LogError(e, $"Rule {rule.Id} failed");
-            }
+            var changes = new DbBankAccountTransactionProcessedData();
+            engine.Invoke(runAll, data);
 
             if (data.PurposeChanged)
                 changes.Purpose = data.Purpose;
@@ -248,9 +260,10 @@ public class RuleProcessor
             if (data.AlternateReceiverChanged)
                 changes.AlternateReceiver = data.AlternateReceiver;
 
+            result.Add(changes);
         }
 
-        return changes;
+        return result.ToImmutable();
     }
 }
 
@@ -300,5 +313,24 @@ class TransactionData
 
     public required string AlternateReceiver { get; set; }
     public bool AlternateReceiverChanged { get; set; }
+
+    public void ClearChangeFlags()
+    {
+        PurposeChanged = false;
+        NameChanged = false;
+        BankCodeChanged = false;
+        AccountNumberChanged = false;
+        CategoryChanged = false;
+        IbanChanged = false;
+        BicChanged = false;
+        AmountChanged = false;
+        EndToEndReferenceChanged = false;
+        CustomerReferenceChanged = false;
+        MandateReferenceChanged = false;
+        CreditorIdentifierChanged = false;
+        OriginatorIdentifierChanged = false;
+        AlternateInitiatorChanged = false;
+        AlternateReceiverChanged = false;
+    }
 
 }
