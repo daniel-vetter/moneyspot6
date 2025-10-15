@@ -102,7 +102,7 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
 
         console.log(categoryKeysString);
 
-        let code = 'function run(t: Transaction) {\n    \n}';
+        let code = 'export function run(t: Transaction) {\n    \n}';
         if (this.id !== undefined) {
             const r = await lastValueFrom(this.ruleClient.getById(this.id));
             this.form.get('name')?.setValue(r.name);
