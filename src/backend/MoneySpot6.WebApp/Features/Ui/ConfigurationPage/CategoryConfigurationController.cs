@@ -241,7 +241,7 @@ public record CategoryResponse
     [Required] public int Id { get; init; }
     [Required] public required string Name { get; init; }
     [Required] public required string AutoAssignmentCounterpartyRegex { get; init; }
-    [Required] public required string AutoAssignmentPurposeRegex { get; init; }Us
+    [Required] public required string AutoAssignmentPurposeRegex { get; init; }
     [Required] public required ImmutableArray<CategoryResponse> Children { get; init; }
 }
 
