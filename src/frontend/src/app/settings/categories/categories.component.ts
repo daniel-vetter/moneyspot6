@@ -100,7 +100,6 @@ export class CategoriesComponent implements OnInit {
                 data: {
                     id: entry.id,
                     name: entry.name,
-                    usages: entry.usages
                 },
                 children: this.map(entry.children || [])
             })
