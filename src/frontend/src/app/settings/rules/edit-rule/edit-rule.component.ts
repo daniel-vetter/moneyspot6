@@ -60,6 +60,8 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
             target: monaco.languages.typescript.ScriptTarget.ES2020,
             module: monaco.languages.typescript.ModuleKind.ES2015,
+            allowNonTsExtensions: true,
+            lib: ["es2020"],
             sourceMap: true,
             allowJs: true,
             checkJs: true,
@@ -116,6 +118,7 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
 
         this.editor = monaco.editor.create(this.container.nativeElement, {
             model: this.model,
+            scrollBeyondLastLine: false,
             quickSuggestions: {
                 other: true,
                 comments: true,
