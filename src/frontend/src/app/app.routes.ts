@@ -11,15 +11,15 @@ import { SettingsComponent } from './settings/settings.component';
 import { CategoriesComponent } from './categories/categories.component';
 
 export const routes: Routes = [
-    { path: '', component: SummaryComponent },
-    { path: 'summary', component: SummaryComponent },
-    { path: 'transactions', component: TransactionsComponent },
-    { path: 'history', component: HistoryComponent },
-    { path: 'income-expense', component: IncomeExpenseReportComponent },
-    { path: 'categories', component: CategoriesComponent },
-    { path: 'stock-transactions', component: StockTransactionsComponent },
-    { path: 'stock-transactions/orders/:id', component: StockDetailsComponent },
-    { path: 'stock-history', component: StockHistoryComponent },
-    { path: 'settings', component: SettingsComponent },
-    { path: 'debug', component: DebugComponent },
+    { path: '', component: SummaryComponent, title: 'MoneySpot - Übersicht' },
+    { path: 'summary', component: SummaryComponent, title: 'MoneySpot - Übersicht' },
+    { path: 'transactions', component: TransactionsComponent, title: 'MoneySpot - Transaktionen' },
+    { path: 'history', component: HistoryComponent, title: 'MoneySpot - Trends' },
+    { path: 'income-expense', component: IncomeExpenseReportComponent, title: 'MoneySpot - Cashflow' },
+    { path: 'categories', component: CategoriesComponent, title: 'MoneySpot - Kategorien' },
+    { path: 'stock-transactions', component: StockTransactionsComponent, title: 'MoneySpot - Aktien-Trades' },
+    { path: 'stock-transactions/orders/:id', component: StockDetailsComponent, title: 'MoneySpot - Aktien-Trades' },
+    { path: 'stock-history', component: StockHistoryComponent, title: 'MoneySpot - Kursverlauf' },
+    { path: 'settings', component: SettingsComponent, title: 'MoneySpot - Einstellungen' },
+    { path: 'debug', component: DebugComponent, title: 'MoneySpot - Debug' },
 ];

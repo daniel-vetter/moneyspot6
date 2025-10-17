@@ -3437,7 +3437,6 @@ export class CategoryResponse implements ICategoryResponse {
     name!: string;
     autoAssignmentCounterpartyRegex!: string;
     autoAssignmentPurposeRegex!: string;
-    usages!: number;
     children!: CategoryResponse[];
 
     constructor(data?: ICategoryResponse) {
@@ -3458,7 +3457,6 @@ export class CategoryResponse implements ICategoryResponse {
             this.name = _data["name"];
             this.autoAssignmentCounterpartyRegex = _data["autoAssignmentCounterpartyRegex"];
             this.autoAssignmentPurposeRegex = _data["autoAssignmentPurposeRegex"];
-            this.usages = _data["usages"];
             if (Array.isArray(_data["children"])) {
                 this.children = [] as any;
                 for (let item of _data["children"])
@@ -3480,7 +3478,6 @@ export class CategoryResponse implements ICategoryResponse {
         data["name"] = this.name;
         data["autoAssignmentCounterpartyRegex"] = this.autoAssignmentCounterpartyRegex;
         data["autoAssignmentPurposeRegex"] = this.autoAssignmentPurposeRegex;
-        data["usages"] = this.usages;
         if (Array.isArray(this.children)) {
             data["children"] = [];
             for (let item of this.children)
@@ -3495,7 +3492,6 @@ export interface ICategoryResponse {
     name: string;
     autoAssignmentCounterpartyRegex: string;
     autoAssignmentPurposeRegex: string;
-    usages: number;
     children: CategoryResponse[];
 }
 

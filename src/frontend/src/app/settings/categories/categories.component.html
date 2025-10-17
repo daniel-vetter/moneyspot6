@@ -11,7 +11,6 @@
         <ng-template #header>
             <tr>
                 <th>Name</th>
-                <th>Zuweisungen</th>
                 <th></th>
             </tr>
         </ng-template>
@@ -21,7 +20,6 @@
                     <p-treetable-toggler [rowNode]="rowNode" />
                     {{ rowData.name }}
                 </td>
-                <td>{{ rowData.usages }}</td>
                 <td style="text-align: right;">
                     <p-button icon="pi pi-plus" (onClick)="onNewCategoryClicked(rowData.id)" title="Unterkategorie hinzufügen" rounded="true" [style]="{ 'margin-right': '.5em' }"
                         variant="text" />
