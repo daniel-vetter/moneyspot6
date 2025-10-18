@@ -1713,7 +1713,7 @@ export class RulesClient {
         return _observableOf(null as any);
     }
 
-    create(request: CreateRuleRequest): Observable<void> {
+    create(request: NewRuleRequest): Observable<number> {
         let url_ = this.baseUrl + "/api/Rules/Create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1725,6 +1725,7 @@ export class RulesClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             })
         };
 
@@ -1735,21 +1736,29 @@ export class RulesClient {
                 try {
                     return this.processCreate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<number>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<number>;
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<void> {
+    protected processCreate(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
@@ -1764,7 +1773,7 @@ export class RulesClient {
         return _observableOf(null as any);
     }
 
-    update(request: UpdateRuleRequest): Observable<FileResponse> {
+    update(request: UpdateRuleRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/Rules/Update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1776,7 +1785,6 @@ export class RulesClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
-                "Accept": "application/octet-stream"
             })
         };
 
@@ -1787,31 +1795,27 @@ export class RulesClient {
                 try {
                     return this.processUpdate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
+                    return _observableThrow(e) as any as Observable<void>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
+                return _observableThrow(response_) as any as Observable<void>;
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<FileResponse> {
+    protected processUpdate(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = RuleValidationErrorResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1876,7 +1880,7 @@ export class RulesClient {
         return _observableOf(null as any);
     }
 
-    getCategoryKeys(): Observable<CateogryKeyResponse[]> {
+    getCategoryKeys(): Observable<CategoryKeyResponse[]> {
         let url_ = this.baseUrl + "/api/Rules/CategoryKeys";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1895,14 +1899,14 @@ export class RulesClient {
                 try {
                     return this.processGetCategoryKeys(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CateogryKeyResponse[]>;
+                    return _observableThrow(e) as any as Observable<CategoryKeyResponse[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CateogryKeyResponse[]>;
+                return _observableThrow(response_) as any as Observable<CategoryKeyResponse[]>;
         }));
     }
 
-    protected processGetCategoryKeys(response: HttpResponseBase): Observable<CateogryKeyResponse[]> {
+    protected processGetCategoryKeys(response: HttpResponseBase): Observable<CategoryKeyResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1916,7 +1920,7 @@ export class RulesClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(CateogryKeyResponse.fromJS(item));
+                    result200!.push(CategoryKeyResponse.fromJS(item));
             }
             else {
                 result200 = null as any;
@@ -3695,6 +3699,7 @@ export class RuleResponse implements IRuleResponse {
     id!: number;
     name!: string;
     originalCode!: string;
+    hasSyntaxErrors!: boolean;
 
     constructor(data?: IRuleResponse) {
         if (data) {
@@ -3710,6 +3715,7 @@ export class RuleResponse implements IRuleResponse {
             this.id = _data["id"];
             this.name = _data["name"];
             this.originalCode = _data["originalCode"];
+            this.hasSyntaxErrors = _data["hasSyntaxErrors"];
         }
     }
 
@@ -3725,6 +3731,7 @@ export class RuleResponse implements IRuleResponse {
         data["id"] = this.id;
         data["name"] = this.name;
         data["originalCode"] = this.originalCode;
+        data["hasSyntaxErrors"] = this.hasSyntaxErrors;
         return data;
     }
 }
@@ -3733,6 +3740,7 @@ export interface IRuleResponse {
     id: number;
     name: string;
     originalCode: string;
+    hasSyntaxErrors: boolean;
 }
 
 export class RuleValidationErrorResponse implements IRuleValidationErrorResponse {
@@ -3775,13 +3783,13 @@ export interface IRuleValidationErrorResponse {
     nameAlreadyInUse: boolean;
 }
 
-export class CreateRuleRequest implements ICreateRuleRequest {
+export class NewRuleRequest implements INewRuleRequest {
     name!: string;
     originalCode!: string;
     compiledCode!: string;
     sourceMap!: string;
 
-    constructor(data?: ICreateRuleRequest) {
+    constructor(data?: INewRuleRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3799,9 +3807,9 @@ export class CreateRuleRequest implements ICreateRuleRequest {
         }
     }
 
-    static fromJS(data: any): CreateRuleRequest {
+    static fromJS(data: any): NewRuleRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateRuleRequest();
+        let result = new NewRuleRequest();
         result.init(data);
         return result;
     }
@@ -3816,7 +3824,7 @@ export class CreateRuleRequest implements ICreateRuleRequest {
     }
 }
 
-export interface ICreateRuleRequest {
+export interface INewRuleRequest {
     name: string;
     originalCode: string;
     compiledCode: string;
@@ -3922,11 +3930,11 @@ export interface IReorderRulesRequest {
     ids: number[];
 }
 
-export class CateogryKeyResponse implements ICateogryKeyResponse {
+export class CategoryKeyResponse implements ICategoryKeyResponse {
     id!: number;
     name!: string;
 
-    constructor(data?: ICateogryKeyResponse) {
+    constructor(data?: ICategoryKeyResponse) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3942,9 +3950,9 @@ export class CateogryKeyResponse implements ICateogryKeyResponse {
         }
     }
 
-    static fromJS(data: any): CateogryKeyResponse {
+    static fromJS(data: any): CategoryKeyResponse {
         data = typeof data === 'object' ? data : {};
-        let result = new CateogryKeyResponse();
+        let result = new CategoryKeyResponse();
         result.init(data);
         return result;
     }
@@ -3957,7 +3965,7 @@ export class CateogryKeyResponse implements ICateogryKeyResponse {
     }
 }
 
-export interface ICateogryKeyResponse {
+export interface ICategoryKeyResponse {
     id: number;
     name: string;
 }

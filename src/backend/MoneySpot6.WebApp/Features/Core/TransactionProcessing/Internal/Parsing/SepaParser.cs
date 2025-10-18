@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
-namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Parsing;
+namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal.Parsing;
 
 [SingletonService]
 public class SepaParser

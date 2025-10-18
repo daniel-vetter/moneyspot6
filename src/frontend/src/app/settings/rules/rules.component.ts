@@ -9,11 +9,13 @@ import { EditRuleComponent } from './edit-rule/edit-rule.component';
 import { ReorderRulesRequest, RuleResponse, RulesClient } from '../../server';
 import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 
 
 @Component({
     selector: 'app-rules',
-    imports: [PanelModule, ButtonModule, TableModule, CommonModule],
+    imports: [PanelModule, ButtonModule, TableModule, CommonModule, TooltipModule, TagModule],
     providers: [DialogService],
     templateUrl: './rules.component.html',
     styleUrl: './rules.component.scss'

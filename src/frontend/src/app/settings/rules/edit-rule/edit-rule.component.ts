@@ -6,7 +6,7 @@ import { MessageModule } from 'primeng/message';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CreateRuleRequest, RulesClient, RuleValidationErrorResponse, UpdateRuleRequest } from '../../../server';
+import { NewRuleRequest, RulesClient, RuleValidationErrorResponse, UpdateRuleRequest } from '../../../server';
 import { lastValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
@@ -176,7 +176,7 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
 
         try {
             if (this.id === undefined) {
-                await lastValueFrom(this.ruleClient.create(new CreateRuleRequest({
+                await lastValueFrom(this.ruleClient.create(new NewRuleRequest({
                     name: this.form.controls.name.value!,
                     originalCode: this.editor?.getModel()?.getValue() || "",
                     compiledCode: jsOutput.text,

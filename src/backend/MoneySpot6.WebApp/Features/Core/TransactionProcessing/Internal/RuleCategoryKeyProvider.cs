@@ -4,7 +4,7 @@ using MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 using System.Collections.Immutable;
 using System.Text;
 
-namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.RuleSystem;
+namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 
 [ScopedService]
 public class RuleCategoryKeyProvider
@@ -47,12 +47,12 @@ public class RuleCategoryKeyProvider
     {
         name = name.Trim();
         bool isLetter(char c) =>
-            (c >= 'a' && c <= 'z') ||
-            (c >= 'A' && c <= 'Z') || 
+            c >= 'a' && c <= 'z' ||
+            c >= 'A' && c <= 'Z' || 
             c == '_';
 
         bool isNumber(char c) =>
-            (c >= '0' && c <= '9');
+            c >= '0' && c <= '9';
 
         if (name.Length == 0)
             return "_";

@@ -20,7 +20,8 @@ var backend = builder
 
 builder
     .AddNpmApp("Frontend", "../../frontend")
-    .WithUrl("http://localhost:4200")
+    .WithEndpoint(4200, scheme: "http", isProxied: false)
+    .WithHttpHealthCheck("/")
     .WaitFor(backend);
 
 builder.Build().Run();

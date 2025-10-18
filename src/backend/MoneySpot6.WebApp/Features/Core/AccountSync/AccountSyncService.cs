@@ -4,17 +4,18 @@ using MoneySpot6.WebApp.Common;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 
 namespace MoneySpot6.WebApp.Features.Core.AccountSync;
 
 [ScopedService]
-public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, ExternalDataProvider externalDataProvider, TransactionProcessor transactionProcessor)
+public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, ExternalDataProvider externalDataProvider, TransactionProcessingFacade transactionProcessingFacade)
 {
     public async Task<ImmutableArray<int>> Sync(IAdapterCallbackHandler callbackHandler, CancellationToken ct)
     {
         var connection = await db.BankConnections
             .AsTracking()
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(ct);
 
         if (connection == null)
             throw new Exception("No connection found");
@@ -28,7 +29,7 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
             userId: connection.UserId,
             customerId: connection.CustomerId,
             pin: connection.Pin,
-            startDate: connection.LastSuccessfulSync.HasValue ? connection.LastSuccessfulSync.Value.AddDays(-2) : DateTimeOffset.UtcNow.AddDays(-10),
+            startDate: connection.LastSuccessfulSync?.AddDays(-2) ?? DateTimeOffset.UtcNow.AddDays(-10),
             callbackHandler: callbackHandler,
             ct
         );
@@ -37,9 +38,14 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
 
         connection.LastSuccessfulSync = DateTimeOffset.UtcNow;
         var newTransactions = await MergeAccounts(connection, result);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
 
-        return [..newTransactions.Select(x => x.Id)];
+        var newIds = newTransactions
+            .Select(x => x.Id)
+            .ToImmutableArray();
+        
+        await transactionProcessingFacade.UpdateTransactions(newIds);
+        return newIds;
     }
 
     private async Task<ImmutableArray<DbBankAccountTransaction>> MergeAccounts(DbBankConnection connection, RpcSyncResponse result)
@@ -170,8 +176,6 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
             allNewTransactions.Add(newTrans);
         }
 
-        var result = allNewTransactions.ToImmutable();
-        await transactionProcessor.Update(result);
-        return result;
+        return allNewTransactions.ToImmutable();
     }
 }
