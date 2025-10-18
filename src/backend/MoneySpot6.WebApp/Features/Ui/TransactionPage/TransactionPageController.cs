@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 
 namespace MoneySpot6.WebApp.Features.Ui.TransactionPage;
 
@@ -12,12 +13,12 @@ namespace MoneySpot6.WebApp.Features.Ui.TransactionPage;
 public class TransactionPageController : Controller
 {
     private readonly Db _db;
-    private readonly TransactionProcessor _transactionDetailsCalculator;
+    private readonly TransactionProcessingFacade _transactionProcessingFacade;
 
-    public TransactionPageController(Db db, TransactionProcessor transactionDetailsCalculator)
+    public TransactionPageController(Db db, TransactionProcessingFacade transactionProcessingFacade)
     {
         _db = db;
-        _transactionDetailsCalculator = transactionDetailsCalculator;
+        _transactionProcessingFacade = transactionProcessingFacade;
     }
 
     [HttpGet]
@@ -154,9 +155,9 @@ public class TransactionPageController : Controller
             PaymentProcessor = update.OverriddenDetails.PaymentProcessor
         };
         entry.Note = update.Note;
-        await _transactionDetailsCalculator.Update([entry]);
-
         await _db.SaveChangesAsync();
+        
+        await _transactionProcessingFacade.UpdateTransactions([entry.Id]);
         return Ok();
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Parsing;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing.RuleSystem;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal.Parsing;
 using MoneySpot6.WebApp.Infrastructure;
 
-namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 
 [ScopedService]
 public class TransactionProcessor
@@ -20,24 +19,23 @@ public class TransactionProcessor
         _db = db;
         _ruleProcessor = ruleProcessor;
     }
-
-    public async Task Update(ImmutableArray<DbBankAccountTransaction> transactions)
+    
+    public async Task Update(ImmutableArray<int>? ids = null)
     {
-        var rules = await _db
-            .Rules
-            .AsNoTracking()
-            .OrderBy(x => x.SortIndex)
+        var transactions = await _db.BankAccountTransactions
+            .AsTracking()
+            .Where(x => ids.HasValue == false || ids.Value.Contains(x.Id))
             .ToImmutableArrayAsync();
-
+        
         foreach (var transaction in transactions)
             transaction.Parsed = _rawDataParser.Parse(transaction.Raw);
 
-        var processResults = await _ruleProcessor.Process(transactions.Select(x => x.Parsed).ToImmutableArray());
-        for (int i = 0; i < transactions.Length; i++)
-            transactions[i].Processed = processResults[i];
+        await _ruleProcessor.Update(transactions);
 
         foreach (var transaction in transactions)
             transaction.Final = MergeToFinal(transaction.Parsed, transaction.Processed, transaction.Overridden);
+
+        await _db.SaveChangesAsync(); 
     }
 
     private DbBankAccountTransactionFinalData MergeToFinal(DbBankAccountTransactionParsedData parsed, DbBankAccountTransactionProcessedData processed, DbBankAccountTransactionOverrideData overrides)
@@ -63,17 +61,5 @@ public class TransactionProcessor
             PaymentProcessor = overrides.PaymentProcessor ?? processed.PaymentProcessor ?? parsed.PaymentProcessor
         };
         return final;
-    }
-
-    public async Task UpdateAll()
-    {
-        var all = await _db
-            .BankAccountTransactions
-            .AsTracking()
-            .ToImmutableArrayAsync();
-
-        await Update(all);
-        
-        await _db.SaveChangesAsync();
     }
 }

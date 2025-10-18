@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 using MoneySpot6.WebApp.Infrastructure;
 
 namespace MoneySpot6.WebApp.Features.Ui.Debug;
@@ -14,14 +15,14 @@ namespace MoneySpot6.WebApp.Features.Ui.Debug;
 public class DebugController : Controller
 {
     private readonly Db _db;
-    private readonly TransactionProcessor _transactionDetailsCalculator;
+    private readonly TransactionProcessingFacade _transactionProcessingFacade;
     private readonly ExternalProcessMonitor _externalProcessMonitor;
     private readonly ILogger<DebugController> _logger;
 
-    public DebugController(Db db, TransactionProcessor transactionDetailsCalculator, ExternalProcessMonitor externalProcessMonitor, ILogger<DebugController> logger)
+    public DebugController(Db db, TransactionProcessingFacade transactionProcessingFacade, ExternalProcessMonitor externalProcessMonitor, ILogger<DebugController> logger)
     {
         _db = db;
-        _transactionDetailsCalculator = transactionDetailsCalculator;
+        _transactionProcessingFacade = transactionProcessingFacade;
         _externalProcessMonitor = externalProcessMonitor;
         _logger = logger;
     }
@@ -31,11 +32,9 @@ public class DebugController : Controller
     {
         _logger.LogInformation("Recalculating transactions...");
         var sw = Stopwatch.StartNew();
-        var transactions = await _db.BankAccountTransactions.AsTracking().ToImmutableArrayAsync();
-        await _transactionDetailsCalculator.Update(transactions);
+        await _transactionProcessingFacade.UpdateTransactions();
         await _db.SaveChangesAsync();
-
-        _logger.LogInformation("Recalculated {count} transaction in {duration}.", transactions.Length, sw.Elapsed);
+        _logger.LogInformation("Recalculated all transaction in {duration}.", sw.Elapsed);
     }
 
     [HttpPost("ReimportLast30DayStocks")]
@@ -176,14 +175,14 @@ public class DebugController : Controller
         {
             Name = "Dummy Rule",
             OriginalCode = """
-                           function run(t: Transaction) {
+                           export function run(t: Transaction) {
                                 if (t.purpose.endsWith("1")) {
                                     t.purpose = "Test";
                                 }
                            }
                            """,
             CompiledCode = """
-                           function run(t) {
+                           export function run(t) {
                                 if (t.purpose.endsWith("1")) {
                                     t.purpose = "Test";
                                 }

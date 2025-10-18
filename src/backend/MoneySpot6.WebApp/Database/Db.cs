@@ -329,6 +329,7 @@ public class DbRule
     public required string OriginalCode { get; set; }
     public required string CompiledCode { get; set; }
     public required string SourceMap { get; set; }
+    public bool HasSyntaxIssues { get; set; }
 }
 
 public enum StockPriceInterval

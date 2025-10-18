@@ -1,7 +1,7 @@
 ﻿using MoneySpot6.WebApp.Common;
 using MoneySpot6.WebApp.Database;
 
-namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Parsing;
+namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal.Parsing;
 
 [SingletonService]
 public class RawDataParser

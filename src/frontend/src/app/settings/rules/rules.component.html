@@ -23,7 +23,14 @@
                 <td style="width: 1rem;">
                     <span class="pi pi-bars" pReorderableRowHandle></span>
                 </td>
-                <td>{{ rule.name }}</td>
+                <td>
+                    <span style="padding-right: 1rem;">
+                        {{ rule.name }}
+                    </span>
+                    @if (rule.hasSyntaxErrors) {
+                    <p-tag value="Syntax Fehler" severity="danger" pTooltip="Diese Regel hat Syntaxfehler und wird nicht ausgeführt." [rounded]="true" />
+                    }
+                </td>
                 <td style="text-align: right;">
                     <p-button icon="pi pi-pencil" (onClick)="onEditRule(rule)" title="Regel bearbeiten" rounded="true" [style]="{ 'margin-right': '.5em' }" variant="text" />
                     <p-button icon="pi pi-trash" (onClick)="onDeleteRule(rule)" severity="warn" title="Regel löschen" rounded="true" variant="text"
