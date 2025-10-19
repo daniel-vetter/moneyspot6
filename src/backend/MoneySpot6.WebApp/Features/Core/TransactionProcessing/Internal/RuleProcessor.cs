@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Infrastructure;
+﻿using MoneySpot6.WebApp.Database;
 using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
@@ -8,12 +6,10 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 [ScopedService]
 public class RuleProcessor
 {
-    private readonly ILogger<RuleProcessor> _logger;
     private readonly RuleJsEngineProvider _ruleJsEngineProvider;
 
-    public RuleProcessor(ILogger<RuleProcessor> logger, RuleJsEngineProvider ruleJsEngineProvider)
+    public RuleProcessor(RuleJsEngineProvider ruleJsEngineProvider)
     {
-        _logger = logger;
         _ruleJsEngineProvider = ruleJsEngineProvider;
     }
 
@@ -23,7 +19,6 @@ public class RuleProcessor
         var mainModule = engine.Modules.Import("main");
         var runAll = mainModule.Get("runAll");
 
-        var result = ImmutableArray.CreateBuilder<DbBankAccountTransactionProcessedData>(transactions.Length);
         foreach (var transaction in transactions)
         {
             var data = new TransactionData
@@ -84,6 +79,7 @@ public class RuleProcessor
     }
 }
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 class TransactionData
 {
     public required string Purpose { get; init; }
@@ -131,3 +127,4 @@ class TransactionData
     public required string AlternateReceiver { get; init; }
     public bool AlternateReceiverChanged { get; set; }
 }
+// ReSharper enable UnusedAutoPropertyAccessor.Global
