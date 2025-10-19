@@ -1,5 +1,8 @@
 ﻿using MoneySpot6.WebApp.Database;
 using System.Collections.Immutable;
+using Jint;
+using Jint.Native;
+using Microsoft.EntityFrameworkCore;
 
 namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 
@@ -7,10 +10,12 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 public class RuleProcessor
 {
     private readonly RuleJsEngineProvider _ruleJsEngineProvider;
+    private readonly Db _db;
 
-    public RuleProcessor(RuleJsEngineProvider ruleJsEngineProvider)
+    public RuleProcessor(RuleJsEngineProvider ruleJsEngineProvider, Db db)
     {
         _ruleJsEngineProvider = ruleJsEngineProvider;
+        _db = db;
     }
 
     public async Task Update(ImmutableArray<DbBankAccountTransaction> transactions)
@@ -18,6 +23,7 @@ public class RuleProcessor
         using var engine = await _ruleJsEngineProvider.Create();
         var mainModule = engine.Modules.Import("main");
         var runAll = mainModule.Get("runAll");
+        var ruleErrors = ImmutableDictionary.CreateBuilder<int, string>();
 
         foreach (var transaction in transactions)
         {
@@ -41,8 +47,14 @@ public class RuleProcessor
             };
 
             var processed = new DbBankAccountTransactionProcessedData();
-            engine.Invoke(runAll, data);
-
+            var errors = (JsArray)engine.Invoke(runAll, data);
+            foreach (var error in errors.Cast<JsObject>())
+            {
+                var ruleId = (int)error["ruleId"].AsNumber();
+                var message = error["message"].AsString();
+                ruleErrors.TryAdd(ruleId, message);
+            }
+            
             if (data.PurposeChanged)
                 processed.Purpose = data.Purpose;
             if (data.NameChanged)
@@ -76,6 +88,20 @@ public class RuleProcessor
 
             transaction.Processed = processed;
         }
+
+        await PersistRuleRuntimeErrors(ruleErrors.ToImmutable());
+    }
+
+    private async Task PersistRuleRuntimeErrors(ImmutableDictionary<int, string> ruleErrors)
+    {
+        var rules = await _db.Rules
+            .AsTracking()
+            .ToArrayAsync();
+
+        foreach (var rule in rules) 
+            rule.RuntimeError = CollectionExtensions.GetValueOrDefault(ruleErrors, rule.Id);
+
+        await _db.SaveChangesAsync();
     }
 }
 

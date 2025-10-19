@@ -30,6 +30,9 @@
                     @if (rule.hasSyntaxErrors) {
                     <p-tag value="Syntax Fehler" severity="danger" pTooltip="Diese Regel hat Syntaxfehler und wird nicht ausgeführt." [rounded]="true" />
                     }
+                    @if (rule.runtimeError) {
+                    <p-tag value="Laufzeit Fehler" severity="danger" [pTooltip]="'Diese Regel hat zur Laufzeit Fehler produziert: ' + rule.runtimeError" [rounded]="true" />
+                    }
                 </td>
                 <td style="text-align: right;">
                     <p-button icon="pi pi-pencil" (onClick)="onEditRule(rule)" title="Regel bearbeiten" rounded="true" [style]="{ 'margin-right': '.5em' }" variant="text" />

@@ -25,7 +25,8 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing
                 Id = x.Id,
                 Name = x.Name,
                 OriginalCode = x.OriginalCode,
-                HasSyntaxErrors = x.HasSyntaxIssues
+                HasSyntaxErrors = x.HasSyntaxIssues,
+                RuntimeError = x.RuntimeError
             }).ToImmutableArray();
         }
 
@@ -43,7 +44,8 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing
                 Id = rule.Id,
                 Name = rule.Name,
                 OriginalCode = rule.OriginalCode,
-                HasSyntaxErrors = rule.HasSyntaxIssues
+                HasSyntaxErrors = rule.HasSyntaxIssues,
+                RuntimeError = rule.RuntimeError
             });
         }
 
@@ -157,6 +159,7 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing
         public required string Name { get; init; }
         public required string OriginalCode { get; init; }
         public required bool HasSyntaxErrors { get; init; }
+        public required string? RuntimeError { get; set; }
     }
 
     public record NewRule

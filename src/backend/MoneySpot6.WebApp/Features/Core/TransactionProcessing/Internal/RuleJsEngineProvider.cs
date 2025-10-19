@@ -28,7 +28,8 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
             foreach (var rule in rules)
             {
                 engine.Modules.Add($"rule{rule.Id}", rule.CompiledCode);
-                engine.Modules.Add($"rule{rule.Id}Test", $$"""import { run as runRule{{rule.Id}} } from 'rule{{rule.Id}}'""");
+                engine.Modules.Add($"rule{rule.Id}Test",
+                    $$"""import { run as runRule{{rule.Id}} } from 'rule{{rule.Id}}'""");
 
                 try
                 {
@@ -53,14 +54,21 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
 
             mainModuleCode.AppendLine("export function runAll(data) {");
             mainModuleCode.AppendLine("    const wrapped = new Transaction(data);");
+            mainModuleCode.AppendLine("    const errors = []");
             foreach (var rule in validRules)
             {
                 mainModuleCode.AppendLine("    try {");
                 mainModuleCode.AppendLine("        runRule" + rule.Id + "(wrapped);");
-                mainModuleCode.AppendLine("    } catch {"); //TODO
+                mainModuleCode.AppendLine("    } catch(e) {");
+                mainModuleCode.AppendLine("        let msg = '';");
+                mainModuleCode.AppendLine("        if (e instanceof Error) msg = `${e.name}: ${e.message}\\n${e.stack}`");
+                mainModuleCode.AppendLine("        else if (typeof e === 'object' && e !== null) msg = JSON.stringify(e, null, 2);");
+                mainModuleCode.AppendLine("        else msg = String(e)");
+                mainModuleCode.AppendLine("        errors.push({ruleId: "+ rule.Id +", message: msg })");
                 mainModuleCode.AppendLine("    }");
             }
 
+            mainModuleCode.AppendLine("return errors;");
             mainModuleCode.AppendLine("}");
             engine.Modules.Add("main", mainModuleCode.ToString());
 
