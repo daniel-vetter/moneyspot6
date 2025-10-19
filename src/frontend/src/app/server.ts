@@ -3700,6 +3700,7 @@ export class RuleResponse implements IRuleResponse {
     name!: string;
     originalCode!: string;
     hasSyntaxErrors!: boolean;
+    runtimeError?: string | undefined;
 
     constructor(data?: IRuleResponse) {
         if (data) {
@@ -3716,6 +3717,7 @@ export class RuleResponse implements IRuleResponse {
             this.name = _data["name"];
             this.originalCode = _data["originalCode"];
             this.hasSyntaxErrors = _data["hasSyntaxErrors"];
+            this.runtimeError = _data["runtimeError"];
         }
     }
 
@@ -3732,6 +3734,7 @@ export class RuleResponse implements IRuleResponse {
         data["name"] = this.name;
         data["originalCode"] = this.originalCode;
         data["hasSyntaxErrors"] = this.hasSyntaxErrors;
+        data["runtimeError"] = this.runtimeError;
         return data;
     }
 }
@@ -3741,6 +3744,7 @@ export interface IRuleResponse {
     name: string;
     originalCode: string;
     hasSyntaxErrors: boolean;
+    runtimeError?: string | undefined;
 }
 
 export class RuleValidationErrorResponse implements IRuleValidationErrorResponse {

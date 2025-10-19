@@ -1,20 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Infrastructure;
+﻿using MoneySpot6.WebApp.Database;
 using System.Collections.Immutable;
+using Jint;
+using Jint.Native;
+using Microsoft.EntityFrameworkCore;
 
 namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 
 [ScopedService]
 public class RuleProcessor
 {
-    private readonly ILogger<RuleProcessor> _logger;
     private readonly RuleJsEngineProvider _ruleJsEngineProvider;
+    private readonly Db _db;
 
-    public RuleProcessor(ILogger<RuleProcessor> logger, RuleJsEngineProvider ruleJsEngineProvider)
+    public RuleProcessor(RuleJsEngineProvider ruleJsEngineProvider, Db db)
     {
-        _logger = logger;
         _ruleJsEngineProvider = ruleJsEngineProvider;
+        _db = db;
     }
 
     public async Task Update(ImmutableArray<DbBankAccountTransaction> transactions)
@@ -22,8 +23,8 @@ public class RuleProcessor
         using var engine = await _ruleJsEngineProvider.Create();
         var mainModule = engine.Modules.Import("main");
         var runAll = mainModule.Get("runAll");
+        var ruleErrors = ImmutableDictionary.CreateBuilder<int, string>();
 
-        var result = ImmutableArray.CreateBuilder<DbBankAccountTransactionProcessedData>(transactions.Length);
         foreach (var transaction in transactions)
         {
             var data = new TransactionData
@@ -46,8 +47,14 @@ public class RuleProcessor
             };
 
             var processed = new DbBankAccountTransactionProcessedData();
-            engine.Invoke(runAll, data);
-
+            var errors = (JsArray)engine.Invoke(runAll, data);
+            foreach (var error in errors.Cast<JsObject>())
+            {
+                var ruleId = (int)error["ruleId"].AsNumber();
+                var message = error["message"].AsString();
+                ruleErrors.TryAdd(ruleId, message);
+            }
+            
             if (data.PurposeChanged)
                 processed.Purpose = data.Purpose;
             if (data.NameChanged)
@@ -81,9 +88,24 @@ public class RuleProcessor
 
             transaction.Processed = processed;
         }
+
+        await PersistRuleRuntimeErrors(ruleErrors.ToImmutable());
+    }
+
+    private async Task PersistRuleRuntimeErrors(ImmutableDictionary<int, string> ruleErrors)
+    {
+        var rules = await _db.Rules
+            .AsTracking()
+            .ToArrayAsync();
+
+        foreach (var rule in rules) 
+            rule.RuntimeError = CollectionExtensions.GetValueOrDefault(ruleErrors, rule.Id);
+
+        await _db.SaveChangesAsync();
     }
 }
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 class TransactionData
 {
     public required string Purpose { get; init; }
@@ -131,3 +153,4 @@ class TransactionData
     public required string AlternateReceiver { get; init; }
     public bool AlternateReceiverChanged { get; set; }
 }
+// ReSharper enable UnusedAutoPropertyAccessor.Global

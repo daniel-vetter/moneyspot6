@@ -29,7 +29,8 @@ public class RulesController : Controller
             Id = x.Id,
             Name = x.Name,
             OriginalCode = x.OriginalCode,
-            HasSyntaxErrors = x.HasSyntaxErrors
+            HasSyntaxErrors = x.HasSyntaxErrors,
+            RuntimeError = x.RuntimeError
         }).ToImmutableArray();
     }
 
@@ -46,7 +47,8 @@ public class RulesController : Controller
                 Id = r.Id,
                 Name = r.Name,
                 OriginalCode = r.OriginalCode,
-                HasSyntaxErrors = r.HasSyntaxErrors
+                HasSyntaxErrors = r.HasSyntaxErrors,
+                RuntimeError = r.RuntimeError
             }),
             e => e.RuleIdNotFound 
                 ? NotFound() 
@@ -141,7 +143,8 @@ public record RuleResponse
     [Required] public int Id { get; set; }
     [Required] public required string Name { get; set; }
     [Required] public required string OriginalCode { get; set; }
-    [Required] public bool HasSyntaxErrors { get; set; }
+    [Required] public required bool HasSyntaxErrors { get; set; }
+    public required string? RuntimeError { get; set; }
 }
 
 [PublicAPI]
