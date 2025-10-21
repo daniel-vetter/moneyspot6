@@ -6,16 +6,16 @@ using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.Shared;
 
-namespace MoneySpot6.WebApp.Features.Ui.IncomeExpensesPage;
+namespace MoneySpot6.WebApp.Features.Ui.CashflowPage;
 
 [ApiController]
 [Route("api/[controller]")]
-public class IncomeExpenseController : Controller
+public class CashflowController : Controller
 {
     private readonly Db _db;
     private readonly StockDataProvider _stockDataProvider;
 
-    public IncomeExpenseController(Db db, StockDataProvider stockDataProvider)
+    public CashflowController(Db db, StockDataProvider stockDataProvider)
     {
         _db = db;
         _stockDataProvider = stockDataProvider;

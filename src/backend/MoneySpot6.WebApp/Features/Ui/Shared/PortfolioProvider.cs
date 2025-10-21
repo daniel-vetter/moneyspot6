@@ -33,7 +33,7 @@ public class PortfolioProvider
             {
                 x.Key.StockId,
                 x.Key.StockName,
-                Transactions = x.OrderBy(x => x.Date).ThenBy(x => x.Id).ToImmutableArray()
+                Transactions = x.OrderBy(y => y.Date).ThenBy(z => z.Id).ToImmutableArray()
             });
 
         var stockPrices = await _stockDataProvider.GetStockPrices();
@@ -124,25 +124,25 @@ public class PortfolioProvider
 
 public record PortfolioStock
 {
-    public required int StockId { get; set; }
-    public required string StockName { get; set; }
-    public required decimal PurchaseAmount { get; set; }
-    public required decimal PurchasePrice { get; set; }
-    public required decimal SoldAmount { get; set; }
-    public required decimal SoldPrice { get; set; }
-    public required decimal SoldTax { get; set; }
-    public required decimal RemainingAmount { get; set; }
-    public required decimal RemainingPrice { get; set; }
-    public required decimal RemainingTax { get; set; }
-    public required ImmutableArray<PortfolioStockPurchases> Purchases { get; set; }
+    public required int StockId { get; init; }
+    public required string StockName { get; init; }
+    public required decimal PurchaseAmount { get; init; }
+    public required decimal PurchasePrice { get; init; }
+    public required decimal SoldAmount { get; init; }
+    public required decimal SoldPrice { get; init; }
+    public required decimal SoldTax { get; init; }
+    public required decimal RemainingAmount { get; init; }
+    public required decimal RemainingPrice { get; init; }
+    public required decimal RemainingTax { get; init; }
+    public required ImmutableArray<PortfolioStockPurchases> Purchases { get; init; }
 }
 
 public record PortfolioStockPurchases
 {
     public int BuyTransactionId { get; init; }
-    public required DateOnly Date { get; set; }
-    public required decimal PurchaseAmount { get; set; }
-    public required decimal PurchasePrice { get; set; }
+    public required DateOnly Date { get; init; }
+    public required decimal PurchaseAmount { get; init; }
+    public required decimal PurchasePrice { get; init; }
     public required decimal SoldAmount { get; set; }
     public required decimal SoldPrice { get; set; }
     public required decimal SoldTax { get; set; }

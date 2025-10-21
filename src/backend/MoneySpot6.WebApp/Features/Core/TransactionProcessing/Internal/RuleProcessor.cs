@@ -1,8 +1,8 @@
-﻿using MoneySpot6.WebApp.Database;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Jint;
 using Jint.Native;
 using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 

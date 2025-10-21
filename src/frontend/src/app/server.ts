@@ -897,79 +897,6 @@ export class StockChartPageClient {
 }
 
 @Injectable({providedIn: 'root'})
-export class IncomeExpenseClient {
-    private http: HttpClient;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-        this.http = http;
-        this.baseUrl = baseUrl ?? "";
-    }
-
-    get(search: string | null | undefined, grouping: IncomeExpenseGrouping): Observable<IncomeExpenseEntryResponse[]> {
-        let url_ = this.baseUrl + "/api/IncomeExpense/GetMonthlyIncomeAndExpenses?";
-        if (search !== undefined && search !== null)
-            url_ += "search=" + encodeURIComponent("" + search) + "&";
-        if (grouping === undefined || grouping === null)
-            throw new globalThis.Error("The parameter 'grouping' must be defined and cannot be null.");
-        else
-            url_ += "grouping=" + encodeURIComponent("" + grouping) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGet(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGet(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<IncomeExpenseEntryResponse[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<IncomeExpenseEntryResponse[]>;
-        }));
-    }
-
-    protected processGet(response: HttpResponseBase): Observable<IncomeExpenseEntryResponse[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(IncomeExpenseEntryResponse.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-}
-
-@Injectable({providedIn: 'root'})
 export class AccountHistoryClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -2049,6 +1976,79 @@ export class CategoryPageClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = SankeyDataResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({providedIn: 'root'})
+export class CashflowClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    get(search: string | null | undefined, grouping: IncomeExpenseGrouping): Observable<IncomeExpenseEntryResponse[]> {
+        let url_ = this.baseUrl + "/api/Cashflow/GetMonthlyIncomeAndExpenses?";
+        if (search !== undefined && search !== null)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
+        if (grouping === undefined || grouping === null)
+            throw new globalThis.Error("The parameter 'grouping' must be defined and cannot be null.");
+        else
+            url_ += "grouping=" + encodeURIComponent("" + grouping) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<IncomeExpenseEntryResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<IncomeExpenseEntryResponse[]>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<IncomeExpenseEntryResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(IncomeExpenseEntryResponse.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3290,60 +3290,6 @@ export enum StockPriceInterval {
     Daily = 1440,
 }
 
-export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
-    month!: number;
-    income!: number;
-    expense!: number;
-    stockBalance!: number;
-
-    constructor(data?: IIncomeExpenseEntryResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.month = _data["month"];
-            this.income = _data["income"];
-            this.expense = _data["expense"];
-            this.stockBalance = _data["stockBalance"];
-        }
-    }
-
-    static fromJS(data: any): IncomeExpenseEntryResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new IncomeExpenseEntryResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["month"] = this.month;
-        data["income"] = this.income;
-        data["expense"] = this.expense;
-        data["stockBalance"] = this.stockBalance;
-        return data;
-    }
-}
-
-export interface IIncomeExpenseEntryResponse {
-    month: number;
-    income: number;
-    expense: number;
-    stockBalance: number;
-}
-
-export enum IncomeExpenseGrouping {
-    None = 0,
-    Month = 1,
-    Year = 2,
-}
-
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {
     date!: Date;
     balance!: number;
@@ -4116,6 +4062,60 @@ export interface IConnectionResponse {
     from: string;
     to: string;
     amount: number;
+}
+
+export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
+    month!: number;
+    income!: number;
+    expense!: number;
+    stockBalance!: number;
+
+    constructor(data?: IIncomeExpenseEntryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.month = _data["month"];
+            this.income = _data["income"];
+            this.expense = _data["expense"];
+            this.stockBalance = _data["stockBalance"];
+        }
+    }
+
+    static fromJS(data: any): IncomeExpenseEntryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new IncomeExpenseEntryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["month"] = this.month;
+        data["income"] = this.income;
+        data["expense"] = this.expense;
+        data["stockBalance"] = this.stockBalance;
+        return data;
+    }
+}
+
+export interface IIncomeExpenseEntryResponse {
+    month: number;
+    income: number;
+    expense: number;
+    stockBalance: number;
+}
+
+export enum IncomeExpenseGrouping {
+    None = 0,
+    Month = 1,
+    Year = 2,
 }
 
 export class UserDetails implements IUserDetails {

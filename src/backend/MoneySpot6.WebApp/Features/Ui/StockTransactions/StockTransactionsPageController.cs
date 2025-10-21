@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -176,6 +177,7 @@ public class StockTransactionsPageController : Controller
     }
 }
 
+[PublicAPI]
 public class PortfolioStockResponse
 {
     [Required] public required int StockId { get; set; }
@@ -191,6 +193,7 @@ public class PortfolioStockResponse
     [Required] public required ImmutableArray<PortfolioStockPurchaseResponse> Purchases { get; set; }
 }
 
+[PublicAPI]
 public class PortfolioStockPurchaseResponse
 {
     [Required] public required DateOnly Date { get; set; }
@@ -204,6 +207,7 @@ public class PortfolioStockPurchaseResponse
     [Required] public required decimal RemainingTax { get; set; }
 }
 
+[PublicAPI]
 public record StockTransactionResponse
 {
     [Required] public int Id { get; init; }
@@ -214,6 +218,7 @@ public record StockTransactionResponse
     [Required] public required decimal Price { get; init; }
 }
 
+[PublicAPI]
 public record StockListEntryResponse
 {
     [Required] public required int Id { get; init; }

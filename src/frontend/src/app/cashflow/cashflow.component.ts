@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { IncomeExpenseClient, IncomeExpenseEntryResponse, IncomeExpenseGrouping } from '../server';
+import { CashflowClient, IncomeExpenseEntryResponse, IncomeExpenseGrouping } from '../server';
 import { lastValueFrom } from 'rxjs';
 import { ValueComponent } from '../common/value/value.component';
 import { PanelModule } from 'primeng/panel';
@@ -13,11 +13,11 @@ import { ViewGrouping, GroupingBarComponent, ViewData } from '../common/grouping
 @Component({
     selector: 'app-income-expense-report',
     imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, SearchBarComponent, GroupingBarComponent],
-    templateUrl: './income-expense-report.component.html',
-    styleUrl: './income-expense-report.component.scss'
+    templateUrl: './cashflow.component.html',
+    styleUrl: './cashflow.component.scss'
 })
-export class IncomeExpenseReportComponent implements OnInit {
-    private incomeExpenseClient = inject(IncomeExpenseClient);
+export class CashflowComponent implements OnInit {
+    private cashflowClient = inject(CashflowClient);
     private activatedRoute = inject(ActivatedRoute);
 
     dataType: ViewData = 'AccountAndStocks';
@@ -39,7 +39,7 @@ export class IncomeExpenseReportComponent implements OnInit {
     private async update(): Promise<void> {
         const response = (
             await lastValueFrom(
-                this.incomeExpenseClient.get(
+                this.cashflowClient.get(
                     this.searchText,
                     this.grouping === 'Monthly'
                         ? IncomeExpenseGrouping.Month

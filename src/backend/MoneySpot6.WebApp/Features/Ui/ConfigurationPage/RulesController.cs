@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Mvc;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 
 namespace MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 

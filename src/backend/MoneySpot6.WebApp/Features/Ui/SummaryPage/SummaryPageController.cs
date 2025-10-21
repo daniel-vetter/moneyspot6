@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
@@ -116,12 +117,14 @@ public class SummaryPageController : Controller
     }
 }
 
+[PublicAPI]
 public record StockSummaryResponse
 {
     [Required] public required decimal Total { get; init; }
     [Required] public required ImmutableArray<StockSummaryEntryResponse> Entries { get; init; }
 }
 
+[PublicAPI]
 public record StockSummaryEntryResponse
 {
     [Required] public required int Id { get; init; }
@@ -130,6 +133,7 @@ public record StockSummaryEntryResponse
     [Required] public required decimal Total { get; init; }
 }
 
+[PublicAPI]
 public record BankAccountEntrySummaryResponse
 {
     [Required] public required int Id { get; init; }
@@ -137,6 +141,7 @@ public record BankAccountEntrySummaryResponse
     [Required] public required decimal Total { get; init; }
 }
 
+[PublicAPI]
 public record BankAccountTotalGoalResponse
 {
     [Required] public required DateOnly EndDate { get; init; }
@@ -146,8 +151,10 @@ public record BankAccountTotalGoalResponse
     [Required] public required ImmutableArray<BalanceEntryResponse> ExpectedHistory { get; init; }
 }
 
+[PublicAPI]
 public record BalanceEntryResponse([property:Required] DateOnly Date, [property:Required] decimal Balance);
 
+[PublicAPI]
 public record BankAccountSummaryResponse
 {
     [Required] public required ImmutableArray<BankAccountEntrySummaryResponse> Accounts { get; init; }

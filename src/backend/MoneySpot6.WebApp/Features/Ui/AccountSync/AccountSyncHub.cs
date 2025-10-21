@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.SignalR;
 using MoneySpot6.WebApp.Features.Core.AccountSync;
 using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
@@ -37,6 +38,7 @@ public class AccountSyncHub : Hub
         }
     }
 
+    [PublicAPI]
     public record SyncResult(bool CanceledByUser, string? Error, ImmutableArray<int> NewTransactions);
 }
 
@@ -82,5 +84,6 @@ public class Handler : IAdapterCallbackHandler
         await _client.SendCoreAsync("logMessage", [severity, message], ct);
     }
 
+    [PublicAPI]
     private record TanResponse(string? Tan);
 }

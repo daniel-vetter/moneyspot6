@@ -4,7 +4,6 @@ using MoneySpot6.WebApp.Common;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 
 namespace MoneySpot6.WebApp.Features.Core.AccountSync;
 

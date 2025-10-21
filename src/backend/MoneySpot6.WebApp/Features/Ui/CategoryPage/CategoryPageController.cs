@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using NJsonSchema;
 using NJsonSchema.Annotations;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 
 namespace MoneySpot6.WebApp.Features.Ui.CategoryPage
 {
@@ -77,17 +78,22 @@ namespace MoneySpot6.WebApp.Features.Ui.CategoryPage
         }
     }
 
+    [PublicAPI]
     public record SankeyDataResponse
     {
         public required ImmutableArray<NodeResponse> Nodes { get; init; }
         public required ImmutableArray<ConnectionResponse> Connections { get; init; }
     }
+    
+    [PublicAPI]
     public record NodeResponse
     {
         [Required] public required string Id { get; init; }
         [Required] public required string Name { get; init; }
         [Required] public required int Column { get; init; }
     }
+    
+    [PublicAPI]
     public record ConnectionResponse
     {
         [Required] public required string From { get; init; }
