@@ -19,14 +19,14 @@ export class MonthCarouselComponent implements OnInit {
     async ngOnInit(): Promise<void> {
         const now = new Date();
         const curMonth = now.getFullYear() * 12 + now.getMonth();
-        const entries = await lastValueFrom(this.summaryPageClient.getMonthSummary(curMonth - 12, curMonth + 1));
+        const entries = await lastValueFrom(this.summaryPageClient.getMonthSummary(curMonth - 12, curMonth));
         entries.reverse();
         this.months = entries;
     }
 
     getMonthName(monthIndex: number): string {
         const date = new Date(0);
-        date.setMonth(monthIndex - 1);
+        date.setMonth(monthIndex);
         return date.toLocaleString('default', { month: 'long' }) + " " + Math.floor(monthIndex / 12);
     }
 
