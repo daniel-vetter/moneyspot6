@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MoneySpot6.WebApp.Database;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 
@@ -151,7 +152,7 @@ public class CategoryConfigurationController : Controller
     {
         try
         {
-            Regex.Match("", pattern);
+            _ = Regex.Match("", pattern);
         }
         catch (ArgumentException)
         {
@@ -234,8 +235,13 @@ public class CategoryConfigurationController : Controller
     }
 }
 
+[PublicAPI]
 public record CreateCategoryRequest(string Name, string AutoAssignmentCounterpartyRegex, string AutoAssignmentPurposeRegex, int? ParentId);
+
+[PublicAPI]
 public record UpdateCategoryRequest(int Id, string Name, string AutoAssignmentCounterpartyRegex, string AutoAssignmentPurposeRegex);
+
+[PublicAPI]
 public record CategoryResponse
 {
     [Required] public int Id { get; init; }
@@ -245,6 +251,7 @@ public record CategoryResponse
     [Required] public required ImmutableArray<CategoryResponse> Children { get; init; }
 }
 
+[PublicAPI]
 public record CreateCategoryValidationErrorResponse
 {
     [Required] public bool MissingName { get; set; }
@@ -254,6 +261,7 @@ public record CreateCategoryValidationErrorResponse
     [Required] public bool InvalidAutoAssignmentPurposeRegex { get; set; }
 }
 
+[PublicAPI]
 public record UpdateCategoryValidationErrorResponse
 {
     [Required] public bool MissingName { get; set; }

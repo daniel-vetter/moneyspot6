@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
@@ -68,12 +69,14 @@ public class StockChartPageController : Controller
     }
 }
 
+[PublicAPI]
 public class StockResponse
 {
     public required int Id { get; init; }
     public required string Name { get; init; }
 }
 
+[PublicAPI]
 public class StockPriceResponse
 {
     [Required] public required DateTimeOffset Timestamp { get; init; }

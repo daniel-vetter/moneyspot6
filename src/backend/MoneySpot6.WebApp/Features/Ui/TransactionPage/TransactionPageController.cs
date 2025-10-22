@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 
 namespace MoneySpot6.WebApp.Features.Ui.TransactionPage;
@@ -162,6 +162,7 @@ public class TransactionPageController : Controller
     }
 }
 
+[PublicAPI]
 public record TransactionDetailsUpdateRequest
 {
     [Required] public required int Id { get; init; }
@@ -169,6 +170,7 @@ public record TransactionDetailsUpdateRequest
     [Required(AllowEmptyStrings = true)] public required string Note { get; init; }
 }
 
+[PublicAPI]
 public record TransactionDetailsResponse
 {
     [Required] public required int Id { get; init; }
@@ -177,6 +179,7 @@ public record TransactionDetailsResponse
     [Required] public required string Note { get; init; }
 }
 
+[PublicAPI]
 public class TransactionBaseDetails
 {
     public DateOnly Date { get; set; }
@@ -199,6 +202,7 @@ public class TransactionBaseDetails
 
 }
 
+[PublicAPI]
 public class TransactionOverrideDetails
 {
     public DateOnly? Date { get; set; }
@@ -220,11 +224,13 @@ public class TransactionOverrideDetails
     public PaymentProcessor? PaymentProcessor { get; set; }
 }
 
+[PublicAPI]
 public record TransactionResponse
 {
     public required ImmutableArray<TransactionEntryResponse> Entries { get; init; }
 }
 
+[PublicAPI]
 public record TransactionEntryResponse
 {
     public required int Id { get; init; }

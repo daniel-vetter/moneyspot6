@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MoneySpot6.WebApp.Features.Ui.Shared;
@@ -51,6 +52,7 @@ public class AccountHistoryController : Controller
     }
 }
     
+[PublicAPI]
 public record AccountHistoryBalanceResponse
 {
     [Required] public DateOnly Date { get; init; }

@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
 

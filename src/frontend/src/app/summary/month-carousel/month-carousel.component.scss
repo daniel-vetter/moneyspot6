@@ -1,0 +1,20 @@
+:host {
+    margin: 0 -46px;
+}
+
+.tile {
+    border: 1px solid var(--p-content-border-color);
+    border-radius: var(--p-content-border-radius);
+    padding: 1rem;
+    margin: 0.5rem;
+    background-color: white;
+}
+
+.key-value {
+    display: flex;
+    padding: 0.2rem 0;
+}
+
+.key-value > div:first-child {
+    flex: 1;
+}

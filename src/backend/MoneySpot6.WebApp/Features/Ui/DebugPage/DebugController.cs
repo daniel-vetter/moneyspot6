@@ -1,14 +1,13 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
-using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal;
-using MoneySpot6.WebApp.Infrastructure;
 
-namespace MoneySpot6.WebApp.Features.Ui.Debug;
+namespace MoneySpot6.WebApp.Features.Ui.DebugPage;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -38,13 +37,14 @@ public class DebugController : Controller
     }
 
     [HttpPost("ReimportLast30DayStocks")]
-    public async Task ReimportLast30DayStocks()
+    public Task ReimportLast30DayStocks()
     {
         //await _stockUpdater.Update(30, true, CancellationToken.None);
+        return Task.CompletedTask;
     }
 
     [HttpGet("GetRunningAdapters")]
-    public async Task<ImmutableArray<RunningProcessResponse>> GetRunningAdapters()
+    public ImmutableArray<RunningProcessResponse> GetRunningAdapters()
     {
         return [
             .._externalProcessMonitor
@@ -110,7 +110,7 @@ public class DebugController : Controller
         await _db.SaveChangesAsync();
 
         var random = new Random(42);
-        for (int i = 0; i < 1000; i++)
+        for (var i = 0; i < 1000; i++)
         {
             var date = DateOnly.FromDateTime(DateTime.Today.AddDays(-i));
             var amount = Math.Round((decimal)(random.NextDouble() * 200 - 100), 2); // -100 bis +100
@@ -196,4 +196,5 @@ public class DebugController : Controller
     }
 }
 
+[PublicAPI]
 public record RunningProcessResponse(int ProcessId, DateTime? StartTime, string? Error);
