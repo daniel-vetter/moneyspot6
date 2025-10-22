@@ -191,6 +191,21 @@ public class DebugController : Controller
             SourceMap = "",
             SortIndex = 1
         });
+
+        var stock = new DbStock
+        {
+            Name = "iShares Core MSCI World ETF",
+            Symbol = "EUNL.DE"
+        };
+        _db.Stocks.Add(stock);
+
+        _db.StockTransactions.Add(new DbStockTransaction
+        {
+            Amount = 10,
+            Date = DateOnly.FromDateTime(DateTime.Today),
+            Price = 100,
+            Stock = stock
+        });
         
         await _db.SaveChangesAsync();
     }
