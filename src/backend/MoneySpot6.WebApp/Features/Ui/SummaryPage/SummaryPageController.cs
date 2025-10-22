@@ -129,7 +129,7 @@ public class SummaryPageController : Controller
             return BadRequest("Invalid date range");
         
         var totalStartMonth = ConvertToDateOnly(startMonth);
-        var totalEndMonth = ConvertToDateOnly(endMonth);
+        var totalEndMonth = ConvertToDateOnly(endMonth).AddMonths(1);
 
         var allTransactions = await _db.BankAccountTransactions
             .AsNoTracking()
@@ -138,7 +138,7 @@ public class SummaryPageController : Controller
             .ToImmutableArrayAsync();
         
         var allTransactionsByMonth = allTransactions
-            .GroupBy(x => x.Date.Year * 12 + x.Date.Month)
+            .GroupBy(x => x.Date.Year * 12 + x.Date.Month - 1)
             .ToImmutableDictionary(x => x.Key, x => x.ToArray());
         
         var categories = await _db.Categories
@@ -155,7 +155,7 @@ public class SummaryPageController : Controller
         }
 
         var result = ImmutableArray.CreateBuilder<MonthSummaryResponse>();
-        for (var curMonth = startMonth; curMonth < endMonth; curMonth++)
+        for (var curMonth = startMonth; curMonth <= endMonth; curMonth++)
         {
             var transactionOfCurrentMonth = allTransactionsByMonth.GetValueOrDefault(curMonth) ?? [];
 

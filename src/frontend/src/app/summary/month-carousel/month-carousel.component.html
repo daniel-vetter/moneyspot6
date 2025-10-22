@@ -26,7 +26,7 @@
                         @for(category of month.categories; track category.name) {
                         <div class="key-value">
                             <div>{{ category.name }}</div>
-                            <div><app-value [value]="month.stockBalance"></app-value></div>
+                            <div><app-value [value]="category.total"></app-value></div>
                         </div>
                         }
                     </div>
