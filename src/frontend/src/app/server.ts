@@ -337,6 +337,69 @@ export class SummaryPageClient {
         }
         return _observableOf(null as any);
     }
+
+    getMonthSummary(startMonth: number | undefined, endMonth: number | undefined): Observable<MonthSummaryResponse[]> {
+        let url_ = this.baseUrl + "/api/SummaryPage/GetMonthSummary?";
+        if (startMonth === null)
+            throw new globalThis.Error("The parameter 'startMonth' cannot be null.");
+        else if (startMonth !== undefined)
+            url_ += "startMonth=" + encodeURIComponent("" + startMonth) + "&";
+        if (endMonth === null)
+            throw new globalThis.Error("The parameter 'endMonth' cannot be null.");
+        else if (endMonth !== undefined)
+            url_ += "endMonth=" + encodeURIComponent("" + endMonth) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMonthSummary(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMonthSummary(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MonthSummaryResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MonthSummaryResponse[]>;
+        }));
+    }
+
+    protected processGetMonthSummary(response: HttpResponseBase): Observable<MonthSummaryResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MonthSummaryResponse.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -2935,6 +2998,105 @@ export interface IStockSummaryEntryResponse {
     id: number;
     name: string;
     stockPrice: number;
+    total: number;
+}
+
+export class MonthSummaryResponse implements IMonthSummaryResponse {
+    month!: number;
+    accountBalance!: number;
+    stockBalance!: number;
+    categories!: MonthSummaryCategoryResponse[];
+
+    constructor(data?: IMonthSummaryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.categories = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.month = _data["month"];
+            this.accountBalance = _data["accountBalance"];
+            this.stockBalance = _data["stockBalance"];
+            if (Array.isArray(_data["categories"])) {
+                this.categories = [] as any;
+                for (let item of _data["categories"])
+                    this.categories!.push(MonthSummaryCategoryResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MonthSummaryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new MonthSummaryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["month"] = this.month;
+        data["accountBalance"] = this.accountBalance;
+        data["stockBalance"] = this.stockBalance;
+        if (Array.isArray(this.categories)) {
+            data["categories"] = [];
+            for (let item of this.categories)
+                data["categories"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IMonthSummaryResponse {
+    month: number;
+    accountBalance: number;
+    stockBalance: number;
+    categories: MonthSummaryCategoryResponse[];
+}
+
+export class MonthSummaryCategoryResponse implements IMonthSummaryCategoryResponse {
+    name!: string;
+    total!: number;
+
+    constructor(data?: IMonthSummaryCategoryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.total = _data["total"];
+        }
+    }
+
+    static fromJS(data: any): MonthSummaryCategoryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new MonthSummaryCategoryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["total"] = this.total;
+        return data;
+    }
+}
+
+export interface IMonthSummaryCategoryResponse {
+    name: string;
     total: number;
 }
 

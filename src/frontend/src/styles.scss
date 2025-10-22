@@ -268,3 +268,9 @@ label {
 p-datepicker {
     width: 100%;
 }
+
+.no-indicator {
+    .p-carousel-indicator-list {
+        display: none;
+    }
+}

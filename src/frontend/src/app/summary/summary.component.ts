@@ -11,10 +11,11 @@ import { GlobalEvents } from '../common/global-events';
 import { GoalComponent } from './goal/goal.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { minDelay } from '../common/load-delay';
+import { MonthCarouselComponent } from "./month-carousel/month-carousel.component";
 
 @Component({
     selector: 'app-summary',
-    imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent, ProgressSpinnerModule],
+    imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, GoalComponent, ProgressSpinnerModule, MonthCarouselComponent],
     templateUrl: './summary.component.html',
     styleUrl: './summary.component.scss'
 })

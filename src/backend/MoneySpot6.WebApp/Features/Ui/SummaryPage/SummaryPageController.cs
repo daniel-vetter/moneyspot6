@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.Shared;
+using MoneySpot6.WebApp.Infrastructure;
 
 namespace MoneySpot6.WebApp.Features.Ui.SummaryPage;
 
@@ -14,11 +15,13 @@ public class SummaryPageController : Controller
 {
     private readonly Db _db;
     private readonly BalanceProvider _balanceProvider;
+    private readonly StockDataProvider _stockDataProvider;
 
-    public SummaryPageController(Db db, BalanceProvider balanceProvider)
+    public SummaryPageController(Db db, BalanceProvider balanceProvider, StockDataProvider stockDataProvider)
     {
         _db = db;
         _balanceProvider = balanceProvider;
+        _stockDataProvider = stockDataProvider;
     }
 
     [HttpGet("GetBankAccountSummary")]
@@ -115,6 +118,81 @@ public class SummaryPageController : Controller
             Total = result.Aggregate(0m, (a, b) => a + b.Total)
         });
     }
+    
+    [HttpGet("GetMonthSummary")]
+    [Produces<MonthSummaryResponse[]>]
+    public async Task<IActionResult> GetMonthSummary(int startMonth, int endMonth)
+    {
+        DateOnly ConvertToDateOnly(int month) => new(month / 12, month % 12 + 1, 1);
+        
+        if (endMonth < startMonth)
+            return BadRequest("Invalid date range");
+        
+        var totalStartMonth = ConvertToDateOnly(startMonth);
+        var totalEndMonth = ConvertToDateOnly(endMonth);
+
+        var allTransactions = await _db.BankAccountTransactions
+            .AsNoTracking()
+            .Where(x => x.Final.Date >= totalStartMonth && x.Final.Date < totalEndMonth)
+            .Select(x => x.Final)
+            .ToImmutableArrayAsync();
+        
+        var allTransactionsByMonth = allTransactions
+            .GroupBy(x => x.Date.Year * 12 + x.Date.Month)
+            .ToImmutableDictionary(x => x.Key, x => x.ToArray());
+        
+        var categories = await _db.Categories
+            .AsNoTracking()
+            .ToDictionaryAsync(x => x.Id, x => x);
+        
+        DbCategory? GetRootCategory(int? id)
+        {
+            if (id == null) return null;
+            var parentId = categories[id.Value].ParentId;
+            return parentId.HasValue 
+                ? GetRootCategory(parentId.Value) 
+                : categories[id.Value];
+        }
+
+        var result = ImmutableArray.CreateBuilder<MonthSummaryResponse>();
+        for (var curMonth = startMonth; curMonth < endMonth; curMonth++)
+        {
+            var transactionOfCurrentMonth = allTransactionsByMonth.GetValueOrDefault(curMonth) ?? [];
+
+            var accountBalance = transactionOfCurrentMonth
+                .Select(x => x.Amount)
+                .Aggregate(0m, (a, b) => a + b);
+
+            var totalByCategory = transactionOfCurrentMonth
+                .GroupBy(x => GetRootCategory(x.CategoryId))
+                .Select(x => new MonthSummaryCategoryResponse
+                {
+                    Name = x.Key?.Name ?? "Sonstiges",
+                    Total = x.Select(y => y.Amount).Aggregate(0m, (a, b) => a + b)
+                })
+                .OrderByDescending(x => Math.Abs(x.Total))
+                .ToImmutableArray();
+        
+            var stockData = await _stockDataProvider.GetDailyOwnedStockValue(
+                ConvertToDateOnly(curMonth), 
+                ConvertToDateOnly(curMonth).AddMonths(1)
+            );
+            var stockValueStart = stockData.Values[0].StartOfDay.CurrentValue;
+            var stockValueEnd =  stockData.Values.Last().EndOfDay.CurrentValue;
+            var stockBalance = stockValueEnd - stockValueStart;
+
+            var entry = new MonthSummaryResponse
+            {
+                Month = curMonth,
+                AccountBalance = accountBalance,
+                StockBalance = stockBalance,
+                Categories = totalByCategory
+            };
+            result.Add(entry);
+        }
+
+        return Ok(result.ToImmutable());
+    }
 }
 
 [PublicAPI]
@@ -158,5 +236,21 @@ public record BalanceEntryResponse([property:Required] DateOnly Date, [property:
 public record BankAccountSummaryResponse
 {
     [Required] public required ImmutableArray<BankAccountEntrySummaryResponse> Accounts { get; init; }
+    [Required] public required decimal Total { get; init; }
+}
+
+[PublicAPI]
+public record MonthSummaryResponse
+{
+    [Required] public required int Month { get; init; }
+    [Required] public required decimal AccountBalance { get; init; }
+    [Required] public required decimal StockBalance { get; set; }
+    [Required] public required ImmutableArray<MonthSummaryCategoryResponse>  Categories { get; init; }
+}
+
+[PublicAPI]
+public record MonthSummaryCategoryResponse
+{
+    [Required] public required string Name { get; init; }
     [Required] public required decimal Total { get; init; }
 }
