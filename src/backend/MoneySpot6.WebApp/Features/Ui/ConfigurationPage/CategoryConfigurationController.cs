@@ -1,10 +1,11 @@
-﻿using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 
@@ -13,10 +14,12 @@ namespace MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 public class CategoryConfigurationController : Controller
 {
     private readonly Db _db;
+    private readonly TransactionProcessingFacade _transactionProcessingFacade;
 
-    public CategoryConfigurationController(Db db)
+    public CategoryConfigurationController(Db db, TransactionProcessingFacade transactionProcessingFacade)
     {
         _db = db;
+        _transactionProcessingFacade = transactionProcessingFacade;
     }
 
     [HttpGet("GetCategoryTree")]
@@ -212,6 +215,8 @@ public class CategoryConfigurationController : Controller
         cat.AutoAssignmentPurposeRegex = request.AutoAssignmentPurposeRegex;
         
         await _db.SaveChangesAsync();
+        await _transactionProcessingFacade.UpdateTransactions();
+
         return Ok();
     }
 
