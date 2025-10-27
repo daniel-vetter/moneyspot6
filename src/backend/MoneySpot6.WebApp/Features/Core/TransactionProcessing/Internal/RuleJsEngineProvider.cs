@@ -84,6 +84,8 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
                 x.Strict = true;
             });
 
+            var categories = await _ruleCategoryKeyProvider.GetAll();
+
             var globalCode = $$"""
                                class Transaction {
 
@@ -127,6 +129,9 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
                                        return this.inner.Category; 
                                    }
                                    set category(value) { 
+                                       if ([{{string.Join(",", categories.Select(x => x.Id).ToArray())}}].indexOf(value) === -1) {
+                                           throw Error("Unknown category: " + value);
+                                       }
                                        this.inner.Category = value;
                                        this.inner.CategoryChanged = true;
                                    }
@@ -213,7 +218,7 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
                                }
                                 
                                const Category = Object.freeze({
-                                 {{string.Join(",\n", (await _ruleCategoryKeyProvider.GetAll()).Select(x => $"{x.Name}: {x.Id}").ToArray())}}
+                                 {{string.Join(",\n", categories.Select(x => $"{x.Name}: {x.Id}").ToArray())}}
                                });
 
                                """;
