@@ -38,8 +38,6 @@ public class CategoryConfigurationController : Controller
                     {
                         Id = x.Id,
                         Name = x.Name,
-                        AutoAssignmentCounterpartyRegex = x.AutoAssignmentCounterpartyRegex,
-                        AutoAssignmentPurposeRegex = x.AutoAssignmentPurposeRegex,
                         Children = GetChildren(x.Id)
                     }).OrderBy(x => x.Name)
             ];
@@ -122,26 +120,12 @@ public class CategoryConfigurationController : Controller
             badRequestResponse.NameAlreadyInUse = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentCounterpartyRegex) && !IsValidRegex(request.AutoAssignmentCounterpartyRegex))
-        {
-            badRequestResponse ??= new CreateCategoryValidationErrorResponse();
-            badRequestResponse.InvalidAutoAssignmentCounterpartyRegex = true;
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentPurposeRegex) && !IsValidRegex(request.AutoAssignmentPurposeRegex))
-        {
-            badRequestResponse ??= new CreateCategoryValidationErrorResponse();
-            badRequestResponse.InvalidAutoAssignmentPurposeRegex = true;
-        }
-
         if (badRequestResponse != null)
             return BadRequest(badRequestResponse);
 
         var newCategory = new DbCategory
         {
             Name = request.Name,
-            AutoAssignmentCounterpartyRegex = request.AutoAssignmentCounterpartyRegex,
-            AutoAssignmentPurposeRegex = request.AutoAssignmentPurposeRegex,
             ParentId = request.ParentId
         };
 
@@ -195,24 +179,10 @@ public class CategoryConfigurationController : Controller
             badRequestResponse.NameAlreadyInUse = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentCounterpartyRegex) && !IsValidRegex(request.AutoAssignmentCounterpartyRegex))
-        {
-            badRequestResponse ??= new UpdateCategoryValidationErrorResponse();
-            badRequestResponse.InvalidAutoAssignmentCounterpartyRegex = true;
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.AutoAssignmentPurposeRegex) && !IsValidRegex(request.AutoAssignmentPurposeRegex))
-        {
-            badRequestResponse ??= new UpdateCategoryValidationErrorResponse();
-            badRequestResponse.InvalidAutoAssignmentPurposeRegex = true;
-        }
-
         if (badRequestResponse != null)
             return BadRequest(badRequestResponse);
 
         cat.Name = request.Name;
-        cat.AutoAssignmentCounterpartyRegex = request.AutoAssignmentCounterpartyRegex;
-        cat.AutoAssignmentPurposeRegex = request.AutoAssignmentPurposeRegex;
         
         await _db.SaveChangesAsync();
         await _transactionProcessingFacade.UpdateTransactions();
@@ -241,18 +211,16 @@ public class CategoryConfigurationController : Controller
 }
 
 [PublicAPI]
-public record CreateCategoryRequest(string Name, string AutoAssignmentCounterpartyRegex, string AutoAssignmentPurposeRegex, int? ParentId);
+public record CreateCategoryRequest(string Name, int? ParentId);
 
 [PublicAPI]
-public record UpdateCategoryRequest(int Id, string Name, string AutoAssignmentCounterpartyRegex, string AutoAssignmentPurposeRegex);
+public record UpdateCategoryRequest(int Id, string Name);
 
 [PublicAPI]
 public record CategoryResponse
 {
     [Required] public int Id { get; init; }
     [Required] public required string Name { get; init; }
-    [Required] public required string AutoAssignmentCounterpartyRegex { get; init; }
-    [Required] public required string AutoAssignmentPurposeRegex { get; init; }
     [Required] public required ImmutableArray<CategoryResponse> Children { get; init; }
 }
 
@@ -262,8 +230,6 @@ public record CreateCategoryValidationErrorResponse
     [Required] public bool MissingName { get; set; }
     [Required] public bool NameAlreadyInUse { get; set; }
     [Required] public bool InvalidParent { get; set; }
-    [Required] public bool InvalidAutoAssignmentCounterpartyRegex { get; set; }
-    [Required] public bool InvalidAutoAssignmentPurposeRegex { get; set; }
 }
 
 [PublicAPI]
@@ -271,6 +237,4 @@ public record UpdateCategoryValidationErrorResponse
 {
     [Required] public bool MissingName { get; set; }
     [Required] public bool NameAlreadyInUse { get; set; }
-    [Required] public bool InvalidAutoAssignmentCounterpartyRegex { get; set; }
-    [Required] public bool InvalidAutoAssignmentPurposeRegex { get; set; }
 }

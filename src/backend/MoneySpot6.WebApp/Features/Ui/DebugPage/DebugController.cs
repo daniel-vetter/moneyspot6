@@ -64,15 +64,11 @@ public class DebugController : Controller
 
         _db.Categories.Add(new DbCategory
         {
-            Name = "Lebensmittel",
-            AutoAssignmentCounterpartyRegex = "REWE|EDEKA|ALDI",
-            AutoAssignmentPurposeRegex = "Einkauf|Supermarkt"
+            Name = "Lebensmittel"
         });
         _db.Categories.Add(new DbCategory
         {
-            Name = "Miete",
-            AutoAssignmentCounterpartyRegex = "Vermieter|Wohnungsbau",
-            AutoAssignmentPurposeRegex = "Miete|Wohnung"
+            Name = "Miete"
         });
         await _db.SaveChangesAsync();
 
