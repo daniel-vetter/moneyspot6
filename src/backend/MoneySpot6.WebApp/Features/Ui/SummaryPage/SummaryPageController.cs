@@ -175,10 +175,10 @@ public class SummaryPageController : Controller
         
             var stockData = await _stockDataProvider.GetDailyOwnedStockValue(
                 ConvertToDateOnly(curMonth), 
-                ConvertToDateOnly(curMonth).AddMonths(1)
+                ConvertToDateOnly(curMonth).AddMonths(1).AddDays(1)
             );
             var stockValueStart = stockData.Values[0].StartOfDay.CurrentValue;
-            var stockValueEnd =  stockData.Values.Last().EndOfDay.CurrentValue;
+            var stockValueEnd =  stockData.Values.Last().StartOfDay.CurrentValue;
             var stockBalance = stockValueEnd - stockValueStart;
 
             var entry = new MonthSummaryResponse
