@@ -21,9 +21,7 @@ export class NewCategoryDialogComponent implements OnInit {
 
     id: undefined | number;
     form = new FormGroup({
-        name: new FormControl<string | undefined>(undefined, { nonNullable: true, validators: [Validators.required] }),
-        counterAccount: new FormControl<string | undefined>(undefined),
-        purpose: new FormControl<string | undefined>(undefined)
+        name: new FormControl<string | undefined>(undefined, { nonNullable: true, validators: [Validators.required] })
     });
     parentId: number | undefined;
 
@@ -39,9 +37,7 @@ export class NewCategoryDialogComponent implements OnInit {
         if (this.id !== undefined) {
             const cat = await lastValueFrom(this.categoryConfigurationClient.getCategory(this.id));
             this.form.setValue({
-                name: cat.name,
-                counterAccount: cat.autoAssignmentCounterpartyRegex,
-                purpose: cat.autoAssignmentPurposeRegex
+                name: cat.name
             });
         }
     }
@@ -56,17 +52,13 @@ export class NewCategoryDialogComponent implements OnInit {
             if (this.id === undefined) {
                 await lastValueFrom(this.categoryConfigurationClient.create(new CreateCategoryRequest({
                     name: this.form.value.name,
-                    autoAssignmentCounterpartyRegex: this.form.value.counterAccount || "",
-                    autoAssignmentPurposeRegex: this.form.value.purpose || "",
                     parentId: this.parentId
                 })));
             }
             else {
                 await lastValueFrom(this.categoryConfigurationClient.update(new UpdateCategoryRequest({
                     id: this.id,
-                    name: this.form.value.name,
-                    autoAssignmentCounterpartyRegex: this.form.value.counterAccount || "",
-                    autoAssignmentPurposeRegex: this.form.value.purpose || ""
+                    name: this.form.value.name
                 })));
             }
         } catch (error) {
@@ -76,10 +68,6 @@ export class NewCategoryDialogComponent implements OnInit {
                         this.form.controls.name.setErrors({ missingName: true });
                     if (error.nameAlreadyInUse)
                         this.form.controls.name.setErrors({ nameAlreadyInUse: true });
-                    if (error.invalidAutoAssignmentCounterpartyRegex)
-                        this.form.controls.counterAccount.setErrors({ invalid: true });
-                    if (error.invalidAutoAssignmentPurposeRegex)
-                        this.form.controls.purpose.setErrors({ invalid: true });
                     if (error instanceof CreateCategoryValidationErrorResponse) {
                         if (error.invalidParent)
                             this.form.controls.name.setErrors({ invalidParent: true });
