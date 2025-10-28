@@ -4,7 +4,7 @@ import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ValueComponent } from '../common/value/value.component';
 import { CustomDatePipe } from '../common/custom-date.pipe';
 import { PanelModule } from 'primeng/panel';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
@@ -13,6 +13,7 @@ import { ViewGrouping, GroupingBarComponent } from '../common/grouping-bar/group
 import { DialogService } from 'primeng/dynamicdialog';
 import { TransactionDetailsDialogComponent } from './transaction-details-dialog/transaction-details-dialog.component';
 import { TagModule } from 'primeng/tag';
+import { AppEvents } from '../app-events';
 
 @Component({
     selector: 'app-transactions',
@@ -24,8 +25,8 @@ import { TagModule } from 'primeng/tag';
 export class TransactionsComponent implements OnInit {
     private transactionPageClient = inject(TransactionPageClient);
     private dialogService = inject(DialogService);
-    private router = inject(Router);
     private activatedRoute = inject(ActivatedRoute);
+    private appEvents = inject(AppEvents);
 
     transactions: TransactionResponse[] = [];
     blocksShown: Block[] = [];
@@ -33,6 +34,7 @@ export class TransactionsComponent implements OnInit {
     searchText: string = '';
     isLoading = false;
     selectedGrouping: ViewGrouping = 'Monthly';
+    isFirstUpdate = true;
 
     async ngOnInit(): Promise<void> {
         this.activatedRoute.queryParams.subscribe(async (x) => {
@@ -43,6 +45,7 @@ export class TransactionsComponent implements OnInit {
     }
 
     async update(keepState: boolean = false) {
+
         const curShownBlockCount = this.blocksShown.length
         if (keepState == false) {
             this.blocksShown = [];
@@ -75,6 +78,12 @@ export class TransactionsComponent implements OnInit {
         this.blocksHidden = blocks;
         this.blocksShown = [];
         this.showMore(keepState ? curShownBlockCount : undefined);
+
+        if (this.isFirstUpdate) {
+            this.isFirstUpdate = false;
+            const hasChangedSomething = await lastValueFrom(this.transactionPageClient.markAllSeen());
+            this.appEvents.emit({ type: 'NewTransactionsSeenEvent' })
+        }
     }
 
     showMore(blocksToShow: number | undefined = undefined) {

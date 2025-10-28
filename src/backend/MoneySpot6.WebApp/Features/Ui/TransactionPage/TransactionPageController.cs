@@ -43,7 +43,8 @@ public class TransactionPageController : Controller
             x.Final.Name,
             x.Final.Purpose,
             x.Final.CategoryId,
-            x.Final.Amount
+            x.Final.Amount,
+            x.IsNew,
         }).AsAsyncEnumerable();
 
         var b = ImmutableArray.CreateBuilder<TransactionEntryResponse>();
@@ -56,7 +57,8 @@ public class TransactionPageController : Controller
                 Name = x.Name,
                 Purpose = x.Purpose,
                 CategoryName = x.CategoryId.HasValue && categories.TryGetValue(x.CategoryId.Value, out var catName) ? catName : null,
-                Amount = x.Amount
+                Amount = x.Amount,
+                IsNew = x.IsNew
             });
         }
 
@@ -160,6 +162,28 @@ public class TransactionPageController : Controller
         await _transactionProcessingFacade.UpdateTransactions([entry.Id]);
         return Ok();
     }
+
+    [HttpPost("MarkAllSeen")]
+    public async Task<bool> MarkAllSeen()
+    {
+        var changedEntries = await _db
+            .BankAccountTransactions
+            .Where(x => x.IsNew)
+            .ExecuteUpdateAsync(x => x.SetProperty(y => y.IsNew, false));
+
+        return changedEntries != 0;
+    }
+    
+    [HttpGet("GetNewCount")]
+    public async Task<int> GetNewCount()
+    {
+        var newCount = await _db
+            .BankAccountTransactions
+            .Where(x => x.IsNew)
+            .CountAsync();
+
+        return newCount;
+    }
 }
 
 [PublicAPI]
@@ -239,4 +263,5 @@ public record TransactionEntryResponse
     public required string? Purpose { get; init; }
     public required string? CategoryName { get; init; }
     public required decimal Amount { get; init; }
+    public required bool IsNew { get; init; }
 }

@@ -100,6 +100,7 @@ public class DbBankAccountTransaction
     /// </summary>
     public required DbBankAccountTransactionFinalData Final { get; set; }
     public required string Note { get; set; }
+    public required bool IsNew { get; set; }
 }
 
 [ComplexType]

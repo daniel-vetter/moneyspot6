@@ -63,5 +63,12 @@
       <jdbc-url>jdbc:postgresql://localhost:56175/?password=txtg%2BbmFH7%217ETF*JvCCuw&amp;user=postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="Postgres" uuid="82bd8f00-45b5-419f-aaff-67a1287d8231">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:57131/?password=txtg%2BbmFH7%217ETF*JvCCuw&amp;user=postgres</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

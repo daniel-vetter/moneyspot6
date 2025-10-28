@@ -54,7 +54,7 @@
             </div>
 
             @for (transaction of block.transactions; track transaction.id) {
-            <a pRipple class="horizontal line hidden-on-mobile" (click)="openTransaction(transaction)">
+            <a pRipple class="horizontal line hidden-on-mobile" [class.isNew]="transaction.isNew" (click)="openTransaction(transaction)">
                 <div class="date oneLine">{{ transaction.date! | customDate }}</div>
                 <div class="name oneLine">{{ transaction.name }}</div>
                 <div class="purpose oneLine">{{ transaction.purpose }}</div>

@@ -4,7 +4,16 @@
 
 <ul>
     <li><a pRipple [routerLink]="['']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"><i class="pi pi-home"></i> Dashboard</a></li>
-    <li><a pRipple [routerLink]="['/transactions']" routerLinkActive="active"><i class="pi pi-list"></i> Transaktionen</a></li>
+    <li><a pRipple [routerLink]="['/transactions']" routerLinkActive="active"><i class="pi pi-list"></i> Transaktionen
+            @if (newTransactionCount != 0) {
+            <div style="position: relative; display: inline">
+                <div style="position: absolute; top: -2px">
+                    <p-badge [value]="newTransactionCount" severity="warn" />
+                </div>
+            </div>
+            }
+        </a>
+    </li>
     <li><a pRipple [routerLink]="['/cashflow']" routerLinkActive="active"><i class="pi pi-money-bill"></i> Cashflow</a></li>
     <li><a pRipple [routerLink]="['/history']" routerLinkActive="active"><i class="pi pi-chart-line"></i> Verlauf</a></li>
     <li><a pRipple [routerLink]="['/categories']" routerLinkActive="active"><i class="pi pi-tags"></i> Kategorien</a></li>
