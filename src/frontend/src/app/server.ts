@@ -181,6 +181,104 @@ export class TransactionPageClient {
         }
         return _observableOf(null as any);
     }
+
+    markAllSeen(): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/TransactionPage/MarkAllSeen";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMarkAllSeen(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMarkAllSeen(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<boolean>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<boolean>;
+        }));
+    }
+
+    protected processMarkAllSeen(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getNewCount(): Observable<number> {
+        let url_ = this.baseUrl + "/api/TransactionPage/GetNewCount";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetNewCount(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetNewCount(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<number>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<number>;
+        }));
+    }
+
+    protected processGetNewCount(response: HttpResponseBase): Observable<number> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -2342,6 +2440,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
     purpose?: string | undefined;
     categoryName?: string | undefined;
     amount?: number;
+    isNew?: boolean;
 
     constructor(data?: ITransactionEntryResponse) {
         if (data) {
@@ -2360,6 +2459,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
             this.purpose = _data["purpose"];
             this.categoryName = _data["categoryName"];
             this.amount = _data["amount"];
+            this.isNew = _data["isNew"];
         }
     }
 
@@ -2378,6 +2478,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
         data["purpose"] = this.purpose;
         data["categoryName"] = this.categoryName;
         data["amount"] = this.amount;
+        data["isNew"] = this.isNew;
         return data;
     }
 }
@@ -2389,6 +2490,7 @@ export interface ITransactionEntryResponse {
     purpose?: string | undefined;
     categoryName?: string | undefined;
     amount?: number;
+    isNew?: boolean;
 }
 
 export class TransactionDetailsResponse implements ITransactionDetailsResponse {

@@ -163,7 +163,8 @@ public class DebugController : Controller
                     AlternateReceiver = "",
                     PaymentProcessor = PaymentProcessor.None
                 },
-                Note = "Seeded Transaction"
+                Note = "Seeded Transaction",
+                IsNew = false
             });
         }
         

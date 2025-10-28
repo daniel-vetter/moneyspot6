@@ -10,8 +10,8 @@ import { PanelModule } from 'primeng/panel';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { GlobalEvents } from '../common/global-events';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { AppEvents } from '../app-events';
 
 @Component({
     selector: 'app-account-sync',
@@ -21,7 +21,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 })
 export class AccountSyncComponent {
     private messageService = inject(MessageService);
-    private globalEvents = inject(GlobalEvents);
+    private appEvents = inject(AppEvents);
 
     isVisible = false;
     logMessage = '';
@@ -85,7 +85,7 @@ export class AccountSyncComponent {
             });
         }
 
-        this.globalEvents.onAccountSyncDone.next();
+        this.appEvents.emit({ type: 'TransactionSyncDone' });
         this.isVisible = false;
     }
 }

@@ -168,7 +168,8 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
                 Processed = new(),
                 Overridden = new(),
                 Final = DbBankAccountTransactionFinalData.Default,
-                Note = ""
+                Note = "",
+                IsNew = true
             };
 
             db.BankAccountTransactions.Add(newTrans); 

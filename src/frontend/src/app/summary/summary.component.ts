@@ -1,17 +1,17 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { filter, lastValueFrom, Subscription } from 'rxjs';
 import { BankAccountSummaryResponse, StockSummaryResponse, SummaryPageClient } from '../server';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
 import { ValueComponent } from '../common/value/value.component';
 import { PanelModule } from 'primeng/panel';
 import { AccountSyncComponent } from '../account-sync/account-sync.component';
-import { GlobalEvents } from '../common/global-events';
 import { GoalComponent } from './goal/goal.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { minDelay } from '../common/load-delay';
 import { MonthCarouselComponent } from "./month-carousel/month-carousel.component";
+import { AppEvents } from '../app-events';
 
 @Component({
     selector: 'app-summary',
@@ -21,7 +21,7 @@ import { MonthCarouselComponent } from "./month-carousel/month-carousel.componen
 })
 export class SummaryComponent implements OnInit, OnDestroy {
     private summaryPageClient = inject(SummaryPageClient);
-    private globalEvents = inject(GlobalEvents);
+    private appEvents = inject(AppEvents);
 
     bankAccountSummary?: BankAccountSummaryResponse;
     stockSummary?: StockSummaryResponse;
@@ -30,7 +30,7 @@ export class SummaryComponent implements OnInit, OnDestroy {
     isLoading = true;
 
     async ngOnInit(): Promise<void> {
-        this._onAccountSyncDoneSubscription = this.globalEvents.onAccountSyncDone.subscribe(async () => await this.update());
+        this._onAccountSyncDoneSubscription = this.appEvents.events.pipe(filter(x => x.type === 'TransactionSyncDone')).subscribe(async () => await this.update());
         await this.update();
     }
 
