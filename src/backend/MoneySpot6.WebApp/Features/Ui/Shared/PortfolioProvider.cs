@@ -85,9 +85,7 @@ public class PortfolioProvider
 
             foreach (var entry in resultEntriesOfCurrentStock)
             {
-                if (!stockPrices.TryGetValue(stock.StockId, out var currentPrice))
-                    throw new Exception("No price for stock " + stock.StockId + " found.");
-
+                stockPrices.TryGetValue(stock.StockId, out var currentPrice);
                 entry.RemainingAmount = entry.PurchaseAmount - entry.SoldAmount;
                 entry.RemainingPrice = entry.RemainingAmount * currentPrice;
                 entry.RemainingTax = GetTax(entry.PurchasePrice, entry.RemainingAmount * currentPrice);
