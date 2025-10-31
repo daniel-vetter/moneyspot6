@@ -14,3 +14,14 @@
 .line:hover {
     background: var(--p-surface-50);
 }
+
+a {
+    text-decoration: none;
+    color: inherit;
+    &:visited {
+        color: inherit;
+    }
+    &:active {
+        color: inherit;
+    }
+}
