@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+using NJsonSchema;
+using NJsonSchema.Annotations;
 
 namespace MoneySpot6.WebApp.Features.Ui.TransactionPage;
 
@@ -22,7 +24,10 @@ public class TransactionPageController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult<TransactionResponse>> GetTransactions(string? search)
+    public async Task<ActionResult<TransactionResponse>> GetTransactions(
+        string? search,
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? startDate,
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? endDate)
     {
         var categories = await _db.Categories
             .AsNoTracking()
@@ -32,6 +37,12 @@ public class TransactionPageController : Controller
             .AsNoTracking()
             .OrderByDescending(x => x.Raw.Date)
             .ThenByDescending(x => x.Id);
+
+        if (startDate != null)
+            query = query.Where(x => x.Final.Date >= startDate);
+        
+        if (endDate != null)
+            query = query.Where(x => x.Final.Date < endDate);
             
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(x => EF.Functions.ILike(x.Final.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Final.Name, "%" + search + "%"));

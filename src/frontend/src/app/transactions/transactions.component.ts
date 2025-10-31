@@ -14,10 +14,14 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { TransactionDetailsDialogComponent } from './transaction-details-dialog/transaction-details-dialog.component';
 import { TagModule } from 'primeng/tag';
 import { AppEvents } from '../app-events';
+import { DatePickerModule } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
+import { DatepickerComponent, DateRange } from "../common/datepicker/datepicker.component";
+import { JsonPipe } from '@angular/common';
 
 @Component({
     selector: 'app-transactions',
-    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule],
+    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule, DatePickerModule, FormsModule, DatepickerComponent, JsonPipe],
     providers: [DialogService],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.scss'
@@ -35,13 +39,24 @@ export class TransactionsComponent implements OnInit {
     isLoading = false;
     selectedGrouping: ViewGrouping = 'Monthly';
     isFirstUpdate = true;
+    dateRange: DateRange | undefined;
 
     async ngOnInit(): Promise<void> {
         this.activatedRoute.queryParams.subscribe(async (x) => {
             this.searchText = x['search'] ?? '';
             this.selectedGrouping = x['grouping'] ?? 'Monthly';
+            this.dateRange = DateRange.parse(x['dateRange']);
+            console.log(this.dateRange)
             await this.update();
         });
+    }
+
+    convertDate(date: Date, addDay = false): string {
+        const converted = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0));
+        if (addDay) {
+            converted.setDate(converted.getDate() + 1);
+        }
+        return converted.toISOString().substring(0, 10);
     }
 
     async update(keepState: boolean = false) {
@@ -51,7 +66,8 @@ export class TransactionsComponent implements OnInit {
             this.blocksShown = [];
             this.isLoading = true;
         }
-        const response = await lastValueFrom(this.transactionPageClient.getTransactions(this.searchText === '' ? undefined : this.searchText));
+        const response = await lastValueFrom(this.transactionPageClient.getTransactions(
+            this.searchText === '' ? undefined : this.searchText, this.dateRange === undefined ? undefined : this.convertDate(this.dateRange!.start), this.dateRange === undefined ? undefined : this.convertDate(this.dateRange!.end, true)));
         this.isLoading = false;
         const blocks: Block[] = [];
         let currentBlock: Block | undefined;
@@ -82,7 +98,9 @@ export class TransactionsComponent implements OnInit {
         if (this.isFirstUpdate) {
             this.isFirstUpdate = false;
             const hasChangedSomething = await lastValueFrom(this.transactionPageClient.markAllSeen());
-            this.appEvents.emit({ type: 'NewTransactionsSeenEvent' })
+            if (hasChangedSomething) {
+                this.appEvents.emit({ type: 'NewTransactionsSeenEvent' })
+            }
         }
     }
 
