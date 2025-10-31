@@ -1,0 +1,11 @@
+<div class="horizontal" style="gap: 0.5rem">
+    <p-iconfield>
+        <p-inputicon styleClass="pi pi-calendar" />
+        <p-datepicker placeholder="Zeitraum" [(ngModel)]="dateRange" (ngModelChange)="update()" selectionMode="range" view="date" dateFormat="dd/mm/yy"></p-datepicker>
+    </p-iconfield>
+
+    @if (showClearButton()) {
+    <p-button icon="pi pi-times" size="small" [rounded]="false" [text]="true" severity="secondary" [outlined]="true" (onClick)="onResetButtonClicked()"
+        [style]="{ height: '32px' }" />
+    }
+</div>

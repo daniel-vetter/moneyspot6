@@ -7,12 +7,12 @@ import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SearchBarComponent } from '../common/search-bar/search-bar.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ViewGrouping, GroupingBarComponent, ViewData } from '../common/grouping-bar/grouping-bar.component';
 
 @Component({
     selector: 'app-income-expense-report',
-    imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, SearchBarComponent, GroupingBarComponent],
+    imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, SearchBarComponent, GroupingBarComponent, RouterLink],
     templateUrl: './cashflow.component.html',
     styleUrl: './cashflow.component.scss'
 })
@@ -63,7 +63,7 @@ export class CashflowComponent implements OnInit {
                     expense: 0,
                     accountBalance: 0,
                     stockBalance: 0,
-                    total: 0,
+                    total: 0
                 };
                 blocks.push(currentBlock);
             }
@@ -77,6 +77,7 @@ export class CashflowComponent implements OnInit {
                 stockBalance: entry.stockBalance,
                 total: entry.income - entry.expense + entry.stockBalance,
                 bar: <any>{}!,
+                dateRange: this.getDateRange(entry.month)
             });
         }
 
@@ -142,6 +143,23 @@ export class CashflowComponent implements OnInit {
         }
         return ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'][m - 1] + ' ' + y;
     }
+
+    private getDateRange(month: number): string | undefined {
+        if (month === 0) return undefined;
+        const y = Math.floor(month / 13);
+        const m = month % 13;
+        if (m === 0) {
+            return `${y}0101${y}1231`;
+        }
+        return `${y}${this.toTwoDigits(m)}01${y}${this.toTwoDigits(m)}${this.daysInMonth(m, y)}`;
+    }
+
+    toTwoDigits(m: number) {
+        return m < 10 ? `0${m}` : `${m}`;
+    }
+    daysInMonth(m: number, y: number) {
+        return new Date(y, m, 0).getDate();
+    }
 }
 
 interface Line {
@@ -153,6 +171,7 @@ interface Line {
     stockBalance: number;
     total: number;
     bar: Bar;
+    dateRange: string | undefined;
 }
 
 interface Bar {
