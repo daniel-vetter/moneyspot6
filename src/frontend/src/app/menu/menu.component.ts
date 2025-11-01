@@ -12,6 +12,7 @@ import { TransactionPageClient } from '../server';
 import { AppEvents } from '../app-events';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, lastValueFrom } from 'rxjs';
+import { DateRange } from '../common/date-range-picker/date-range-picker.component';
 
 @Component({
     selector: 'app-menu',
@@ -23,6 +24,7 @@ export class MenuComponent implements OnInit {
     private transactionPageClient = inject(TransactionPageClient);
     private appEvents = inject(AppEvents);
     newTransactionCount: number = 0;
+    currentMonthQueryParam = DateRange.currentMonth().toString();
 
     constructor() {
         this.appEvents.events

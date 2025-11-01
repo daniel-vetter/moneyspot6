@@ -16,7 +16,7 @@
     </li>
     <li><a pRipple [routerLink]="['/cashflow']" routerLinkActive="active"><i class="pi pi-money-bill"></i> Cashflow</a></li>
     <li><a pRipple [routerLink]="['/history']" routerLinkActive="active"><i class="pi pi-chart-line"></i> Verlauf</a></li>
-    <li><a pRipple [routerLink]="['/categories']" routerLinkActive="active"><i class="pi pi-tags"></i> Kategorien</a></li>
+    <li><a pRipple [routerLink]="['/categories']" [queryParams]="{'dateRange': currentMonthQueryParam}" routerLinkActive="active"><i class="pi pi-tags"></i> Kategorien</a></li>
     <li><a pRipple [routerLink]="['/stock-transactions']" routerLinkActive="active"><i class="pi pi-shopping-cart"></i> Aktien-Trades</a></li>
     <li><a pRipple [routerLink]="['/stock-history']" routerLinkActive="active"><i class="pi pi-chart-bar"></i> Kursentwicklung</a></li>
     <li><a pRipple [routerLink]="['/settings']" routerLinkActive="active"><i class="pi pi-cog"></i> Einstellungen</a></li>

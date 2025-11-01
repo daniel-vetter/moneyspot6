@@ -4,7 +4,7 @@
         <p-datepicker placeholder="Zeitraum" [(ngModel)]="dateRange" (ngModelChange)="update()" selectionMode="range" view="date" dateFormat="dd/mm/yy"></p-datepicker>
     </p-iconfield>
 
-    @if (showClearButton()) {
+    @if (resetButtonVisible()) {
     <p-button icon="pi pi-times" size="small" [rounded]="false" [text]="true" severity="secondary" [outlined]="true" (onClick)="onResetButtonClicked()"
         [style]="{ height: '32px' }" />
     }
