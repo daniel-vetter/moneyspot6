@@ -16,12 +16,13 @@ import { TagModule } from 'primeng/tag';
 import { AppEvents } from '../app-events';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
-import { DatepickerComponent, DateRange } from "../common/datepicker/datepicker.component";
+import { DateRangePickerComponent, DateRange } from "../common/date-range-picker/date-range-picker.component";
 import { JsonPipe } from '@angular/common';
+import { DateRangePresetsComponent } from "../common/date-range-presets/date-range-presets.component";
 
 @Component({
     selector: 'app-transactions',
-    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule, DatePickerModule, FormsModule, DatepickerComponent, JsonPipe],
+    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule, DatePickerModule, FormsModule, DateRangePickerComponent, JsonPipe, DateRangePresetsComponent],
     providers: [DialogService],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.scss'

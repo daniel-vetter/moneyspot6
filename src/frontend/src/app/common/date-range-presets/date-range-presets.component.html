@@ -1,0 +1,5 @@
+<p-buttongroup>
+    @for (button of buttonsResolved(); track $index) {
+    <p-button [severity]="button.isSelected ? 'primary' : 'secondary'" [outlined]="!button.isSelected" (onClick)="onClick(button)">{{ button.label }}</p-button>
+    }
+</p-buttongroup>
