@@ -67,6 +67,13 @@ export class DateRange {
     constructor(public readonly start: Date, public readonly end: Date) {
     }
 
+    static currentMonth() {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 0, 0, 0, 0);
+        return new DateRange(start, end);
+    }
+
     public toString(): string {
         return `${this.start.getFullYear()}${this.toTwoDigits(this.start.getMonth() + 1)}${this.toTwoDigits(this.start.getDate())}${this.end.getFullYear()}${this.toTwoDigits(this.end.getMonth() + 1)}${this.toTwoDigits(this.end.getDate())}`;
     }

@@ -49,6 +49,9 @@ export class DateRangePresetsComponent implements OnInit {
 
     static getDefault(): DateRangePresetButton[] {
         return [
+            new DateRangePresetButtonMonth(0),
+            new DateRangePresetButtonMonth(-1),
+            new DateRangePresetButtonMonth(-2),
             new DateRangePresetButtonMonthsBackgwards(3),
             new DateRangePresetButtonMonthsBackgwards(6),
             new DateRangePresetButtonMonthsBackgwards(12),
@@ -115,6 +118,25 @@ class DateRangePresetButtonYearsBackgwards implements DateRangePresetButton {
         end.setMonth(11);
         end.setDate(31);
         end.setHours(0, 0, 0, 0);
+        return new DateRange(start, end);
+    }
+}
+
+
+class DateRangePresetButtonMonth implements DateRangePresetButton {
+
+    constructor(private readonly monthOffset: number) { }
+
+    get label(): string {
+        const now = new Date();
+        const d = new Date(now.getFullYear(), now.getMonth() + this.monthOffset, 1, 0, 0, 0, 0);
+        return d.toLocaleString('default', { month: 'long' }) + " " + d.getFullYear();
+    }
+
+    get range(): DateRange | undefined {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth() + this.monthOffset, 1, 0, 0, 0, 0);
+        const end = new Date(now.getFullYear(), now.getMonth() + this.monthOffset + 1, 0, 0, 0, 0, 0);
         return new DateRange(start, end);
     }
 }

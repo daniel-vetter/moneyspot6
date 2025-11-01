@@ -1,9 +1,7 @@
 <div class="vertical">
     <div class="horizontal vertical-on-mobile">
-        <div>
-            <p-datepicker [(ngModel)]="dateRange" (ngModelChange)="update()" selectionMode="range" view="date" dateFormat="dd/mm/yy" />
-        </div>
-        <app-daterange-preset-selector [(range)]="dateRange" (rangeChange)="update()"></app-daterange-preset-selector>
+        <app-date-range-picker [showClearButton]="false"></app-date-range-picker>
+        <app-date-range-presets></app-date-range-presets>
     </div>
 
     @for (chart of charts; track chart.index) {
