@@ -1,4 +1,4 @@
-FROM openjdk:21 AS build_hbci-adapter
+FROM amazoncorretto:21-alpine3.22-jdk AS build_hbci-adapter
 WORKDIR /source
 COPY . .
 RUN chmod +x ./gradlew && ./gradlew --no-daemon jar
