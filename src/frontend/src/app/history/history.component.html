@@ -1,9 +1,12 @@
 <div class="vertical">
     <div class="horizontal vertical-on-mobile">
-        <div>
-            <p-datepicker [(ngModel)]="dateRange" (ngModelChange)="update()" selectionMode="range" view="date" dateFormat="dd/mm/yy" />
+        <app-date-range-picker [showClearButton]="false"></app-date-range-picker>
+        <app-date-range-presets></app-date-range-presets>
+        <div class="spacer"></div>
+        <div class="flex items-center">
+            <p-togglebutton inputId="startFromZero" name="startFromZero" onIcon="pi pi-expand" offIcon="pi pi-expand" onLabel="Auf 0 skalieren" offLabel="Auf 0 skalieren"   [(ngModel)]="startFromZero" (ngModelChange)="onStartFromZeroChanged()"></p-togglebutton>
         </div>
-        <app-daterange-preset-selector [(range)]="dateRange" (rangeChange)="update()"></app-daterange-preset-selector>
+
     </div>
 
     <p-panel>
