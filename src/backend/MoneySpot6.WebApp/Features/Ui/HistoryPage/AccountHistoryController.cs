@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.Shared;
 using NJsonSchema;
 using NJsonSchema.Annotations;
@@ -15,24 +17,35 @@ public class AccountHistoryController : Controller
 {
     private readonly BalanceProvider _balanceProvider;
     private readonly StockDataProvider _stockDataProvider;
+    private readonly Db _db;
 
-    public AccountHistoryController(BalanceProvider balanceProvider, StockDataProvider stockDataProvider)
+    public AccountHistoryController(BalanceProvider balanceProvider, StockDataProvider stockDataProvider, Db db)
     {
         _balanceProvider = balanceProvider;
         _stockDataProvider = stockDataProvider;
+        _db = db;
     }
 
     [HttpGet]
     public async Task<ActionResult<ImmutableArray<AccountHistoryBalanceResponse>>> Get(
-        [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly startDate,
-        [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly endDate)
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? startDate,
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? endDate)
     {
+        if (startDate is null)
+        {
+            var minDate1 = await _db.BankAccountTransactions.Select(x => x.Final.Date).MinAsync();
+            var minDate2 = await _db.StockTransactions.Select(x => x.Date).MinAsync();
+            startDate = minDate1 < minDate2 ? minDate1 : minDate2;
+        }
+
+        endDate ??= DateOnly.FromDateTime(DateTime.Now);
+        
         var max = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
         if (startDate > max) startDate = max;
         if (endDate > max) endDate = max;
 
-        var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate, endDate);
-        var stockHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate, endDate);
+        var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate.Value, endDate.Value);
+        var stockHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate.Value, endDate.Value);
 
         if (balanceHistory.Start != stockHistory.Start || balanceHistory.End != stockHistory.End)
             throw new Exception("Length does not match.");

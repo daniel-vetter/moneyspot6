@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
@@ -16,7 +16,7 @@ import { DateRange } from '../common/date-range-picker/date-range-picker.compone
 
 @Component({
     selector: 'app-menu',
-    imports: [MenuModule, BadgeModule, AvatarModule, CommonModule, RippleModule, ButtonModule, DialogModule, RouterLink, RouterLinkActive, MenuModule, OverlayBadgeModule, BadgeModule],
+    imports: [MenuModule, BadgeModule, AvatarModule, CommonModule, RippleModule, ButtonModule, DialogModule, RouterLink, RouterLinkActive, MenuModule, OverlayBadgeModule, BadgeModule, NgOptimizedImage],
     templateUrl: './menu.component.html',
     styleUrl: './menu.component.scss'
 })
@@ -25,6 +25,7 @@ export class MenuComponent implements OnInit {
     private appEvents = inject(AppEvents);
     newTransactionCount: number = 0;
     currentMonthQueryParam = DateRange.currentMonth().toString();
+    currentYearQueryParam = DateRange.currentYear().toString();
 
     constructor() {
         this.appEvents.events

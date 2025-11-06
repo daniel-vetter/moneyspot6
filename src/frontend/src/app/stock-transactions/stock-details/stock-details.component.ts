@@ -6,10 +6,11 @@ import { PortfolioStockPurchaseResponse, PortfolioStockResponse, StockTransactio
 import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
 import { CustomDatePipe } from '../../common/custom-date.pipe';
+import {Ripple} from "primeng/ripple";
 
 @Component({
   selector: 'app-stock-details',
-  imports: [PanelModule, ValueComponent, DecimalPipe, CustomDatePipe],
+    imports: [PanelModule, ValueComponent, DecimalPipe, CustomDatePipe, Ripple],
   templateUrl: './stock-details.component.html',
   styleUrl: './stock-details.component.scss'
 })

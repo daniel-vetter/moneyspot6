@@ -8,7 +8,7 @@ WORKDIR /source
 COPY src/frontend .
 RUN npm install && npm run build
 
-FROM openjdk:21 AS build_hbci-adapter
+FROM amazoncorretto:21-alpine3.22-jdk AS build_hbci-adapter
 WORKDIR /source
 COPY src/hbci-adapter .
 RUN chmod +x ./gradlew && ./gradlew --no-daemon jar

@@ -1072,15 +1072,11 @@ export class AccountHistoryClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    get(startDate: string, endDate: string): Observable<AccountHistoryBalanceResponse[]> {
+    get(startDate: string | null | undefined, endDate: string | null | undefined): Observable<AccountHistoryBalanceResponse[]> {
         let url_ = this.baseUrl + "/api/AccountHistory?";
-        if (startDate === undefined || startDate === null)
-            throw new globalThis.Error("The parameter 'startDate' must be defined and cannot be null.");
-        else
+        if (startDate !== undefined && startDate !== null)
             url_ += "startDate=" + encodeURIComponent("" + startDate) + "&";
-        if (endDate === undefined || endDate === null)
-            throw new globalThis.Error("The parameter 'endDate' must be defined and cannot be null.");
-        else
+        if (endDate !== undefined && endDate !== null)
             url_ += "endDate=" + encodeURIComponent("" + endDate) + "&";
         url_ = url_.replace(/[?&]$/, "");
 

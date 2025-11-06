@@ -1,4 +1,4 @@
-import { Component, computed, model, Signal, signal, inject, OnInit, input } from '@angular/core';
+import { Component, computed, model, signal, inject, OnInit, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -17,7 +17,7 @@ export class DateRangePickerComponent implements OnInit {
     showClearButton = input<boolean>(true);
     value = model<DateRange | undefined>(undefined);
     dateRange = signal<[Date, Date] | undefined>(undefined);
-    resetButtonVisible = computed<boolean>(() => this.showClearButton() === true && this.dateRange() !== undefined);
+    resetButtonVisible = computed<boolean>(() => this.showClearButton() && this.dateRange() !== undefined);
     activatedRoute = inject(ActivatedRoute);
     router = inject(Router);
 
@@ -30,7 +30,7 @@ export class DateRangePickerComponent implements OnInit {
         });
     }
 
-    update() {
+    async update() {
         const value = this.dateRange();
         if (value !== undefined && value[0] !== undefined && value[0] !== null && value[1] !== undefined && value[1] !== null) {
             const r = new DateRange(value[0], value[1]);
@@ -39,7 +39,7 @@ export class DateRangePickerComponent implements OnInit {
             this.value.set(undefined);
         }
 
-        this.router.navigate([], {
+        await this.router.navigate([], {
             relativeTo: this.activatedRoute,
             queryParams: {
                 dateRange: this.value() ? this.value()!.toString() : null
@@ -48,11 +48,11 @@ export class DateRangePickerComponent implements OnInit {
         });
     }
 
-    onResetButtonClicked() {
+    async onResetButtonClicked() {
         this.dateRange.set(undefined)
         this.value.set(undefined);
 
-        this.router.navigate([], {
+        await this.router.navigate([], {
             relativeTo: this.activatedRoute,
             queryParams: {
                 dateRange: this.value() ? this.value()!.toString() : null
@@ -71,6 +71,13 @@ export class DateRange {
         const now = new Date();
         const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
         const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 0, 0, 0, 0);
+        return new DateRange(start, end);
+    }
+
+    static currentYear() {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+        const end = new Date(now.getFullYear(), 11, 31, 0, 0, 0, 0);
         return new DateRange(start, end);
     }
 

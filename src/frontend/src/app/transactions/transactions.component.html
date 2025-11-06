@@ -65,7 +65,7 @@
 
             <a pRipple class="horizontal line hidden-on-desktop" (click)="openTransaction(transaction)">
                 <div class="vertical" style="gap: 0; flex: 1">
-                    <div (onclick)="openTransaction(transaction)" style="font-size: 80%; opacity: 0.8">{{ transaction.date! | customDate }}</div>
+                    <div (click)="openTransaction(transaction)" style="font-size: 80%; opacity: 0.8">{{ transaction.date! | customDate }}</div>
                     <div style="font-weight: bold; overflow-wrap: anywhere">{{ transaction.name }}</div>
                     <div style="overflow-wrap: anywhere">{{ transaction.purpose }}</div>
                 </div>
