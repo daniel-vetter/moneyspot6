@@ -79,7 +79,7 @@ public record RpcTanResponse(
     string? Tan
 );
 
-public record RpcDone();
+public record RpcDone;
 
 public record RpcSecurityMechanismRequest(
     ImmutableArray<RpcSecurityMechanismRequestEntry> Entries
