@@ -78,10 +78,7 @@ export class TransactionDetailsDialogComponent implements OnInit {
     async ngOnInit(): Promise<void> {
         this.form.disable();
         const categories = await lastValueFrom(this.categoryConfigurationClient.getCategoryTree());
-        this.form.enable();
-        this.isLoading = false;
         this.categoryNodes = this.mapCategoriesToNodes(categories);
-
         this.transaction = await lastValueFrom(this.transactionPageClient.get(this.id));
         this.form.patchValue({
             date: this.transaction.overriddenDetails.date ?? this.transaction.baseDetails.date,
@@ -119,6 +116,9 @@ export class TransactionDetailsDialogComponent implements OnInit {
         this.originatorIdentifierOverridden = this.transaction.overriddenDetails.originatorIdentifier !== undefined && this.transaction.overriddenDetails.originatorIdentifier !== null;
         this.alternateInitiatorOverridden = this.transaction.overriddenDetails.alternateInitiator !== undefined && this.transaction.overriddenDetails.alternateInitiator !== null;
         this.alternateReceiverOverridden = this.transaction.overriddenDetails.alternateReceiver !== undefined && this.transaction.overriddenDetails.alternateReceiver !== null;
+
+        this.form.enable();
+        this.isLoading = false;
     }
 
     getCatergoryNodeById(id: number | undefined): TreeNode | undefined {
