@@ -32,7 +32,11 @@ export class DateRangePickerComponent implements OnInit {
 
     async update() {
         const value = this.dateRange();
-        if (value !== undefined && value[0] !== undefined && value[0] !== null && value[1] !== undefined && value[1] !== null) {
+        console.log(this.value());
+        if (value === undefined || value === null)
+            return;
+
+        if (value[0] !== undefined && value[0] !== null && value[1] !== undefined && value[1] !== null) {
             const r = new DateRange(value[0], value[1]);
             this.value.set(r);
         } else {

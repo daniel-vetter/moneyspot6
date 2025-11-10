@@ -12,6 +12,10 @@
         </p-header>
         @if (chart !== undefined) {
             <highcharts-chart [Highcharts]="Highcharts" constructorType="stockChart" [options]="chart" style="width: 100%; display: block"></highcharts-chart>
+        } @else {
+            <div style="display: flex; padding: 10rem">
+                <p-progress-spinner ariaLabel="loading"/>
+            </div>
         }
     </p-panel>
 </div>

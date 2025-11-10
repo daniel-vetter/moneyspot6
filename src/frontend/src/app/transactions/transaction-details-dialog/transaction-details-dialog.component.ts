@@ -12,10 +12,11 @@ import { CategoryConfigurationClient, CategoryResponse, TransactionDetailsRespon
 import { lastValueFrom } from 'rxjs';
 import { TreeNode } from 'primeng/api';
 import { TextareaModule } from 'primeng/textarea';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-transaction-details-dialog',
-    imports: [ButtonModule, InputTextModule, DatePickerModule, TreeSelectModule, IconFieldModule, InputIconModule, CheckboxModule, ReactiveFormsModule, TextareaModule],
+    imports: [ButtonModule, InputTextModule, DatePickerModule, TreeSelectModule, IconFieldModule, InputIconModule, CheckboxModule, ReactiveFormsModule, TextareaModule, ProgressSpinnerModule],
     templateUrl: './transaction-details-dialog.component.html',
     styleUrl: './transaction-details-dialog.component.scss'
 })
@@ -25,23 +26,23 @@ export class TransactionDetailsDialogComponent implements OnInit {
     private categoryConfigurationClient = inject(CategoryConfigurationClient);
 
     transaction!: TransactionDetailsResponse;
-
-    dateOverriden = false;
-    purposeOverriden = false;
-    nameOverriden = false;
-    bankCodeOverriden = false;
-    accountNumberOverriden = false;
-    ibanOverriden = false;
-    bicOverriden = false;
-    amountOverriden = false;
-    categoryOverriden = false;
-    endToEndReferenceOverriden = false;
-    customerReferenceOverriden = false;
-    mandateReferenceOverriden = false;
-    creditorIdentifierOverriden = false;
-    originatorIdentifierOverriden = false;
-    alternateInitiatorOverriden = false;
-    alternateReceiverOverriden = false;
+    isLoading = true;
+    dateOverridden = false;
+    purposeOverridden = false;
+    nameOverridden = false;
+    bankCodeOverridden = false;
+    accountNumberOverridden = false;
+    ibanOverridden = false;
+    bicOverridden = false;
+    amountOverridden = false;
+    categoryOverridden = false;
+    endToEndReferenceOverridden = false;
+    customerReferenceOverridden = false;
+    mandateReferenceOverridden = false;
+    creditorIdentifierOverridden = false;
+    originatorIdentifierOverridden = false;
+    alternateInitiatorOverridden = false;
+    alternateReceiverOverridden = false;
 
     form = new FormGroup({
         date: new FormControl<Date>(new Date(), { nonNullable: true }),
@@ -62,7 +63,6 @@ export class TransactionDetailsDialogComponent implements OnInit {
         alternateReceiver: new FormControl<string>("", { nonNullable: true }),
         note: new FormControl<string>("", { nonNullable: true }),
     })
-    nodes!: any[];
     id: number;
     categoryNodes: TreeNode[] = [];
 
@@ -76,7 +76,10 @@ export class TransactionDetailsDialogComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<void> {
+        this.form.disable();
         const categories = await lastValueFrom(this.categoryConfigurationClient.getCategoryTree());
+        this.form.enable();
+        this.isLoading = false;
         this.categoryNodes = this.mapCategoriesToNodes(categories);
 
         this.transaction = await lastValueFrom(this.transactionPageClient.get(this.id));
@@ -100,22 +103,22 @@ export class TransactionDetailsDialogComponent implements OnInit {
             note: this.transaction.note
         });
 
-        this.dateOverriden = this.transaction.overriddenDetails.date !== undefined && this.transaction.overriddenDetails.date !== null;
-        this.purposeOverriden = this.transaction.overriddenDetails.purpose !== undefined && this.transaction.overriddenDetails.purpose !== null;
-        this.nameOverriden = this.transaction.overriddenDetails.name !== undefined && this.transaction.overriddenDetails.name !== null;
-        this.bankCodeOverriden = this.transaction.overriddenDetails.bankCode !== undefined && this.transaction.overriddenDetails.bankCode !== null;
-        this.accountNumberOverriden = this.transaction.overriddenDetails.accountNumber !== undefined && this.transaction.overriddenDetails.accountNumber !== null;
-        this.ibanOverriden = this.transaction.overriddenDetails.iban !== undefined && this.transaction.overriddenDetails.iban !== null;
-        this.bicOverriden = this.transaction.overriddenDetails.bic !== undefined && this.transaction.overriddenDetails.bic !== null;
-        this.amountOverriden = this.transaction.overriddenDetails.amount !== undefined && this.transaction.overriddenDetails.amount !== null;
-        this.categoryOverriden = this.transaction.overriddenDetails.categoryId !== undefined && this.transaction.overriddenDetails.categoryId !== null;
-        this.endToEndReferenceOverriden = this.transaction.overriddenDetails.endToEndReference !== undefined && this.transaction.overriddenDetails.endToEndReference !== null;
-        this.customerReferenceOverriden = this.transaction.overriddenDetails.customerReference !== undefined && this.transaction.overriddenDetails.customerReference !== null;
-        this.mandateReferenceOverriden = this.transaction.overriddenDetails.mandateReference !== undefined && this.transaction.overriddenDetails.mandateReference !== null;
-        this.creditorIdentifierOverriden = this.transaction.overriddenDetails.creditorIdentifier !== undefined && this.transaction.overriddenDetails.creditorIdentifier !== null;
-        this.originatorIdentifierOverriden = this.transaction.overriddenDetails.originatorIdentifier !== undefined && this.transaction.overriddenDetails.originatorIdentifier !== null;
-        this.alternateInitiatorOverriden = this.transaction.overriddenDetails.alternateInitiator !== undefined && this.transaction.overriddenDetails.alternateInitiator !== null;
-        this.alternateReceiverOverriden = this.transaction.overriddenDetails.alternateReceiver !== undefined && this.transaction.overriddenDetails.alternateReceiver !== null;
+        this.dateOverridden = this.transaction.overriddenDetails.date !== undefined && this.transaction.overriddenDetails.date !== null;
+        this.purposeOverridden = this.transaction.overriddenDetails.purpose !== undefined && this.transaction.overriddenDetails.purpose !== null;
+        this.nameOverridden = this.transaction.overriddenDetails.name !== undefined && this.transaction.overriddenDetails.name !== null;
+        this.bankCodeOverridden = this.transaction.overriddenDetails.bankCode !== undefined && this.transaction.overriddenDetails.bankCode !== null;
+        this.accountNumberOverridden = this.transaction.overriddenDetails.accountNumber !== undefined && this.transaction.overriddenDetails.accountNumber !== null;
+        this.ibanOverridden = this.transaction.overriddenDetails.iban !== undefined && this.transaction.overriddenDetails.iban !== null;
+        this.bicOverridden = this.transaction.overriddenDetails.bic !== undefined && this.transaction.overriddenDetails.bic !== null;
+        this.amountOverridden = this.transaction.overriddenDetails.amount !== undefined && this.transaction.overriddenDetails.amount !== null;
+        this.categoryOverridden = this.transaction.overriddenDetails.categoryId !== undefined && this.transaction.overriddenDetails.categoryId !== null;
+        this.endToEndReferenceOverridden = this.transaction.overriddenDetails.endToEndReference !== undefined && this.transaction.overriddenDetails.endToEndReference !== null;
+        this.customerReferenceOverridden = this.transaction.overriddenDetails.customerReference !== undefined && this.transaction.overriddenDetails.customerReference !== null;
+        this.mandateReferenceOverridden = this.transaction.overriddenDetails.mandateReference !== undefined && this.transaction.overriddenDetails.mandateReference !== null;
+        this.creditorIdentifierOverridden = this.transaction.overriddenDetails.creditorIdentifier !== undefined && this.transaction.overriddenDetails.creditorIdentifier !== null;
+        this.originatorIdentifierOverridden = this.transaction.overriddenDetails.originatorIdentifier !== undefined && this.transaction.overriddenDetails.originatorIdentifier !== null;
+        this.alternateInitiatorOverridden = this.transaction.overriddenDetails.alternateInitiator !== undefined && this.transaction.overriddenDetails.alternateInitiator !== null;
+        this.alternateReceiverOverridden = this.transaction.overriddenDetails.alternateReceiver !== undefined && this.transaction.overriddenDetails.alternateReceiver !== null;
     }
 
     getCatergoryNodeById(id: number | undefined): TreeNode | undefined {
@@ -155,114 +158,99 @@ export class TransactionDetailsDialogComponent implements OnInit {
         this.form.patchValue({
             date: this.transaction.baseDetails.date
         });
-        this.dateOverriden = false;
+        this.dateOverridden = false;
     }
 
     resetName() {
         this.form.patchValue({
             name: this.transaction.baseDetails.name
         });
-        this.nameOverriden = false;
+        this.nameOverridden = false;
     }
 
     resetPurpose() {
         this.form.patchValue({
             purpose: this.transaction.baseDetails.purpose
         });
-        this.purposeOverriden = false;
+        this.purposeOverridden = false;
     }
 
     resetBankCode() {
         this.form.patchValue({
             bankCode: this.transaction.baseDetails.bankCode
         });
-        this.bankCodeOverriden = false;
+        this.bankCodeOverridden = false;
     }
 
     resetAccountNumber() {
         this.form.patchValue({
             accountNumber: this.transaction.baseDetails.accountNumber
         });
-        this.accountNumberOverriden = false;
+        this.accountNumberOverridden = false;
     }
 
     resetIban() {
         this.form.patchValue({
             iban: this.transaction.baseDetails.iban
         });
-        this.ibanOverriden = false;
+        this.ibanOverridden = false;
     }
 
     resetBic() {
         this.form.patchValue({
             bic: this.transaction.baseDetails.bic
         });
-        this.bicOverriden = false;
+        this.bicOverridden = false;
     }
 
     resetAmount() {
         this.form.patchValue({
             amount: this.transaction.baseDetails.amount?.toString()
         });
-        this.amountOverriden = false;
+        this.amountOverridden = false;
     }
 
     resetCategory() {
         this.form.patchValue({
             category: this.getCatergoryNodeById(this.transaction.baseDetails.categoryId)
         });
-        this.categoryOverriden = false;
+        this.categoryOverridden = false;
     }
 
     resetEndToEndReference() {
         this.form.patchValue({
             endToEndReference: this.transaction.baseDetails.endToEndReference
         });
-        this.endToEndReferenceOverriden = false;
+        this.endToEndReferenceOverridden = false;
     }
 
     resetCustomerReference() {
         this.form.patchValue({
             customerReference: this.transaction.baseDetails.customerReference
         });
-        this.customerReferenceOverriden = false;
+        this.customerReferenceOverridden = false;
     }
 
     resetMandateReference() {
         this.form.patchValue({
             mandateReference: this.transaction.baseDetails.mandateReference
         });
-        this.mandateReferenceOverriden = false;
+        this.mandateReferenceOverridden = false;
     }
 
     resetCreditorIdentifier() {
         this.form.patchValue({
             creditorIdentifier: this.transaction.baseDetails.creditorIdentifier
         });
-        this.creditorIdentifierOverriden = false;
+        this.creditorIdentifierOverridden = false;
     }
 
     resetOriginatorIdentifier() {
         this.form.patchValue({
             originatorIdentifier: this.transaction.baseDetails.originatorIdentifier
         });
-        this.originatorIdentifierOverriden = false;
+        this.originatorIdentifierOverridden = false;
     }
-
-    resetAlternateInitiator() {
-        this.form.patchValue({
-            alternateInitiator: this.transaction.baseDetails.alternateInitiator
-        });
-        this.alternateInitiatorOverriden = false;
-    }
-
-    resetAlternateReceiver() {
-        this.form.patchValue({
-            alternateReceiver: this.transaction.baseDetails.alternateReceiver
-        });
-        this.alternateReceiverOverriden = false;
-    }
-
 
     onCancelClicked() {
         this.dynamicDialogRef.close();
@@ -272,22 +260,22 @@ export class TransactionDetailsDialogComponent implements OnInit {
         await lastValueFrom(this.transactionPageClient.update(new TransactionDetailsUpdateRequest({
             id: this.id,
             overriddenDetails: new TransactionOverrideDetails({
-                date: this.dateOverriden ? this.form.value.date : undefined,
-                purpose: this.purposeOverriden ? this.form.value.purpose : undefined,
-                name: this.nameOverriden ? this.form.value.name : undefined,
-                bankCode: this.bankCodeOverriden ? this.form.value.bankCode : undefined,
-                accountNumber: this.accountNumberOverriden ? this.form.value.accountNumber : undefined,
-                iban: this.ibanOverriden ? this.form.value.iban : undefined,
-                bic: this.bicOverriden ? this.form.value.bic : undefined,
-                amount: this.amountOverriden ? parseFloat(this.form.value.amount ?? "") : undefined,
-                categoryId: this.categoryOverriden ? (this.form.value.category as TreeNode).data as number : undefined,
-                endToEndReference: this.endToEndReferenceOverriden ? this.form.value.endToEndReference : undefined,
-                customerReference: this.customerReferenceOverriden ? this.form.value.customerReference : undefined,
-                mandateReference: this.mandateReferenceOverriden ? this.form.value.mandateReference : undefined,
-                creditorIdentifier: this.creditorIdentifierOverriden ? this.form.value.creditorIdentifier : undefined,
-                originatorIdentifier: this.originatorIdentifierOverriden ? this.form.value.originatorIdentifier : undefined,
-                alternateInitiator: this.alternateInitiatorOverriden ? this.form.value.alternateInitiator : undefined,
-                alternateReceiver: this.alternateReceiverOverriden ? this.form.value.alternateReceiver : undefined
+                date: this.dateOverridden ? this.form.value.date : undefined,
+                purpose: this.purposeOverridden ? this.form.value.purpose : undefined,
+                name: this.nameOverridden ? this.form.value.name : undefined,
+                bankCode: this.bankCodeOverridden ? this.form.value.bankCode : undefined,
+                accountNumber: this.accountNumberOverridden ? this.form.value.accountNumber : undefined,
+                iban: this.ibanOverridden ? this.form.value.iban : undefined,
+                bic: this.bicOverridden ? this.form.value.bic : undefined,
+                amount: this.amountOverridden ? parseFloat(this.form.value.amount ?? "") : undefined,
+                categoryId: this.categoryOverridden ? (this.form.value.category as TreeNode).data as number : undefined,
+                endToEndReference: this.endToEndReferenceOverridden ? this.form.value.endToEndReference : undefined,
+                customerReference: this.customerReferenceOverridden ? this.form.value.customerReference : undefined,
+                mandateReference: this.mandateReferenceOverridden ? this.form.value.mandateReference : undefined,
+                creditorIdentifier: this.creditorIdentifierOverridden ? this.form.value.creditorIdentifier : undefined,
+                originatorIdentifier: this.originatorIdentifierOverridden ? this.form.value.originatorIdentifier : undefined,
+                alternateInitiator: this.alternateInitiatorOverridden ? this.form.value.alternateInitiator : undefined,
+                alternateReceiver: this.alternateReceiverOverridden ? this.form.value.alternateReceiver : undefined
             }),
             note: this.form.value.note ?? "",
         })));

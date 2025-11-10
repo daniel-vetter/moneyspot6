@@ -45,12 +45,12 @@ public class RuleCategoryKeyProvider
     private string GetFixedName(string name)
     {
         name = name.Trim();
-        bool isLetter(char c) =>
+        bool IsLetter(char c) =>
             c >= 'a' && c <= 'z' ||
             c >= 'A' && c <= 'Z' || 
             c == '_';
 
-        bool isNumber(char c) =>
+        bool IsNumber(char c) =>
             c >= '0' && c <= '9';
 
         if (name.Length == 0)
@@ -59,10 +59,10 @@ public class RuleCategoryKeyProvider
         var sb = new StringBuilder();
         for (int i=0;i<name.Length;i++)
         {
-            if (i == 0 && !isLetter(name[0]))
+            if (i == 0 && !IsLetter(name[0]))
                 sb.Append('_');
 
-            if (isLetter(name[i]) || isNumber(name[i]))
+            if (IsLetter(name[i]) || IsNumber(name[i]))
                 sb.Append(name[i]);
             else
                 sb.Append('_');

@@ -5,7 +5,6 @@ using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 
 namespace MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 
@@ -133,19 +132,6 @@ public class CategoryConfigurationController : Controller
         await _db.SaveChangesAsync();
 
         return Ok(newCategory.Id);
-    }
-
-    private static bool IsValidRegex(string pattern)
-    {
-        try
-        {
-            _ = Regex.Match("", pattern);
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
-        return true;
     }
 
     [HttpPost("Update")]

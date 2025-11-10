@@ -1,4 +1,6 @@
-﻿public class Result<TSuccess, TError>
+﻿namespace MoneySpot6.WebApp.Infrastructure;
+
+public class Result<TSuccess, TError>
 {
     public TSuccess? Success { get; }
     public TError? Error { get; }

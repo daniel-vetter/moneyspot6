@@ -8,10 +8,10 @@ import { FormsModule } from '@angular/forms';
 import { ButtonGroupModule } from 'primeng/buttongroup';
 import { PanelModule } from 'primeng/panel';
 import { DatePickerModule } from 'primeng/datepicker';
-import {DateRange, DateRangePickerComponent} from "../common/date-range-picker/date-range-picker.component";
-import {DateRangePresetsComponent} from "../common/date-range-presets/date-range-presets.component";
-import {ActivatedRoute} from "@angular/router";
-import {ToggleButtonModule} from "primeng/togglebutton";
+import { DateRange, DateRangePickerComponent } from "../common/date-range-picker/date-range-picker.component";
+import { DateRangePresetsComponent } from "../common/date-range-presets/date-range-presets.component";
+import { ActivatedRoute } from "@angular/router";
+import { ToggleButtonModule } from "primeng/togglebutton";
 
 
 @Component({
@@ -34,13 +34,10 @@ export class HistoryComponent implements OnInit {
             this.dateRange = DateRange.parse(x['dateRange']);
             await this.update();
         });
-
-
-        await this.update();
     }
 
     convertDate(date: Date | undefined, addDay = false): string | undefined {
-        if (date === undefined){
+        if (date === undefined) {
             return undefined;
         }
         const converted = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0));

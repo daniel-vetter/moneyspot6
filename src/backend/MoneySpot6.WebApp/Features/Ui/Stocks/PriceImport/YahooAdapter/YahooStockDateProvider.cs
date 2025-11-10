@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
+using JetBrains.Annotations;
 using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
@@ -67,18 +68,20 @@ public class YahooStockDateProvider
         return r.ToImmutable();
     }
 
-
+    [PublicAPI]
     class Response
     {
         public required ChartResponse Chart { get; init; }
     }
 
+    [PublicAPI]
     class ChartResponse
     {
         public ChartResultResponse[]? Result { get; init; }
         public required string? Error { get; init; }
     }
 
+    [PublicAPI]
     class ChartResultResponse
     {
         public required ChartResultMetadataResponse Meta { get; init; }
@@ -86,6 +89,7 @@ public class YahooStockDateProvider
         public required ChartResultIndicatorResponse Indicators { get; init; }
     }
 
+    [PublicAPI]
     internal class ChartResultMetadataResponse
     {
         public required string Currency { get; init; }
@@ -93,11 +97,13 @@ public class YahooStockDateProvider
         public required string ExchangeTimezoneName { get; init; }
     }
 
+    [PublicAPI]
     class ChartResultIndicatorResponse
     {
         public required ChartResultIndicatorQuoteResponse[] Quote { get; init; }
     }
     
+    [PublicAPI]
     class ChartResultIndicatorQuoteResponse
     {
         public decimal?[]? Open { get; init; }

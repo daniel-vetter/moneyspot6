@@ -29,7 +29,6 @@ export class CategoriesComponent implements OnInit {
             this.dateRange = DateRange.parse(x['dateRange']);
             await this.update();
         });
-        await this.update();
     }
 
     convertDate(date: Date, addDay = false): string {
