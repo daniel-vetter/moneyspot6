@@ -6,10 +6,11 @@ import { PanelModule } from 'primeng/panel';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts/highstock';
 import { SelectModule } from 'primeng/select';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-stock-history',
-  imports: [SelectModule, FormsModule, PanelModule, HighchartsChartModule],
+  imports: [SelectModule, FormsModule, PanelModule, HighchartsChartModule, ProgressSpinnerModule],
   templateUrl: './stock-history.component.html',
   styleUrl: './stock-history.component.scss'
 })
@@ -35,6 +36,8 @@ export class StockHistoryComponent implements OnInit {
       this.selectedStockId = this.possibleStocks[0].id;
     }
 
+
+    this.chart = undefined;
     const data = await lastValueFrom(this.stockChartPageClient.getHistory(this.selectedStockId, undefined, undefined, this.selectedInterval == "5 Minuten" ? StockPriceInterval.FiveMinutes : StockPriceInterval.Daily));
     this.chart = {
       chart: {
