@@ -1,0 +1,7 @@
+node_modules
+.vs
+src/**/bin/Debug
+src/**/obj
+/build
+*.user
+**/.idea/*/.idea/dataSources.xml

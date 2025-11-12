@@ -1,6 +1,27 @@
-<p-button (onClick)="OnReprocessTransactionpParsingClicked()">Reprocess transaction parsing</p-button>
-<p-button (onClick)="OnReimportStockDataLast30DaysClicked()">Reimport stock data (last 30 days)</p-button>
-<p-button (onClick)="OnReseedDatabaseClicked()">Reseed Database</p-button>
+@if(appDetails !==  undefined) {
+    <table>
+        <tr>
+            <td><b>Build Time: </b></td>
+            <td>{{ appDetails.buildTime }}</td>
+        </tr>
+        <tr>
+            <td><b>Build Commit: </b></td>
+            <td>{{ appDetails.buildCommit }}</td>
+        </tr>
+        <tr>
+            <td><b>Dotnet Version: </b></td>
+            <td>{{ appDetails.dotNetVersion }}</td>
+        </tr>
+        <tr>
+            <td><b>Os Description: </b></td>
+            <td>{{ appDetails.osDescription }}</td>
+        </tr>
+    </table><br><br>
+}
+
+<p-button (onClick)="OnReprocessTransactionpParsingClicked()">Reprocess transaction parsing</p-button><br><br>
+<p-button (onClick)="OnReimportStockDataLast30DaysClicked()">Reimport stock data (last 30 days)</p-button><br><br>
+<p-button (onClick)="OnReseedDatabaseClicked()">Reseed Database</p-button><br><br>
 
 @if (runningProcesses.length > 0) {
 <table>
