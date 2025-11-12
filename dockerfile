@@ -1,3 +1,4 @@
+
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build_backend
 WORKDIR /source
 COPY src/backend .
@@ -14,6 +15,10 @@ COPY src/hbci-adapter .
 RUN chmod +x ./gradlew && ./gradlew --no-daemon jar
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.22
+ARG BUILD_TIME
+ARG BUILD_COMMIT
+ENV BUILD_TIME=$BUILD_TIME
+ENV BUILD_COMMIT=$BUILD_COMMIT
 WORKDIR /app
 RUN apk update
 RUN apk add openjdk21 

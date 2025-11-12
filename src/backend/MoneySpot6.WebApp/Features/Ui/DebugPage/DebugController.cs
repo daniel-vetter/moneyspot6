@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,17 @@ public class DebugController : Controller
                 .GetRunningAdapters()
                 .Select(x => new RunningProcessResponse(x.Id, x.StartTime, x.Error))
         ];
+    }
+
+    [HttpGet("GetAppDetails")]
+    public AppDetails GetAppDetails()
+    {
+        return new AppDetails(
+            Environment.GetEnvironmentVariable("BUILD_TIME") ?? "unknown", 
+            Environment.GetEnvironmentVariable("BUILD_COMMIT") ?? "unknown", 
+            Environment.Version.ToString(), 
+            System.Runtime.InteropServices.RuntimeInformation.OSDescription
+        );
     }
 
     [HttpPost("ReseedDatabase")]
@@ -207,6 +219,9 @@ public class DebugController : Controller
         await _db.SaveChangesAsync();
     }
 }
+
+[PublicAPI]
+public record AppDetails(string BuildTime, string BuildCommit, string DotNetVersion, string OSDescription);
 
 [PublicAPI]
 public record RunningProcessResponse(int ProcessId, DateTime? StartTime, string? Error);
