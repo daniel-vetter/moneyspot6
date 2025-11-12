@@ -1,15 +1,16 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import {AppDetails, DebugClient, RunningProcessResponse} from '../server';
+import {AppDetails, DebugClient, RunningProcessResponse} from '../../server';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom } from 'rxjs';
+import { PanelModule} from "primeng/panel";
 
 @Component({
-    selector: 'app-debug',
-    imports: [ButtonModule],
-    templateUrl: './debug.component.html',
-    styleUrl: './debug.component.scss'
+    selector: 'app-system',
+    imports: [ButtonModule, PanelModule],
+    templateUrl: './system.component.html',
+    styleUrl: './system.component.scss'
 })
-export class DebugComponent implements OnDestroy, OnInit {
+export class SystemComponent implements OnDestroy, OnInit {
     private debugClient = inject(DebugClient);
 
     runningProcesses: RunningProcessResponse[] = [];

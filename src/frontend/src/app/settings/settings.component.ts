@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { CategoriesComponent } from './categories/categories.component';
-import { RulesComponent } from "./rules/rules.component";
+import {Panel, PanelModule} from "primeng/panel";
+import {PrimeTemplate} from "primeng/api";
+import {RouterLink} from "@angular/router";
 
 @Component({
     selector: 'app-settings',
-    imports: [CategoriesComponent, RulesComponent, RulesComponent],
+    imports: [Panel, PrimeTemplate, PanelModule, RouterLink],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss'
 })
