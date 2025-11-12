@@ -23,6 +23,6 @@ COPY --from=build_hbci-adapter /source/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar 
 ARG BUILD_TIME
 ARG BUILD_COMMIT
 ENV BUILD_TIME=$BUILD_TIME
-ENV BUILD_COMMIT=$BUILD_COMMITdocke
+ENV BUILD_COMMIT=$BUILD_COMMIT
 ENV ASPNETCORE_URLS="http://0.0.0.0:80"
 ENTRYPOINT [ "dotnet", "MoneySpot6.WebApp.dll" ]
