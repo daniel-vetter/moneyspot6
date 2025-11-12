@@ -1,0 +1,44 @@
+.menu-entry-list {
+    display: flex;
+    flex-direction: column;
+    max-width: 70rem;
+    margin: 0 auto;
+
+    border: 1px solid var(--p-panel-header-border-color);
+    border-radius: var(--p-panel-header-border-radius);
+}
+
+.menu-entry {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    grid-template-rows: 2rem 1fr;
+    grid-template-areas:
+        "icon header"
+        "icon text";
+    flex-direction: column;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--p-text-color);
+
+    padding: 2rem;
+    &>b {
+        font-size: 120%;
+        font-weight: bold;
+        grid-area: header;
+    }
+    &>div {
+        grid-area: text;
+    }
+
+    &>.pi {
+        grid-area: icon;
+        font-size: 3rem;
+        opacity: 0.5;
+    }
+
+    &:hover {
+        background: var(--p-navigation-item-focus-background);
+    }
+}
+
+

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { SummaryComponent } from './summary/summary.component';
 import { TransactionsComponent } from './transactions/transactions.component';
-import { DebugComponent } from './debug/debug.component';
+import { SystemComponent } from './settings/system/system.component';
 import { HistoryComponent } from './history/history.component';
 import { CashflowComponent } from './cashflow/cashflow.component';
 import { StockHistoryComponent } from './stock-history/stock-history.component';
@@ -9,6 +9,8 @@ import { StockTransactionsComponent } from "./stock-transactions/stock-transacti
 import { StockDetailsComponent } from './stock-transactions/stock-details/stock-details.component';
 import { SettingsComponent } from './settings/settings.component';
 import { CategoriesComponent } from './categories/categories.component';
+import { CategoriesComponent as CategoriesEditorComponent } from './settings/categories/categories.component';
+import {RulesComponent} from "./settings/rules/rules.component";
 
 export const routes: Routes = [
     { path: '', component: SummaryComponent, title: 'MoneySpot - Übersicht' },
@@ -21,5 +23,7 @@ export const routes: Routes = [
     { path: 'stock-transactions/orders/:id', component: StockDetailsComponent, title: 'MoneySpot - Aktien-Trades' },
     { path: 'stock-history', component: StockHistoryComponent, title: 'MoneySpot - Kursverlauf' },
     { path: 'settings', component: SettingsComponent, title: 'MoneySpot - Einstellungen' },
-    { path: 'debug', component: DebugComponent, title: 'MoneySpot - Debug' },
+    { path: 'settings/system', component: SystemComponent, title: 'MoneySpot - Debug' },
+    { path: 'settings/rules', component: RulesComponent, title: 'MoneySpot - Regeln' },
+    { path: 'settings/categories', component: CategoriesEditorComponent, title: 'MoneySpot - Kategorien' },
 ];

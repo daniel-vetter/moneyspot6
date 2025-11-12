@@ -1,4 +1,31 @@
-<div style="display: flex; flex-direction: column; gap: 2rem;">
-    <app-rules></app-rules>
-    <app-categories></app-categories>
-</div>
+<p-panel style="max-width: 60rem; margin: 0 auto">
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%">
+            <h1>Einstellungen</h1>
+        </div>
+    </ng-template>
+
+    <a [routerLink]="['/settings/rules']" class="menu-entry">
+        <i class="pi pi-code"></i>
+        <b>Regeln</b>
+        <div>Mit Regeln können Sie Buchungen automatisch anpassen oder ergänzen. Legen Sie Bedingungen fest, um Felder zu ändern, Texte zu erweitern oder Kategorien automatisch zuzuweisen.</div>
+    </a>
+
+    <a [routerLink]="['/settings/categories']" class="menu-entry">
+        <i class="pi pi-tags"></i>
+        <b>Kategorien</b>
+        <div>Kategorien helfen dabei, Buchungen zu ordnen und Auswertungen übersichtlicher zu gestalten. So erkennen Sie leichter, wohin Ihr Geld fließt und wofür Sie es ausgeben.</div>
+    </a>
+<!--
+    <a [routerLink]="['/settings/mail-integration']" class="menu-entry">
+        <i class="pi pi-inbox"></i>
+        <b>E-Mail Integration</b>
+        <div>Verbinden Sie MoneySpot mit Ihrem E-Mail-Konto, um automatisch Details aus Bestellbestätigungen oder Rechnungen an Buchungen anzuhängen.</div>
+    </a>
+-->
+    <a [routerLink]="['/settings/system']" class="menu-entry">
+        <i class="pi pi-microchip"></i>
+        <b>System</b>
+        <div>Zeigt technische Informationen zur Anwendung sowie Werkzeuge für Diagnose und Fehlerbehebung. Nützlich zur Analyse von Problemen oder zur Unterstützung bei Supportanfragen.</div>
+    </a>
+</p-panel>
