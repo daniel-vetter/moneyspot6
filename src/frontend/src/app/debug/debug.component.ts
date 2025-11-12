@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { DebugClient, RunningProcessResponse } from '../server';
+import {AppDetails, DebugClient, RunningProcessResponse} from '../server';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom } from 'rxjs';
 
@@ -13,7 +13,8 @@ export class DebugComponent implements OnDestroy, OnInit {
     private debugClient = inject(DebugClient);
 
     runningProcesses: RunningProcessResponse[] = [];
-    intervall?: any;
+    interval?: any;
+    appDetails?: AppDetails;
 
     async OnReprocessTransactionpParsingClicked() {
         await lastValueFrom(this.debugClient.reprocessTransactionParsing());
@@ -28,15 +29,17 @@ export class DebugComponent implements OnDestroy, OnInit {
     }
 
 
-    ngOnInit(): void {
-        this.intervall = setInterval(async () => {
+    async ngOnInit(): Promise<void> {
+
+        this.appDetails = await lastValueFrom(this.debugClient.getAppDetails())
+        this.interval = setInterval(async () => {
             this.runningProcesses = await lastValueFrom(this.debugClient.getRunningAdapters());
         }, 1000);
     }
 
     ngOnDestroy(): void {
-        if (this.intervall !== undefined) {
-            clearInterval(this.intervall);
+        if (this.interval !== undefined) {
+            clearInterval(this.interval);
         }
     }
 }

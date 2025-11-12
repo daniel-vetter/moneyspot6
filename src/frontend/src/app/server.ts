@@ -1286,6 +1286,54 @@ export class DebugClient {
         return _observableOf(null as any);
     }
 
+    getAppDetails(): Observable<AppDetails> {
+        let url_ = this.baseUrl + "/api/Debug/GetAppDetails";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAppDetails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAppDetails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppDetails>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppDetails>;
+        }));
+    }
+
+    protected processGetAppDetails(response: HttpResponseBase): Observable<AppDetails> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppDetails.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     reseedDatabase(): Observable<void> {
         let url_ = this.baseUrl + "/api/Debug/ReseedDatabase";
         url_ = url_.replace(/[?&]$/, "");
@@ -3644,6 +3692,54 @@ export interface IRunningProcessResponse {
     processId?: number;
     startTime?: Date | undefined;
     error?: string | undefined;
+}
+
+export class AppDetails implements IAppDetails {
+    buildTime?: string;
+    buildCommit?: string;
+    dotNetVersion?: string;
+    osDescription?: string;
+
+    constructor(data?: IAppDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.buildTime = _data["buildTime"];
+            this.buildCommit = _data["buildCommit"];
+            this.dotNetVersion = _data["dotNetVersion"];
+            this.osDescription = _data["osDescription"];
+        }
+    }
+
+    static fromJS(data: any): AppDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["buildTime"] = this.buildTime;
+        data["buildCommit"] = this.buildCommit;
+        data["dotNetVersion"] = this.dotNetVersion;
+        data["osDescription"] = this.osDescription;
+        return data;
+    }
+}
+
+export interface IAppDetails {
+    buildTime?: string;
+    buildCommit?: string;
+    dotNetVersion?: string;
+    osDescription?: string;
 }
 
 export class CategoryResponse implements ICategoryResponse {
