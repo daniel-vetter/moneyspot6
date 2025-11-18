@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20251114010742_Added gmail integration store")]
+    partial class Addedgmailintegrationstore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -525,7 +528,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbGMailIntegration", b =>
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbGMailIntegrations", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -551,27 +554,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GMailIntegrations");
-                });
-
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbMonitoredEmailAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("EmailAddress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Prompt")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MonitoredEmailAddresses");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbRule", b =>

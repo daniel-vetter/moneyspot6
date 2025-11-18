@@ -3,11 +3,10 @@ import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { TableModule, TableRowReorderEvent } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { TreeTableModule } from 'primeng/treetable';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { EditRuleComponent } from './edit-rule/edit-rule.component';
 import { ReorderRulesRequest, RuleResponse, RulesClient } from '../../server';
-import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
@@ -58,7 +57,7 @@ export class RulesComponent implements OnInit {
     onDeleteRule(rule: RuleResponse) {
         const dlg = this.confirmationService.confirm({
             header: 'Regel löschen',
-            message: 'Möchten Sie dies Regel "' + rule.name + '" wirklich löschen?',
+            message: 'Möchten Sie diese Regel "' + rule.name + '" wirklich löschen?',
             acceptLabel: 'Ja',
             rejectLabel: 'Nein',
             accept: async () => {

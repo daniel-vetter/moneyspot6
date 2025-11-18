@@ -63,6 +63,7 @@ public class Program
                     return Task.CompletedTask;
                 };
             });
+        builder.Services.Configure<MailIntegrationOptions>(builder.Configuration.GetSection("MailIntegration"));
 
         var app = builder.Build();        
         app.UseResponseCompression();
@@ -90,4 +91,10 @@ public class Program
 
         await app.RunAsync();
     }
+}
+
+public class MailIntegrationOptions
+{
+    public string? GmailClientId { get; init; }
+    public string? GmailClientSecret { get; init; }
 }

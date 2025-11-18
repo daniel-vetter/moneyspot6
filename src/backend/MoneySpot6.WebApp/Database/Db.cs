@@ -13,6 +13,8 @@ public class Db : DbContext
     public DbSet<DbStockTransaction> StockTransactions { get; init; }
     public DbSet<DbCategory> Categories { get; init; }
     public DbSet<DbRule> Rules { get; init; }
+    public DbSet<DbGMailIntegration> GMailIntegrations { get; init; }
+    public DbSet<DbMonitoredEmailAddress> MonitoredEmailAddresses { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -332,6 +334,23 @@ public class DbRule
     public string? RuntimeError { get; set; }
 }
 
+[Table("GMailIntegrations")]
+public class DbGMailIntegration
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public required string AccessToken { get; set; }
+    public required string RefreshToken { get; set; }
+    public required DateTimeOffset ExpiresAt { get; set; }
+}
+
+[Table("MonitoredEmailAddresses")]
+public class DbMonitoredEmailAddress
+{
+    public int Id { get; set; }
+    public required string EmailAddress { get; set; }
+    public required string Prompt { get; set; }
+}
 public enum StockPriceInterval
 {
     Daily = 1440,
