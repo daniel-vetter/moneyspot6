@@ -15,6 +15,7 @@ public class Db : DbContext
     public DbSet<DbRule> Rules { get; init; }
     public DbSet<DbGMailIntegration> GMailIntegrations { get; init; }
     public DbSet<DbMonitoredEmailAddress> MonitoredEmailAddresses { get; init; }
+    public DbSet<DbImportedEmail> ImportedEmails { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -342,6 +343,7 @@ public class DbGMailIntegration
     public required string AccessToken { get; set; }
     public required string RefreshToken { get; set; }
     public required DateTimeOffset ExpiresAt { get; set; }
+    public long? LastSyncTimestamp { get; set; }
 }
 
 [Table("MonitoredEmailAddresses")]
@@ -351,6 +353,22 @@ public class DbMonitoredEmailAddress
     public required string EmailAddress { get; set; }
     public required string Prompt { get; set; }
 }
+
+[Table("ImportedEmails")]
+public class DbImportedEmail
+{
+    public int Id { get; set; }
+    public required DbGMailIntegration GMailAccount { get; set; }
+    public required DbMonitoredEmailAddress MonitoredAddress { get; set; }
+    public required string MessageId { get; set; }
+    public required long InternalDate { get; set; }
+    public required string FromAddress { get; set; }
+    public required string Subject { get; set; }
+    public required string Body { get; set; }
+    public required DateTimeOffset ImportedAt { get; set; }
+    public string? ProcessedData { get; set; }
+}
+
 public enum StockPriceInterval
 {
     Daily = 1440,
