@@ -241,6 +241,37 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             await _db.SaveChangesAsync();
             return Ok();
         }
+
+        [HttpGet("GetImportedEmails")]
+        [ProducesResponseType<PagedImportedEmailsResponse>(200)]
+        public async Task<IActionResult> GetImportedEmails([FromQuery] int page = 0, [FromQuery] int pageSize = 20)
+        {
+            var query = _db.Set<DbImportedEmail>()
+                .Include(x => x.GMailAccount)
+                .Include(x => x.MonitoredAddress)
+                .OrderByDescending(x => x.ImportedAt);
+
+            var total = await query.CountAsync();
+            var items = await query
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .Select(x => new ImportedEmailResponse
+                {
+                    Id = x.Id,
+                    GMailAccountName = x.GMailAccount.Name,
+                    MonitoredAddress = x.MonitoredAddress.EmailAddress,
+                    FromAddress = x.FromAddress,
+                    Subject = x.Subject,
+                    ImportedAt = x.ImportedAt
+                })
+                .ToArrayAsync();
+
+            return Ok(new PagedImportedEmailsResponse
+            {
+                Items = items,
+                TotalCount = total
+            });
+        }
     }
 
     public class CreateMonitoredAddressRequest
@@ -285,4 +316,20 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
         public string? GmailLoginUrl { get; init; }
         [Required] public string[] ConnectedAccounts { get; init; } = [];
     };
+
+    public class ImportedEmailResponse
+    {
+        [Required] public required int Id { get; init; }
+        [Required] public required string GMailAccountName { get; init; }
+        [Required] public required string MonitoredAddress { get; init; }
+        [Required] public required string FromAddress { get; init; }
+        [Required] public required string Subject { get; init; }
+        [Required] public required DateTimeOffset ImportedAt { get; init; }
+    }
+
+    public class PagedImportedEmailsResponse
+    {
+        [Required] public required ImportedEmailResponse[] Items { get; init; }
+        [Required] public required int TotalCount { get; init; }
+    }
 }

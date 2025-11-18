@@ -115,6 +115,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                 if (mail.InternalDate > maxTimestamp)
                     maxTimestamp = mail.InternalDate;
 
+                await _db.SaveChangesAsync(stoppingToken);
                 _logger.LogInformation("Imported email from {From}: {Subject} for monitored address {MonitoredAddress} (InternalDate: {InternalDate})", mail.From, mail.Subject, monitoredAddress.EmailAddress, mail.InternalDate);
             }
 

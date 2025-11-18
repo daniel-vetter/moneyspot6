@@ -75,10 +75,10 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
             var request = client.Users.Messages.List("me");
             request.MaxResults = 500;
 
-            // Use startingTimestamp if available, otherwise default to 7 days ago
+            // Use startingTimestamp if available, otherwise default to 1 year ago
             long searchAfterSeconds = startingTimestamp > 0
                 ? startingTimestamp / 1000  // Gmail InternalDate is in milliseconds, API uses seconds
-                : DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+                : DateTimeOffset.UtcNow.AddYears(-1).ToUnixTimeSeconds();
 
             request.Q = $"from:{senderAddress} after:{searchAfterSeconds}";
 

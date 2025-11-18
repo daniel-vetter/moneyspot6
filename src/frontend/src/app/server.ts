@@ -1459,6 +1459,62 @@ export class MailIntegrationClient {
         }
         return _observableOf(null as any);
     }
+
+    getImportedEmails(page: number | undefined, pageSize: number | undefined): Observable<PagedImportedEmailsResponse> {
+        let url_ = this.baseUrl + "/api/MailIntegration/GetImportedEmails?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetImportedEmails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetImportedEmails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedImportedEmailsResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedImportedEmailsResponse>;
+        }));
+    }
+
+    protected processGetImportedEmails(response: HttpResponseBase): Observable<PagedImportedEmailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedImportedEmailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -4259,6 +4315,113 @@ export interface IUpdateMonitoredAddressRequest {
     id: number;
     address: string;
     prompt: string;
+}
+
+export class PagedImportedEmailsResponse implements IPagedImportedEmailsResponse {
+    items!: ImportedEmailResponse[];
+    totalCount!: number;
+
+    constructor(data?: IPagedImportedEmailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.items = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ImportedEmailResponse.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedImportedEmailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedImportedEmailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+export interface IPagedImportedEmailsResponse {
+    items: ImportedEmailResponse[];
+    totalCount: number;
+}
+
+export class ImportedEmailResponse implements IImportedEmailResponse {
+    id!: number;
+    gMailAccountName!: string;
+    monitoredAddress!: string;
+    fromAddress!: string;
+    subject!: string;
+    importedAt!: Date;
+
+    constructor(data?: IImportedEmailResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.gMailAccountName = _data["gMailAccountName"];
+            this.monitoredAddress = _data["monitoredAddress"];
+            this.fromAddress = _data["fromAddress"];
+            this.subject = _data["subject"];
+            this.importedAt = _data["importedAt"] ? new Date(_data["importedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): ImportedEmailResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportedEmailResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["gMailAccountName"] = this.gMailAccountName;
+        data["monitoredAddress"] = this.monitoredAddress;
+        data["fromAddress"] = this.fromAddress;
+        data["subject"] = this.subject;
+        data["importedAt"] = this.importedAt ? this.importedAt.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IImportedEmailResponse {
+    id: number;
+    gMailAccountName: string;
+    monitoredAddress: string;
+    fromAddress: string;
+    subject: string;
+    importedAt: Date;
 }
 
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {
