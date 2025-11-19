@@ -1459,6 +1459,169 @@ export class MailIntegrationClient {
         }
         return _observableOf(null as any);
     }
+
+    getProcessingStatus(): Observable<ProcessingStatusResponse> {
+        let url_ = this.baseUrl + "/api/MailIntegration/GetProcessingStatus";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetProcessingStatus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetProcessingStatus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ProcessingStatusResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ProcessingStatusResponse>;
+        }));
+    }
+
+    protected processGetProcessingStatus(response: HttpResponseBase): Observable<ProcessingStatusResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ProcessingStatusResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getImportedEmailDetails(emailId: number | undefined): Observable<ImportedEmailDetailsResponse> {
+        let url_ = this.baseUrl + "/api/MailIntegration/GetImportedEmailDetails?";
+        if (emailId === null)
+            throw new globalThis.Error("The parameter 'emailId' cannot be null.");
+        else if (emailId !== undefined)
+            url_ += "emailId=" + encodeURIComponent("" + emailId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetImportedEmailDetails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetImportedEmailDetails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ImportedEmailDetailsResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ImportedEmailDetailsResponse>;
+        }));
+    }
+
+    protected processGetImportedEmailDetails(response: HttpResponseBase): Observable<ImportedEmailDetailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ImportedEmailDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getImportedEmails(page: number | undefined, pageSize: number | undefined): Observable<PagedImportedEmailsResponse> {
+        let url_ = this.baseUrl + "/api/MailIntegration/GetImportedEmails?";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetImportedEmails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetImportedEmails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedImportedEmailsResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedImportedEmailsResponse>;
+        }));
+    }
+
+    protected processGetImportedEmails(response: HttpResponseBase): Observable<PagedImportedEmailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedImportedEmailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -4095,7 +4258,6 @@ export interface ICreateMonitoredAddressValidationErrorResponse {
 
 export class CreateMonitoredAddressRequest implements ICreateMonitoredAddressRequest {
     address!: string;
-    prompt!: string;
 
     constructor(data?: ICreateMonitoredAddressRequest) {
         if (data) {
@@ -4109,7 +4271,6 @@ export class CreateMonitoredAddressRequest implements ICreateMonitoredAddressReq
     init(_data?: any) {
         if (_data) {
             this.address = _data["address"];
-            this.prompt = _data["prompt"];
         }
     }
 
@@ -4123,20 +4284,17 @@ export class CreateMonitoredAddressRequest implements ICreateMonitoredAddressReq
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["address"] = this.address;
-        data["prompt"] = this.prompt;
         return data;
     }
 }
 
 export interface ICreateMonitoredAddressRequest {
     address: string;
-    prompt: string;
 }
 
 export class MonitoredAddressResponse implements IMonitoredAddressResponse {
     id!: number;
     address!: string;
-    prompt!: string;
 
     constructor(data?: IMonitoredAddressResponse) {
         if (data) {
@@ -4151,7 +4309,6 @@ export class MonitoredAddressResponse implements IMonitoredAddressResponse {
         if (_data) {
             this.id = _data["id"];
             this.address = _data["address"];
-            this.prompt = _data["prompt"];
         }
     }
 
@@ -4166,7 +4323,6 @@ export class MonitoredAddressResponse implements IMonitoredAddressResponse {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["address"] = this.address;
-        data["prompt"] = this.prompt;
         return data;
     }
 }
@@ -4174,7 +4330,6 @@ export class MonitoredAddressResponse implements IMonitoredAddressResponse {
 export interface IMonitoredAddressResponse {
     id: number;
     address: string;
-    prompt: string;
 }
 
 export class UpdateMonitoredAddressValidationErrorResponse implements IUpdateMonitoredAddressValidationErrorResponse {
@@ -4220,7 +4375,6 @@ export interface IUpdateMonitoredAddressValidationErrorResponse {
 export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressRequest {
     id!: number;
     address!: string;
-    prompt!: string;
 
     constructor(data?: IUpdateMonitoredAddressRequest) {
         if (data) {
@@ -4235,7 +4389,6 @@ export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressReq
         if (_data) {
             this.id = _data["id"];
             this.address = _data["address"];
-            this.prompt = _data["prompt"];
         }
     }
 
@@ -4250,7 +4403,6 @@ export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressReq
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["address"] = this.address;
-        data["prompt"] = this.prompt;
         return data;
     }
 }
@@ -4258,7 +4410,413 @@ export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressReq
 export interface IUpdateMonitoredAddressRequest {
     id: number;
     address: string;
-    prompt: string;
+}
+
+export class ProcessingStatusResponse implements IProcessingStatusResponse {
+    unprocessedEmailCount!: number;
+
+    constructor(data?: IProcessingStatusResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.unprocessedEmailCount = _data["unprocessedEmailCount"];
+        }
+    }
+
+    static fromJS(data: any): ProcessingStatusResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProcessingStatusResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["unprocessedEmailCount"] = this.unprocessedEmailCount;
+        return data;
+    }
+}
+
+export interface IProcessingStatusResponse {
+    unprocessedEmailCount: number;
+}
+
+export class ImportedEmailDetailsResponse implements IImportedEmailDetailsResponse {
+    id!: number;
+    gMailAccountName!: string;
+    monitoredAddress!: string;
+    fromAddress!: string;
+    subject!: string;
+    receivedAt!: Date;
+    importedAt!: Date;
+    processedData?: ExtractedEmailDataResponse | undefined;
+    processedAt?: Date | undefined;
+    processingError?: string | undefined;
+    processingAttempts!: number;
+
+    constructor(data?: IImportedEmailDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.gMailAccountName = _data["gMailAccountName"];
+            this.monitoredAddress = _data["monitoredAddress"];
+            this.fromAddress = _data["fromAddress"];
+            this.subject = _data["subject"];
+            this.receivedAt = _data["receivedAt"] ? new Date(_data["receivedAt"].toString()) : undefined as any;
+            this.importedAt = _data["importedAt"] ? new Date(_data["importedAt"].toString()) : undefined as any;
+            this.processedData = _data["processedData"] ? ExtractedEmailDataResponse.fromJS(_data["processedData"]) : undefined as any;
+            this.processedAt = _data["processedAt"] ? new Date(_data["processedAt"].toString()) : undefined as any;
+            this.processingError = _data["processingError"];
+            this.processingAttempts = _data["processingAttempts"];
+        }
+    }
+
+    static fromJS(data: any): ImportedEmailDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportedEmailDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["gMailAccountName"] = this.gMailAccountName;
+        data["monitoredAddress"] = this.monitoredAddress;
+        data["fromAddress"] = this.fromAddress;
+        data["subject"] = this.subject;
+        data["receivedAt"] = this.receivedAt ? this.receivedAt.toISOString() : undefined as any;
+        data["importedAt"] = this.importedAt ? this.importedAt.toISOString() : undefined as any;
+        data["processedData"] = this.processedData ? this.processedData.toJSON() : undefined as any;
+        data["processedAt"] = this.processedAt ? this.processedAt.toISOString() : undefined as any;
+        data["processingError"] = this.processingError;
+        data["processingAttempts"] = this.processingAttempts;
+        return data;
+    }
+}
+
+export interface IImportedEmailDetailsResponse {
+    id: number;
+    gMailAccountName: string;
+    monitoredAddress: string;
+    fromAddress: string;
+    subject: string;
+    receivedAt: Date;
+    importedAt: Date;
+    processedData?: ExtractedEmailDataResponse | undefined;
+    processedAt?: Date | undefined;
+    processingError?: string | undefined;
+    processingAttempts: number;
+}
+
+export class ExtractedEmailDataResponse implements IExtractedEmailDataResponse {
+    recipientName?: string | undefined;
+    merchant?: string | undefined;
+    transactionTimestamp?: Date | undefined;
+    orderNumber?: string | undefined;
+    tax?: number | undefined;
+    totalAmount?: number | undefined;
+    paymentMethod?: string | undefined;
+    accountNumber?: string | undefined;
+    transactionCode?: string | undefined;
+    items?: ExtractedEmailItemResponse[];
+
+    constructor(data?: IExtractedEmailDataResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recipientName = _data["recipientName"];
+            this.merchant = _data["merchant"];
+            this.transactionTimestamp = _data["transactionTimestamp"] ? new Date(_data["transactionTimestamp"].toString()) : undefined as any;
+            this.orderNumber = _data["orderNumber"];
+            this.tax = _data["tax"];
+            this.totalAmount = _data["totalAmount"];
+            this.paymentMethod = _data["paymentMethod"];
+            this.accountNumber = _data["accountNumber"];
+            this.transactionCode = _data["transactionCode"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ExtractedEmailItemResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ExtractedEmailDataResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ExtractedEmailDataResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientName"] = this.recipientName;
+        data["merchant"] = this.merchant;
+        data["transactionTimestamp"] = this.transactionTimestamp ? this.transactionTimestamp.toISOString() : undefined as any;
+        data["orderNumber"] = this.orderNumber;
+        data["tax"] = this.tax;
+        data["totalAmount"] = this.totalAmount;
+        data["paymentMethod"] = this.paymentMethod;
+        data["accountNumber"] = this.accountNumber;
+        data["transactionCode"] = this.transactionCode;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IExtractedEmailDataResponse {
+    recipientName?: string | undefined;
+    merchant?: string | undefined;
+    transactionTimestamp?: Date | undefined;
+    orderNumber?: string | undefined;
+    tax?: number | undefined;
+    totalAmount?: number | undefined;
+    paymentMethod?: string | undefined;
+    accountNumber?: string | undefined;
+    transactionCode?: string | undefined;
+    items?: ExtractedEmailItemResponse[];
+}
+
+export class ExtractedEmailItemResponse implements IExtractedEmailItemResponse {
+    fullName?: string | undefined;
+    shortName?: string | undefined;
+    subTotal?: number | undefined;
+
+    constructor(data?: IExtractedEmailItemResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fullName = _data["fullName"];
+            this.shortName = _data["shortName"];
+            this.subTotal = _data["subTotal"];
+        }
+    }
+
+    static fromJS(data: any): ExtractedEmailItemResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ExtractedEmailItemResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fullName"] = this.fullName;
+        data["shortName"] = this.shortName;
+        data["subTotal"] = this.subTotal;
+        return data;
+    }
+}
+
+export interface IExtractedEmailItemResponse {
+    fullName?: string | undefined;
+    shortName?: string | undefined;
+    subTotal?: number | undefined;
+}
+
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
+    }
+
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data;
+    }
+}
+
+export interface IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class PagedImportedEmailsResponse implements IPagedImportedEmailsResponse {
+    items!: ImportedEmailResponse[];
+    totalCount!: number;
+
+    constructor(data?: IPagedImportedEmailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.items = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ImportedEmailResponse.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedImportedEmailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedImportedEmailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+export interface IPagedImportedEmailsResponse {
+    items: ImportedEmailResponse[];
+    totalCount: number;
+}
+
+export class ImportedEmailResponse implements IImportedEmailResponse {
+    id!: number;
+    gMailAccountName!: string;
+    monitoredAddress!: string;
+    fromAddress!: string;
+    subject!: string;
+    receivedAt!: Date;
+
+    constructor(data?: IImportedEmailResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.gMailAccountName = _data["gMailAccountName"];
+            this.monitoredAddress = _data["monitoredAddress"];
+            this.fromAddress = _data["fromAddress"];
+            this.subject = _data["subject"];
+            this.receivedAt = _data["receivedAt"] ? new Date(_data["receivedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): ImportedEmailResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportedEmailResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["gMailAccountName"] = this.gMailAccountName;
+        data["monitoredAddress"] = this.monitoredAddress;
+        data["fromAddress"] = this.fromAddress;
+        data["subject"] = this.subject;
+        data["receivedAt"] = this.receivedAt ? this.receivedAt.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IImportedEmailResponse {
+    id: number;
+    gMailAccountName: string;
+    monitoredAddress: string;
+    fromAddress: string;
+    subject: string;
+    receivedAt: Date;
 }
 
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {

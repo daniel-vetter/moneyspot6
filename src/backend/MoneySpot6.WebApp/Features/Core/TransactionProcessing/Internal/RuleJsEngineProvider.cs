@@ -17,13 +17,13 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
             _db = db;
         }
 
-        public async Task<Engine> Create()
+        public async Task<Engine> Create(List<DbExtractedEmailData> emailCache)
         {
             var rules = await _db.Rules
                 .AsTracking()
                 .ToArrayAsync();
 
-            var engine = await CreateBasicEngine();
+            var engine = await CreateBasicEngine(emailCache);
             var validRules = new List<DbRule>();
             foreach (var rule in rules)
             {
@@ -75,7 +75,7 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
             return engine;
         }
 
-        private async Task<Engine> CreateBasicEngine()
+        private async Task<Engine> CreateBasicEngine(List<DbExtractedEmailData> emailCache)
         {
             var engine = new Engine(x =>
             {
@@ -85,6 +85,9 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
             });
 
             var categories = await _ruleCategoryKeyProvider.GetAll();
+
+            // Email cache direkt als CLR-Objekt an JavaScript übergeben
+            engine.SetValue("__emailCache", emailCache);
 
             var globalCode = $$"""
                                class Transaction {
@@ -220,6 +223,52 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
                                const Category = Object.freeze({
                                  {{string.Join(",\n", categories.Select(x => $"{x.Name}: {x.Id}").ToArray())}}
                                });
+
+                               function findMail(filter) {
+                                   if (!filter || typeof filter !== 'object') {
+                                       return null;
+                                   }
+
+                                   for (let i = 0; i < __emailCache.Count; i++) {
+                                       const mail = __emailCache[i];
+                                       let match = true;
+
+                                       // Check all filter properties
+                                       if (filter.recipientName !== undefined && mail.RecipientName !== filter.recipientName) {
+                                           match = false;
+                                       }
+                                       if (filter.merchant !== undefined && mail.Merchant !== filter.merchant) {
+                                           match = false;
+                                       }
+                                       if (filter.transactionTimestamp !== undefined && mail.TransactionTimestamp !== filter.transactionTimestamp) {
+                                           match = false;
+                                       }
+                                       if (filter.orderNumber !== undefined && mail.OrderNumber !== filter.orderNumber) {
+                                           match = false;
+                                       }
+                                       if (filter.tax !== undefined && mail.Tax !== filter.tax) {
+                                           match = false;
+                                       }
+                                       if (filter.totalAmount !== undefined && mail.TotalAmount !== filter.totalAmount) {
+                                           match = false;
+                                       }
+                                       if (filter.paymentMethod !== undefined && mail.PaymentMethod !== filter.paymentMethod) {
+                                           match = false;
+                                       }
+                                       if (filter.accountNumber !== undefined && mail.AccountNumber !== filter.accountNumber) {
+                                           match = false;
+                                       }
+                                       if (filter.transactionCode !== undefined && mail.TransactionCode !== filter.transactionCode) {
+                                           match = false;
+                                       }
+
+                                       if (match) {
+                                           return mail;
+                                       }
+                                   }
+
+                                   return null;
+                               }
 
                                """;
             engine.Execute(globalCode);

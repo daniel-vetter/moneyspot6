@@ -11,6 +11,11 @@ public static class DbEx
         return ImmutableCollectionsMarshal.AsImmutableArray(await query.ToArrayAsync());
     }
 
+    public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query, CancellationToken cancellationToken)
+    {
+        return ImmutableCollectionsMarshal.AsImmutableArray(await query.ToArrayAsync(cancellationToken));
+    }
+
     public static async Task<ImmutableDictionary<TKey, T>> ToImmutableDictionaryAsync<TKey, T>(this IQueryable<T> query, Func<T, TKey> keySelector) where TKey : notnull
     {
         return (await query.ToDictionaryAsync(keySelector)).ToImmutableDictionary();

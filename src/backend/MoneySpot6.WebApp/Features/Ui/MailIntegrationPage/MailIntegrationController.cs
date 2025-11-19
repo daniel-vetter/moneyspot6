@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core;
+using MoneySpot6.WebApp.Features.Core.MailIntegration;
 using MoneySpot6.WebApp.Infrastructure;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,11 +20,13 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
     {
         private IOptions<MailIntegrationOptions> _configuration;
         private readonly Db _db;
+        private readonly WaitHelper _waitHelper;
 
-        public MailIntegrationController(IOptions<MailIntegrationOptions> configuration, Db db)
+        public MailIntegrationController(IOptions<MailIntegrationOptions> configuration, Db db, WaitHelper waitHelper)
         {
             _configuration = configuration;
             _db = db;
+            _waitHelper = waitHelper;
         }
 
         [HttpGet("GetStatus")]
@@ -108,7 +112,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             }
 
             await _db.SaveChangesAsync();
-
+            _waitHelper.Trigger<MailIntegrationUpdateBackgroundWorker>();
             return Redirect("/settings/mail-integration");
         }
 
@@ -157,11 +161,12 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
 
             _db.Set<DbMonitoredEmailAddress>().Add(new DbMonitoredEmailAddress
             {
-                EmailAddress = trimmedAddress,
-                Prompt = request.Prompt
+                EmailAddress = trimmedAddress
             });
 
             await _db.SaveChangesAsync();
+
+            _waitHelper.Trigger<MailIntegrationUpdateBackgroundWorker>();
             return Ok();
         }
 
@@ -175,8 +180,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                 .Select(x => new MonitoredAddressResponse
                 {
                     Id = x.Id,
-                    Address = x.EmailAddress,
-                    Prompt = x.Prompt
+                    Address = x.EmailAddress
                 }).ToImmutableArrayAsync();
 
             return Ok(result);
@@ -220,9 +224,9 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                 return NotFound();
 
             existing.EmailAddress = request.Address;
-            existing.Prompt = request.Prompt;
-            
+
             await _db.SaveChangesAsync();
+            _waitHelper.Trigger<MailIntegrationUpdateBackgroundWorker>();
             return Ok();
         }
 
@@ -241,26 +245,124 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             await _db.SaveChangesAsync();
             return Ok();
         }
+
+        [HttpGet("GetProcessingStatus")]
+        [ProducesResponseType<ProcessingStatusResponse>(200)]
+        public async Task<IActionResult> GetProcessingStatus()
+        {
+            var unprocessedCount = await _db.Set<DbImportedEmail>()
+                .Where(x => x.ProcessedData == null && x.ProcessingError == null)
+                .CountAsync();
+
+            return Ok(new ProcessingStatusResponse
+            {
+                UnprocessedEmailCount = unprocessedCount
+            });
+        }
+
+        [HttpGet("GetImportedEmailDetails")]
+        [ProducesResponseType<ImportedEmailDetailsResponse>(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetImportedEmailDetails([FromQuery] int emailId)
+        {
+            var email = await _db.Set<DbImportedEmail>()
+                .Include(x => x.GMailAccount)
+                .Include(x => x.MonitoredAddress)
+                .AsNoTracking()
+                .Where(x => x.Id == emailId)
+                .FirstOrDefaultAsync();
+
+            if (email == null)
+                return NotFound();
+
+            return Ok(new ImportedEmailDetailsResponse
+            {
+                Id = email.Id,
+                GMailAccountName = email.GMailAccount.Name,
+                MonitoredAddress = email.MonitoredAddress.EmailAddress,
+                FromAddress = email.FromAddress,
+                Subject = email.Subject,
+                ReceivedAt = email.InternalDate,
+                ImportedAt = email.ImportedAt,
+                ProcessedData = MapToResponse(email.ProcessedData),
+                ProcessedAt = email.ProcessedAt,
+                ProcessingError = email.ProcessingError,
+                ProcessingAttempts = email.ProcessingAttempts
+            });
+        }
+
+        [HttpGet("GetImportedEmails")]
+        [ProducesResponseType<PagedImportedEmailsResponse>(200)]
+        public async Task<IActionResult> GetImportedEmails([FromQuery] int page = 0, [FromQuery] int pageSize = 20)
+        {
+            var query = _db.Set<DbImportedEmail>()
+                .Include(x => x.GMailAccount)
+                .Include(x => x.MonitoredAddress)
+                .OrderByDescending(x => x.InternalDate);
+
+            var total = await query.CountAsync();
+            var items = await query
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .Select(x => new ImportedEmailResponse
+                {
+                    Id = x.Id,
+                    GMailAccountName = x.GMailAccount.Name,
+                    MonitoredAddress = x.MonitoredAddress.EmailAddress,
+                    FromAddress = x.FromAddress,
+                    Subject = x.Subject,
+                    ReceivedAt = x.InternalDate
+                })
+                .ToArrayAsync();
+
+            return Ok(new PagedImportedEmailsResponse
+            {
+                Items = items,
+                TotalCount = total
+            });
+        }
+
+        private static ExtractedEmailDataResponse? MapToResponse(DbExtractedEmailData? data)
+        {
+            if (data == null)
+                return null;
+
+            return new ExtractedEmailDataResponse
+            {
+                RecipientName = data.RecipientName,
+                Merchant = data.Merchant,
+                TransactionTimestamp = data.TransactionTimestamp,
+                OrderNumber = data.OrderNumber,
+                Tax = data.Tax,
+                TotalAmount = data.TotalAmount,
+                PaymentMethod = data.PaymentMethod,
+                AccountNumber = data.AccountNumber,
+                TransactionCode = data.TransactionCode,
+                Items = data.Items.Select(item => new ExtractedEmailItemResponse
+                {
+                    FullName = item.FullName,
+                    ShortName = item.ShortName,
+                    SubTotal = item.SubTotal
+                }).ToList()
+            };
+        }
     }
 
     public class CreateMonitoredAddressRequest
     {
         [Required] public required string Address { get; init; }
-        [Required] public required string Prompt { get; init; }
     }
 
     public class UpdateMonitoredAddressRequest
     {
         [Required] public required int Id { get; init; }
         [Required] public required string Address { get; init; }
-        [Required] public required string Prompt { get; init; }
     }
 
     public class MonitoredAddressResponse
     {
         [Required] public required int Id { get; init; }
         [Required] public required string Address { get; init; }
-        [Required] public required string Prompt { get; init; }
     }
 
     public class CreateMonitoredAddressValidationErrorResponse
@@ -285,4 +387,61 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
         public string? GmailLoginUrl { get; init; }
         [Required] public string[] ConnectedAccounts { get; init; } = [];
     };
+
+    public class ImportedEmailResponse
+    {
+        [Required] public required int Id { get; init; }
+        [Required] public required string GMailAccountName { get; init; }
+        [Required] public required string MonitoredAddress { get; init; }
+        [Required] public required string FromAddress { get; init; }
+        [Required] public required string Subject { get; init; }
+        [Required] public required DateTimeOffset ReceivedAt { get; init; }
+    }
+
+    public class PagedImportedEmailsResponse
+    {
+        [Required] public required ImportedEmailResponse[] Items { get; init; }
+        [Required] public required int TotalCount { get; init; }
+    }
+
+    public class ProcessingStatusResponse
+    {
+        [Required] public required int UnprocessedEmailCount { get; init; }
+    }
+
+    public class ImportedEmailDetailsResponse
+    {
+        [Required] public required int Id { get; init; }
+        [Required] public required string GMailAccountName { get; init; }
+        [Required] public required string MonitoredAddress { get; init; }
+        [Required] public required string FromAddress { get; init; }
+        [Required] public required string Subject { get; init; }
+        [Required] public required DateTimeOffset ReceivedAt { get; init; }
+        [Required] public required DateTimeOffset ImportedAt { get; init; }
+        public ExtractedEmailDataResponse? ProcessedData { get; init; }
+        public DateTimeOffset? ProcessedAt { get; init; }
+        public string? ProcessingError { get; init; }
+        [Required] public required int ProcessingAttempts { get; init; }
+    }
+
+    public class ExtractedEmailDataResponse
+    {
+        public string? RecipientName { get; init; }
+        public string? Merchant { get; init; }
+        public DateTimeOffset? TransactionTimestamp { get; init; }
+        public string? OrderNumber { get; init; }
+        public decimal? Tax { get; init; }
+        public decimal? TotalAmount { get; init; }
+        public string? PaymentMethod { get; init; }
+        public string? AccountNumber { get; init; }
+        public string? TransactionCode { get; init; }
+        public List<ExtractedEmailItemResponse> Items { get; init; } = new();
+    }
+
+    public class ExtractedEmailItemResponse
+    {
+        public string? FullName { get; init; }
+        public string? ShortName { get; init; }
+        public decimal? SubTotal { get; init; }
+    }
 }

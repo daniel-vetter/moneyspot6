@@ -45,6 +45,9 @@ jobs:
             -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
             -e OTEL_SERVICE_NAME="${{ env.NAME }}-app-staging" \
             -e ConnectionStrings__Db="User ID=postgres;Password=${{ secrets.DB_PASSWORD }};Host=192.168.178.105;Port=5432;Database=${{ env.NAME }}-db-staging;ApplicationName=${{ env.NAME }}-staging" \
+            -e MailIntegration__GmailClientId="${{ secrets.GMAIL_CLIENT_ID }}" \
+            -e MailIntegration__GmailClientSecret="${{ secrets.GMAIL_CLIENT_SECRET }}" \
+            -e MailIntegration__OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
             docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}      
           docker image prune -af
 
@@ -71,5 +74,8 @@ jobs:
             -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
             -e OTEL_SERVICE_NAME="${{ env.NAME }}-app-prod" \
             -e ConnectionStrings__Db="User ID=postgres;Password=${{ secrets.DB_PASSWORD }};Host=192.168.178.105;Port=5432;Database=${{ env.NAME }}-db-prod;ApplicationName=${{ env.NAME }}-prod" \
+            -e MailIntegration__GmailClientId="${{ secrets.GMAIL_CLIENT_ID }}" \
+            -e MailIntegration__GmailClientSecret="${{ secrets.GMAIL_CLIENT_SECRET }}" \
+            -e MailIntegration__OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
             docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}      
           docker image prune -af

@@ -15,6 +15,8 @@ public class Db : DbContext
     public DbSet<DbRule> Rules { get; init; }
     public DbSet<DbGMailIntegration> GMailIntegrations { get; init; }
     public DbSet<DbMonitoredEmailAddress> MonitoredEmailAddresses { get; init; }
+    public DbSet<DbEmailSyncStatus> EmailSyncStatuses { get; init; }
+    public DbSet<DbImportedEmail> ImportedEmails { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -27,6 +29,14 @@ public class Db : DbContext
             .HasOne<DbCategory>()
             .WithMany()
             .HasForeignKey(x => x.ParentId);
+
+        modelBuilder
+            .Entity<DbImportedEmail>()
+            .OwnsOne(x => x.ProcessedData, builder =>
+            {
+                builder.ToJson();
+                builder.OwnsMany(x => x.Items);
+            });
 
         base.OnModelCreating(modelBuilder);
     }
@@ -349,10 +359,58 @@ public class DbMonitoredEmailAddress
 {
     public int Id { get; set; }
     public required string EmailAddress { get; set; }
-    public required string Prompt { get; set; }
 }
+
+[Table("EmailSyncStatus")]
+public class DbEmailSyncStatus
+{
+    public int Id { get; set; }
+    public required DbGMailIntegration GMailAccount { get; set; }
+    public required DbMonitoredEmailAddress MonitoredAddress { get; set; }
+    public DateTimeOffset LastSyncTimestamp { get; set; }
+}
+
+[Table("ImportedEmails")]
+public class DbImportedEmail
+{
+    public int Id { get; set; }
+    public required DbGMailIntegration GMailAccount { get; set; }
+    public required DbMonitoredEmailAddress MonitoredAddress { get; set; }
+    public required string MessageId { get; set; }
+    public required DateTimeOffset InternalDate { get; set; }
+    public required string FromAddress { get; set; }
+    public required string Subject { get; set; }
+    public required string Body { get; set; }
+    public required DateTimeOffset ImportedAt { get; set; }
+    public DbExtractedEmailData? ProcessedData { get; set; }
+    public DateTimeOffset? ProcessedAt { get; set; }
+    public string? ProcessingError { get; set; }
+    public int ProcessingAttempts { get; set; }
+}
+
 public enum StockPriceInterval
 {
     Daily = 1440,
     FiveMinutes = 5
+}
+
+public class DbExtractedEmailData
+{
+    public string? RecipientName { get; set; }
+    public string? Merchant { get; set; }
+    public DateTimeOffset? TransactionTimestamp { get; set; }
+    public string? OrderNumber { get; set; }
+    public decimal? Tax { get; set; }
+    public decimal? TotalAmount { get; set; }
+    public string? PaymentMethod { get; set; }
+    public string? AccountNumber { get; set; }
+    public string? TransactionCode { get; set; }
+    public List<DbExtractedEmailItem> Items { get; set; } = new();
+}
+
+public class DbExtractedEmailItem
+{
+    public string? FullName { get; set; }
+    public string? ShortName { get; set; }
+    public decimal? SubTotal { get; set; }
 }
