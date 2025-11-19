@@ -284,7 +284,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                 Subject = email.Subject,
                 ReceivedAt = email.InternalDate,
                 ImportedAt = email.ImportedAt,
-                ProcessedData = email.ProcessedData,
+                ProcessedData = MapToResponse(email.ProcessedData),
                 ProcessedAt = email.ProcessedAt,
                 ProcessingError = email.ProcessingError,
                 ProcessingAttempts = email.ProcessingAttempts
@@ -320,6 +320,31 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                 Items = items,
                 TotalCount = total
             });
+        }
+
+        private static ExtractedEmailDataResponse? MapToResponse(DbExtractedEmailData? data)
+        {
+            if (data == null)
+                return null;
+
+            return new ExtractedEmailDataResponse
+            {
+                RecipientName = data.RecipientName,
+                Merchant = data.Merchant,
+                TransactionTimestamp = data.TransactionTimestamp,
+                OrderNumber = data.OrderNumber,
+                Tax = data.Tax,
+                TotalAmount = data.TotalAmount,
+                PaymentMethod = data.PaymentMethod,
+                AccountNumber = data.AccountNumber,
+                TransactionCode = data.TransactionCode,
+                Items = data.Items.Select(item => new ExtractedEmailItemResponse
+                {
+                    FullName = item.FullName,
+                    ShortName = item.ShortName,
+                    SubTotal = item.SubTotal
+                }).ToList()
+            };
         }
     }
 
@@ -393,9 +418,30 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
         [Required] public required string Subject { get; init; }
         [Required] public required DateTimeOffset ReceivedAt { get; init; }
         [Required] public required DateTimeOffset ImportedAt { get; init; }
-        public string? ProcessedData { get; init; }
+        public ExtractedEmailDataResponse? ProcessedData { get; init; }
         public DateTimeOffset? ProcessedAt { get; init; }
         public string? ProcessingError { get; init; }
         [Required] public required int ProcessingAttempts { get; init; }
+    }
+
+    public class ExtractedEmailDataResponse
+    {
+        public string? RecipientName { get; init; }
+        public string? Merchant { get; init; }
+        public DateTimeOffset? TransactionTimestamp { get; init; }
+        public string? OrderNumber { get; init; }
+        public decimal? Tax { get; init; }
+        public decimal? TotalAmount { get; init; }
+        public string? PaymentMethod { get; init; }
+        public string? AccountNumber { get; init; }
+        public string? TransactionCode { get; init; }
+        public List<ExtractedEmailItemResponse> Items { get; init; } = new();
+    }
+
+    public class ExtractedEmailItemResponse
+    {
+        public string? FullName { get; init; }
+        public string? ShortName { get; init; }
+        public decimal? SubTotal { get; init; }
     }
 }

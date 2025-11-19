@@ -4456,7 +4456,7 @@ export class ImportedEmailDetailsResponse implements IImportedEmailDetailsRespon
     subject!: string;
     receivedAt!: Date;
     importedAt!: Date;
-    processedData?: string | undefined;
+    processedData?: ExtractedEmailDataResponse | undefined;
     processedAt?: Date | undefined;
     processingError?: string | undefined;
     processingAttempts!: number;
@@ -4479,7 +4479,7 @@ export class ImportedEmailDetailsResponse implements IImportedEmailDetailsRespon
             this.subject = _data["subject"];
             this.receivedAt = _data["receivedAt"] ? new Date(_data["receivedAt"].toString()) : undefined as any;
             this.importedAt = _data["importedAt"] ? new Date(_data["importedAt"].toString()) : undefined as any;
-            this.processedData = _data["processedData"];
+            this.processedData = _data["processedData"] ? ExtractedEmailDataResponse.fromJS(_data["processedData"]) : undefined as any;
             this.processedAt = _data["processedAt"] ? new Date(_data["processedAt"].toString()) : undefined as any;
             this.processingError = _data["processingError"];
             this.processingAttempts = _data["processingAttempts"];
@@ -4502,7 +4502,7 @@ export class ImportedEmailDetailsResponse implements IImportedEmailDetailsRespon
         data["subject"] = this.subject;
         data["receivedAt"] = this.receivedAt ? this.receivedAt.toISOString() : undefined as any;
         data["importedAt"] = this.importedAt ? this.importedAt.toISOString() : undefined as any;
-        data["processedData"] = this.processedData;
+        data["processedData"] = this.processedData ? this.processedData.toJSON() : undefined as any;
         data["processedAt"] = this.processedAt ? this.processedAt.toISOString() : undefined as any;
         data["processingError"] = this.processingError;
         data["processingAttempts"] = this.processingAttempts;
@@ -4518,10 +4518,134 @@ export interface IImportedEmailDetailsResponse {
     subject: string;
     receivedAt: Date;
     importedAt: Date;
-    processedData?: string | undefined;
+    processedData?: ExtractedEmailDataResponse | undefined;
     processedAt?: Date | undefined;
     processingError?: string | undefined;
     processingAttempts: number;
+}
+
+export class ExtractedEmailDataResponse implements IExtractedEmailDataResponse {
+    recipientName?: string | undefined;
+    merchant?: string | undefined;
+    transactionTimestamp?: Date | undefined;
+    orderNumber?: string | undefined;
+    tax?: number | undefined;
+    totalAmount?: number | undefined;
+    paymentMethod?: string | undefined;
+    accountNumber?: string | undefined;
+    transactionCode?: string | undefined;
+    items?: ExtractedEmailItemResponse[];
+
+    constructor(data?: IExtractedEmailDataResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recipientName = _data["recipientName"];
+            this.merchant = _data["merchant"];
+            this.transactionTimestamp = _data["transactionTimestamp"] ? new Date(_data["transactionTimestamp"].toString()) : undefined as any;
+            this.orderNumber = _data["orderNumber"];
+            this.tax = _data["tax"];
+            this.totalAmount = _data["totalAmount"];
+            this.paymentMethod = _data["paymentMethod"];
+            this.accountNumber = _data["accountNumber"];
+            this.transactionCode = _data["transactionCode"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ExtractedEmailItemResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ExtractedEmailDataResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ExtractedEmailDataResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientName"] = this.recipientName;
+        data["merchant"] = this.merchant;
+        data["transactionTimestamp"] = this.transactionTimestamp ? this.transactionTimestamp.toISOString() : undefined as any;
+        data["orderNumber"] = this.orderNumber;
+        data["tax"] = this.tax;
+        data["totalAmount"] = this.totalAmount;
+        data["paymentMethod"] = this.paymentMethod;
+        data["accountNumber"] = this.accountNumber;
+        data["transactionCode"] = this.transactionCode;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IExtractedEmailDataResponse {
+    recipientName?: string | undefined;
+    merchant?: string | undefined;
+    transactionTimestamp?: Date | undefined;
+    orderNumber?: string | undefined;
+    tax?: number | undefined;
+    totalAmount?: number | undefined;
+    paymentMethod?: string | undefined;
+    accountNumber?: string | undefined;
+    transactionCode?: string | undefined;
+    items?: ExtractedEmailItemResponse[];
+}
+
+export class ExtractedEmailItemResponse implements IExtractedEmailItemResponse {
+    fullName?: string | undefined;
+    shortName?: string | undefined;
+    subTotal?: number | undefined;
+
+    constructor(data?: IExtractedEmailItemResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fullName = _data["fullName"];
+            this.shortName = _data["shortName"];
+            this.subTotal = _data["subTotal"];
+        }
+    }
+
+    static fromJS(data: any): ExtractedEmailItemResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ExtractedEmailItemResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fullName"] = this.fullName;
+        data["shortName"] = this.shortName;
+        data["subTotal"] = this.subTotal;
+        return data;
+    }
+}
+
+export interface IExtractedEmailItemResponse {
+    fullName?: string | undefined;
+    shortName?: string | undefined;
+    subTotal?: number | undefined;
 }
 
 export class ProblemDetails implements IProblemDetails {

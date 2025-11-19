@@ -30,6 +30,14 @@ public class Db : DbContext
             .WithMany()
             .HasForeignKey(x => x.ParentId);
 
+        modelBuilder
+            .Entity<DbImportedEmail>()
+            .OwnsOne(x => x.ProcessedData, builder =>
+            {
+                builder.ToJson();
+                builder.OwnsMany(x => x.Items);
+            });
+
         base.OnModelCreating(modelBuilder);
     }
 }
@@ -374,7 +382,7 @@ public class DbImportedEmail
     public required string Subject { get; set; }
     public required string Body { get; set; }
     public required DateTimeOffset ImportedAt { get; set; }
-    public string? ProcessedData { get; set; }
+    public DbExtractedEmailData? ProcessedData { get; set; }
     public DateTimeOffset? ProcessedAt { get; set; }
     public string? ProcessingError { get; set; }
     public int ProcessingAttempts { get; set; }
@@ -384,4 +392,25 @@ public enum StockPriceInterval
 {
     Daily = 1440,
     FiveMinutes = 5
+}
+
+public class DbExtractedEmailData
+{
+    public string? RecipientName { get; set; }
+    public string? Merchant { get; set; }
+    public DateTimeOffset? TransactionTimestamp { get; set; }
+    public string? OrderNumber { get; set; }
+    public decimal? Tax { get; set; }
+    public decimal? TotalAmount { get; set; }
+    public string? PaymentMethod { get; set; }
+    public string? AccountNumber { get; set; }
+    public string? TransactionCode { get; set; }
+    public List<DbExtractedEmailItem> Items { get; set; } = new();
+}
+
+public class DbExtractedEmailItem
+{
+    public string? FullName { get; set; }
+    public string? ShortName { get; set; }
+    public decimal? SubTotal { get; set; }
 }

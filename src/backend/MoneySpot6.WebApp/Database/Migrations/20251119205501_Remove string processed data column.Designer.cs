@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20251119205501_Remove string processed data column")]
+    partial class Removestringprocesseddatacolumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -848,81 +851,9 @@ namespace MoneySpot6.WebApp.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("MoneySpot6.WebApp.Database.DbExtractedEmailData", "ProcessedData", b1 =>
-                        {
-                            b1.Property<int>("DbImportedEmailId")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("AccountNumber")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Merchant")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("OrderNumber")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("PaymentMethod")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("RecipientName")
-                                .HasColumnType("text");
-
-                            b1.Property<decimal?>("Tax")
-                                .HasColumnType("numeric");
-
-                            b1.Property<decimal?>("TotalAmount")
-                                .HasColumnType("numeric");
-
-                            b1.Property<string>("TransactionCode")
-                                .HasColumnType("text");
-
-                            b1.Property<DateTimeOffset?>("TransactionTimestamp")
-                                .HasColumnType("timestamp with time zone");
-
-                            b1.HasKey("DbImportedEmailId");
-
-                            b1.ToTable("ImportedEmails");
-
-                            b1.ToJson("ProcessedData");
-
-                            b1.WithOwner()
-                                .HasForeignKey("DbImportedEmailId");
-
-                            b1.OwnsMany("MoneySpot6.WebApp.Database.DbExtractedEmailItem", "Items", b2 =>
-                                {
-                                    b2.Property<int>("DbExtractedEmailDataDbImportedEmailId")
-                                        .HasColumnType("integer");
-
-                                    b2.Property<int>("__synthesizedOrdinal")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("integer");
-
-                                    b2.Property<string>("FullName")
-                                        .HasColumnType("text");
-
-                                    b2.Property<string>("ShortName")
-                                        .HasColumnType("text");
-
-                                    b2.Property<decimal?>("SubTotal")
-                                        .HasColumnType("numeric");
-
-                                    b2.HasKey("DbExtractedEmailDataDbImportedEmailId", "__synthesizedOrdinal");
-
-                                    b2.ToTable("ImportedEmails");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("DbExtractedEmailDataDbImportedEmailId");
-                                });
-
-                            b1.Navigation("Items");
-                        });
-
                     b.Navigation("GMailAccount");
 
                     b.Navigation("MonitoredAddress");
-
-                    b.Navigation("ProcessedData");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbStockPrice", b =>

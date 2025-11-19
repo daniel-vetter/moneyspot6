@@ -19,7 +19,6 @@ export class EmailDetailsDialogComponent implements OnInit {
 
     emailId: number;
     emailDetails = signal<ImportedEmailDetailsResponse | undefined>(undefined);
-    extractedData = signal<any | undefined>(undefined);
 
     constructor() {
         this.emailId = this.dialogConfig.data?.emailId;
@@ -29,18 +28,8 @@ export class EmailDetailsDialogComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         try {
-            const details = await lastValueFrom(
-                this.mailIntegrationClient.getImportedEmailDetails(this.emailId)
-            );
+            const details = await lastValueFrom(this.mailIntegrationClient.getImportedEmailDetails(this.emailId));
             this.emailDetails.set(details);
-
-            if (details.processedData) {
-                try {
-                    this.extractedData.set(JSON.parse(details.processedData));
-                } catch (e) {
-                    console.error('Failed to parse processed data', e);
-                }
-            }
         } catch (error) {
             console.error('Failed to load email details', error);
         }

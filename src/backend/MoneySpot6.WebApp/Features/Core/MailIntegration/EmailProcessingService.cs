@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Infrastructure;
+using OpenAI.Chat;
+using System.ClientModel;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 {
@@ -10,14 +12,14 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
     internal class EmailProcessingService
     {
         private readonly Db _db;
-        private readonly OpenAIService _openAIService;
+        private readonly IOptions<MailIntegrationOptions> _configuration;
         private readonly ILogger<EmailProcessingService> _logger;
         private const int MaxRetries = 3;
 
-        public EmailProcessingService(Db db, OpenAIService openAIService, ILogger<EmailProcessingService> logger)
+        public EmailProcessingService(Db db, IOptions<MailIntegrationOptions> configuration, ILogger<EmailProcessingService> logger)
         {
             _db = db;
-            _openAIService = openAIService;
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -26,7 +28,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
             var unprocessedEmails = await _db.Set<DbImportedEmail>()
                 .Include(x => x.MonitoredAddress)
                 .AsTracking()
-                .Where(x => x.ProcessedData == null && x.ProcessingError == null)
+                //.Where(x => x.ProcessedData == null && x.ProcessingError == null)
                 .OrderBy(x => x.InternalDate)
                 .ToImmutableArrayAsync(stoppingToken);
 
@@ -54,130 +56,101 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
         {
             email.ProcessingAttempts++;
 
-            var messages = new[]
+            var messages = new List<ChatMessage>
             {
-                new OpenAIMessage
-                {
-                    Role = "system",
-                    Content = """
-                              You are a data extraction assistant. Extract the requested information from the email and return it as valid JSON.
-                              If information is not available, omit that field. Always respond with valid JSON only, no additional text.
+                ChatMessage.CreateSystemMessage("""
+                    You are a data extraction assistant. Extract the requested information from the email and return it as valid JSON.
+                    If information is not available, omit that field. Always respond with valid JSON only, no additional text.
 
-                              Use the following json schema:
+                    Use the following json schema:
 
-                              {
-                                "recipientName": string | undefined,
-                                "merchant": string | undefined,
-                                "transactionTimestamp": string | undefined, // iso 8601
-                                "orderNumber": string | undefined,
-                                "tax": number | undefined,
-                                "totalAmount": number | undefined,
-                                "paymentMethod": string | undefined,
-                                "accountNumber": string | undefined,
-                                "transactionCode": string | undefined,
-                                "items": [{
-                                    fullName: string | undefined,  // The name as displayed in the mail
-                                    shortName: string | undefined, // A short name if the fullName is too long (over 20 characters)
-                                    subTotal: number | undefined
-                                }]
-                              }
-                              """
-                },
-                new OpenAIMessage
-                {
-                    Role = "user",
-                    Content = email.Body
-                }
+                    {
+                      "recipientName": string | undefined,
+                      "merchant": string | undefined,
+                      "transactionTimestamp": string | undefined, // iso 8601
+                      "orderNumber": string | undefined,
+                      "tax": number | undefined,
+                      "totalAmount": number | undefined,
+                      "paymentMethod": string | undefined,
+                      "accountNumber": string | undefined,
+                      "transactionCode": string | undefined,
+                      "items": [{
+                          fullName: string | undefined,  // The name as displayed in the mail
+                          shortName: string | undefined, // A short name if the fullName is too long (over 20 characters)
+                          subTotal: number | undefined
+                      }]
+                    }
+                    """),
+                ChatMessage.CreateUserMessage(email.Body)
             };
 
-            var result = await _openAIService.SendAsync(
-                messages,
-                responseFormat: new { type = "json_object" },
-                cancellationToken: stoppingToken);
+            try
+            {
 
-            if (result.IsSuccess)
-            {
-                try
+                var apiKey = _configuration.Value.OpenAIApiKey ?? throw new InvalidOperationException("OpenAI API key not configured");
+                var chatClient = new ChatClient("gpt-4o-mini", apiKey);
+
+                var options = new ChatCompletionOptions
                 {
-                    var validatedData = JsonSerializer.Deserialize<ExtractedEmailData>(result.Data!);
-                    if (validatedData == null)
-                    {
-                        email.ProcessingError = "JSON validation failed: Deserialization returned null";
-                        _logger.LogWarning("JSON validation failed for email {EmailId}: Deserialization returned null", email.Id);
-                    }
-                    else
-                    {
-                        email.ProcessedData = result.Data;
-                        email.ProcessedAt = DateTimeOffset.UtcNow;
-                        _logger.LogInformation("Processed email {EmailId}: {Subject}", email.Id, email.Subject);
-                    }
-                }
-                catch (JsonException ex)
+                    Temperature = 0.1f,
+                    ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
+                };
+
+                var response = await chatClient.CompleteChatAsync(messages, options, stoppingToken);
+                var content = response.Value.Content[0].Text;
+
+                var validatedData = JsonSerializer.Deserialize<DbExtractedEmailData>(content, new JsonSerializerOptions
                 {
-                    email.ProcessingError = $"JSON validation failed: {ex.Message}";
-                    _logger.LogWarning("JSON validation failed for email {EmailId}: {Error}", email.Id, ex.Message);
-                }
-            }
-            else
-            {
-                if (!result.IsTransient || email.ProcessingAttempts >= MaxRetries)
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (validatedData == null)
                 {
-                    email.ProcessingError = result.Error;
-                    _logger.LogWarning("Permanent error processing email {EmailId}: {Error}", email.Id, result.Error);
+                    email.ProcessingError = "JSON validation failed: Deserialization returned null";
+                    _logger.LogWarning("JSON validation failed for email {EmailId}: Deserialization returned null", email.Id);
                 }
                 else
                 {
-                    _logger.LogWarning("Transient error processing email {EmailId} (attempt {Attempt}/{Max}): {Error}",
-                        email.Id, email.ProcessingAttempts, MaxRetries, result.Error);
+                    email.ProcessedData = validatedData;
+                    email.ProcessedAt = DateTimeOffset.UtcNow;
+                    _logger.LogInformation("Processed email {EmailId}: {Subject}", email.Id, email.Subject);
                 }
+            }
+            catch (JsonException ex)
+            {
+                email.ProcessingError = $"JSON validation failed: {ex.Message}";
+                _logger.LogWarning("JSON validation failed for email {EmailId}: {Error}", email.Id, ex.Message);
+            }
+            catch (ClientResultException ex) when (ex.Status == 429 || ex.Status >= 500)
+            {
+                _logger.LogWarning(ex, "Transient OpenAI error for email {EmailId} (attempt {Attempt}/{Max})", email.Id, email.ProcessingAttempts, MaxRetries);
+
+                if (email.ProcessingAttempts >= MaxRetries)
+                {
+                    email.ProcessingError = $"Failed after {MaxRetries} attempts: {ex.Message}";
+                }
+            }
+            catch (ClientResultException ex)
+            {
+                email.ProcessingError = $"OpenAI API error: {ex.Message}";
+                _logger.LogError(ex, "OpenAI API error for email {EmailId}", email.Id);
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(ex, "OpenAI request timeout for email {EmailId}", email.Id);
+
+                if (email.ProcessingAttempts >= MaxRetries)
+                {
+                    email.ProcessingError = $"Timeout after {MaxRetries} attempts";
+                }
+            }
+            catch (Exception ex)
+            {
+                email.ProcessingError = $"Unexpected error: {ex.Message}";
+                _logger.LogError(ex, "Unexpected error processing email {EmailId}", email.Id);
             }
 
             await _db.SaveChangesAsync(stoppingToken);
         }
-    }
-
-    internal class ExtractedEmailData
-    {
-        [JsonPropertyName("recipientName")]
-        public string? RecipientName { get; set; }
-
-        [JsonPropertyName("merchant")]
-        public string? Merchant { get; set; }
-
-        [JsonPropertyName("transactionTimestamp")]
-        public string? TransactionTimestamp { get; set; }
-
-        [JsonPropertyName("orderNumber")]
-        public string? OrderNumber { get; set; }
-
-        [JsonPropertyName("tax")]
-        public decimal? Tax { get; set; }
-
-        [JsonPropertyName("totalAmount")]
-        public decimal? TotalAmount { get; set; }
-
-        [JsonPropertyName("paymentMethod")]
-        public string? PaymentMethod { get; set; }
-
-        [JsonPropertyName("accountNumber")]
-        public string? AccountNumber { get; set; }
-
-        [JsonPropertyName("transactionCode")]
-        public string? TransactionCode { get; set; }
-
-        [JsonPropertyName("items")]
-        public ExtractedEmailItem[]? Items { get; set; }
-    }
-
-    internal class ExtractedEmailItem
-    {
-        [JsonPropertyName("fullName")]
-        public string? FullName { get; set; }
-
-        [JsonPropertyName("shortName")]
-        public string? ShortName { get; set; }
-
-        [JsonPropertyName("subTotal")]
-        public decimal? SubTotal { get; set; }
     }
 }
