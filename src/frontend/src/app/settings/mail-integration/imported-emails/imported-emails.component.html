@@ -9,20 +9,11 @@
 
     @if (emails(); as emailList) {
         @if (emailList.length > 0) {
-            <p-table
-                [value]="emailList"
-                [lazy]="true"
-                (onLazyLoad)="loadEmails($event)"
-                [paginator]="true"
-                [rows]="20"
-                [totalRecords]="totalRecords()"
-                [loading]="loading()"
-                [scrollable]="true"
-                [tableStyle]="{'min-width':'50rem'}">
+            <p-table [value]="emailList" [lazy]="true" (onLazyLoad)="loadEmails($event)" [paginator]="true" [rows]="20" [totalRecords]="totalRecords()"
+                     [loading]="loading()"
+                     [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th>Gmail Account</th>
-                        <th>Überwachte Adresse</th>
                         <th>Von</th>
                         <th>Betreff</th>
                         <th>Importiert am</th>
@@ -30,8 +21,6 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-email>
                     <tr>
-                        <td>{{ email.gMailAccountName }}</td>
-                        <td>{{ email.monitoredAddress }}</td>
                         <td>{{ email.fromAddress }}</td>
                         <td>{{ email.subject }}</td>
                         <td>{{ email.importedAt | date:'short' }}</td>
@@ -43,7 +32,7 @@
         }
     } @else {
         <div class="spinner-container">
-            <p-progress-spinner ariaLabel="loading" />
+            <p-progress-spinner ariaLabel="loading"/>
         </div>
     }
 </p-panel>

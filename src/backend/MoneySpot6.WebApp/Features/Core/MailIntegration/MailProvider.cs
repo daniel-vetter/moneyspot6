@@ -90,7 +90,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
                 if (response.Messages != null)
                 {
-                    _logger.LogInformation("Loaded {count} mail stubs from {AccountId} ({Email})", response.Messages.Count, account.Id, account.EmailAddress);
+                    _logger.LogInformation("Loaded {count} stubs from {Email}", response.Messages.Count, account.EmailAddress);
                     foreach (var stub in response.Messages)
                     {
                         var getReq = client.Users.Messages.Get("me", stub.Id);

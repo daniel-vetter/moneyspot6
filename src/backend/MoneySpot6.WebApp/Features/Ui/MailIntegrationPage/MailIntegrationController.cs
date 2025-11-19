@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core;
+using MoneySpot6.WebApp.Features.Core.MailIntegration;
 using MoneySpot6.WebApp.Infrastructure;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,11 +20,13 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
     {
         private IOptions<MailIntegrationOptions> _configuration;
         private readonly Db _db;
+        private readonly WaitHelper _waitHelper;
 
-        public MailIntegrationController(IOptions<MailIntegrationOptions> configuration, Db db)
+        public MailIntegrationController(IOptions<MailIntegrationOptions> configuration, Db db, WaitHelper waitHelper)
         {
             _configuration = configuration;
             _db = db;
+            _waitHelper = waitHelper;
         }
 
         [HttpGet("GetStatus")]
@@ -108,7 +112,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             }
 
             await _db.SaveChangesAsync();
-
+            _waitHelper.Trigger<MailIntegrationUpdateBackgroundWorker>();
             return Redirect("/settings/mail-integration");
         }
 
@@ -162,6 +166,8 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             });
 
             await _db.SaveChangesAsync();
+
+            _waitHelper.Trigger<MailIntegrationUpdateBackgroundWorker>();
             return Ok();
         }
 
@@ -223,6 +229,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             existing.Prompt = request.Prompt;
             
             await _db.SaveChangesAsync();
+            _waitHelper.Trigger<MailIntegrationUpdateBackgroundWorker>();
             return Ok();
         }
 

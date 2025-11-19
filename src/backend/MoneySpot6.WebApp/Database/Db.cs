@@ -15,6 +15,7 @@ public class Db : DbContext
     public DbSet<DbRule> Rules { get; init; }
     public DbSet<DbGMailIntegration> GMailIntegrations { get; init; }
     public DbSet<DbMonitoredEmailAddress> MonitoredEmailAddresses { get; init; }
+    public DbSet<DbEmailSyncStatus> EmailSyncStatuses { get; init; }
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
@@ -343,7 +344,6 @@ public class DbGMailIntegration
     public required string AccessToken { get; set; }
     public required string RefreshToken { get; set; }
     public required DateTimeOffset ExpiresAt { get; set; }
-    public long? LastSyncTimestamp { get; set; }
 }
 
 [Table("MonitoredEmailAddresses")]
@@ -352,6 +352,15 @@ public class DbMonitoredEmailAddress
     public int Id { get; set; }
     public required string EmailAddress { get; set; }
     public required string Prompt { get; set; }
+}
+
+[Table("EmailSyncStatus")]
+public class DbEmailSyncStatus
+{
+    public int Id { get; set; }
+    public required DbGMailIntegration GMailAccount { get; set; }
+    public required DbMonitoredEmailAddress MonitoredAddress { get; set; }
+    public long LastSyncTimestamp { get; set; }
 }
 
 [Table("ImportedEmails")]
