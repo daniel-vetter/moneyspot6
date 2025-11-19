@@ -27,6 +27,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                 .Include(x => x.MonitoredAddress)
                 .AsTracking()
                 .Where(x => x.ProcessedData == null && x.ProcessingError == null)
+                .OrderBy(x => x.InternalDate)
                 .ToImmutableArrayAsync(stoppingToken);
 
             if (unprocessedEmails.Length == 0)
@@ -75,7 +76,8 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                                 "accountNumber": string | undefined,
                                 "transactionCode": string | undefined,
                                 "items": [{
-                                    name: string | undefined,
+                                    fullName: string | undefined,  // The name as displayed in the mail
+                                    shortName: string | undefined, // A short name if the fullName is too long (over 20 characters)
                                     subTotal: number | undefined
                                 }]
                               }
@@ -169,8 +171,11 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
     internal class ExtractedEmailItem
     {
-        [JsonPropertyName("name")]
-        public string? Name { get; set; }
+        [JsonPropertyName("fullName")]
+        public string? FullName { get; set; }
+
+        [JsonPropertyName("shortName")]
+        public string? ShortName { get; set; }
 
         [JsonPropertyName("subTotal")]
         public decimal? SubTotal { get; set; }
