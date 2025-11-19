@@ -360,7 +360,7 @@ public class DbEmailSyncStatus
     public int Id { get; set; }
     public required DbGMailIntegration GMailAccount { get; set; }
     public required DbMonitoredEmailAddress MonitoredAddress { get; set; }
-    public long LastSyncTimestamp { get; set; }
+    public DateTimeOffset LastSyncTimestamp { get; set; }
 }
 
 [Table("ImportedEmails")]
@@ -370,7 +370,7 @@ public class DbImportedEmail
     public required DbGMailIntegration GMailAccount { get; set; }
     public required DbMonitoredEmailAddress MonitoredAddress { get; set; }
     public required string MessageId { get; set; }
-    public required long InternalDate { get; set; }
+    public required DateTimeOffset InternalDate { get; set; }
     public required string FromAddress { get; set; }
     public required string Subject { get; set; }
     public required string Body { get; set; }

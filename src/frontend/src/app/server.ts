@@ -4374,7 +4374,7 @@ export class ImportedEmailResponse implements IImportedEmailResponse {
     monitoredAddress!: string;
     fromAddress!: string;
     subject!: string;
-    importedAt!: Date;
+    receivedAt!: Date;
 
     constructor(data?: IImportedEmailResponse) {
         if (data) {
@@ -4392,7 +4392,7 @@ export class ImportedEmailResponse implements IImportedEmailResponse {
             this.monitoredAddress = _data["monitoredAddress"];
             this.fromAddress = _data["fromAddress"];
             this.subject = _data["subject"];
-            this.importedAt = _data["importedAt"] ? new Date(_data["importedAt"].toString()) : undefined as any;
+            this.receivedAt = _data["receivedAt"] ? new Date(_data["receivedAt"].toString()) : undefined as any;
         }
     }
 
@@ -4410,7 +4410,7 @@ export class ImportedEmailResponse implements IImportedEmailResponse {
         data["monitoredAddress"] = this.monitoredAddress;
         data["fromAddress"] = this.fromAddress;
         data["subject"] = this.subject;
-        data["importedAt"] = this.importedAt ? this.importedAt.toISOString() : undefined as any;
+        data["receivedAt"] = this.receivedAt ? this.receivedAt.toISOString() : undefined as any;
         return data;
     }
 }
@@ -4421,7 +4421,7 @@ export interface IImportedEmailResponse {
     monitoredAddress: string;
     fromAddress: string;
     subject: string;
-    importedAt: Date;
+    receivedAt: Date;
 }
 
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {

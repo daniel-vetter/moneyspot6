@@ -256,7 +256,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             var query = _db.Set<DbImportedEmail>()
                 .Include(x => x.GMailAccount)
                 .Include(x => x.MonitoredAddress)
-                .OrderByDescending(x => x.ImportedAt);
+                .OrderByDescending(x => x.InternalDate);
 
             var total = await query.CountAsync();
             var items = await query
@@ -269,7 +269,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                     MonitoredAddress = x.MonitoredAddress.EmailAddress,
                     FromAddress = x.FromAddress,
                     Subject = x.Subject,
-                    ImportedAt = x.ImportedAt
+                    ReceivedAt = x.InternalDate
                 })
                 .ToArrayAsync();
 
@@ -331,7 +331,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
         [Required] public required string MonitoredAddress { get; init; }
         [Required] public required string FromAddress { get; init; }
         [Required] public required string Subject { get; init; }
-        [Required] public required DateTimeOffset ImportedAt { get; init; }
+        [Required] public required DateTimeOffset ReceivedAt { get; init; }
     }
 
     public class PagedImportedEmailsResponse

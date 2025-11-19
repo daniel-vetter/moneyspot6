@@ -79,13 +79,13 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                 {
                     GMailAccount = dbAccount,
                     MonitoredAddress = dbMonitoredAddress,
-                    LastSyncTimestamp = 0
+                    LastSyncTimestamp = DateTimeOffset.UtcNow.AddYears(-1)
                 };
                 _db.Add(syncStatus);
             }
 
-            long startTimestamp = syncStatus.LastSyncTimestamp;
-            long maxTimestamp = startTimestamp;
+            DateTimeOffset startTimestamp = syncStatus.LastSyncTimestamp;
+            DateTimeOffset maxTimestamp = startTimestamp;
             int importedCount = 0;
 
             _logger.LogInformation("Checking mails: {Email} -> {MonitoredAddress} (ts: {Timestamp})", accountInfo.EmailAddress, monitoredAddress.EmailAddress, startTimestamp);

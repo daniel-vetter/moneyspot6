@@ -68,19 +68,16 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
             return client;
         }
 
-        public async IAsyncEnumerable<EmailData> GetMails(GMailAccountInfo account, string senderAddress, long startingTimestamp)
+        public async IAsyncEnumerable<EmailData> GetMails(GMailAccountInfo account, string senderAddress, DateTimeOffset? startingTimestamp)
         {
             var client = await GetClient(account);
 
             var request = client.Users.Messages.List("me");
             request.MaxResults = 500;
 
-            // Use startingTimestamp if available, otherwise default to 1 year ago
-            long searchAfterSeconds = startingTimestamp > 0
-                ? startingTimestamp / 1000  // Gmail InternalDate is in milliseconds, API uses seconds
-                : DateTimeOffset.UtcNow.AddYears(-1).ToUnixTimeSeconds();
-
-            request.Q = $"from:{senderAddress} after:{searchAfterSeconds}";
+            request.Q = $"from:{senderAddress}";
+            if (startingTimestamp != null)
+                request.Q += $" after:{startingTimestamp.Value.ToUnixTimeSeconds()}";
 
             string? pageToken = null;
             do
@@ -98,13 +95,14 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                         var msg = await getReq.ExecuteAsync();
 
                         // Only return emails newer than the starting timestamp
-                        if (msg.InternalDate.HasValue && msg.InternalDate.Value > startingTimestamp)
+                        var internalDate = DateTimeOffset.FromUnixTimeMilliseconds(msg.InternalDate!.Value);
+                        if (msg.InternalDate.HasValue && internalDate > startingTimestamp)
                         {
                             var fromHeader = GetHeader(msg, "From");
                             yield return new EmailData
                             {
                                 Id = msg.Id,
-                                InternalDate = msg.InternalDate.Value,
+                                InternalDate = internalDate,
                                 From = ExtractEmailAddress(fromHeader) ?? "Unknown",
                                 Subject = GetHeader(msg, "Subject") ?? "(No Subject)",
                                 Body = ExtractBody(msg)
@@ -225,7 +223,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
     public record EmailData
     {
         public required string Id { get; init; }
-        public required long InternalDate { get; init; }
+        public required DateTimeOffset InternalDate { get; init; }
         public required string From { get; init; }
         public required string Subject { get; init; }
         public required string Body { get; init; }
