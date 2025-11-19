@@ -20,7 +20,8 @@ public class RuleProcessor
 
     public async Task Update(ImmutableArray<DbBankAccountTransaction> transactions)
     {
-        using var engine = await _ruleJsEngineProvider.Create();
+        var emailCache = await LoadEmailCache();
+        using var engine = await _ruleJsEngineProvider.Create(emailCache);
         var mainModule = engine.Modules.Import("main");
         var runAll = mainModule.Get("runAll");
         var ruleErrors = ImmutableDictionary.CreateBuilder<int, string>();
@@ -98,10 +99,21 @@ public class RuleProcessor
             .AsTracking()
             .ToArrayAsync();
 
-        foreach (var rule in rules) 
+        foreach (var rule in rules)
             rule.RuntimeError = CollectionExtensions.GetValueOrDefault(ruleErrors, rule.Id);
 
         await _db.SaveChangesAsync();
+    }
+
+    private async Task<List<DbExtractedEmailData>> LoadEmailCache()
+    {
+        var emails = await _db.Set<DbImportedEmail>()
+            .AsNoTracking()
+            .Where(x => x.ProcessedData != null)
+            .Select(x => x.ProcessedData!)
+            .ToListAsync();
+
+        return emails;
     }
 }
 
