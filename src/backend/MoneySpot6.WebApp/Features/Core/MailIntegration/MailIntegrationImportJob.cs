@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Infrastructure;
-using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 {
@@ -11,12 +10,14 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
         private readonly Db _db;
         private readonly MailProvider _mailProvider;
         private readonly ILogger<MailIntegrationImportJob> _logger;
+        private readonly WaitHelper _waitHelper;
 
-        public MailIntegrationImportJob(Db db, MailProvider mailProvider, ILogger<MailIntegrationImportJob> logger)
+        public MailIntegrationImportJob(Db db, MailProvider mailProvider, ILogger<MailIntegrationImportJob> logger, WaitHelper waitHelper)
         {
             _db = db;
             _mailProvider = mailProvider;
             _logger = logger;
+            _waitHelper = waitHelper;
         }
 
         internal async Task Update(CancellationToken stoppingToken)
@@ -122,6 +123,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                     maxTimestamp = mail.InternalDate;
 
                 await _db.SaveChangesAsync(stoppingToken);
+                _waitHelper.Trigger<EmailProcessingBackgroundWorker>();
                 _logger.LogInformation("Imported: {From} - {Subject}", mail.From, mail.Subject);
             }
 
