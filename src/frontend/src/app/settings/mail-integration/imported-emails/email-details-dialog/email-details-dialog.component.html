@@ -1,0 +1,123 @@
+@if (emailDetails(); as details) {
+    <div class="vertical" style="gap: 1.5rem; padding: 1rem;">
+
+        <!-- Basis-Informationen -->
+        <div>
+            <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Basis-Informationen</h3>
+            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 0.5rem;">
+                <div style="font-weight: 500;">Von:</div>
+                <div>{{ details.fromAddress }}</div>
+
+                <div style="font-weight: 500;">Betreff:</div>
+                <div>{{ details.subject }}</div>
+
+                <div style="font-weight: 500;">Empfangen:</div>
+                <div>{{ details.receivedAt | date:'dd.MM.yyyy, HH:mm:ss' }}</div>
+
+                <div style="font-weight: 500;">Importiert:</div>
+                <div>{{ details.importedAt | date:'dd.MM.yyyy, HH:mm:ss' }}</div>
+
+                <div style="font-weight: 500;">Gmail Account:</div>
+                <div>{{ details.gMailAccountName }}</div>
+
+                <div style="font-weight: 500;">Überwachte Adresse:</div>
+                <div>{{ details.monitoredAddress }}</div>
+            </div>
+        </div>
+
+        <!-- Verarbeitungsstatus -->
+        <div>
+            <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Verarbeitungsstatus</h3>
+            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 0.5rem;">
+                @if (details.processedAt) {
+                    <div style="font-weight: 500;">Verarbeitet:</div>
+                    <div>{{ details.processedAt | date:'dd.MM.yyyy, HH:mm:ss' }}</div>
+                } @else if (details.processingError) {
+                    <div style="font-weight: 500;">Fehler:</div>
+                    <div style="color: red;">{{ details.processingError }}</div>
+                } @else {
+                    <div style="font-weight: 500;">Status:</div>
+                    <div>Wird verarbeitet (Versuch {{ details.processingAttempts }}/3)</div>
+                }
+            </div>
+        </div>
+
+        <!-- Extrahierte Daten -->
+        @if (extractedData(); as data) {
+            <div>
+                <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Extrahierte Daten</h3>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 0.5rem;">
+                    @if (data.recipientName) {
+                        <div style="font-weight: 500;">Empfänger:</div>
+                        <div>{{ data.recipientName }}</div>
+                    }
+
+                    @if (data.merchant) {
+                        <div style="font-weight: 500;">Händler:</div>
+                        <div>{{ data.merchant }}</div>
+                    }
+
+                    @if (data.transactionTimestamp) {
+                        <div style="font-weight: 500;">Transaktion:</div>
+                        <div>{{ data.transactionTimestamp }}</div>
+                    }
+
+                    @if (data.orderNumber) {
+                        <div style="font-weight: 500;">Bestellnummer:</div>
+                        <div>{{ data.orderNumber }}</div>
+                    }
+
+                    @if (data.totalAmount !== undefined && data.totalAmount !== null) {
+                        <div style="font-weight: 500;">Gesamtbetrag:</div>
+                        <div>{{ data.totalAmount | number:'1.2-2' }} €</div>
+                    }
+
+                    @if (data.tax !== undefined && data.tax !== null) {
+                        <div style="font-weight: 500;">Steuer:</div>
+                        <div>{{ data.tax | number:'1.2-2' }} €</div>
+                    }
+
+                    @if (data.paymentMethod) {
+                        <div style="font-weight: 500;">Zahlungsmethode:</div>
+                        <div>{{ data.paymentMethod }}</div>
+                    }
+
+                    @if (data.accountNumber) {
+                        <div style="font-weight: 500;">Kontonummer:</div>
+                        <div>{{ data.accountNumber }}</div>
+                    }
+
+                    @if (data.transactionCode) {
+                        <div style="font-weight: 500;">Transaktionscode:</div>
+                        <div>{{ data.transactionCode }}</div>
+                    }
+                </div>
+
+                @if (data.items && data.items.length > 0) {
+                    <div style="margin-top: 1rem;">
+                        <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Artikel</h4>
+                        <div style="display: grid; gap: 0.5rem;">
+                            @for (item of data.items; track $index) {
+                                <div style="display: grid; grid-template-columns: 1fr auto; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
+                                    <div>{{ item.name || 'Unbekannt' }}</div>
+                                    @if (item.subTotal !== undefined && item.subTotal !== null) {
+                                        <div style="font-weight: 500;">{{ item.subTotal | number:'1.2-2' }} €</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="horizontal">
+            <div class="spacer"></div>
+            <p-button label="Schließen" (onClick)="onCloseClicked()" />
+        </div>
+    </div>
+} @else {
+    <div class="spinner-container">
+        <p-progress-spinner ariaLabel="loading"/>
+    </div>
+}

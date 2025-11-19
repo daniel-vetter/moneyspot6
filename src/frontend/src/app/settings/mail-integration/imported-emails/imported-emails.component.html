@@ -27,7 +27,7 @@
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-email>
-                    <tr>
+                    <tr (click)="onEmailClicked(email)" style="cursor: pointer;">
                         <td>{{ email.fromAddress }}</td>
                         <td>{{ email.subject }}</td>
                         <td>{{ email.receivedAt | date:'dd.MM.yyyy, HH:mm' }}</td>

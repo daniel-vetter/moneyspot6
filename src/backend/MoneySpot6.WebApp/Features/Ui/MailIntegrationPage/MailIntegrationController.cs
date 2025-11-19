@@ -260,6 +260,37 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             });
         }
 
+        [HttpGet("GetImportedEmailDetails")]
+        [ProducesResponseType<ImportedEmailDetailsResponse>(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetImportedEmailDetails([FromQuery] int emailId)
+        {
+            var email = await _db.Set<DbImportedEmail>()
+                .Include(x => x.GMailAccount)
+                .Include(x => x.MonitoredAddress)
+                .AsNoTracking()
+                .Where(x => x.Id == emailId)
+                .FirstOrDefaultAsync();
+
+            if (email == null)
+                return NotFound();
+
+            return Ok(new ImportedEmailDetailsResponse
+            {
+                Id = email.Id,
+                GMailAccountName = email.GMailAccount.Name,
+                MonitoredAddress = email.MonitoredAddress.EmailAddress,
+                FromAddress = email.FromAddress,
+                Subject = email.Subject,
+                ReceivedAt = email.InternalDate,
+                ImportedAt = email.ImportedAt,
+                ProcessedData = email.ProcessedData,
+                ProcessedAt = email.ProcessedAt,
+                ProcessingError = email.ProcessingError,
+                ProcessingAttempts = email.ProcessingAttempts
+            });
+        }
+
         [HttpGet("GetImportedEmails")]
         [ProducesResponseType<PagedImportedEmailsResponse>(200)]
         public async Task<IActionResult> GetImportedEmails([FromQuery] int page = 0, [FromQuery] int pageSize = 20)
@@ -351,5 +382,20 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
     public class ProcessingStatusResponse
     {
         [Required] public required int UnprocessedEmailCount { get; init; }
+    }
+
+    public class ImportedEmailDetailsResponse
+    {
+        [Required] public required int Id { get; init; }
+        [Required] public required string GMailAccountName { get; init; }
+        [Required] public required string MonitoredAddress { get; init; }
+        [Required] public required string FromAddress { get; init; }
+        [Required] public required string Subject { get; init; }
+        [Required] public required DateTimeOffset ReceivedAt { get; init; }
+        [Required] public required DateTimeOffset ImportedAt { get; init; }
+        public string? ProcessedData { get; init; }
+        public DateTimeOffset? ProcessedAt { get; init; }
+        public string? ProcessingError { get; init; }
+        [Required] public required int ProcessingAttempts { get; init; }
     }
 }

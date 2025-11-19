@@ -5,15 +5,19 @@ import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { MailIntegrationClient, ImportedEmailResponse, PagedImportedEmailsResponse } from "../../../server";
 import { lastValueFrom } from "rxjs";
 import { DatePipe } from "@angular/common";
+import { DialogService } from "primeng/dynamicdialog";
+import { EmailDetailsDialogComponent } from "./email-details-dialog/email-details-dialog.component";
 
 @Component({
     selector: 'app-imported-emails',
     imports: [PanelModule, TableModule, ProgressSpinnerModule, DatePipe],
     templateUrl: './imported-emails.component.html',
-    styleUrl: './imported-emails.component.scss'
+    styleUrl: './imported-emails.component.scss',
+    providers: [DialogService]
 })
 export class ImportedEmailsComponent implements OnInit, OnDestroy {
     mailIntegrationClient = inject(MailIntegrationClient);
+    dialogService = inject(DialogService);
 
     emails = signal<ImportedEmailResponse[] | undefined>(undefined);
     totalRecords = signal<number>(0);
@@ -61,5 +65,15 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
         } catch (error) {
             console.error('Failed to load processing status', error);
         }
+    }
+
+    protected onEmailClicked(email: ImportedEmailResponse): void {
+        this.dialogService.open(EmailDetailsDialogComponent, {
+            focusOnShow: false,
+            modal: true,
+            data: {
+                emailId: email.id
+            }
+        });
     }
 }
