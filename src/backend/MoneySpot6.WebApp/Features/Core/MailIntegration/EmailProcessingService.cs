@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Infrastructure;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 {
@@ -93,10 +95,26 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
             if (result.IsSuccess)
             {
-                email.ProcessedData = result.Data;
-                email.ProcessedAt = DateTimeOffset.UtcNow;
-                await _db.SaveChangesAsync(stoppingToken);
-                _logger.LogInformation("Processed email {EmailId}: {Subject}", email.Id, email.Subject);
+                try
+                {
+                    var validatedData = JsonSerializer.Deserialize<ExtractedEmailData>(result.Data!);
+                    if (validatedData == null)
+                    {
+                        email.ProcessingError = "JSON validation failed: Deserialization returned null";
+                        _logger.LogWarning("JSON validation failed for email {EmailId}: Deserialization returned null", email.Id);
+                    }
+                    else
+                    {
+                        email.ProcessedData = result.Data;
+                        email.ProcessedAt = DateTimeOffset.UtcNow;
+                        _logger.LogInformation("Processed email {EmailId}: {Subject}", email.Id, email.Subject);
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    email.ProcessingError = $"JSON validation failed: {ex.Message}";
+                    _logger.LogWarning("JSON validation failed for email {EmailId}: {Error}", email.Id, ex.Message);
+                }
             }
             else
             {
@@ -110,9 +128,51 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                     _logger.LogWarning("Transient error processing email {EmailId} (attempt {Attempt}/{Max}): {Error}",
                         email.Id, email.ProcessingAttempts, MaxRetries, result.Error);
                 }
-
-                await _db.SaveChangesAsync(stoppingToken);
             }
+
+            await _db.SaveChangesAsync(stoppingToken);
         }
+    }
+
+    internal class ExtractedEmailData
+    {
+        [JsonPropertyName("recipientName")]
+        public string? RecipientName { get; set; }
+
+        [JsonPropertyName("merchant")]
+        public string? Merchant { get; set; }
+
+        [JsonPropertyName("transactionTimestamp")]
+        public string? TransactionTimestamp { get; set; }
+
+        [JsonPropertyName("orderNumber")]
+        public string? OrderNumber { get; set; }
+
+        [JsonPropertyName("tax")]
+        public decimal? Tax { get; set; }
+
+        [JsonPropertyName("totalAmount")]
+        public decimal? TotalAmount { get; set; }
+
+        [JsonPropertyName("paymentMethod")]
+        public string? PaymentMethod { get; set; }
+
+        [JsonPropertyName("accountNumber")]
+        public string? AccountNumber { get; set; }
+
+        [JsonPropertyName("transactionCode")]
+        public string? TransactionCode { get; set; }
+
+        [JsonPropertyName("items")]
+        public ExtractedEmailItem[]? Items { get; set; }
+    }
+
+    internal class ExtractedEmailItem
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("subTotal")]
+        public decimal? SubTotal { get; set; }
     }
 }
