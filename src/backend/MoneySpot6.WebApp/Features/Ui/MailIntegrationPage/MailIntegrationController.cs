@@ -246,6 +246,20 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             return Ok();
         }
 
+        [HttpGet("GetProcessingStatus")]
+        [ProducesResponseType<ProcessingStatusResponse>(200)]
+        public async Task<IActionResult> GetProcessingStatus()
+        {
+            var unprocessedCount = await _db.Set<DbImportedEmail>()
+                .Where(x => x.ProcessedData == null && x.ProcessingError == null)
+                .CountAsync();
+
+            return Ok(new ProcessingStatusResponse
+            {
+                UnprocessedEmailCount = unprocessedCount
+            });
+        }
+
         [HttpGet("GetImportedEmails")]
         [ProducesResponseType<PagedImportedEmailsResponse>(200)]
         public async Task<IActionResult> GetImportedEmails([FromQuery] int page = 0, [FromQuery] int pageSize = 20)
@@ -332,5 +346,10 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
     {
         [Required] public required ImportedEmailResponse[] Items { get; init; }
         [Required] public required int TotalCount { get; init; }
+    }
+
+    public class ProcessingStatusResponse
+    {
+        [Required] public required int UnprocessedEmailCount { get; init; }
     }
 }

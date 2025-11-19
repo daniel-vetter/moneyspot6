@@ -2,6 +2,13 @@
     <ng-template pTemplate="header">
         <div class="horizontal" style="width: 100%">
             <h1>Importierte E-Mails</h1>
+            <div class="spacer"></div>
+            @if (unprocessedCount() > 0) {
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.8;">
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <span>{{ unprocessedCount() }} E-Mail{{ unprocessedCount() === 1 ? '' : 's' }} werden verarbeitet</span>
+                </div>
+            }
         </div>
     </ng-template>
 
