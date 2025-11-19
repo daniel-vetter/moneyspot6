@@ -8,6 +8,7 @@ using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
 using MoneySpot6.WebApp.Features.Ui.AccountSync;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace MoneySpot6.WebApp;
 
@@ -64,8 +65,15 @@ public class Program
                 };
             });
         builder.Services.Configure<MailIntegrationOptions>(builder.Configuration.GetSection("MailIntegration"));
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
 
-        var app = builder.Build();        
+        var app = builder.Build();
+        app.UseForwardedHeaders();
         app.UseResponseCompression();
         app.UseDefaultFiles();
         app.UseStaticFiles();
