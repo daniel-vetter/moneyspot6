@@ -351,7 +351,6 @@ public class DbMonitoredEmailAddress
 {
     public int Id { get; set; }
     public required string EmailAddress { get; set; }
-    public required string Prompt { get; set; }
 }
 
 [Table("EmailSyncStatus")]

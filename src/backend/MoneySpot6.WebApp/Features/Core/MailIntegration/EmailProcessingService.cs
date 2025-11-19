@@ -57,7 +57,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                 {
                     Role = "system",
                     Content = """
-                              You are a data extraction assistant. Extract the requested information from the email and return it as valid JSON. 
+                              You are a data extraction assistant. Extract the requested information from the email and return it as valid JSON.
                               If information is not available, omit that field. Always respond with valid JSON only, no additional text.
 
                               Use the following json schema:
@@ -71,9 +71,9 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                                 "totalAmount": number | undefined,
                                 "paymentMethod": string | undefined,
                                 "accountNumber": string | undefined,
-                                "transaction_code": string | undefined
+                                "transactionCode": string | undefined,
                                 "items": [{
-                                    name: string | undefined
+                                    name: string | undefined,
                                     subTotal: number | undefined
                                 }]
                               }

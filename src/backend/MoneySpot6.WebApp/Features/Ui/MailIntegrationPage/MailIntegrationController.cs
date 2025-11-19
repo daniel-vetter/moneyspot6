@@ -161,8 +161,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
 
             _db.Set<DbMonitoredEmailAddress>().Add(new DbMonitoredEmailAddress
             {
-                EmailAddress = trimmedAddress,
-                Prompt = request.Prompt
+                EmailAddress = trimmedAddress
             });
 
             await _db.SaveChangesAsync();
@@ -181,8 +180,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                 .Select(x => new MonitoredAddressResponse
                 {
                     Id = x.Id,
-                    Address = x.EmailAddress,
-                    Prompt = x.Prompt
+                    Address = x.EmailAddress
                 }).ToImmutableArrayAsync();
 
             return Ok(result);
@@ -226,8 +224,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                 return NotFound();
 
             existing.EmailAddress = request.Address;
-            existing.Prompt = request.Prompt;
-            
+
             await _db.SaveChangesAsync();
             _waitHelper.Trigger<MailIntegrationUpdateBackgroundWorker>();
             return Ok();
@@ -284,21 +281,18 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
     public class CreateMonitoredAddressRequest
     {
         [Required] public required string Address { get; init; }
-        [Required] public required string Prompt { get; init; }
     }
 
     public class UpdateMonitoredAddressRequest
     {
         [Required] public required int Id { get; init; }
         [Required] public required string Address { get; init; }
-        [Required] public required string Prompt { get; init; }
     }
 
     public class MonitoredAddressResponse
     {
         [Required] public required int Id { get; init; }
         [Required] public required string Address { get; init; }
-        [Required] public required string Prompt { get; init; }
     }
 
     public class CreateMonitoredAddressValidationErrorResponse

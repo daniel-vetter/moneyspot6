@@ -21,8 +21,7 @@ export class MailAddressDialogComponent implements OnInit {
 
     monitoredAddress: undefined | MonitoredAddressResponse;
     form = new FormGroup({
-        address: new FormControl<string>("", { nonNullable: true, validators: [Validators.required] }),
-        prompt: new FormControl<string>("", { nonNullable: true, validators: [Validators.required] })
+        address: new FormControl<string>("", { nonNullable: true, validators: [Validators.required] })
     });
 
     constructor() {
@@ -36,8 +35,7 @@ export class MailAddressDialogComponent implements OnInit {
     ngOnInit(): void {
         if (this.monitoredAddress) {
             this.form.patchValue({
-                address: this.monitoredAddress?.address,
-                prompt: this.monitoredAddress?.prompt
+                address: this.monitoredAddress?.address
             })
         }
     }
@@ -52,13 +50,11 @@ export class MailAddressDialogComponent implements OnInit {
             if (this.monitoredAddress) {
                 await lastValueFrom(this.mailIntegrationClient.updateMonitoredAddress(new UpdateMonitoredAddressRequest({
                     id: this.monitoredAddress.id,
-                    address: this.form.value.address!,
-                    prompt: this.form.value.prompt!
+                    address: this.form.value.address!
                 })));
             } else {
                 await lastValueFrom(this.mailIntegrationClient.createMonitoredAddress(new CreateMonitoredAddressRequest({
-                    address: this.form.value.address!,
-                    prompt: this.form.value.prompt!
+                    address: this.form.value.address!
                 })));
             }
             this.dialogRef.close(true);

@@ -4151,7 +4151,6 @@ export interface ICreateMonitoredAddressValidationErrorResponse {
 
 export class CreateMonitoredAddressRequest implements ICreateMonitoredAddressRequest {
     address!: string;
-    prompt!: string;
 
     constructor(data?: ICreateMonitoredAddressRequest) {
         if (data) {
@@ -4165,7 +4164,6 @@ export class CreateMonitoredAddressRequest implements ICreateMonitoredAddressReq
     init(_data?: any) {
         if (_data) {
             this.address = _data["address"];
-            this.prompt = _data["prompt"];
         }
     }
 
@@ -4179,20 +4177,17 @@ export class CreateMonitoredAddressRequest implements ICreateMonitoredAddressReq
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["address"] = this.address;
-        data["prompt"] = this.prompt;
         return data;
     }
 }
 
 export interface ICreateMonitoredAddressRequest {
     address: string;
-    prompt: string;
 }
 
 export class MonitoredAddressResponse implements IMonitoredAddressResponse {
     id!: number;
     address!: string;
-    prompt!: string;
 
     constructor(data?: IMonitoredAddressResponse) {
         if (data) {
@@ -4207,7 +4202,6 @@ export class MonitoredAddressResponse implements IMonitoredAddressResponse {
         if (_data) {
             this.id = _data["id"];
             this.address = _data["address"];
-            this.prompt = _data["prompt"];
         }
     }
 
@@ -4222,7 +4216,6 @@ export class MonitoredAddressResponse implements IMonitoredAddressResponse {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["address"] = this.address;
-        data["prompt"] = this.prompt;
         return data;
     }
 }
@@ -4230,7 +4223,6 @@ export class MonitoredAddressResponse implements IMonitoredAddressResponse {
 export interface IMonitoredAddressResponse {
     id: number;
     address: string;
-    prompt: string;
 }
 
 export class UpdateMonitoredAddressValidationErrorResponse implements IUpdateMonitoredAddressValidationErrorResponse {
@@ -4276,7 +4268,6 @@ export interface IUpdateMonitoredAddressValidationErrorResponse {
 export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressRequest {
     id!: number;
     address!: string;
-    prompt!: string;
 
     constructor(data?: IUpdateMonitoredAddressRequest) {
         if (data) {
@@ -4291,7 +4282,6 @@ export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressReq
         if (_data) {
             this.id = _data["id"];
             this.address = _data["address"];
-            this.prompt = _data["prompt"];
         }
     }
 
@@ -4306,7 +4296,6 @@ export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressReq
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["address"] = this.address;
-        data["prompt"] = this.prompt;
         return data;
     }
 }
@@ -4314,7 +4303,6 @@ export class UpdateMonitoredAddressRequest implements IUpdateMonitoredAddressReq
 export interface IUpdateMonitoredAddressRequest {
     id: number;
     address: string;
-    prompt: string;
 }
 
 export class PagedImportedEmailsResponse implements IPagedImportedEmailsResponse {
