@@ -376,6 +376,9 @@ public class DbImportedEmail
     public required string Body { get; set; }
     public required DateTimeOffset ImportedAt { get; set; }
     public string? ProcessedData { get; set; }
+    public DateTimeOffset? ProcessedAt { get; set; }
+    public string? ProcessingError { get; set; }
+    public int ProcessingAttempts { get; set; }
 }
 
 public enum StockPriceInterval

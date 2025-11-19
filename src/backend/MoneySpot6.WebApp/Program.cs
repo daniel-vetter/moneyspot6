@@ -97,4 +97,5 @@ public class MailIntegrationOptions
 {
     public string? GmailClientId { get; init; }
     public string? GmailClientSecret { get; init; }
+    public string? OpenAIApiKey { get; init; }
 }
