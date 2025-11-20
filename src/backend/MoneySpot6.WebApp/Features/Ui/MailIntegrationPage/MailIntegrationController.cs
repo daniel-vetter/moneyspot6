@@ -251,7 +251,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
         public async Task<IActionResult> GetProcessingStatus()
         {
             var unprocessedCount = await _db.Set<DbImportedEmail>()
-                .Where(x => x.ProcessedData == null && x.ProcessingError == null)
+                .Where(x => x.ProcessedAt == null && x.ProcessingError == null)
                 .CountAsync();
 
             return Ok(new ProcessingStatusResponse

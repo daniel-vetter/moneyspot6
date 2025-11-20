@@ -28,7 +28,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
             var unprocessedEmails = await _db.Set<DbImportedEmail>()
                 .Include(x => x.MonitoredAddress)
                 .AsTracking()
-                .Where(x => x.ProcessedData == null && x.ProcessingError == null)
+                .Where(x => x.ProcessedAt == null && x.ProcessingError == null)
                 .OrderBy(x => x.InternalDate)
                 .ToImmutableArrayAsync(stoppingToken);
 

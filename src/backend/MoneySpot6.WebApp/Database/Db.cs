@@ -34,7 +34,6 @@ public class Db : DbContext
             .Entity<DbImportedEmail>()
             .OwnsOne(x => x.ProcessedData, builder =>
             {
-                builder.ToJson();
                 builder.OwnsMany(x => x.Items);
             });
 
@@ -410,6 +409,7 @@ public class DbExtractedEmailData
 
 public class DbExtractedEmailItem
 {
+    public int Id { get; set; }
     public string? FullName { get; set; }
     public string? ShortName { get; set; }
     public decimal? SubTotal { get; set; }
