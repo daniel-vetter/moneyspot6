@@ -1,0 +1,34 @@
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%">
+            <h1>Verbundene Konten</h1>
+        </div>
+    </ng-template>
+    @if (status) {
+    <div class="vertical">
+        <div class="tiles">
+            @for (connectedAccount of status.connectedAccounts; track connectedAccount) {
+            <div class="tile">
+                <i class="pi pi-envelope" style="font-size: 200%"></i>
+                <span>{{ connectedAccount }}</span>
+                <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger"
+                    (click)="onDeleteConnectedAccount(connectedAccount)"></p-button>
+            </div>
+            }
+
+            @if (status.gmailLoginUrl) {
+            <a class="tile" href="{{ status.gmailLoginUrl }}">
+                <i class="pi pi-plus" style="font-size: 200%"></i>
+                <span>Google Konto verbinden...</span>
+            </a>
+            } @else {
+            Google Integration ist nicht aktiviert.
+            }
+        </div>
+    </div>
+    } @else {
+    <div class="spinner-container">
+        <p-progress-spinner ariaLabel="loading" />
+    </div>
+    }
+</p-panel>

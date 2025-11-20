@@ -525,6 +525,131 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbEmailSyncStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GMailAccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastSyncTimestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MonitoredAddressId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GMailAccountId");
+
+                    b.HasIndex("MonitoredAddressId");
+
+                    b.ToTable("EmailSyncStatus");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbGMailIntegration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GMailIntegrations");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbImportedEmail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FromAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("GMailAccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ImportedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("InternalDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MessageId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("MonitoredAddressId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ProcessingAttempts")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProcessingError")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GMailAccountId");
+
+                    b.HasIndex("MonitoredAddressId");
+
+                    b.ToTable("ImportedEmails");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbMonitoredEmailAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MonitoredEmailAddresses");
+                });
+
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbRule", b =>
                 {
                     b.Property<int>("Id")
@@ -688,6 +813,116 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.HasOne("MoneySpot6.WebApp.Database.DbCategory", null)
                         .WithMany()
                         .HasForeignKey("ParentId");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbEmailSyncStatus", b =>
+                {
+                    b.HasOne("MoneySpot6.WebApp.Database.DbGMailIntegration", "GMailAccount")
+                        .WithMany()
+                        .HasForeignKey("GMailAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoneySpot6.WebApp.Database.DbMonitoredEmailAddress", "MonitoredAddress")
+                        .WithMany()
+                        .HasForeignKey("MonitoredAddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GMailAccount");
+
+                    b.Navigation("MonitoredAddress");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbImportedEmail", b =>
+                {
+                    b.HasOne("MoneySpot6.WebApp.Database.DbGMailIntegration", "GMailAccount")
+                        .WithMany()
+                        .HasForeignKey("GMailAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoneySpot6.WebApp.Database.DbMonitoredEmailAddress", "MonitoredAddress")
+                        .WithMany()
+                        .HasForeignKey("MonitoredAddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("MoneySpot6.WebApp.Database.DbExtractedEmailData", "ProcessedData", b1 =>
+                        {
+                            b1.Property<int>("DbImportedEmailId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("AccountNumber")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Merchant")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("OrderNumber")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("PaymentMethod")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("RecipientName")
+                                .HasColumnType("text");
+
+                            b1.Property<decimal?>("Tax")
+                                .HasColumnType("numeric");
+
+                            b1.Property<decimal?>("TotalAmount")
+                                .HasColumnType("numeric");
+
+                            b1.Property<string>("TransactionCode")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTimeOffset?>("TransactionTimestamp")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("DbImportedEmailId");
+
+                            b1.ToTable("ImportedEmails");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DbImportedEmailId");
+
+                            b1.OwnsMany("MoneySpot6.WebApp.Database.DbExtractedEmailItem", "Items", b2 =>
+                                {
+                                    b2.Property<int>("DbExtractedEmailDataDbImportedEmailId")
+                                        .HasColumnType("integer");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("FullName")
+                                        .HasColumnType("text");
+
+                                    b2.Property<string>("ShortName")
+                                        .HasColumnType("text");
+
+                                    b2.Property<decimal?>("SubTotal")
+                                        .HasColumnType("numeric");
+
+                                    b2.HasKey("DbExtractedEmailDataDbImportedEmailId", "Id");
+
+                                    b2.ToTable("DbExtractedEmailItem");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("DbExtractedEmailDataDbImportedEmailId");
+                                });
+
+                            b1.Navigation("Items");
+                        });
+
+                    b.Navigation("GMailAccount");
+
+                    b.Navigation("MonitoredAddress");
+
+                    b.Navigation("ProcessedData");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbStockPrice", b =>

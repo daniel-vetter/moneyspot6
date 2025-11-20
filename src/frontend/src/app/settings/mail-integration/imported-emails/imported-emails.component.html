@@ -1,0 +1,45 @@
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%">
+            <h1>Importierte E-Mails</h1>
+            <div class="spacer"></div>
+            @if (unprocessedCount() > 0) {
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.8;">
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <span>{{ unprocessedCount() }} E-Mail{{ unprocessedCount() === 1 ? '' : 's' }} werden verarbeitet</span>
+                </div>
+            }
+        </div>
+    </ng-template>
+
+    Hier sehen Sie alle importierten E-Mails aus den überwachten Absenderadressen.<br><br>
+
+    @if (emails(); as emailList) {
+        @if (emailList.length > 0) {
+            <p-table [value]="emailList" [lazy]="true" (onLazyLoad)="loadEmails($event)" [paginator]="true" [rows]="20" [totalRecords]="totalRecords()"
+                     [loading]="loading()"
+                     [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Von</th>
+                        <th>Betreff</th>
+                        <th>Empfangen am</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-email>
+                    <tr (click)="onEmailClicked(email)" style="cursor: pointer;">
+                        <td>{{ email.fromAddress }}</td>
+                        <td>{{ email.subject }}</td>
+                        <td>{{ email.receivedAt | date:'dd.MM.yyyy, HH:mm' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        } @else {
+            <div style="opacity: 0.5; padding: 1rem 0; font-style: italic">Es wurden noch keine E-Mails importiert.</div>
+        }
+    } @else {
+        <div class="spinner-container">
+            <p-progress-spinner ariaLabel="loading"/>
+        </div>
+    }
+</p-panel>

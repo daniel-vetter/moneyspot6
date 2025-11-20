@@ -11,6 +11,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { CategoriesComponent } from './categories/categories.component';
 import { CategoriesComponent as CategoriesEditorComponent } from './settings/categories/categories.component';
 import {RulesComponent} from "./settings/rules/rules.component";
+import {MailIntegrationComponent} from "./settings/mail-integration/mail-integration.component";
 
 export const routes: Routes = [
     { path: '', component: SummaryComponent, title: 'MoneySpot - Übersicht' },
@@ -26,4 +27,5 @@ export const routes: Routes = [
     { path: 'settings/system', component: SystemComponent, title: 'MoneySpot - Debug' },
     { path: 'settings/rules', component: RulesComponent, title: 'MoneySpot - Regeln' },
     { path: 'settings/categories', component: CategoriesEditorComponent, title: 'MoneySpot - Kategorien' },
+    { path: 'settings/mail-integration', component: MailIntegrationComponent, title: 'MoneySpot - Mail Integration' },
 ];

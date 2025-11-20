@@ -98,6 +98,39 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
                 declare enum Category {
                     ${categoryKeysString}
                 }
+
+                declare interface ExtractedEmailItem {
+                    FullName: string | null;
+                    ShortName: string | null;
+                    SubTotal: number | null;
+                }
+
+                declare interface ExtractedEmailData {
+                    RecipientName: string | null;
+                    Merchant: string | null;
+                    TransactionTimestamp: string | null;
+                    OrderNumber: string | null;
+                    Tax: number | null;
+                    TotalAmount: number | null;
+                    PaymentMethod: string | null;
+                    AccountNumber: string | null;
+                    TransactionCode: string | null;
+                    Items: ExtractedEmailItem[];
+                }
+
+                declare interface EmailFilter {
+                    recipientName?: string;
+                    merchant?: string;
+                    transactionTimestamp?: string;
+                    orderNumber?: string;
+                    tax?: number;
+                    totalAmount?: number;
+                    paymentMethod?: string;
+                    accountNumber?: string;
+                    transactionCode?: string;
+                }
+
+                declare function findMail(filter: EmailFilter): ExtractedEmailData | null;
             `,
             'file:///types/server/index.d.ts'
         );

@@ -1,0 +1,46 @@
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%">
+            <h1>Überwachte Absenderadressen</h1>
+            <div class="spacer"></div>
+            <p-button label="Neue Adresse" (onClick)="onAddAddressClicked()" />
+        </div>
+    </ng-template>
+
+    E-Mails von den folgenden Absenderadressen werden überwacht und automatisch importiert.
+    E-Mails von anderen Absendern werden ignoriert.<br><br>
+
+    @if (monitoredAddresses(); as addresses) {
+    @if (addresses.length > 0) {
+    <p-table [value]="addresses" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Adresse</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-monitoredAddress let-index="rowIndex">
+            <tr [pReorderableRow]="index">
+                <td>
+                    <span style="padding-right: 1rem;">
+                        {{ monitoredAddress.address }}
+                    </span>
+                </td>
+                <td style="text-align: right;">
+                    <p-button icon="pi pi-pencil" (onClick)="onEditMonitoredAddress(monitoredAddress)"
+                        title="Adresse bearbeiten" rounded="true" [style]="{ 'margin-right': '.5em' }" variant="text" />
+                    <p-button icon="pi pi-trash" (onClick)="onDeleteMonitoredAddress(monitoredAddress)" severity="warn"
+                        title="Adresse löschen" rounded="true" variant="text" [style]="{ 'margin-right': '.5em' }" />
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    } @else {
+    <div style="opacity: 0.5; padding: 1rem 0; font-style: italic">Es wurden noch keine Adressen konfiguriert.</div>
+    }
+    } @else {
+    <div class="spinner-container">
+        <p-progress-spinner ariaLabel="loading" />
+    </div>
+    }
+</p-panel>

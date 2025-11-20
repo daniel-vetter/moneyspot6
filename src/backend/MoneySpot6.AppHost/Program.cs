@@ -1,8 +1,9 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
+var parameter = builder.AddParameter("postgres-password", true);
+
 var postgres = builder
-    .AddPostgres("Postgres")
-    .WithPgWeb()
+    .AddPostgres("Postgres", port: 5432, password: parameter)
     .WithLifetime(ContainerLifetime.Persistent);
 
 var db = postgres.AddDatabase("db", "moneyspot");

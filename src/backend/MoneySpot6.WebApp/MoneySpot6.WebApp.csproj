@@ -1,34 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>8540a25a-ee03-4675-aadd-15511fa56a79</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.2" />
+		<PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.1" />
 		<PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
-		<PackageReference Include="Jint" Version="4.4.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.0" />
-		<PackageReference Include="NJsonSchema" Version="11.5.2" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-		<PackageReference Include="Npgsql.OpenTelemetry" Version="9.0.4" />
-		<PackageReference Include="NSwag.AspNetCore" Version="14.6.2" />
-		<PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.6.2" />
-		<PackageReference Include="NSwag.MSBuild" Version="14.6.2">
+		<PackageReference Include="Jint" Version="4.4.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="NJsonSchema" Version="11.5.1" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+		<PackageReference Include="Npgsql.OpenTelemetry" Version="9.0.4" />
+		<PackageReference Include="NSwag.AspNetCore" Version="14.6.1" />
+		<PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.6.1" />
+		<PackageReference Include="NSwag.MSBuild" Version="14.6.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="OpenAI" Version="2.7.0" />
 		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.13.1" />
 		<PackageReference Include="OpenTelemetry.Exporter.InfluxDB" Version="1.0.0-alpha.4" />
 		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.13.1" />
 		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.9.0-beta.2" />
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.13.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.13.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.13.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.9.0-beta.1" />
+		<PackageReference Include="Google.Apis.Gmail.v1" Version="1.70.0.3833" />
 	</ItemGroup>
 
 	<ItemGroup>
