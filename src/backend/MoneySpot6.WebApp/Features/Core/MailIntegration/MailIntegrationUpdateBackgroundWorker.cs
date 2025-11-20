@@ -31,7 +31,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                     _logger.LogError(e, "An error occurred while checking for new emails.");
                 }
 
-                await _waitHelper.Wait<MailIntegrationUpdateBackgroundWorker>(TimeSpan.FromMinutes(5), stoppingToken);
+                await _waitHelper.Wait<MailIntegrationUpdateBackgroundWorker>(TimeSpan.FromMinutes(30), stoppingToken);
             }
         }
     }
