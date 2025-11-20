@@ -98,7 +98,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
                 var response = await chatClient.CompleteChatAsync(messages, options, stoppingToken);
                 var content = response.Value.Content[0].Text;
-                content = content.Replace("\0", "");
+                content = content.Replace("\0", "").Replace(@"\u", @"\\u");
 
                 var validatedData = JsonSerializer.Deserialize<DbExtractedEmailData>(content, new JsonSerializerOptions
                 {
