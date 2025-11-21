@@ -11,10 +11,25 @@
 
     <p-panel>
         <ng-template pTemplate="header">
-            <h1>Gesamt</h1>
+            <h1>Verlauf</h1>
         </ng-template>
-        @for (chart of charts; track chart.index) {
-        <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; display: block"></highcharts-chart>
-        }
+        <p-tabs value="0">
+            <p-tablist>
+                <p-tab value="0">Gesamt</p-tab>
+                <p-tab value="1">Aktiengewinn</p-tab>
+            </p-tablist>
+            <p-tabpanels>
+                <p-tabpanel value="0">
+                    @if (charts.length > 0) {
+                    <highcharts-chart [Highcharts]="Highcharts" [options]="charts[0]" style="width: 100%; display: block"></highcharts-chart>
+                    }
+                </p-tabpanel>
+                <p-tabpanel value="1">
+                    @if (charts.length > 1) {
+                    <highcharts-chart [Highcharts]="Highcharts" [options]="charts[1]" style="width: 100%; display: block"></highcharts-chart>
+                    }
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
     </p-panel>
 </div>
