@@ -138,15 +138,6 @@ export class HistoryComponent implements OnInit {
                         duration: 0
                     }
                 },
-                {
-                    name: 'Gewinn',
-                    type: 'area',
-                    data: result.map((x) => [x.date.valueOf(), Math.round((x.stockValue - x.stockInvested) * 100) / 100]),
-                    threshold: this.startFromZero ? 0 : undefined,
-                    animation: {
-                        duration: 0
-                    }
-                },
             ]
         });
     }
@@ -180,14 +171,15 @@ export class HistoryComponent implements OnInit {
             }
         });
 
-        point.points?.forEach((point) => {
-            if (point.series.name === 'Gewinn') {
-                tooltipText += `<tr>
-                    <td style="padding: 4px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
-                    <td style="padding: 4px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
-                </tr>`;
-            }
-        });
+        const stockValue = point.points?.find(p => p.series.name === 'Aktien')?.y;
+        const investmentValue = point.points?.find(p => p.series.name === 'Investment')?.y;
+        if (stockValue !== undefined && investmentValue !== undefined) {
+            const profit = stockValue - investmentValue;
+            tooltipText += `<tr>
+                <td style="padding: 2px 8px 2px 0;"><span style="color: black;">\u25CF</span> Gewinn</td>
+                <td style="padding: 2px 0; text-align: right;"><b>${Highcharts.numberFormat(profit, 2, ',', '.')}</b></td>
+            </tr>`;
+        }
 
         tooltipText += `</table>`;
         return tooltipText;
