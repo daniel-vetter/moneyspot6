@@ -1,17 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
 import * as Highcharts from 'highcharts';
-import { HighchartsChartModule } from 'highcharts-angular';
-import { AccountHistoryClient } from '../server';
-import { lastValueFrom } from 'rxjs';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { FormsModule } from '@angular/forms';
-import { ButtonGroupModule } from 'primeng/buttongroup';
-import { PanelModule } from 'primeng/panel';
-import { DatePickerModule } from 'primeng/datepicker';
-import { DateRange, DateRangePickerComponent } from "../common/date-range-picker/date-range-picker.component";
-import { DateRangePresetsComponent } from "../common/date-range-presets/date-range-presets.component";
-import { ActivatedRoute } from "@angular/router";
-import { ToggleButtonModule } from "primeng/togglebutton";
+import {HighchartsChartModule} from 'highcharts-angular';
+import {AccountHistoryClient} from '../server';
+import {lastValueFrom} from 'rxjs';
+import {SplitButtonModule} from 'primeng/splitbutton';
+import {FormsModule} from '@angular/forms';
+import {ButtonGroupModule} from 'primeng/buttongroup';
+import {PanelModule} from 'primeng/panel';
+import {DatePickerModule} from 'primeng/datepicker';
+import {DateRange, DateRangePickerComponent} from "../common/date-range-picker/date-range-picker.component";
+import {DateRangePresetsComponent} from "../common/date-range-presets/date-range-presets.component";
+import {ActivatedRoute} from "@angular/router";
+import {ToggleButtonModule} from "primeng/togglebutton";
+import {Point, Tooltip, TooltipOptions} from "highcharts";
 
 
 @Component({
@@ -103,37 +104,8 @@ export class HistoryComponent implements OnInit {
                 style: {
                     fontSize: "1rem"
                 },
-                formatter: function() {
-                    let tooltipText = `<b>Datum: ${Highcharts.dateFormat('%d.%m.%Y', this.x as number)}</b><br/><br/>`;
-                    tooltipText += `<table style="border-collapse: collapse; width: 100%;">`;
-
-                    let sum = 0;
-                    this.points?.forEach((point) => {
-                        if (point.series.name === 'Konten' || point.series.name === 'Aktien') {
-                            sum += point.y as number;
-                            tooltipText += `<tr>
-                                <td style="padding: 2px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
-                                <td style="padding: 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
-                            </tr>`;
-                        }
-                    });
-
-                    tooltipText += `<tr style="border-top: 1px solid #ccc;">
-                        <td style="padding: 4px 8px 2px 0;"><b>Summe</b></td>
-                        <td style="padding: 4px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(sum, 2, ',', '.')}</b></td>
-                    </tr>`;
-
-                    this.points?.forEach((point) => {
-                        if (point.series.name === 'Investment') {
-                            tooltipText += `<tr style="border-top: 2px solid #ccc;">
-                                <td style="padding: 24px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
-                                <td style="padding: 24px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
-                            </tr>`;
-                        }
-                    });
-
-                    tooltipText += `</table>`;
-                    return tooltipText;
+                formatter: function () {
+                    return HistoryComponent.tooltipFormatter(this);
                 }
             },
             series: [
@@ -168,6 +140,49 @@ export class HistoryComponent implements OnInit {
                 },
             ]
         });
+    }
+
+    private static tooltipFormatter(point: Point): string {
+        let tooltipText = `<b>Datum: ${Highcharts.dateFormat('%d.%m.%Y', point.x)}</b><br/><br/>`;
+        tooltipText += `<table style="border-collapse: collapse; width: 100%;">`;
+
+        let sum = 0;
+        point.points?.forEach((point) => {
+            if (point.series.name === 'Konten' || point.series.name === 'Aktien') {
+                sum += point.y as number;
+                tooltipText += `<tr>
+                    <td style="padding: 2px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
+                    <td style="padding: 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
+                </tr>`;
+            }
+        });
+
+        tooltipText += `<tr style="border-top: 1px solid #ccc;">
+            <td style="padding: 4px 8px 2px 0;"><b>Summe</b></td>
+            <td style="padding: 4px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(sum, 2, ',', '.')}</b></td>
+        </tr>`;
+
+        point.points?.forEach((point) => {
+            if (point.series.name === 'Investment') {
+                tooltipText += `<tr style="border-top: 2px solid #ccc;">
+                    <td style="padding: 24px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
+                    <td style="padding: 24px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
+                </tr>`;
+            }
+        });
+
+        const stockValue = point.points?.find(p => p.series.name === 'Aktien')?.y;
+        const investmentValue = point.points?.find(p => p.series.name === 'Investment')?.y;
+        if (stockValue !== undefined && investmentValue !== undefined) {
+            const profit = stockValue - investmentValue;
+            tooltipText += `<tr>
+                <td style="padding: 2px 8px 2px 0;"><span style="color: black;">\u25CF</span> Gewinn</td>
+                <td style="padding: 2px 0; text-align: right;"><b>${Highcharts.numberFormat(profit, 2, ',', '.')}</b></td>
+            </tr>`;
+        }
+
+        tooltipText += `</table>`;
+        return tooltipText;
     }
 
     protected async onStartFromZeroChanged() {
