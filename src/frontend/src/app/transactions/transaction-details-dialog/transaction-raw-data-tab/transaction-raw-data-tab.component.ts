@@ -36,12 +36,10 @@ export class TransactionRawDataTabComponent implements OnInit {
         originatorIdentifier: new FormControl<string>("", { nonNullable: true }),
         alternateInitiator: new FormControl<string>("", { nonNullable: true }),
         alternateReceiver: new FormControl<string>("", { nonNullable: true }),
-        paymentProcessor: new FormControl<string>("", { nonNullable: true }),
     })
 
     async ngOnInit(): Promise<void> {
         this.isLoading = true;
-        this.rawDataForm.disable();
 
         this.transaction = await lastValueFrom(this.transactionPageClient.getParsedData(this.transactionId));
 
@@ -60,8 +58,7 @@ export class TransactionRawDataTabComponent implements OnInit {
             creditorIdentifier: this.transaction.creditorIdentifier,
             originatorIdentifier: this.transaction.originatorIdentifier,
             alternateInitiator: this.transaction.alternateInitiator,
-            alternateReceiver: this.transaction.alternateReceiver,
-            paymentProcessor: this.transaction.paymentProcessor?.toString()
+            alternateReceiver: this.transaction.alternateReceiver
         });
 
         this.isLoading = false;

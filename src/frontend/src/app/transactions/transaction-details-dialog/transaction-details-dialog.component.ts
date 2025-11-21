@@ -21,7 +21,7 @@ export class TransactionDetailsDialogComponent {
 
         this.id = dialogConfig.data.id;
         dialogConfig.modal = true;
-        dialogConfig.width = "700px";
+        dialogConfig.width = "1100px";
         dialogConfig.header = "Buchungsdetails";
     }
 

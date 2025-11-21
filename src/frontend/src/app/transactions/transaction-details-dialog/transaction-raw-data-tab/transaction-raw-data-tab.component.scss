@@ -1,0 +1,91 @@
+.form-group {
+    margin-bottom: 2rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.group-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #dee2e6;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: var(--primary-color);
+    }
+
+    padding-left: 1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    label {
+        text-align: right;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .input-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+}
+
+.form-row-double {
+    display: grid;
+    grid-template-columns: 150px 1fr 150px 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    label {
+        text-align: right;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .input-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+}
+
+input[readonly] {
+    background-color: #f8f9fa !important;
+    cursor: default !important;
+    opacity: 0.85;
+}
+
+::ng-deep {
+    .p-datepicker input[readonly] {
+        background-color: #f8f9fa !important;
+        cursor: default !important;
+        opacity: 0.85;
+    }
+}
