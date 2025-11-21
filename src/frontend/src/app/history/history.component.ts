@@ -99,8 +99,41 @@ export class HistoryComponent implements OnInit {
             },
             tooltip: {
                 shared: true,
+                useHTML: true,
                 style: {
                     fontSize: "1rem"
+                },
+                formatter: function() {
+                    let tooltipText = `<b>Datum: ${Highcharts.dateFormat('%d.%m.%Y', this.x as number)}</b><br/><br/>`;
+                    tooltipText += `<table style="border-collapse: collapse; width: 100%;">`;
+
+                    let sum = 0;
+                    this.points?.forEach((point) => {
+                        if (point.series.name === 'Konten' || point.series.name === 'Aktien') {
+                            sum += point.y as number;
+                            tooltipText += `<tr>
+                                <td style="padding: 2px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
+                                <td style="padding: 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
+                            </tr>`;
+                        }
+                    });
+
+                    tooltipText += `<tr style="border-top: 1px solid #ccc;">
+                        <td style="padding: 4px 8px 2px 0;"><b>Summe</b></td>
+                        <td style="padding: 4px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(sum, 2, ',', '.')}</b></td>
+                    </tr>`;
+
+                    this.points?.forEach((point) => {
+                        if (point.series.name === 'Investment') {
+                            tooltipText += `<tr style="border-top: 2px solid #ccc;">
+                                <td style="padding: 24px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
+                                <td style="padding: 24px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
+                            </tr>`;
+                        }
+                    });
+
+                    tooltipText += `</table>`;
+                    return tooltipText;
                 }
             },
             series: [
