@@ -135,6 +135,36 @@ public class TransactionPageController : Controller
         return Ok(entry);
     }
 
+    [HttpGet("{id}/parsed-data")]
+    public async Task<ActionResult<TransactionParsedDataResponse>> GetParsedData(int id)
+    {
+        var entry = await _db.BankAccountTransactions
+            .AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new TransactionParsedDataResponse
+            {
+                Id = x.Id,
+                Date = x.Parsed.Date,
+                Purpose = x.Parsed.Purpose,
+                Name = x.Parsed.Name,
+                BankCode = x.Parsed.BankCode,
+                AccountNumber = x.Parsed.AccountNumber,
+                Iban = x.Parsed.Iban,
+                Bic = x.Parsed.Bic,
+                Amount = x.Parsed.Amount,
+                EndToEndReference = x.Parsed.EndToEndReference,
+                CustomerReference = x.Parsed.CustomerReference,
+                MandateReference = x.Parsed.MandateReference,
+                CreditorIdentifier = x.Parsed.CreditorIdentifier,
+                OriginatorIdentifier = x.Parsed.OriginatorIdentifier,
+                AlternateInitiator = x.Parsed.AlternateInitiator,
+                AlternateReceiver = x.Parsed.AlternateReceiver,
+                PaymentProcessor = x.Parsed.PaymentProcessor
+            }).FirstOrDefaultAsync();
+        if (entry == null) return NotFound();
+        return Ok(entry);
+    }
+
     [HttpPost]
     public async Task<ActionResult> Update(TransactionDetailsUpdateRequest update)
     {
@@ -257,6 +287,28 @@ public class TransactionOverrideDetails
     public string? AlternateInitiator { get; set; }
     public string? AlternateReceiver { get; set; }
     public PaymentProcessor? PaymentProcessor { get; set; }
+}
+
+[PublicAPI]
+public record TransactionParsedDataResponse
+{
+    [Required] public required int Id { get; init; }
+    [Required] public required DateOnly Date { get; init; }
+    [Required] public required string Purpose { get; init; }
+    [Required] public required string Name { get; init; }
+    [Required] public required string BankCode { get; init; }
+    [Required] public required string AccountNumber { get; init; }
+    [Required] public required string Iban { get; init; }
+    [Required] public required string Bic { get; init; }
+    [Required] public required decimal Amount { get; init; }
+    [Required] public required string EndToEndReference { get; init; }
+    [Required] public required string CustomerReference { get; init; }
+    [Required] public required string MandateReference { get; init; }
+    [Required] public required string CreditorIdentifier { get; init; }
+    [Required] public required string OriginatorIdentifier { get; init; }
+    [Required] public required string AlternateInitiator { get; init; }
+    [Required] public required string AlternateReceiver { get; init; }
+    [Required] public required PaymentProcessor PaymentProcessor { get; init; }
 }
 
 [PublicAPI]

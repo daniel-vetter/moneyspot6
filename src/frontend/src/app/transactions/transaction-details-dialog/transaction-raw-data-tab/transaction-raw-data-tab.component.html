@@ -1,0 +1,92 @@
+@if (isLoading) {
+    <div style="width: 100%; position: relative">
+        <div style="width: 100%; display: flex; padding: 10rem 0; position: absolute">
+            <p-progress-spinner ariaLabel="loading" strokeWidth="3" />
+        </div>
+    </div>
+}
+
+<div style="padding-top: 1rem">
+    <form [formGroup]="rawDataForm" [style.opacity]="isLoading ? '0.3' : '1'">
+
+        <!-- Basisdaten -->
+        <div class="form-group">
+            <div class="group-title">Basisdaten</div>
+
+            <div class="form-row-double">
+                <label for="rawDate">Datum</label>
+                <p-datepicker inputId="rawDate" formControlName="date" showIcon="true"
+                              [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}"
+                              dateFormat="dd.mm.yy" [readonlyInput]="true"></p-datepicker>
+
+                <label for="rawAmount">Betrag</label>
+                <input pInputText id="rawAmount" type="number" formControlName="amount" style="width: 100%;" readonly />
+            </div>
+
+            <div class="form-row-double">
+                <label for="rawName">Name</label>
+                <input pInputText id="rawName" type="text" formControlName="name" style="width: 100%;" readonly />
+
+                <label for="rawPurpose">Verwendungszweck</label>
+                <input pInputText id="rawPurpose" type="text" formControlName="purpose" style="width: 100%;" readonly />
+            </div>
+        </div>
+
+        <!-- Bankdaten -->
+        <div class="form-group">
+            <div class="group-title">Bankdaten</div>
+
+            <div class="form-row-double">
+                <label for="rawBankCode">Bankleitzahl</label>
+                <input pInputText id="rawBankCode" type="text" formControlName="bankCode" style="width: 100%;" readonly />
+
+                <label for="rawAccountNumber">Kontonummer</label>
+                <input pInputText id="rawAccountNumber" type="text" formControlName="accountNumber" style="width: 100%;" readonly />
+            </div>
+
+            <div class="form-row-double">
+                <label for="rawIban">IBAN</label>
+                <input pInputText id="rawIban" type="text" formControlName="iban" style="width: 100%;" readonly />
+
+                <label for="rawBic">BIC</label>
+                <input pInputText id="rawBic" type="text" formControlName="bic" style="width: 100%;" readonly />
+            </div>
+        </div>
+
+        <!-- Referenzen -->
+        <div class="form-group">
+            <div class="group-title">Referenzen</div>
+
+            <div class="form-row-double">
+                <label for="rawEndToEndReference">EndToEnd-Referenz</label>
+                <input pInputText id="rawEndToEndReference" type="text" formControlName="endToEndReference" style="width: 100%;" readonly />
+
+                <label for="rawCustomerReference">Kundenreferenz</label>
+                <input pInputText id="rawCustomerReference" type="text" formControlName="customerReference" style="width: 100%;" readonly />
+            </div>
+
+            <div class="form-row-double">
+                <label for="rawMandateReference">Mandatsreferenz</label>
+                <input pInputText id="rawMandateReference" type="text" formControlName="mandateReference" style="width: 100%;" readonly />
+
+                <label for="rawCreditorIdentifier">Gläubiger-ID</label>
+                <input pInputText id="rawCreditorIdentifier" type="text" formControlName="creditorIdentifier" style="width: 100%;" readonly />
+            </div>
+
+            <div class="form-row-double">
+                <label for="rawAlternateReceiver">Alternativer Empfänger</label>
+                <input pInputText id="rawAlternateReceiver" type="text" formControlName="alternateReceiver" style="width: 100%;" readonly />
+
+                <label for="rawAlternateInitiator">Alternativer Initiator</label>
+                <input pInputText id="rawAlternateInitiator" type="text" formControlName="alternateInitiator" style="width: 100%;" readonly />
+            </div>
+
+            <div class="form-row-double">
+                <label for="rawOriginatorIdentifier">Originator-ID</label>
+                <input pInputText id="rawOriginatorIdentifier" type="text" formControlName="originatorIdentifier" style="width: 100%;" readonly />
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </form>
+</div>

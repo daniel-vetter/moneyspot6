@@ -4,7 +4,9 @@
       "Bash(npm run build:*)",
       "Bash(dotnet build:*)",
       "Bash(dotnet ef migrations add:*)",
-      "Bash(dotnet ef migrations:*)"
+      "Bash(dotnet ef migrations:*)",
+      "Bash(npx ng generate:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

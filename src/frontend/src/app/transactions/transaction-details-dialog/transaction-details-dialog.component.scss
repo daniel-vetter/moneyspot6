@@ -1,0 +1,14 @@
+::ng-deep {
+    p-tabpanels {
+        padding: 0 !important;
+    }
+
+    .p-tabpanels {
+        padding: 0 !important;
+        min-height: 750px;
+    }
+
+    .p-tabpanel {
+        padding: 1rem 0 0 0 !important;
+    }
+}
