@@ -209,6 +209,8 @@ export class HistoryComponent implements OnInit {
                     data: result.map((x) => [x.date.valueOf(), Math.round((x.stockValue - x.stockInvested) * 100) / 100]),
                     threshold: 0,
                     fillOpacity: 0.3,
+                    color: '#22c55e',
+                    negativeColor: '#ef4444',
                     animation: {
                         duration: 0
                     }
