@@ -1,0 +1,163 @@
+@if (isLoading) {
+    <div style="width: 100%; position: relative">
+    <div style="width: 100%; display: flex; padding: 10rem 0; position: absolute">
+        <p-progress-spinner ariaLabel="loading" strokeWidth="3" />
+    </div>
+    </div>
+}
+
+<div style="padding-top: 1rem">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" [style.opacity]="isLoading ? '0.3' : '1'">
+    <div class="vertical">
+        <div class="horizontal">
+            <div class="form-field" style="flex: 1">
+                <label for="date">Datum</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <p-datepicker inputId="date" formControlName="date" showIcon="true" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" dateFormat="dd.mm.yy" (ngModelChange)="dateOverridden = true"></p-datepicker>
+                    @if (dateOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetDate()" />
+                    }
+                </div>
+            </div>
+            <div class="form-field" style="flex: 1">
+                <label for="amount">Betrag</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="amount" type="number" formControlName="amount" style="width: 100%;" (ngModelChange)="amountOverridden = true" />
+                    @if (amountOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetAmount()" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label for="name">Name</label>
+            <div class="horizontal" style="gap: 0.5rem">
+                <input pInputText id="name" type="text" formControlName="name" style="width: 100%;" (ngModelChange)="nameOverridden = true" />
+                @if (nameOverridden) {
+                    <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetName()" />
+                }
+            </div>
+        </div>
+
+        <div class="horizontal">
+            <div class="form-field" style="flex: 1">
+                <label for="bankCode">Bankleitzahl</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="bankCode" type="text" formControlName="bankCode" style="width: 100%;" (ngModelChange)="bankCodeOverridden = true" />
+                    @if (bankCodeOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetBankCode()" />
+                    }
+                </div>
+            </div>
+            <div class="form-field" style="flex: 1">
+                <label for="accountNumber">Kontonummer</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="accountNumber" type="text" formControlName="accountNumber" style="width: 100%;" (ngModelChange)="accountNumberOverridden = true" />
+                    @if (accountNumberOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetAccountNumber()" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="horizontal">
+            <div class="form-field" style="flex: 1">
+                <label for="iban">IBAN</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="iban" type="text" formControlName="iban" style="width: 100%;" (ngModelChange)="ibanOverridden = true" />
+                    @if (ibanOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetIban()" />
+                    }
+                </div>
+            </div>
+            <div class="form-field" style="flex: 1">
+                <label for="bic">BIC</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="bic" type="text" formControlName="bic" style="width: 100%;" (ngModelChange)="bicOverridden = true" />
+                    @if (bicOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetBic()" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="form-field" style="flex: 1">
+            <label for="purpose">Verwendungszweck</label>
+            <div class="horizontal" style="gap: 0.5rem">
+                <input pInputText id="purpose" type="text" formControlName="purpose" style="width: 100%;" (ngModelChange)="purposeOverridden = true" />
+                @if (purposeOverridden) {
+                    <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetPurpose()" />
+                }
+            </div>
+        </div>
+
+        <div class="form-field" style="flex: 1">
+            <label for="category">Kategorie</label>
+            <div class="horizontal" style="gap: 0.5rem">
+                <p-treeselect [style]="{'width': '100%'}" [containerStyle]="{'width': '100%'}" formControlName="category" [options]="categoryNodes" (ngModelChange)="categoryOverridden = true"></p-treeselect>
+                @if (categoryOverridden) {
+                    <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetCategory()" />
+                }
+            </div>
+        </div>
+        <div class="form-field" style="flex: 1">
+            <label for="endToEndReference">EndToEnd-Referenz</label>
+            <div class="horizontal" style="gap: 0.5rem">
+                <input pInputText id="endToEndReference" type="text" formControlName="endToEndReference" style="width: 100%;" (ngModelChange)="endToEndReferenceOverridden = true" />
+                @if (endToEndReferenceOverridden) {
+                    <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetEndToEndReference()" />
+                }
+            </div>
+        </div>
+
+        <div class="horizontal">
+            <div class="form-field" style="flex: 1">
+                <label for="customerReference">Kundenreferenz</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="customerReference" type="text" formControlName="customerReference" style="width: 100%;"
+                           (ngModelChange)="customerReferenceOverridden = true" />
+                    @if (customerReferenceOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetCustomerReference()" />
+                    }
+                </div>
+            </div>
+            <div class="form-field" style="flex: 1">
+                <label for="mandateReference">Mandatsreferenz</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="mandateReference" type="text" formControlName="mandateReference" style="width: 100%;"
+                           (ngModelChange)="mandateReferenceOverridden = true" />
+                    @if (mandateReferenceOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetMandateReference()" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="horizontal">
+            <div class="form-field" style="flex: 1">
+                <label for="creditorIdentifier">Gläubiger-ID</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="creditorIdentifier" type="text" formControlName="creditorIdentifier" style="width: 100%;"
+                           (ngModelChange)="creditorIdentifierOverridden = true" />
+                    @if (creditorIdentifierOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetCreditorIdentifier()" />
+                    }
+                </div>
+            </div>
+            <div class="form-field" style="flex: 1">
+                <label for="originatorIdentifier">Originator-ID</label>
+                <div class="horizontal" style="gap: 0.5rem">
+                    <input pInputText id="originatorIdentifier" type="text" formControlName="originatorIdentifier" style="width: 100%;"
+                           (ngModelChange)="originatorIdentifierOverridden = true" />
+                    @if (originatorIdentifierOverridden) {
+                        <p-button icon="pi pi-times" [style]="{'height': '100%'}" [rounded]="true" [text]="true" severity="secondary" (onClick)="resetOriginatorIdentifier()" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <textarea pTextarea formControlName="note" rows="8" cols="30" pInputTextarea placeholder="Bemerkung" style="width: 100%; resize: none;"></textarea>
+    </div>
+</form>
+</div>
