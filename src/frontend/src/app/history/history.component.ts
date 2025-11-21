@@ -12,12 +12,13 @@ import {DateRange, DateRangePickerComponent} from "../common/date-range-picker/d
 import {DateRangePresetsComponent} from "../common/date-range-presets/date-range-presets.component";
 import {ActivatedRoute} from "@angular/router";
 import {ToggleButtonModule} from "primeng/togglebutton";
-import {Point, Tooltip, TooltipOptions} from "highcharts";
+import {Point} from "highcharts";
+import {TabsModule} from "primeng/tabs";
 
 
 @Component({
     selector: 'app-history',
-    imports: [HighchartsChartModule, DatePickerModule, SplitButtonModule, FormsModule, ButtonGroupModule, PanelModule, DateRangePickerComponent, DateRangePresetsComponent, ToggleButtonModule],
+    imports: [HighchartsChartModule, DatePickerModule, SplitButtonModule, FormsModule, ButtonGroupModule, PanelModule, DateRangePickerComponent, DateRangePresetsComponent, ToggleButtonModule, TabsModule],
     templateUrl: './history.component.html',
     styleUrl: './history.component.scss'
 })
@@ -138,15 +139,80 @@ export class HistoryComponent implements OnInit {
                         duration: 0
                     }
                 },
+            ]
+        });
+
+        // Zweites Chart: Aktiengewinne
+        this.charts.push({
+            index: this.charts.length,
+            chart: {
+                height: '70%',
+            },
+            title: {
+                text: undefined
+            },
+            yAxis: {
+                title: {
+                    text: 'Gewinn',
+                },
+                endOnTick: false,
+                startOnTick: false,
+                labels: {
+                    style: {
+                        fontSize: "1rem"
+                    }
+                }
+            },
+            xAxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Datum',
+                },
+                labels: {
+                    style: {
+                        fontSize: "1rem"
+                    }
+                }
+            },
+            plotOptions: {
+                area: {
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            tooltip: {
+                shared: true,
+                useHTML: true,
+                style: {
+                    fontSize: "1rem"
+                },
+                formatter: function () {
+                    let tooltipText = `<b>Datum: ${Highcharts.dateFormat('%d.%m.%Y', this.x)}</b><br/><br/>`;
+                    tooltipText += `<table style="border-collapse: collapse; width: 100%;">`;
+
+                    this.points?.forEach((point) => {
+                        tooltipText += `<tr>
+                            <td style="padding: 2px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
+                            <td style="padding: 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
+                        </tr>`;
+                    });
+
+                    tooltipText += `</table>`;
+                    return tooltipText;
+                }
+            },
+            series: [
                 {
-                    name: 'Gewinn',
+                    name: 'Aktiengewinn',
                     type: 'area',
                     data: result.map((x) => [x.date.valueOf(), Math.round((x.stockValue - x.stockInvested) * 100) / 100]),
-                    threshold: this.startFromZero ? 0 : undefined,
+                    threshold: 0,
+                    fillOpacity: 0.3,
                     animation: {
                         duration: 0
                     }
-                },
+                }
             ]
         });
     }
@@ -180,14 +246,15 @@ export class HistoryComponent implements OnInit {
             }
         });
 
-        point.points?.forEach((point) => {
-            if (point.series.name === 'Gewinn') {
-                tooltipText += `<tr>
-                    <td style="padding: 4px 8px 2px 0;"><span style="color:${point.color}">\u25CF</span> ${point.series.name}</td>
-                    <td style="padding: 4px 0 2px 0; text-align: right;"><b>${Highcharts.numberFormat(point.y as number, 2, ',', '.')}</b></td>
-                </tr>`;
-            }
-        });
+        const stockValue = point.points?.find(p => p.series.name === 'Aktien')?.y;
+        const investmentValue = point.points?.find(p => p.series.name === 'Investment')?.y;
+        if (stockValue !== undefined && investmentValue !== undefined) {
+            const profit = stockValue - investmentValue;
+            tooltipText += `<tr>
+                <td style="padding: 2px 8px 2px 0;"><span style="color: black;">\u25CF</span> Gewinn</td>
+                <td style="padding: 2px 0; text-align: right;"><b>${Highcharts.numberFormat(profit, 2, ',', '.')}</b></td>
+            </tr>`;
+        }
 
         tooltipText += `</table>`;
         return tooltipText;
