@@ -14,6 +14,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import {SelectModule} from "primeng/select";
 import {TabsModule} from "primeng/tabs";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 interface DisplayEntry {
     year: number;
@@ -30,7 +31,7 @@ interface ProjectionOption {
 
 @Component({
     selector: 'app-inflation-data',
-    imports: [FormsModule, PanelModule, TableModule, DecimalPipe, ButtonModule, HighchartsChartModule, TooltipModule, SelectModule, TabsModule],
+    imports: [FormsModule, PanelModule, TableModule, DecimalPipe, ButtonModule, HighchartsChartModule, TooltipModule, SelectModule, TabsModule, ProgressSpinnerModule],
     providers: [DialogService],
     templateUrl: './inflation-data.component.html',
     styleUrl: './inflation-data.component.scss'
@@ -43,6 +44,7 @@ export class InflationDataComponent implements OnInit {
     entries: DisplayEntry[] = [];
     yearlyEntries: DisplayEntry[] = [];
     defaultRate: number = 0;
+    loading: boolean = false;
 
     private rawEntries: InflationDataEntryWithProjectionResponse[] = [];
     private entryMap = new Map<string, InflationDataEntryWithProjectionResponse>();
@@ -67,21 +69,26 @@ export class InflationDataComponent implements OnInit {
     }
 
     async update() {
-        const response = await lastValueFrom(
-            this.inflationDataClient.getAll(this.selectedProjectionYears)
-        );
-        this.rawEntries = response.entries;
-        this.defaultRate = response.defaultRate;
+        this.loading = true;
+        try {
+            const response = await lastValueFrom(
+                this.inflationDataClient.getAll(this.selectedProjectionYears)
+            );
+            this.rawEntries = response.entries;
+            this.defaultRate = response.defaultRate;
 
-        // Build a map for quick lookup
-        this.entryMap.clear();
-        for (const entry of this.rawEntries) {
-            this.entryMap.set(`${entry.year}-${entry.month}`, entry);
+            // Build a map for quick lookup
+            this.entryMap.clear();
+            for (const entry of this.rawEntries) {
+                this.entryMap.set(`${entry.year}-${entry.month}`, entry);
+            }
+
+            this.calculateMonthlyEntries();
+            this.calculateYearlyEntries();
+            this.updateCharts();
+        } finally {
+            this.loading = false;
         }
-
-        this.calculateMonthlyEntries();
-        this.calculateYearlyEntries();
-        this.updateCharts();
     }
 
     async onProjectionYearsChange(years: number) {

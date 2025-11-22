@@ -28,7 +28,11 @@
         </p>
     </div>
 
-    @if (entries.length > 0) {
+    @if (loading) {
+        <div style="display: flex; justify-content: center; align-items: center; padding: 4rem;">
+            <p-progressSpinner />
+        </div>
+    } @else if (entries.length > 0) {
         <p-tabs value="0">
             <p-tablist>
                 <p-tab value="0">Jährlich</p-tab>
