@@ -6,7 +6,8 @@
       "Bash(dotnet ef migrations add:*)",
       "Bash(dotnet ef migrations:*)",
       "Bash(npx ng generate:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npx tsc --noEmit)"
     ],
     "deny": [],
     "ask": []
