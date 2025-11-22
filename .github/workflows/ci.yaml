@@ -48,6 +48,7 @@ jobs:
             -e MailIntegration__GmailClientId="${{ secrets.GMAIL_CLIENT_ID }}" \
             -e MailIntegration__GmailClientSecret="${{ secrets.GMAIL_CLIENT_SECRET }}" \
             -e MailIntegration__OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
+            -e InflationImport__GenesisApiToken="${{ secrets.GENESIS_API_TOKEN }}" \
             docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}      
           docker image prune -af
 
@@ -77,5 +78,6 @@ jobs:
             -e MailIntegration__GmailClientId="${{ secrets.GMAIL_CLIENT_ID }}" \
             -e MailIntegration__GmailClientSecret="${{ secrets.GMAIL_CLIENT_SECRET }}" \
             -e MailIntegration__OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
+            -e InflationImport__GenesisApiToken="${{ secrets.GENESIS_API_TOKEN }}" \
             docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}      
           docker image prune -af
