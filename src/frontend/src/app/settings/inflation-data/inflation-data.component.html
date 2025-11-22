@@ -13,7 +13,12 @@
                 optionValue="value"
                 [style]="{ 'min-width': '200px', 'margin-right': '1rem' }">
             </p-select>
-            <p-button label="Standard-Inflation konfigurieren" (onClick)="onConfigureDefaultRateClicked()" />
+            <p-button label="Standard-Inflation konfigurieren" (onClick)="onConfigureDefaultRateClicked()" [style]="{ 'margin-right': '0.5rem' }" />
+            <p-button
+                icon="pi pi-calculator"
+                (onClick)="onCalculatorClicked()"
+                pTooltip="Inflationsrechner"
+                tooltipPosition="bottom" />
         </div>
     </ng-template>
 

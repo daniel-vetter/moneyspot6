@@ -8,7 +8,8 @@
       "Bash(npx ng generate:*)",
       "Bash(git commit:*)",
       "Bash(npx tsc --noEmit)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(dotnet run:*)"
     ],
     "deny": [],
     "ask": []

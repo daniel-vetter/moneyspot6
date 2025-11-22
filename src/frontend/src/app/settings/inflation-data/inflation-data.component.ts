@@ -2,16 +2,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { ButtonModule } from 'primeng/button';
-import { Select } from 'primeng/select';
+import { TooltipModule} from 'primeng/tooltip';
 import { InflationDataClient, InflationDataEntryWithProjectionResponse } from '../../server';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DefaultRateDialogComponent } from './default-rate-dialog/default-rate-dialog.component';
+import { InflationCalculatorComponent } from './inflation-calculator/inflation-calculator.component';
 import { HighchartsChartModule } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
+import {SelectModule} from "primeng/select";
+import {TabsModule} from "primeng/tabs";
 
 interface DisplayEntry {
     year: number;
@@ -28,7 +30,7 @@ interface ProjectionOption {
 
 @Component({
     selector: 'app-inflation-data',
-    imports: [FormsModule, PanelModule, TableModule, DecimalPipe, Tabs, TabList, Tab, TabPanels, TabPanel, ButtonModule, HighchartsChartModule, Select],
+    imports: [FormsModule, PanelModule, TableModule, DecimalPipe, ButtonModule, HighchartsChartModule, TooltipModule, SelectModule, TabsModule],
     providers: [DialogService],
     templateUrl: './inflation-data.component.html',
     styleUrl: './inflation-data.component.scss'
@@ -101,6 +103,16 @@ export class InflationDataComponent implements OnInit {
         if (result) {
             await this.update();
         }
+    }
+
+    onCalculatorClicked() {
+        this.dialogRef = this.dialogService.open(InflationCalculatorComponent, {
+            modal: true,
+            header: "Inflationsrechner",
+            width: "500px",
+            closable: true,
+            closeOnEscape: true
+        });
     }
 
     private calculateMonthlyEntries() {

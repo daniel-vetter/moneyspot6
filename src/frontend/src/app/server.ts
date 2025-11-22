@@ -1793,6 +1793,58 @@ export class InflationDataClient {
         }
         return _observableOf(null as any);
     }
+
+    calculateAdjustedValue(request: CalculateAdjustedValueRequest): Observable<CalculateAdjustedValueResponse> {
+        let url_ = this.baseUrl + "/api/InflationData/CalculateAdjustedValue";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCalculateAdjustedValue(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCalculateAdjustedValue(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CalculateAdjustedValueResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CalculateAdjustedValueResponse>;
+        }));
+    }
+
+    protected processCalculateAdjustedValue(response: HttpResponseBase): Observable<CalculateAdjustedValueResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CalculateAdjustedValueResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -5223,6 +5275,94 @@ export interface IInflationDataEntryWithProjectionResponse {
     month: number;
     indexValue: number;
     isProjected: boolean;
+}
+
+export class CalculateAdjustedValueResponse implements ICalculateAdjustedValueResponse {
+    adjustedValue!: number;
+
+    constructor(data?: ICalculateAdjustedValueResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.adjustedValue = _data["adjustedValue"];
+        }
+    }
+
+    static fromJS(data: any): CalculateAdjustedValueResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CalculateAdjustedValueResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["adjustedValue"] = this.adjustedValue;
+        return data;
+    }
+}
+
+export interface ICalculateAdjustedValueResponse {
+    adjustedValue: number;
+}
+
+export class CalculateAdjustedValueRequest implements ICalculateAdjustedValueRequest {
+    value!: number;
+    fromYear!: number;
+    fromMonth!: number;
+    toYear!: number;
+    toMonth!: number;
+
+    constructor(data?: ICalculateAdjustedValueRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"];
+            this.fromYear = _data["fromYear"];
+            this.fromMonth = _data["fromMonth"];
+            this.toYear = _data["toYear"];
+            this.toMonth = _data["toMonth"];
+        }
+    }
+
+    static fromJS(data: any): CalculateAdjustedValueRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CalculateAdjustedValueRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        data["fromYear"] = this.fromYear;
+        data["fromMonth"] = this.fromMonth;
+        data["toYear"] = this.toYear;
+        data["toMonth"] = this.toMonth;
+        return data;
+    }
+}
+
+export interface ICalculateAdjustedValueRequest {
+    value: number;
+    fromYear: number;
+    fromMonth: number;
+    toYear: number;
+    toMonth: number;
 }
 
 export class AccountHistoryBalanceResponse implements IAccountHistoryBalanceResponse {

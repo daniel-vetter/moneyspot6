@@ -78,6 +78,23 @@ public class InflationDataController : Controller
             DefaultRate = settings?.DefaultRate ?? 0m
         });
     }
+
+    [HttpPost("CalculateAdjustedValue")]
+    [ProducesResponseType<CalculateAdjustedValueResponse>(200)]
+    public async Task<IActionResult> CalculateAdjustedValue(CalculateAdjustedValueRequest request)
+    {
+        await _inflationCalculator.EnsureConfigIsLoaded();
+
+        var fromDate = new DateOnly(request.FromYear, request.FromMonth, 1);
+        var toDate = new DateOnly(request.ToYear, request.ToMonth, 1);
+
+        var adjustedValue = _inflationCalculator.CalculateInflationAdjustedValue(request.Value, fromDate, toDate);
+
+        return Ok(new CalculateAdjustedValueResponse
+        {
+            AdjustedValue = adjustedValue
+        });
+    }
 }
 
 [PublicAPI]
@@ -100,4 +117,20 @@ public record InflationDataEntryWithProjectionResponse
     [Required] public required int Month { get; init; }
     [Required] public required decimal IndexValue { get; init; }
     [Required] public required bool IsProjected { get; init; }
+}
+
+[PublicAPI]
+public record CalculateAdjustedValueRequest
+{
+    [Required] public required decimal Value { get; init; }
+    [Required] public required int FromYear { get; init; }
+    [Required] public required int FromMonth { get; init; }
+    [Required] public required int ToYear { get; init; }
+    [Required] public required int ToMonth { get; init; }
+}
+
+[PublicAPI]
+public record CalculateAdjustedValueResponse
+{
+    [Required] public required decimal AdjustedValue { get; init; }
 }

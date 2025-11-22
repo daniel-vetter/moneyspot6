@@ -1,0 +1,71 @@
+<div class="vertical" style="gap: 1.5rem;">
+    <p>
+        Berechne den inflationsbereinigten Wert zwischen zwei Zeitpunkten.
+    </p>
+
+    <!-- Betrag -->
+    <div class="vertical" style="gap: 0.5rem;">
+        <label for="value">Betrag (€)</label>
+        <p-inputnumber
+            inputId="value"
+            [(ngModel)]="value"
+            mode="currency"
+            currency="EUR"
+            locale="de-DE"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            styleClass="w-full">
+        </p-inputnumber>
+    </div>
+
+    <!-- Von -->
+    <div class="vertical" style="gap: 0.5rem;">
+        <label for="fromDate">Von</label>
+        <p-datepicker
+            inputId="fromDate"
+            [(ngModel)]="fromDate"
+            view="month"
+            dateFormat="MM yy"
+            [showIcon]="true"
+            styleClass="w-full">
+        </p-datepicker>
+    </div>
+
+    <!-- Nach -->
+    <div class="vertical" style="gap: 0.5rem;">
+        <label for="toDate">Nach</label>
+        <p-datepicker
+            inputId="toDate"
+            [(ngModel)]="toDate"
+            view="month"
+            dateFormat="MM yy"
+            [showIcon]="true"
+            styleClass="w-full">
+        </p-datepicker>
+    </div>
+
+    <!-- Ergebnis -->
+    <div class="vertical" style="gap: 0.5rem; padding: 1.5rem 0; background-color: var(--surface-card); border-radius: 6px; border: 1px solid var(--surface-border); min-height: 140px;">
+        @if (adjustedValue !== null) {
+            <div style="font-size: 0.875rem; color: var(--text-secondary-color);">
+                Inflationsbereinigter Wert
+            </div>
+            <div style="font-size: 2rem; font-weight: 600; color: var(--primary-color);">
+                {{ adjustedValue | number:'1.2-2' }} €
+            </div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary-color); margin-top: 0.5rem;">
+                {{ value | number:'1.2-2' }} € im {{ formatDate(fromDate) }} entspricht {{ adjustedValue | number:'1.2-2' }} € im {{ formatDate(toDate) }}
+            </div>
+        }
+    </div>
+
+    <!-- Berechnen Button -->
+    <div style="display: flex; justify-content: flex-end;">
+        <p-button
+            label="Berechnen"
+            icon="pi pi-calculator"
+            (onClick)="calculate()"
+            [loading]="calculating">
+        </p-button>
+    </div>
+</div>
