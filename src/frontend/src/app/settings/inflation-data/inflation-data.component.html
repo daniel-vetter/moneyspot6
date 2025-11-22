@@ -1,0 +1,83 @@
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%">
+            <h1>Verbraucherpreisindex (VPI)</h1>
+            <div class="spacer"></div>
+            <p-button label="Standard-Inflation konfigurieren" (onClick)="onConfigureDefaultRateClicked()" />
+        </div>
+    </ng-template>
+
+    <div style="margin-bottom: 2rem;">
+        <p>
+            Die VPI-Daten werden automatisch täglich von der Genesis API des Statistischen Bundesamts heruntergeladen.
+        </p>
+    </div>
+
+    @if (entries.length > 0) {
+        <p-tabs value="0">
+            <p-tablist>
+                <p-tab value="0">Jährlich</p-tab>
+                <p-tab value="1">Monatlich</p-tab>
+            </p-tablist>
+            <p-tabpanels>
+                <p-tabpanel value="0">
+                    <p-table [value]="yearlyEntries" [tableStyle]="{'min-width':'50rem'}" [paginator]="true" [rows]="50">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Jahr</th>
+                                <th>Index-Wert (Jahresdurchschnitt)</th>
+                                <th>Veränderung zum Vorjahr</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-entry>
+                            <tr>
+                                <td>{{ entry.year }}</td>
+                                <td>{{ entry.indexValue | number:'1.2-2' }}</td>
+                                <td>
+                                    @if (entry.change !== null) {
+                                        {{ entry.change | number:'1.2-2' }}%
+                                    } @else {
+                                        <span style="opacity: 0.5">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-tabpanel>
+                <p-tabpanel value="1">
+                    <p-table [value]="entries" [tableStyle]="{'min-width':'50rem'}" [paginator]="true" [rows]="50">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Jahr</th>
+                                <th>Monat</th>
+                                <th>Index-Wert (Monatsdurchschnitt)</th>
+                                <th>Veränderung zum Vormonat</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-entry>
+                            <tr>
+                                <td>{{ entry.year }}</td>
+                                <td>{{ getMonthName(entry.month!) }}</td>
+                                <td>{{ entry.indexValue | number:'1.2-2' }}</td>
+                                <td>
+                                    @if (entry.change !== null) {
+                                        {{ entry.change | number:'1.2-2' }}%
+                                    } @else {
+                                        <span style="opacity: 0.5">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+    } @else {
+        <div class="vertical" style="align-items: center; padding: 2rem; color: var(--text-secondary-color)">
+            <i class="pi pi-chart-line" style="font-size: 4rem"></i>
+            <div style="height: 1rem"></div>
+            <div>Es sind noch keine VPI-Daten vorhanden.</div>
+            <div>Die Daten werden beim nächsten automatischen Import geladen.</div>
+        </div>
+    }
+</p-panel>

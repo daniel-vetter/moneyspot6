@@ -5,6 +5,15 @@
         <app-grouping-bar [showDataTypeSelection]="true"></app-grouping-bar>
     </div>
 
+    @if (blocks.length === 0) {
+    <div style="width: 100%; display: flex; justify-content: center; align-items: center; padding-top: 10rem;">
+        <div style="text-align: center; opacity: 0.6">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">Keine Transaktionen vorhanden</div>
+            <div style="font-size: 1rem;">Es wurden keine Transaktionen gefunden, die den aktuellen Filterkriterien entsprechen.</div>
+        </div>
+    </div>
+    }
+
     @for (block of blocks; track block.id) {
     <p-panel>
         <ng-template pTemplate="header">

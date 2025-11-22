@@ -12,6 +12,7 @@ import { CategoriesComponent } from './categories/categories.component';
 import { CategoriesComponent as CategoriesEditorComponent } from './settings/categories/categories.component';
 import {RulesComponent} from "./settings/rules/rules.component";
 import {MailIntegrationComponent} from "./settings/mail-integration/mail-integration.component";
+import {InflationDataComponent} from "./settings/inflation-data/inflation-data.component";
 
 export const routes: Routes = [
     { path: '', component: SummaryComponent, title: 'MoneySpot - Übersicht' },
@@ -27,5 +28,6 @@ export const routes: Routes = [
     { path: 'settings/system', component: SystemComponent, title: 'MoneySpot - Debug' },
     { path: 'settings/rules', component: RulesComponent, title: 'MoneySpot - Regeln' },
     { path: 'settings/categories', component: CategoriesEditorComponent, title: 'MoneySpot - Kategorien' },
+    { path: 'settings/inflation-data', component: InflationDataComponent, title: 'MoneySpot - VPI-Daten' },
     { path: 'settings/mail-integration', component: MailIntegrationComponent, title: 'MoneySpot - Mail Integration' },
 ];

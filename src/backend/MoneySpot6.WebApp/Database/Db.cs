@@ -17,6 +17,8 @@ public class Db : DbContext
     public DbSet<DbMonitoredEmailAddress> MonitoredEmailAddresses { get; init; }
     public DbSet<DbEmailSyncStatus> EmailSyncStatuses { get; init; }
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
+    public DbSet<DbInflationData> InflationData { get; init; }
+    public DbSet<DbInflationSettings> InflationSettings { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -413,4 +415,21 @@ public class DbExtractedEmailItem
     public string? FullName { get; set; }
     public string? ShortName { get; set; }
     public decimal? SubTotal { get; set; }
+}
+
+[Table("InflationData")]
+public class DbInflationData
+{
+    public int Id { get; set; }
+    public required int Year { get; set; }
+    public required int Month { get; set; }
+    public required decimal IndexValue { get; set; }
+    public DateTimeOffset? ImportedAt { get; set; }
+}
+
+[Table("InflationSettings")]
+public class DbInflationSettings
+{
+    public int Id { get; set; }
+    public required decimal DefaultRate { get; set; }
 }
