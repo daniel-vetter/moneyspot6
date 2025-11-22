@@ -2,9 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { ButtonModule } from 'primeng/button';
 import { InflationDataClient, InflationDataEntryResponse } from '../../server';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DefaultRateDialogComponent } from './default-rate-dialog/default-rate-dialog.component';
 
 interface DisplayEntry {
     year: number;
@@ -15,15 +18,19 @@ interface DisplayEntry {
 
 @Component({
     selector: 'app-inflation-data',
-    imports: [PanelModule, TableModule, DecimalPipe, Tabs, TabList, Tab, TabPanels, TabPanel],
+    imports: [PanelModule, TableModule, DecimalPipe, Tabs, TabList, Tab, TabPanels, TabPanel, ButtonModule],
+    providers: [DialogService],
     templateUrl: './inflation-data.component.html',
     styleUrl: './inflation-data.component.scss'
 })
 export class InflationDataComponent implements OnInit {
     private inflationDataClient = inject(InflationDataClient);
+    private dialogService = inject(DialogService);
+    private dialogRef: DynamicDialogRef | undefined;
 
     entries: DisplayEntry[] = [];
     yearlyEntries: DisplayEntry[] = [];
+    defaultRate: number = 0;
 
     private rawEntries: InflationDataEntryResponse[] = [];
     private entryMap = new Map<string, InflationDataEntryResponse>();
@@ -35,6 +42,7 @@ export class InflationDataComponent implements OnInit {
     async update() {
         const response = await lastValueFrom(this.inflationDataClient.getAll());
         this.rawEntries = response.entries;
+        this.defaultRate = response.defaultRate;
 
         // Build a map for quick lookup
         this.entryMap.clear();
@@ -44,6 +52,22 @@ export class InflationDataComponent implements OnInit {
 
         this.calculateMonthlyEntries();
         this.calculateYearlyEntries();
+    }
+
+    async onConfigureDefaultRateClicked() {
+        this.dialogRef = this.dialogService.open(DefaultRateDialogComponent, {
+            modal: true,
+            header: "Standard-Inflation konfigurieren",
+            width: "500px",
+            data: {
+                defaultRate: this.defaultRate
+            }
+        });
+
+        const result = await firstValueFrom(this.dialogRef.onClose);
+        if (result) {
+            await this.update();
+        }
     }
 
     private calculateMonthlyEntries() {

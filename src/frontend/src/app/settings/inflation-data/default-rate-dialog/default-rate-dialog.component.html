@@ -1,0 +1,22 @@
+<form style="height: 100%; padding-top: 0.5rem" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="vertical" style="height: 100%">
+        <div style="margin-bottom: 1rem;">
+            <p>
+                Geben Sie die Standard-Jahresinflation in Prozent an. Dieser Wert wird verwendet, wenn keine historischen VPI-Daten verfügbar sind.
+            </p>
+        </div>
+
+        <div class="horizontal key-value">
+            <div style="text-wrap: nowrap">Jahresinflation (%):</div>
+            <p-inputnumber formControlName="defaultRate" [style]="{ width: '100%' }" [minFractionDigits]="2" [maxFractionDigits]="2" suffix="%" />
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="horizontal">
+            <div class="spacer"></div>
+            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
+            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok"></p-button>
+        </div>
+    </div>
+</form>
