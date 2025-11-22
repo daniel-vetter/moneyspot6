@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.Inflation;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,36 +14,13 @@ public class InflationDataController : Controller
 {
     private readonly Db _db;
     private readonly ILogger<InflationDataController> _logger;
+    private readonly InflationCalculator _inflationCalculator;
 
-    public InflationDataController(Db db, ILogger<InflationDataController> logger)
+    public InflationDataController(Db db, ILogger<InflationDataController> logger, InflationCalculator inflationCalculator)
     {
         _db = db;
         _logger = logger;
-    }
-
-    [HttpGet("GetAll")]
-    [ProducesResponseType<InflationDataListResponse>(200)]
-    public async Task<IActionResult> GetAll()
-    {
-        var data = await _db.InflationData
-            .OrderByDescending(x => x.Year)
-            .ThenByDescending(x => x.Month)
-            .Select(x => new InflationDataEntryResponse
-            {
-                Id = x.Id,
-                Year = x.Year,
-                Month = x.Month,
-                IndexValue = x.IndexValue
-            })
-            .ToArrayAsync();
-
-        var settings = await _db.InflationSettings.FirstOrDefaultAsync();
-
-        return Ok(new InflationDataListResponse
-        {
-            Entries = data.ToImmutableArray(),
-            DefaultRate = settings?.DefaultRate ?? 0m
-        });
+        _inflationCalculator = inflationCalculator;
     }
 
     [HttpPost("UpdateDefaultRate")]
@@ -66,26 +44,60 @@ public class InflationDataController : Controller
         await _db.SaveChangesAsync();
         return Ok();
     }
-}
 
-[PublicAPI]
-public record InflationDataListResponse
-{
-    [Required] public required ImmutableArray<InflationDataEntryResponse> Entries { get; init; }
-    [Required] public required decimal DefaultRate { get; init; }
-}
+    [HttpGet("GetAll")]
+    [ProducesResponseType<InflationDataResponse>(200)]
+    public async Task<IActionResult> GetAll([FromQuery] int projectionYears)
+    {
+        await _inflationCalculator.EnsureConfigIsLoaded();
 
-[PublicAPI]
-public record InflationDataEntryResponse
-{
-    [Required] public required int Id { get; init; }
-    [Required] public required int Year { get; init; }
-    [Required] public required int Month { get; init; }
-    [Required] public required decimal IndexValue { get; init; }
+        var startDate = new DateOnly(2000, 1, 1);
+        var endDate = new DateOnly(DateTime.Now.Year + projectionYears, 12, 1);
+
+        var totalMonths = (endDate.Year - startDate.Year) * 12 + (endDate.Month - startDate.Month) + 1;
+        var builder = ImmutableArray.CreateBuilder<InflationDataEntryWithProjectionResponse>(totalMonths);
+
+        for (var currentDate = startDate; currentDate <= endDate; currentDate = currentDate.AddMonths(1))
+        {
+            var indexValue = _inflationCalculator.GetIndexForDate(currentDate, out var isProjected);
+
+            builder.Add(new InflationDataEntryWithProjectionResponse
+            {
+                Year = currentDate.Year,
+                Month = currentDate.Month,
+                IndexValue = indexValue,
+                IsProjected = isProjected
+            });
+        }
+
+        var settings = await _db.InflationSettings.FirstOrDefaultAsync();
+
+        return Ok(new InflationDataResponse
+        {
+            Entries = builder.ToImmutable(),
+            DefaultRate = settings?.DefaultRate ?? 0m
+        });
+    }
 }
 
 [PublicAPI]
 public record UpdateDefaultRateRequest
 {
     [Required] public required decimal DefaultRate { get; init; }
+}
+
+[PublicAPI]
+public record InflationDataResponse
+{
+    [Required] public required ImmutableArray<InflationDataEntryWithProjectionResponse> Entries { get; init; }
+    [Required] public required decimal DefaultRate { get; init; }
+}
+
+[PublicAPI]
+public record InflationDataEntryWithProjectionResponse
+{
+    [Required] public required int Year { get; init; }
+    [Required] public required int Month { get; init; }
+    [Required] public required decimal IndexValue { get; init; }
+    [Required] public required bool IsProjected { get; init; }
 }
