@@ -35,6 +35,7 @@ public class Program
         builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
         builder.Services.AddServiceFromAttributes();
+        builder.Services.AddHttpClient<MoneySpot6.WebApp.Features.Ui.InflationData.Import.GenesisApiClient>();
         builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = "Cookies";
@@ -65,6 +66,7 @@ public class Program
                 };
             });
         builder.Services.Configure<MailIntegrationOptions>(builder.Configuration.GetSection("MailIntegration"));
+        builder.Services.Configure<InflationImportOptions>(builder.Configuration.GetSection("InflationImport"));
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -106,4 +108,9 @@ public class MailIntegrationOptions
     public string? GmailClientId { get; init; }
     public string? GmailClientSecret { get; init; }
     public string? OpenAIApiKey { get; init; }
+}
+
+public class InflationImportOptions
+{
+    public string? GenesisApiToken { get; init; }
 }
