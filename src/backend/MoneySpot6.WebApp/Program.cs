@@ -97,7 +97,10 @@ public class Program
             return;
 
         using (var scope = app.Services.CreateScope())
+        {
             await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
+            await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize();
+        }
 
         await app.RunAsync();
     }

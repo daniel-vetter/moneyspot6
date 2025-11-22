@@ -1,9 +1,24 @@
 <p-panel>
     <ng-template pTemplate="header">
-        <div class="horizontal" style="width: 100%">
+        <div class="horizontal" style="width: 100%; align-items: center;">
             <h1>Verbraucherpreisindex (VPI)</h1>
             <div class="spacer"></div>
-            <p-button label="Standard-Inflation konfigurieren" (onClick)="onConfigureDefaultRateClicked()" />
+            <label for="projectionSelect" style="margin-right: 0.5rem;">Projektion:</label>
+            <p-select
+                inputId="projectionSelect"
+                [options]="projectionOptions"
+                [(ngModel)]="selectedProjectionYears"
+                (onChange)="onProjectionYearsChange($event.value)"
+                optionLabel="label"
+                optionValue="value"
+                [style]="{ 'min-width': '200px', 'margin-right': '1rem' }">
+            </p-select>
+            <p-button label="Standard-Inflation konfigurieren" (onClick)="onConfigureDefaultRateClicked()" [style]="{ 'margin-right': '0.5rem' }" />
+            <p-button
+                icon="pi pi-calculator"
+                (onClick)="onCalculatorClicked()"
+                pTooltip="Inflationsrechner"
+                tooltipPosition="bottom" />
         </div>
     </ng-template>
 
@@ -13,7 +28,11 @@
         </p>
     </div>
 
-    @if (entries.length > 0) {
+    @if (loading) {
+        <div style="display: flex; justify-content: center; align-items: center; padding: 4rem;">
+            <p-progressSpinner />
+        </div>
+    } @else if (entries.length > 0) {
         <p-tabs value="0">
             <p-tablist>
                 <p-tab value="0">Jährlich</p-tab>
@@ -21,6 +40,13 @@
             </p-tablist>
             <p-tabpanels>
                 <p-tabpanel value="0">
+                    <div style="margin-bottom: 2rem;">
+                        <highcharts-chart
+                            [Highcharts]="Highcharts"
+                            [options]="yearlyChartOptions"
+                            style="width: 100%; height: 400px; display: block;">
+                        </highcharts-chart>
+                    </div>
                     <p-table [value]="yearlyEntries" [tableStyle]="{'min-width':'50rem'}" [paginator]="true" [rows]="50">
                         <ng-template pTemplate="header">
                             <tr>
@@ -30,7 +56,7 @@
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-entry>
-                            <tr>
+                            <tr [style]="entry.isProjected ? 'background-color: rgba(255, 152, 0, 0.05); font-style: italic;' : ''">
                                 <td>{{ entry.year }}</td>
                                 <td>{{ entry.indexValue | number:'1.2-2' }}</td>
                                 <td>
@@ -45,6 +71,13 @@
                     </p-table>
                 </p-tabpanel>
                 <p-tabpanel value="1">
+                    <div style="margin-bottom: 2rem;">
+                        <highcharts-chart
+                            [Highcharts]="Highcharts"
+                            [options]="chartOptions"
+                            style="width: 100%; height: 400px; display: block;">
+                        </highcharts-chart>
+                    </div>
                     <p-table [value]="entries" [tableStyle]="{'min-width':'50rem'}" [paginator]="true" [rows]="50">
                         <ng-template pTemplate="header">
                             <tr>
@@ -55,7 +88,7 @@
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-entry>
-                            <tr>
+                            <tr [style]="entry.isProjected ? 'background-color: rgba(255, 152, 0, 0.05); font-style: italic;' : ''">
                                 <td>{{ entry.year }}</td>
                                 <td>{{ getMonthName(entry.month!) }}</td>
                                 <td>{{ entry.indexValue | number:'1.2-2' }}</td>
