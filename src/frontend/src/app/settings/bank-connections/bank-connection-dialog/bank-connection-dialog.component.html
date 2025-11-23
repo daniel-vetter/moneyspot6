@@ -1,0 +1,87 @@
+<form style="height: 100%; padding-top: 0.5rem" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="vertical" style="height: 100%; gap: 1rem;">
+
+        <div class="form-field">
+            <div>Name:</div>
+            <div style="width: 100%;">
+                <input type="text" pInputText formControlName="name" autocomplete="off" style="width: 100%;" placeholder="z.B. Meine Sparkasse" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']">
+                    Ein Name muss angegeben werden.
+                </p-message>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('name')?.errors?.['nameAlreadyExists']">
+                    Es existiert bereits eine Verbindung mit diesem Namen.
+                </p-message>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <div>HBCI-Version:</div>
+            <div style="width: 100%;">
+                <input type="text" pInputText formControlName="hbciVersion" autocomplete="off" style="width: 100%;" placeholder="z.B. 300" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('hbciVersion')?.touched && form.get('hbciVersion')?.errors?.['required']">
+                    Die HBCI-Version muss angegeben werden.
+                </p-message>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <div>Bankleitzahl:</div>
+            <div style="width: 100%;">
+                <input type="text" pInputText formControlName="bankCode" autocomplete="off" style="width: 100%;" placeholder="8-stellige Bankleitzahl" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('bankCode')?.touched && form.get('bankCode')?.errors?.['required']">
+                    Die Bankleitzahl muss angegeben werden.
+                </p-message>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <div>Kunden-ID:</div>
+            <div style="width: 100%;">
+                <input type="text" pInputText formControlName="customerId" autocomplete="off" style="width: 100%;" placeholder="Ihre Kunden-ID" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('customerId')?.touched && form.get('customerId')?.errors?.['required']">
+                    Die Kunden-ID muss angegeben werden.
+                </p-message>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <div>Benutzer-ID:</div>
+            <div style="width: 100%;">
+                <input type="text" pInputText formControlName="userId" autocomplete="off" style="width: 100%;" placeholder="Ihre Benutzer-ID" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('userId')?.touched && form.get('userId')?.errors?.['required']">
+                    Die Benutzer-ID muss angegeben werden.
+                </p-message>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <div>PIN:</div>
+            <div style="width: 100%;">
+                <p-password formControlName="pin" [feedback]="false" [toggleMask]="true" styleClass="w-full" inputStyleClass="w-full" autocomplete="off" placeholder="Ihre PIN" />
+            </div>
+            <div>
+                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('pin')?.touched && form.get('pin')?.errors?.['required']">
+                    Die PIN muss angegeben werden.
+                </p-message>
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="horizontal">
+            <div class="spacer"></div>
+            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
+            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok"></p-button>
+        </div>
+    </div>
+</form>

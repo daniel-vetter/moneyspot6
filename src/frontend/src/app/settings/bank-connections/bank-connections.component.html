@@ -1,0 +1,74 @@
+<p-toast />
+<p-confirmDialog />
+
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%; gap: 1rem">
+            <h1>Bankverbindungen</h1>
+            <div class="spacer"></div>
+            <p-button
+                label="Neue Verbindung"
+                icon="pi pi-plus"
+                (onClick)="openCreateDialog()">
+            </p-button>
+        </div>
+    </ng-template>
+
+    @if (loading) {
+        <div style="text-align: center; padding: 2rem;">
+            Lade Verbindungen...
+        </div>
+    } @else if (connections.length === 0) {
+        <div style="text-align: center; padding: 2rem; opacity: 0.6;">
+            <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Keine Bankverbindungen vorhanden</div>
+            <div>Fügen Sie eine neue Bankverbindung hinzu, um Transaktionen zu synchronisieren.</div>
+        </div>
+    } @else {
+        <p-table [value]="connections" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Name</th>
+                    <th>Bankleitzahl</th>
+                    <th>Benutzer-ID</th>
+                    <th>Letzter Sync</th>
+                    <th style="width: 200px;">Aktionen</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-connection>
+                <tr>
+                    <td>{{ connection.name }}</td>
+                    <td>{{ connection.bankCode }}</td>
+                    <td>{{ connection.userId }}</td>
+                    <td>
+                        @if (connection.lastSuccessfulSync) {
+                            {{ connection.lastSuccessfulSync | date:'dd.MM.yyyy HH:mm' }}
+                        } @else {
+                            <span style="opacity: 0.5;">Noch kein Sync</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="horizontal" style="gap: 0.5rem;">
+                            <p-button
+                                icon="pi pi-pencil"
+                                [outlined]="true"
+                                size="small"
+                                (onClick)="openEditDialog(connection)"
+                                pTooltip="Bearbeiten"
+                                tooltipPosition="top">
+                            </p-button>
+                            <p-button
+                                icon="pi pi-trash"
+                                [outlined]="true"
+                                severity="danger"
+                                size="small"
+                                (onClick)="confirmDelete(connection)"
+                                pTooltip="Löschen"
+                                tooltipPosition="top">
+                            </p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    }
+</p-panel>

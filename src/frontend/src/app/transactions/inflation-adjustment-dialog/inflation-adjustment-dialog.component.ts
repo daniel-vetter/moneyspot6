@@ -25,6 +25,13 @@ export class InflationAdjustmentDialogComponent {
         dialogConfig.header = "Inflationsanpassung";
     }
 
+    isValid(): boolean {
+        return this.selectedDate !== null &&
+               this.selectedDate !== undefined &&
+               this.selectedDate instanceof Date &&
+               !isNaN(this.selectedDate.getTime());
+    }
+
     onCancelClicked() {
         this.dynamicDialogRef.close();
     }
