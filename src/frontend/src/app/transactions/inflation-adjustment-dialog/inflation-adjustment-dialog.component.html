@@ -20,7 +20,7 @@
         <div class="horizontal">
             <div class="spacer"></div>
             <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
-            <p-button [style]="{ 'min-width': '100px' }" (click)="onOkClicked()" label="Ok"></p-button>
+            <p-button [style]="{ 'min-width': '100px' }" [disabled]="!isValid()" (click)="onOkClicked()" label="Ok"></p-button>
         </div>
     </div>
 </div>

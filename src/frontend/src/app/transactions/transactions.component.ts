@@ -14,6 +14,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { TransactionDetailsDialogComponent } from './transaction-details-dialog/transaction-details-dialog.component';
 import { InflationAdjustmentDialogComponent } from './inflation-adjustment-dialog/inflation-adjustment-dialog.component';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { AppEvents } from '../app-events';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +22,7 @@ import { DateRangePickerComponent, DateRange } from "../common/date-range-picker
 
 @Component({
     selector: 'app-transactions',
-    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule, DatePickerModule, FormsModule, DateRangePickerComponent],
+    imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule, TooltipModule, DatePickerModule, FormsModule, DateRangePickerComponent],
     providers: [DialogService],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.scss'
