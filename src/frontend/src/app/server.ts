@@ -25,7 +25,7 @@ export class TransactionPageClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getTransactions(search: string | null | undefined, startDate: string | null | undefined, endDate: string | null | undefined): Observable<TransactionResponse> {
+    getTransactions(search: string | null | undefined, startDate: string | null | undefined, endDate: string | null | undefined, inflationAdjustmentDate: string | null | undefined): Observable<TransactionResponse> {
         let url_ = this.baseUrl + "/api/TransactionPage?";
         if (search !== undefined && search !== null)
             url_ += "search=" + encodeURIComponent("" + search) + "&";
@@ -33,6 +33,8 @@ export class TransactionPageClient {
             url_ += "startDate=" + encodeURIComponent("" + startDate) + "&";
         if (endDate !== undefined && endDate !== null)
             url_ += "endDate=" + encodeURIComponent("" + endDate) + "&";
+        if (inflationAdjustmentDate !== undefined && inflationAdjustmentDate !== null)
+            url_ += "inflationAdjustmentDate=" + encodeURIComponent("" + inflationAdjustmentDate) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
