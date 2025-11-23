@@ -1,0 +1,41 @@
+<div class="vertical" style="height: 100%; gap: 1rem;">
+    <div class="horizontal" style="align-items: center;">
+        <h1 style="margin: 0;">Aktien</h1>
+        <div class="spacer"></div>
+        <p-button icon="pi pi-plus" label="Neue Aktie" (onClick)="createStock()"></p-button>
+    </div>
+
+    <p-table [value]="stocks" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Name</th>
+                <th>Symbol</th>
+                <th>Letzter Import</th>
+                <th>Import-Fehler</th>
+                <th style="width: 150px;">Aktionen</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-stock>
+            <tr>
+                <td>{{ stock.name }}</td>
+                <td>{{ stock.symbol || '-' }}</td>
+                <td>{{ stock.lastImportDaily ? (stock.lastImportDaily | date:'dd.MM.yyyy HH:mm') : '-' }}</td>
+                <td>{{ stock.lastImportErrorDaily || '-' }}</td>
+                <td>
+                    <div class="horizontal" style="gap: 0.5rem;">
+                        <p-button icon="pi pi-pencil" [text]="true" (onClick)="editStock(stock.id)" pTooltip="Bearbeiten"></p-button>
+                        <p-button icon="pi pi-trash" [text]="true" severity="danger" (onClick)="deleteStock(stock)" pTooltip="Löschen"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="5" style="text-align: center;">Keine Aktien vorhanden</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
