@@ -12,6 +12,7 @@ import { SearchBarComponent } from '../common/search-bar/search-bar.component';
 import { ViewGrouping, GroupingBarComponent } from '../common/grouping-bar/grouping-bar.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TransactionDetailsDialogComponent } from './transaction-details-dialog/transaction-details-dialog.component';
+import { InflationAdjustmentDialogComponent } from './inflation-adjustment-dialog/inflation-adjustment-dialog.component';
 import { TagModule } from 'primeng/tag';
 import { AppEvents } from '../app-events';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -39,6 +40,7 @@ export class TransactionsComponent implements OnInit {
     selectedGrouping: ViewGrouping = 'Monthly';
     isFirstUpdate = true;
     dateRange: DateRange | undefined;
+    inflationAdjustmentDate: Date | undefined;
 
     async ngOnInit(): Promise<void> {
         this.activatedRoute.queryParams.subscribe(async (x) => {
@@ -66,7 +68,10 @@ export class TransactionsComponent implements OnInit {
             this.isLoading = true;
         }
         const response = await lastValueFrom(this.transactionPageClient.getTransactions(
-            this.searchText === '' ? undefined : this.searchText, this.dateRange === undefined ? undefined : this.convertDate(this.dateRange!.start), this.dateRange === undefined ? undefined : this.convertDate(this.dateRange!.end, true)));
+            this.searchText === '' ? undefined : this.searchText,
+            this.dateRange === undefined ? undefined : this.convertDate(this.dateRange!.start),
+            this.dateRange === undefined ? undefined : this.convertDate(this.dateRange!.end, true),
+            this.inflationAdjustmentDate === undefined ? undefined : this.convertDate(this.inflationAdjustmentDate)));
         this.isLoading = false;
         const blocks: Block[] = [];
         let currentBlock: Block | undefined;
@@ -147,6 +152,25 @@ export class TransactionsComponent implements OnInit {
         const result = await firstValueFrom(dlg.onClose)
         if (result === true) {
             await this.update(true);
+        }
+    }
+
+    async toggleInflationAdjustment() {
+        if (this.inflationAdjustmentDate !== undefined) {
+            // Deaktivieren
+            this.inflationAdjustmentDate = undefined;
+            await this.update();
+        } else {
+            // Dialog öffnen
+            const dlg = this.dialogService.open(InflationAdjustmentDialogComponent, {
+                focusOnShow: false
+            });
+
+            const result = await firstValueFrom(dlg.onClose);
+            if (result !== undefined) {
+                this.inflationAdjustmentDate = result;
+                await this.update();
+            }
         }
     }
 }

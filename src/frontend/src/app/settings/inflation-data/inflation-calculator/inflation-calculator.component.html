@@ -8,7 +8,7 @@
         <label for="value">Betrag (€)</label>
         <p-inputnumber
             inputId="value"
-            [(ngModel)]="value"
+            [(ngModel)]="inputValue"
             mode="currency"
             currency="EUR"
             locale="de-DE"
@@ -23,7 +23,7 @@
         <label for="fromDate">Von</label>
         <p-datepicker
             inputId="fromDate"
-            [(ngModel)]="fromDate"
+            [(ngModel)]="inputFromDate"
             view="month"
             dateFormat="MM yy"
             [showIcon]="true"
@@ -36,7 +36,7 @@
         <label for="toDate">Nach</label>
         <p-datepicker
             inputId="toDate"
-            [(ngModel)]="toDate"
+            [(ngModel)]="inputToDate"
             view="month"
             dateFormat="MM yy"
             [showIcon]="true"
@@ -54,7 +54,7 @@
                 {{ adjustedValue | number:'1.2-2' }} €
             </div>
             <div style="font-size: 0.875rem; color: var(--text-secondary-color); margin-top: 0.5rem;">
-                {{ value | number:'1.2-2' }} € im {{ formatDate(fromDate) }} entspricht {{ adjustedValue | number:'1.2-2' }} € im {{ formatDate(toDate) }}
+                {{ lastCalculatedInputValue | number:'1.2-2' }} € im {{ formatDate(lastCalculatedInputFromDate) }} entspricht {{ adjustedValue | number:'1.2-2' }} € im {{ formatDate(lastCalculatedInputToDate) }}
             </div>
         }
     </div>
@@ -65,7 +65,8 @@
             label="Berechnen"
             icon="pi pi-calculator"
             (onClick)="calculate()"
-            [loading]="calculating">
+            [loading]="isCalculating"
+            [disabled]="!isValid()">
         </p-button>
     </div>
 </div>

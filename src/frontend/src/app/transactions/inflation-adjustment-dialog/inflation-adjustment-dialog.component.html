@@ -1,0 +1,26 @@
+<div style="display: flex; flex-direction: column; height: 100%;">
+    <div class="vertical" style="gap: 1rem; flex: 1;">
+        <p>
+            Wählen Sie das Zieldatum für die Inflationsanpassung. Alle angezeigten Transaktionen werden auf diesen Zeitpunkt inflationsangepasst.
+        </p>
+
+        <div class="vertical" style="gap: 0.5rem;">
+            <label for="targetDate">Zieldatum</label>
+            <p-datepicker
+                inputId="targetDate"
+                [(ngModel)]="selectedDate"
+                [showIcon]="true"
+                dateFormat="dd.mm.yy"
+                styleClass="w-full">
+            </p-datepicker>
+        </div>
+    </div>
+
+    <div style="padding-top: 1rem">
+        <div class="horizontal">
+            <div class="spacer"></div>
+            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
+            <p-button [style]="{ 'min-width': '100px' }" (click)="onOkClicked()" label="Ok"></p-button>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,14 @@
         <app-date-range-picker></app-date-range-picker>
         <span class="spacer hidden-on-mobile"></span>
         <app-grouping-bar></app-grouping-bar>
+        <p-button
+            icon="pi pi-chart-line"
+            (onClick)="toggleInflationAdjustment()"
+            [severity]="inflationAdjustmentDate !== undefined ? 'success' : 'secondary'"
+            [outlined]="inflationAdjustmentDate === undefined"
+            pTooltip="Inflationsanpassung"
+            tooltipPosition="bottom">
+        </p-button>
     </div>
 
     @if (isLoading) {

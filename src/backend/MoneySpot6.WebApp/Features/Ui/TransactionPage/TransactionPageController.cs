@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
+using MoneySpot6.WebApp.Features.Core.Inflation;
 using NJsonSchema;
 using NJsonSchema.Annotations;
 
@@ -16,18 +17,21 @@ public class TransactionPageController : Controller
 {
     private readonly Db _db;
     private readonly TransactionProcessingFacade _transactionProcessingFacade;
+    private readonly InflationCalculator _inflationCalculator;
 
-    public TransactionPageController(Db db, TransactionProcessingFacade transactionProcessingFacade)
+    public TransactionPageController(Db db, TransactionProcessingFacade transactionProcessingFacade, InflationCalculator inflationCalculator)
     {
         _db = db;
         _transactionProcessingFacade = transactionProcessingFacade;
+        _inflationCalculator = inflationCalculator;
     }
 
     [HttpGet]
     public async Task<ActionResult<TransactionResponse>> GetTransactions(
         string? search,
         [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? startDate,
-        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? endDate)
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? endDate,
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? inflationAdjustmentDate)
     {
         var categories = await _db.Categories
             .AsNoTracking()
@@ -58,9 +62,21 @@ public class TransactionPageController : Controller
             x.IsNew,
         }).AsAsyncEnumerable();
 
+        if (inflationAdjustmentDate.HasValue)
+        {
+            await _inflationCalculator.EnsureConfigIsLoaded();
+        }
+
         var b = ImmutableArray.CreateBuilder<TransactionEntryResponse>();
         await foreach (var x in entries)
         {
+            var amount = x.Amount;
+
+            if (inflationAdjustmentDate.HasValue)
+            {
+                amount = _inflationCalculator.CalculateInflationAdjustedValue(x.Amount, x.Date, inflationAdjustmentDate.Value);
+            }
+
             b.Add(new TransactionEntryResponse
             {
                 Id = x.Id,
@@ -68,7 +84,7 @@ public class TransactionPageController : Controller
                 Name = x.Name,
                 Purpose = x.Purpose,
                 CategoryName = x.CategoryId.HasValue && categories.TryGetValue(x.CategoryId.Value, out var catName) ? catName : null,
-                Amount = x.Amount,
+                Amount = amount,
                 IsNew = x.IsNew
             });
         }
