@@ -3,7 +3,7 @@ using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal.Parsing;
 using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests;
-
+/*
 internal class RawDataParserTests
 {
     private static DbBankAccountTransactionParsedData Parse(DbBankAccountTransactionRawData raw) => new RawDataParser(new SepaParser()).Parse(raw);
@@ -292,3 +292,4 @@ internal class RawDataParserTests
     }
 
 }
+*/

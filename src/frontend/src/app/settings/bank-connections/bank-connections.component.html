@@ -9,7 +9,8 @@
             <p-button
                 label="Neue Verbindung"
                 icon="pi pi-plus"
-                (onClick)="openCreateDialog()">
+                (onClick)="openCreateDialog()"
+                data-testid="create-bank-connection-button">
             </p-button>
         </div>
     </ng-template>
@@ -54,7 +55,8 @@
                                 size="small"
                                 (onClick)="openEditDialog(connection)"
                                 pTooltip="Bearbeiten"
-                                tooltipPosition="top">
+                                tooltipPosition="top"
+                                data-testid="edit-bank-connection-button">
                             </p-button>
                             <p-button
                                 icon="pi pi-trash"
@@ -63,7 +65,8 @@
                                 size="small"
                                 (onClick)="confirmDelete(connection)"
                                 pTooltip="Löschen"
-                                tooltipPosition="top">
+                                tooltipPosition="top"
+                                data-testid="delete-bank-connection-button">
                             </p-button>
                         </div>
                     </td>
