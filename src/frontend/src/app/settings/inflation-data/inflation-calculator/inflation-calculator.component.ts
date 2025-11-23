@@ -4,7 +4,6 @@ import {ButtonModule} from 'primeng/button';
 import {InputNumber} from 'primeng/inputnumber';
 import {DecimalPipe} from '@angular/common';
 import {lastValueFrom} from 'rxjs';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {DatePickerModule} from 'primeng/datepicker';
 import {CalculateAdjustedValueRequest, InflationDataClient} from "../../../server";
 
@@ -17,43 +16,61 @@ import {CalculateAdjustedValueRequest, InflationDataClient} from "../../../serve
 })
 export class InflationCalculatorComponent implements OnInit {
     private inflationDataClient = inject(InflationDataClient);
-    private dialogRef = inject(DynamicDialogRef);
 
-    value: number = 100;
-    fromDate: Date = new Date();
-    toDate: Date = new Date();
+    inputValue: number = 100;
+    inputFromDate: Date = new Date();
+    inputToDate: Date = new Date();
 
-    adjustedValue: number | null = null;
-    calculating: boolean = false;
+    lastCalculatedInputValue?: number;
+    lastCalculatedInputFromDate?: Date;
+    lastCalculatedInputToDate?: Date;
+
+    adjustedValue?: number;
+    isCalculating: boolean = false;
 
     async ngOnInit() {
         await this.calculate();
     }
 
     async calculate() {
-        this.calculating = true;
+        this.isCalculating = true;
         try {
-            const request = new CalculateAdjustedValueRequest({
-                value: this.value,
-                fromYear: this.fromDate.getFullYear(),
-                fromMonth: this.fromDate.getMonth() + 1,
-                toYear: this.toDate.getFullYear(),
-                toMonth: this.toDate.getMonth() + 1
-            });
-
             const response = await lastValueFrom(
-                this.inflationDataClient.calculateAdjustedValue(request)
+                this.inflationDataClient.calculateAdjustedValue(new CalculateAdjustedValueRequest({
+                    value: this.inputValue,
+                    fromYear: this.inputFromDate.getFullYear(),
+                    fromMonth: this.inputFromDate.getMonth() + 1,
+                    toYear: this.inputToDate.getFullYear(),
+                    toMonth: this.inputToDate.getMonth() + 1
+                }))
             );
 
-            this.adjustedValue = response.adjustedValue;
+            this.adjustedValue = this.check(response.adjustedValue);
+            this.lastCalculatedInputValue = this.check(this.inputValue);
+            this.lastCalculatedInputFromDate = this.check(this.inputFromDate);
+            this.lastCalculatedInputToDate = this.check(this.inputToDate);
         } finally {
-            this.calculating = false;
+            this.isCalculating = false;
         }
     }
 
-    formatDate(date: Date): string {
-        const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-            'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+    isValid(): boolean {
+        return this.inputValue !== undefined && this.inputValue !== null &&
+               this.inputFromDate !== undefined && this.inputFromDate !== null &&
+               this.inputToDate !== undefined && this.inputToDate !== null;
+    }
+
+    check<T>(input: T | null | undefined): T | undefined {
+        if (input === null || input === undefined) return undefined;
+        return input;
+    }
+
+    formatDate(date?: Date): string {
+        if (date === undefined || date === null) {
+            return '';
+        }
+
+        const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
         return `${months[date.getMonth()]} ${date.getFullYear()}`;
     }
 }
