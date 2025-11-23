@@ -1,0 +1,9 @@
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field > div:first-child {
+    font-weight: 500;
+}

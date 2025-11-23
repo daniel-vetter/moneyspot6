@@ -24,7 +24,7 @@ public class AccountSyncHub : Hub
 
         try
         {
-            var newTransactionIds = await _accountSyncService.Sync(handler, cts.Token);
+            var newTransactionIds = await _accountSyncService.SyncAll(handler, cts.Token);
             return new SyncResult(false, null, newTransactionIds);
         }
         catch (CanceledByUserException)

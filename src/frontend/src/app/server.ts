@@ -2168,6 +2168,288 @@ export class DebugClient {
 }
 
 @Injectable({providedIn: 'root'})
+export class BankConnectionClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getAll(): Observable<BankConnectionListResponse[]> {
+        let url_ = this.baseUrl + "/api/BankConnection/GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BankConnectionListResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BankConnectionListResponse[]>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<BankConnectionListResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(BankConnectionListResponse.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    get(id: number | undefined): Observable<BankConnectionDetailsResponse> {
+        let url_ = this.baseUrl + "/api/BankConnection/Get?";
+        if (id === null)
+            throw new globalThis.Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BankConnectionDetailsResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BankConnectionDetailsResponse>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<BankConnectionDetailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BankConnectionDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    create(request: CreateBankConnectionRequest): Observable<number> {
+        let url_ = this.baseUrl + "/api/BankConnection/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<number>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<number>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<number> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BankConnectionValidationErrorResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    update(request: UpdateBankConnectionRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/BankConnection/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BankConnectionValidationErrorResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/BankConnection/Delete?";
+        if (id === null)
+            throw new globalThis.Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({providedIn: 'root'})
 export class CategoryConfigurationClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -5505,6 +5787,294 @@ export interface IAppDetails {
     buildCommit?: string;
     dotNetVersion?: string;
     osDescription?: string;
+}
+
+export class BankConnectionListResponse implements IBankConnectionListResponse {
+    id!: number;
+    name!: string;
+    bankCode!: string;
+    userId!: string;
+    lastSuccessfulSync?: Date | undefined;
+
+    constructor(data?: IBankConnectionListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.bankCode = _data["bankCode"];
+            this.userId = _data["userId"];
+            this.lastSuccessfulSync = _data["lastSuccessfulSync"] ? new Date(_data["lastSuccessfulSync"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): BankConnectionListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BankConnectionListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["bankCode"] = this.bankCode;
+        data["userId"] = this.userId;
+        data["lastSuccessfulSync"] = this.lastSuccessfulSync ? this.lastSuccessfulSync.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IBankConnectionListResponse {
+    id: number;
+    name: string;
+    bankCode: string;
+    userId: string;
+    lastSuccessfulSync?: Date | undefined;
+}
+
+export class BankConnectionDetailsResponse implements IBankConnectionDetailsResponse {
+    id!: number;
+    name!: string;
+    hbciVersion!: string;
+    bankCode!: string;
+    customerId!: string;
+    userId!: string;
+    pin!: string;
+
+    constructor(data?: IBankConnectionDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.hbciVersion = _data["hbciVersion"];
+            this.bankCode = _data["bankCode"];
+            this.customerId = _data["customerId"];
+            this.userId = _data["userId"];
+            this.pin = _data["pin"];
+        }
+    }
+
+    static fromJS(data: any): BankConnectionDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BankConnectionDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["hbciVersion"] = this.hbciVersion;
+        data["bankCode"] = this.bankCode;
+        data["customerId"] = this.customerId;
+        data["userId"] = this.userId;
+        data["pin"] = this.pin;
+        return data;
+    }
+}
+
+export interface IBankConnectionDetailsResponse {
+    id: number;
+    name: string;
+    hbciVersion: string;
+    bankCode: string;
+    customerId: string;
+    userId: string;
+    pin: string;
+}
+
+export class BankConnectionValidationErrorResponse implements IBankConnectionValidationErrorResponse {
+    missingName?: boolean;
+    missingHbciVersion?: boolean;
+    missingBankCode?: boolean;
+    missingCustomerId?: boolean;
+    missingUserId?: boolean;
+    missingPin?: boolean;
+    nameAlreadyExists?: boolean;
+
+    constructor(data?: IBankConnectionValidationErrorResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.missingName = _data["missingName"];
+            this.missingHbciVersion = _data["missingHbciVersion"];
+            this.missingBankCode = _data["missingBankCode"];
+            this.missingCustomerId = _data["missingCustomerId"];
+            this.missingUserId = _data["missingUserId"];
+            this.missingPin = _data["missingPin"];
+            this.nameAlreadyExists = _data["nameAlreadyExists"];
+        }
+    }
+
+    static fromJS(data: any): BankConnectionValidationErrorResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BankConnectionValidationErrorResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["missingName"] = this.missingName;
+        data["missingHbciVersion"] = this.missingHbciVersion;
+        data["missingBankCode"] = this.missingBankCode;
+        data["missingCustomerId"] = this.missingCustomerId;
+        data["missingUserId"] = this.missingUserId;
+        data["missingPin"] = this.missingPin;
+        data["nameAlreadyExists"] = this.nameAlreadyExists;
+        return data;
+    }
+}
+
+export interface IBankConnectionValidationErrorResponse {
+    missingName?: boolean;
+    missingHbciVersion?: boolean;
+    missingBankCode?: boolean;
+    missingCustomerId?: boolean;
+    missingUserId?: boolean;
+    missingPin?: boolean;
+    nameAlreadyExists?: boolean;
+}
+
+export class CreateBankConnectionRequest implements ICreateBankConnectionRequest {
+    name!: string;
+    hbciVersion!: string;
+    bankCode!: string;
+    customerId!: string;
+    userId!: string;
+    pin!: string;
+
+    constructor(data?: ICreateBankConnectionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.hbciVersion = _data["hbciVersion"];
+            this.bankCode = _data["bankCode"];
+            this.customerId = _data["customerId"];
+            this.userId = _data["userId"];
+            this.pin = _data["pin"];
+        }
+    }
+
+    static fromJS(data: any): CreateBankConnectionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateBankConnectionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["hbciVersion"] = this.hbciVersion;
+        data["bankCode"] = this.bankCode;
+        data["customerId"] = this.customerId;
+        data["userId"] = this.userId;
+        data["pin"] = this.pin;
+        return data;
+    }
+}
+
+export interface ICreateBankConnectionRequest {
+    name: string;
+    hbciVersion: string;
+    bankCode: string;
+    customerId: string;
+    userId: string;
+    pin: string;
+}
+
+export class UpdateBankConnectionRequest implements IUpdateBankConnectionRequest {
+    id!: number;
+    name!: string;
+    hbciVersion!: string;
+    bankCode!: string;
+    customerId!: string;
+    userId!: string;
+    pin!: string;
+
+    constructor(data?: IUpdateBankConnectionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.hbciVersion = _data["hbciVersion"];
+            this.bankCode = _data["bankCode"];
+            this.customerId = _data["customerId"];
+            this.userId = _data["userId"];
+            this.pin = _data["pin"];
+        }
+    }
+
+    static fromJS(data: any): UpdateBankConnectionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateBankConnectionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["hbciVersion"] = this.hbciVersion;
+        data["bankCode"] = this.bankCode;
+        data["customerId"] = this.customerId;
+        data["userId"] = this.userId;
+        data["pin"] = this.pin;
+        return data;
+    }
+}
+
+export interface IUpdateBankConnectionRequest {
+    id: number;
+    name: string;
+    hbciVersion: string;
+    bankCode: string;
+    customerId: string;
+    userId: string;
+    pin: string;
 }
 
 export class CategoryResponse implements ICategoryResponse {

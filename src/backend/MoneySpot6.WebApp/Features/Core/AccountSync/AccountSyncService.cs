@@ -10,14 +10,47 @@ namespace MoneySpot6.WebApp.Features.Core.AccountSync;
 [ScopedService]
 public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, ExternalDataProvider externalDataProvider, TransactionProcessingFacade transactionProcessingFacade)
 {
-    public async Task<ImmutableArray<int>> Sync(IAdapterCallbackHandler callbackHandler, CancellationToken ct)
+    public async Task<ImmutableArray<int>> SyncAll(IAdapterCallbackHandler callbackHandler, CancellationToken ct)
+    {
+        var connections = await db.BankConnections
+            .AsTracking()
+            .ToListAsync(ct);
+
+        if (connections.Count == 0)
+        {
+            logger.LogWarning("No bank connections found to sync");
+            return ImmutableArray<int>.Empty;
+        }
+
+        var allNewTransactionIds = ImmutableArray.CreateBuilder<int>();
+
+        foreach (var connection in connections)
+        {
+            logger.LogInformation("Syncing connection {ConnectionId}: {ConnectionName}", connection.Id, connection.Name);
+
+            try
+            {
+                var newIds = await Sync(connection.Id, callbackHandler, ct);
+                allNewTransactionIds.AddRange(newIds);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to sync connection {ConnectionId}: {ConnectionName}", connection.Id, connection.Name);
+                // Continue with next connection instead of failing completely
+            }
+        }
+
+        return allNewTransactionIds.ToImmutable();
+    }
+
+    public async Task<ImmutableArray<int>> Sync(int connectionId, IAdapterCallbackHandler callbackHandler, CancellationToken ct)
     {
         var connection = await db.BankConnections
             .AsTracking()
-            .SingleOrDefaultAsync(ct);
+            .SingleOrDefaultAsync(x => x.Id == connectionId, ct);
 
         if (connection == null)
-            throw new Exception("No connection found");
+            throw new Exception($"Connection with ID {connectionId} not found");
 
         logger.LogInformation("Syncing data for connection \"{connectionName}\"", connection.Name);
 
