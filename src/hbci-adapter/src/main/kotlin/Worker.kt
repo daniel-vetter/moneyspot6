@@ -42,7 +42,7 @@ class Worker(val rpc: RpcBridge) {
 
         }
         catch(e: Exception) {
-            rpc.send(RpcException(e.toString()))
+            rpc.send(RpcException(e.stackTraceToString()))
         }
         finally {
             handle?.close()

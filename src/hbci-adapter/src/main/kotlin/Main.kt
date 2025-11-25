@@ -2,13 +2,15 @@
 //TODO: Passport file location in user directory
 
 fun main() {
-    val rpc = RpcBridge()
+
+    val rpc = StdioRpcBridge()
+    //var rpc = FakeRpcBridge(RpcSyncRequest(...))
     rpc.connect()
 
     try {
         Worker(rpc).run();
         rpc.send(RpcDone())
     } catch (e: Exception) {
-        rpc.send(RpcException("HBCI Adapter crashed: $e"))
+        rpc.send(RpcException("HBCI Adapter crashed: ${e.stackTraceToString()}"))
     }
 }
