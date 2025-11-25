@@ -73,7 +73,7 @@ class Worker(val rpc: RpcBridge) {
             val runningJob = RunningJob(
                 account = account,
                 balanceJob = handle.newJob("SaldoReq"),
-                transactionsJob = handle.newJob("KUmsAll")
+                transactionsJob = handle.newJob("KUmsAllCamt")
             )
 
             runningJob.balanceJob.setParam("my", account)
@@ -148,7 +148,7 @@ class Worker(val rpc: RpcBridge) {
                             Balance = l.saldo.value.longValue,
                             IsCancelation = l.isStorno,
                             CustomerReference = l.customerref,
-                            InstituteReference = l.instref,
+                            InstituteReference = l.instref ?: "",
                             Additional = l.additional,
                             Text = l.text,
                             Primanota = l.primanota,
