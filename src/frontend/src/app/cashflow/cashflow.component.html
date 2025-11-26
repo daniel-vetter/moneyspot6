@@ -5,6 +5,11 @@
         <app-grouping-bar [showDataTypeSelection]="true"></app-grouping-bar>
     </div>
 
+    @if (isLoading) {
+    <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+    } @else {
     @if (blocks.length === 0) {
     <div style="width: 100%; display: flex; justify-content: center; align-items: center; padding-top: 10rem;">
         <div style="text-align: center; opacity: 0.6">
@@ -146,5 +151,6 @@
             }
         </div>
     </p-panel>
+    }
     }
 </div>
