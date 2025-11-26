@@ -12,7 +12,8 @@
       "Bash(dotnet run:*)",
       "Bash(dotnet add package:*)",
       "Bash(dir /s /b srchbci-adaptersrc*.java 2)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(npx ng build:*)"
     ],
     "deny": [],
     "ask": []
