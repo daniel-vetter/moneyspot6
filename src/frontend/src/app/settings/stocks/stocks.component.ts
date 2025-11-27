@@ -9,10 +9,11 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
     selector: 'app-stocks',
-    imports: [TableModule, ButtonModule, ConfirmDialogModule, ToastModule, CommonModule],
+    imports: [TableModule, ButtonModule, ConfirmDialogModule, ToastModule, CommonModule, PanelModule],
     providers: [DialogService, ConfirmationService, MessageService],
     templateUrl: './stocks.component.html',
     styleUrl: './stocks.component.scss',
