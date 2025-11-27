@@ -10,7 +10,11 @@
       "Bash(npx tsc --noEmit)",
       "Bash(dotnet test:*)",
       "Bash(dotnet run:*)",
-      "Bash(dotnet add package:*)"
+      "Bash(dotnet add package:*)",
+      "Bash(dir /s /b srchbci-adaptersrc*.java 2)",
+      "Bash(nul)",
+      "Bash(npx ng build:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

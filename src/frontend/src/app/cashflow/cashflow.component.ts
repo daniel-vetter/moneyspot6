@@ -9,10 +9,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SearchBarComponent } from '../common/search-bar/search-bar.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ViewGrouping, GroupingBarComponent, ViewData } from '../common/grouping-bar/grouping-bar.component';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-income-expense-report',
-    imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, SearchBarComponent, GroupingBarComponent, RouterLink],
+    imports: [ValueComponent, PanelModule, RippleModule, FormsModule, InputTextModule, SearchBarComponent, GroupingBarComponent, RouterLink, ProgressSpinnerModule],
     templateUrl: './cashflow.component.html',
     styleUrl: './cashflow.component.scss'
 })
@@ -24,6 +25,7 @@ export class CashflowComponent implements OnInit {
     onSearchSubmit() { }
     lines: Line[] = [];
     blocks: Block[] = [];
+    isLoading = false;
     searchText?: string;
     grouping: ViewGrouping = 'Monthly';
 
@@ -37,6 +39,8 @@ export class CashflowComponent implements OnInit {
     }
 
     private async update(): Promise<void> {
+        this.blocks = [];
+        this.isLoading = true;
         const response = (
             await lastValueFrom(
                 this.cashflowClient.get(
@@ -86,6 +90,7 @@ export class CashflowComponent implements OnInit {
             this.calcTotals(block);
         }
         this.blocks = blocks;
+        this.isLoading = false;
     }
     calcTotals(block: Block) {
         for (const line of block.lines) {

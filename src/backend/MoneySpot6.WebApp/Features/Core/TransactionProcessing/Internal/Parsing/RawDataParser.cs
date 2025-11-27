@@ -17,13 +17,13 @@ public class RawDataParser
     {
         var line = (rawData.Purpose ?? "").Split('\n').Select(x => x.Replace("\r", "")).ToArray();
         var parsedPurpose = _sepaParser.Parse(line);
-
+        var counterParty = rawData.Counterparty ?? new CounterpartyAccount();
         var result = new DbBankAccountTransactionParsedData
         {
             Date = rawData.Date,
-            Name = rawData.Counterparty.Name + rawData.Counterparty.Name2.TrimToEmptyString(),
-            BankCode = rawData.Counterparty.BankCode.TrimToEmptyString(),
-            AccountNumber = rawData.Counterparty.Number.TrimToEmptyString(),
+            Name = counterParty.Name + counterParty.Name2.TrimToEmptyString(),
+            BankCode = counterParty.BankCode.TrimToEmptyString(),
+            AccountNumber = counterParty.Number.TrimToEmptyString(),
             Purpose = parsedPurpose.GetValueOrDefault(Header.SVWZ).TrimToEmptyString(),
             Bic = parsedPurpose.GetValueOrDefault(Header.BIC).TrimToEmptyString(),
             Iban = parsedPurpose.GetValueOrDefault(Header.IBAN).TrimToEmptyString(),

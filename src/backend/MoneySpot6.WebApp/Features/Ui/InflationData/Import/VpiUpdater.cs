@@ -28,6 +28,15 @@ public class VpiUpdater
             return;
         }
 
+        // Skip import if data for the current month is already present
+        var now = DateTimeOffset.UtcNow;
+        var currentMonthExists = await _db
+            .InflationData
+            .AnyAsync(x => x.Year == now.Year && x.Month == now.Month, cancellationToken);
+
+        if (currentMonthExists)
+            return;
+
         _logger.LogInformation("Starting VPI data update");
 
         var dataPoints = await _genesisApiClient.GetVpiData(cancellationToken);
@@ -38,7 +47,6 @@ public class VpiUpdater
 
         var imported = 0;
         var updated = 0;
-        var now = DateTimeOffset.UtcNow;
 
         foreach (var dataPoint in dataPoints)
         {
