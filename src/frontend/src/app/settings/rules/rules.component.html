@@ -35,19 +35,33 @@
                     }
                 </td>
                 <td style="text-align: right;">
-                    <p-button icon="pi pi-pencil" (onClick)="onEditRule(rule)" title="Regel bearbeiten" rounded="true" [style]="{ 'margin-right': '.5em' }" variant="text" />
-                    <p-button icon="pi pi-trash" (onClick)="onDeleteRule(rule)" severity="warn" title="Regel löschen" rounded="true" variant="text"
-                        [style]="{ 'margin-right': '.5em' }" />
+                    <div class="horizontal" style="gap: 0.5rem; justify-content: flex-end;">
+                        <p-button
+                            icon="pi pi-pencil"
+                            [outlined]="true"
+                            size="small"
+                            (onClick)="onEditRule(rule)"
+                            pTooltip="Bearbeiten"
+                            tooltipPosition="top">
+                        </p-button>
+                        <p-button
+                            icon="pi pi-trash"
+                            [outlined]="true"
+                            severity="danger"
+                            size="small"
+                            (onClick)="onDeleteRule(rule)"
+                            pTooltip="Löschen"
+                            tooltipPosition="top">
+                        </p-button>
+                    </div>
                 </td>
             </tr>
         </ng-template>
     </p-table>
     } @else {
-    <div class="vertical" style="align-items: center; padding: 2rem; color: var(--text-secondary-color)">
-        <i class="pi pi-folder-open" style="font-size: 4rem"></i>
-        <div style="height: 1rem"></div>
-        <div>Es sind noch keine Regeln angelegt.</div>
-        <div>Über den Button "Neue Regel" können Regeln hinzugefügt werden.</div>
-    </div>
+        <div style="text-align: center; padding: 2rem; opacity: 0.6;">
+            <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Keine Regeln vorhanden</div>
+            <div>Fügen Sie eine neue Regel hinzu, um Transaktionen automatisch zu kategorisieren.</div>
+        </div>
     }
 </p-panel>
