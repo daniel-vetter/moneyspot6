@@ -28,8 +28,9 @@ public class VpiUpdater
             return;
         }
 
-        // Skip import if data for the current month is already present
-        var now = DateTimeOffset.UtcNow;
+        // Skip import if data for the last month is already present
+        // (current month is not complete yet, therefor it will always be missing)
+        var now = DateTimeOffset.UtcNow.AddMonths(-1);
         var currentMonthExists = await _db
             .InflationData
             .AnyAsync(x => x.Year == now.Year && x.Month == now.Month, cancellationToken);
