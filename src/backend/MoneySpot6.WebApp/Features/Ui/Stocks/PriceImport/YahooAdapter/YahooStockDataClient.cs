@@ -6,15 +6,40 @@ using MoneySpot6.WebApp.Database;
 namespace MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
 
 [ScopedService]
-public class YahooStockDataProvider
+public class YahooStockDataClient
 {
+    private readonly HttpClient _httpClient;
+
+    public YahooStockDataClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
+    public async Task<ImmutableArray<StockSearchResult>> Search(string searchTerm)
+    {
+        var url = $"https://query1.finance.yahoo.com/v1/finance/search?quotesCount=100&newsCount=0&listsCount=0&q={Uri.EscapeDataString(searchTerm)}&quotes";
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var responseData = JsonSerializer.Deserialize<SearchResponse>(responseJson, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        if (responseData == null)
+            throw new Exception("Response was null");
+
+        if (responseData.Quotes == null)
+            return ImmutableArray<StockSearchResult>.Empty;
+
+        return responseData
+            .Quotes
+            .Value
+            .Select(q => new StockSearchResult(q.Symbol, q.Shortname, q.Longname, q.Exchdisp, q.Typedisp))
+            .ToImmutableArray();
+    }
+
     public async Task<ImmutableArray<StockPrice>> Get(DateTimeOffset start, DateTimeOffset end, string symbol, StockPriceInterval interval)
     {
-        var client = new HttpClient();
-        client.DefaultRequestHeaders.Host = "query1.finance.yahoo.com";
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
         var url = $"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1={start.ToUnixTimeSeconds()}&period2={end.ToUnixTimeSeconds()}&interval={(interval == StockPriceInterval.FiveMinutes ? "5m" : "1d")}&includePrePost=true&events=div%7Csplit%7Cearn&&lang=de-DE&region=DE";
-        var response = await client.GetAsync(url);
+        var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
         var responseJson = await response.Content.ReadAsStringAsync();
@@ -69,20 +94,20 @@ public class YahooStockDataProvider
     }
 
     [PublicAPI]
-    class Response
+    private class Response
     {
         public required ChartResponse Chart { get; init; }
     }
 
     [PublicAPI]
-    class ChartResponse
+    private class ChartResponse
     {
         public ChartResultResponse[]? Result { get; init; }
         public required string? Error { get; init; }
     }
 
     [PublicAPI]
-    class ChartResultResponse
+    private class ChartResultResponse
     {
         public required ChartResultMetadataResponse Meta { get; init; }
         public long[]? Timestamp { get; init; }
@@ -90,7 +115,7 @@ public class YahooStockDataProvider
     }
 
     [PublicAPI]
-    internal class ChartResultMetadataResponse
+    private class ChartResultMetadataResponse
     {
         public required string Currency { get; init; }
         public required string ExchangeName { get; init; }
@@ -98,13 +123,13 @@ public class YahooStockDataProvider
     }
 
     [PublicAPI]
-    class ChartResultIndicatorResponse
+    private class ChartResultIndicatorResponse
     {
         public required ChartResultIndicatorQuoteResponse[] Quote { get; init; }
     }
     
     [PublicAPI]
-    class ChartResultIndicatorQuoteResponse
+    private class ChartResultIndicatorQuoteResponse
     {
         public decimal?[]? Open { get; init; }
         public decimal?[]? Close { get; init; }
@@ -112,6 +137,24 @@ public class YahooStockDataProvider
         public decimal?[]? Low { get; init; }
         public int?[]? Volume { get; init; }
     }
+
+    [PublicAPI]
+    private class SearchResponse
+    {
+        public ImmutableArray<SearchQuoteResponse>? Quotes { get; init; }
+    }
+
+    [PublicAPI]
+    private class SearchQuoteResponse
+    {
+        public required string Symbol { get; init; }
+        public string? Shortname { get; init; }
+        public string? Longname { get; init; }
+        public string? Exchdisp { get; init; }
+        public string? Typedisp { get; init; }
+    }
 }
 
 public record StockPrice(DateTimeOffset Timestamp, decimal Open, decimal Close, decimal Low, decimal High, int Volume);
+
+public record StockSearchResult(string Symbol, string? ShortName, string? LongName, string? Exchange, string? Type);

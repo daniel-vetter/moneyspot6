@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,10 +13,12 @@ namespace MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 public class StockController : Controller
 {
     private readonly Db _db;
+    private readonly YahooStockDataClient _yahooClient;
 
-    public StockController(Db db)
+    public StockController(Db db, YahooStockDataClient yahooClient)
     {
         _db = db;
+        _yahooClient = yahooClient;
     }
 
     [HttpGet("GetAll")]
@@ -39,46 +42,34 @@ public class StockController : Controller
         return Ok(response);
     }
 
-    [HttpGet("Get")]
-    [ProducesResponseType<StockDetailsResponse>(200)]
-    public async Task<IActionResult> Get(int id)
+    [HttpGet("Search")]
+    [ProducesResponseType<ImmutableArray<StockSearchResponse>>(200)]
+    public async Task<IActionResult> Search(string query)
     {
-        var stock = await _db.Stocks
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == id);
+        if (string.IsNullOrWhiteSpace(query))
+            return Ok(ImmutableArray<StockSearchResponse>.Empty);
 
-        if (stock == null)
-            return NotFound();
+        var results = await _yahooClient.Search(query);
 
-        return Ok(new StockDetailsResponse
-        {
-            Id = stock.Id,
-            Name = stock.Name,
-            Symbol = stock.Symbol
-        });
+        var response = results
+            .Select(x => new StockSearchResponse
+            {
+                Symbol = x.Symbol,
+                Name = x.LongName ?? x.ShortName ?? x.Symbol,
+                Exchange = x.Exchange,
+                Type = x.Type
+            })
+            .ToImmutableArray();
+
+        return Ok(response);
     }
 
     [HttpPut("Create")]
     [ProducesResponseType<int>(200)]
-    [ProducesResponseType<StockValidationErrorResponse>(400)]
     public async Task<IActionResult> Create(CreateStockRequest request)
     {
-        var validationError = ValidateRequest(request.Name, request.Symbol);
-
-        if (validationError != null)
-            return BadRequest(validationError);
-
-        // Check if name already exists
-        var nameExists = await _db.Stocks
-            .AnyAsync(x => x.Name == request.Name);
-
-        if (nameExists)
-        {
-            return BadRequest(new StockValidationErrorResponse
-            {
-                NameAlreadyExists = true
-            });
-        }
+        if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Symbol))
+            return BadRequest();
 
         var newStock = new DbStock
         {
@@ -94,42 +85,6 @@ public class StockController : Controller
         await _db.SaveChangesAsync();
 
         return Ok(newStock.Id);
-    }
-
-    [HttpPost("Update")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType<StockValidationErrorResponse>(400)]
-    public async Task<IActionResult> Update(UpdateStockRequest request)
-    {
-        var stock = await _db.Stocks
-            .SingleOrDefaultAsync(x => x.Id == request.Id);
-
-        if (stock == null)
-            return NotFound();
-
-        var validationError = ValidateRequest(request.Name, request.Symbol);
-
-        if (validationError != null)
-            return BadRequest(validationError);
-
-        // Check if name already exists (excluding current stock)
-        var nameExists = await _db.Stocks
-            .AnyAsync(x => x.Name == request.Name && x.Id != request.Id);
-
-        if (nameExists)
-        {
-            return BadRequest(new StockValidationErrorResponse
-            {
-                NameAlreadyExists = true
-            });
-        }
-
-        stock.Name = request.Name;
-        stock.Symbol = request.Symbol;
-
-        await _db.SaveChangesAsync();
-
-        return Ok();
     }
 
     [HttpDelete("Delete")]
@@ -159,16 +114,6 @@ public class StockController : Controller
 
         return Ok();
     }
-
-    private StockValidationErrorResponse? ValidateRequest(string name, string? symbol)
-    {
-        var error = new StockValidationErrorResponse();
-
-        if (string.IsNullOrWhiteSpace(name))
-            error.MissingName = true;
-
-        return error.HasError() ? error : null;
-    }
 }
 
 [PublicAPI]
@@ -182,36 +127,17 @@ public record StockListResponse
 }
 
 [PublicAPI]
-public record StockDetailsResponse
-{
-    [Required] public required int Id { get; init; }
-    [Required] public required string Name { get; init; }
-    public string? Symbol { get; init; }
-}
-
-[PublicAPI]
 public record CreateStockRequest
 {
     [Required] public required string Name { get; init; }
-    public string? Symbol { get; init; }
+    [Required] public required string Symbol { get; init; }
 }
 
 [PublicAPI]
-public record UpdateStockRequest
+public record StockSearchResponse
 {
-    [Required] public required int Id { get; init; }
+    [Required] public required string Symbol { get; init; }
     [Required] public required string Name { get; init; }
-    public string? Symbol { get; init; }
-}
-
-[PublicAPI]
-public record StockValidationErrorResponse
-{
-    public bool MissingName { get; set; }
-    public bool NameAlreadyExists { get; set; }
-
-    public bool HasError()
-    {
-        return MissingName || NameAlreadyExists;
-    }
+    public string? Exchange { get; init; }
+    public string? Type { get; init; }
 }

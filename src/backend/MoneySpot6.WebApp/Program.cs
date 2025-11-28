@@ -12,6 +12,7 @@ using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
 using Microsoft.AspNetCore.HttpOverrides;
 using MoneySpot6.WebApp.Features.Ui.InflationData.Import;
+using MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
 
 namespace MoneySpot6.WebApp;
 
@@ -39,6 +40,11 @@ public class Program
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
         builder.Services.AddServiceFromAttributes();
         builder.Services.AddHttpClient<GenesisApiClient>();
+        builder.Services.AddHttpClient<YahooStockDataClient>(x =>
+        {
+            x.DefaultRequestHeaders.Host = "query1.finance.yahoo.com";
+            x.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
+        });
 
         //if (builder.Configuration.GetValue<bool>("Auth:Disable") == true)
         if (builder.Environment.EnvironmentName == "Testing")

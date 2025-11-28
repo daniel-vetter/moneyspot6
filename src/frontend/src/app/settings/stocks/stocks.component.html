@@ -20,7 +20,7 @@
                     <th>Symbol</th>
                     <th>Letzter Import</th>
                     <th>Import-Fehler</th>
-                    <th style="width: 150px;">Aktionen</th>
+                    <th style="width: 80px;">Aktionen</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-stock>
@@ -30,25 +30,15 @@
                     <td>{{ stock.lastImportDaily ? (stock.lastImportDaily | date:'dd.MM.yyyy HH:mm') : '-' }}</td>
                     <td>{{ stock.lastImportErrorDaily || '-' }}</td>
                     <td>
-                        <div class="horizontal" style="gap: 0.5rem;">
-                            <p-button
-                                icon="pi pi-pencil"
-                                [outlined]="true"
-                                size="small"
-                                (onClick)="editStock(stock.id)"
-                                pTooltip="Bearbeiten"
-                                tooltipPosition="top">
-                            </p-button>
-                            <p-button
-                                icon="pi pi-trash"
-                                [outlined]="true"
-                                severity="danger"
-                                size="small"
-                                (onClick)="deleteStock(stock)"
-                                pTooltip="Löschen"
-                                tooltipPosition="top">
-                            </p-button>
-                        </div>
+                        <p-button
+                            icon="pi pi-trash"
+                            [outlined]="true"
+                            severity="danger"
+                            size="small"
+                            (onClick)="deleteStock(stock)"
+                            pTooltip="Löschen"
+                            tooltipPosition="top">
+                        </p-button>
                     </td>
                 </tr>
             </ng-template>

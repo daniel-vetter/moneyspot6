@@ -38,7 +38,6 @@ export class StocksComponent implements OnInit {
 
     async createStock() {
         const dlg = this.dialogService.open(StockDialogComponent, {
-            data: { id: null },
             focusOnShow: false
         });
 
@@ -48,23 +47,6 @@ export class StocksComponent implements OnInit {
                 severity: 'success',
                 summary: 'Aktie erstellt',
                 detail: 'Die Aktie wurde erfolgreich erstellt.'
-            });
-            await this.loadStocks();
-        }
-    }
-
-    async editStock(id: number) {
-        const dlg = this.dialogService.open(StockDialogComponent, {
-            data: { id },
-            focusOnShow: false
-        });
-
-        const result = await firstValueFrom(dlg.onClose);
-        if (result === true) {
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Aktie aktualisiert',
-                detail: 'Die Aktie wurde erfolgreich aktualisiert.'
             });
             await this.loadStocks();
         }

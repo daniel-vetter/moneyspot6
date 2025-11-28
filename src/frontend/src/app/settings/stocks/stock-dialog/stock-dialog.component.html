@@ -1,34 +1,54 @@
-<form style="height: 100%; padding-top: 0.5rem" [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="vertical" style="height: 100%; gap: 1rem;">
-
-        <div class="form-field">
-            <div>Name:</div>
-            <div style="width: 100%;">
-                <input type="text" pInputText formControlName="name" autocomplete="off" style="width: 100%;" placeholder="z.B. Apple Inc." />
-            </div>
-            <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']">
-                    Ein Name muss angegeben werden.
-                </p-message>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('name')?.errors?.['nameAlreadyExists']">
-                    Es existiert bereits eine Aktie mit diesem Namen.
-                </p-message>
-            </div>
-        </div>
-
-        <div class="form-field">
-            <div>Symbol (optional):</div>
-            <div style="width: 100%;">
-                <input type="text" pInputText formControlName="symbol" autocomplete="off" style="width: 100%;" placeholder="z.B. AAPL" />
-            </div>
-        </div>
-
-        <div class="spacer"></div>
-
-        <div class="horizontal">
-            <div class="spacer"></div>
-            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
-            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok"></p-button>
-        </div>
+<div class="vertical" style="height: 100%; gap: 1rem; padding-top: 0.5rem;">
+    <div class="horizontal" style="gap: 0.5rem;">
+        <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchQuery"
+            (keydown.enter)="onSearch()"
+            style="flex: 1;"
+            placeholder="z.B. Apple, Microsoft, ..."/>
+        <p-button icon="pi pi-search" (onClick)="onSearch()" [loading]="isSearching"></p-button>
     </div>
-</form>
+
+    @if (searchResults !== undefined) {
+        <p-listbox
+            [options]="searchResults"
+            scrollHeight="100%"
+            [(ngModel)]="selectedStock"
+            [emptyMessage]="hasSearched ? 'Keine Ergebnisse gefunden.' : 'Suchbegriff eingeben und suchen...'"
+            style="height: 100%">
+
+            <ng-template let-stock pTemplate="item">
+                <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0; width: 100%;">
+                    <i class="pi" [ngClass]="{
+                    'pi-chart-line': stock.type === 'Equity',
+                    'pi-box': stock.type === 'ETF',
+                    'pi-building': stock.type === 'Index',
+                    'pi-dollar': stock.type === 'Currency',
+                    'pi-wallet': stock.type === 'Fund' || stock.type === 'Mutualfund',
+                    'pi-bitcoin': stock.type === 'Cryptocurrency',
+                    'pi-clock': stock.type === 'Futures',
+                    'pi-question-circle': !stock.type || !['Equity', 'ETF', 'Index', 'Currency', 'Fund', 'Mutualfund', 'Cryptocurrency', 'Futures'].includes(stock.type)
+                }" style="font-size: 1.25rem; opacity: 0.6; width: 1.5rem; text-align: center;"></i>
+                    <div style="display: flex; flex-direction: column; gap: 0.1rem; flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                            <b style="font-size: 1rem;">{{ stock.symbol }}</b>
+                            <span style="opacity: 0.5; font-size: 0.8rem;">{{ stock.exchange }}</span>
+                        </div>
+                        <span style="opacity: 0.7; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ stock.name }}</span>
+                    </div>
+                    <span
+                        style="font-size: 0.7rem; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(0,0,0,0.15); white-space: nowrap;">{{ stock.type || 'Stock' }}</span>
+                </div>
+            </ng-template>
+        </p-listbox>
+    }
+
+    <div class="spacer"></div>
+
+    <div class="horizontal">
+        <div class="spacer"></div>
+        <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (onClick)="onCancelClicked()" label="Abbrechen"></p-button>
+        <p-button [style]="{ 'min-width': '100px' }" [disabled]="!selectedStock" (onClick)="onSubmit()" label="Ok"></p-button>
+    </div>
+</div>

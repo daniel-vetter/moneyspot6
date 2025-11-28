@@ -9,10 +9,10 @@ namespace MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport;
 public class StockUpdater
 {
     private readonly Db _db;
-    private readonly YahooStockDataProvider _yahooStockDataProvider;
+    private readonly YahooStockDataClient _yahooStockDataProvider;
     private readonly ILogger<StockUpdater> _logger;
 
-    public StockUpdater(Db db, YahooStockDataProvider yahooStockDateProvider, ILogger<StockUpdater> logger)
+    public StockUpdater(Db db, YahooStockDataClient yahooStockDateProvider, ILogger<StockUpdater> logger)
     {
         _db = db;
         _yahooStockDataProvider = yahooStockDateProvider;
