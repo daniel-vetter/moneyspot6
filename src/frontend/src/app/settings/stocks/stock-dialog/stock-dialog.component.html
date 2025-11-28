@@ -6,8 +6,9 @@
             [(ngModel)]="searchQuery"
             (keydown.enter)="onSearch()"
             style="flex: 1;"
-            placeholder="z.B. Apple, Microsoft, ..."/>
-        <p-button icon="pi pi-search" (onClick)="onSearch()" [loading]="isSearching"></p-button>
+            placeholder="z.B. Apple, Microsoft, ..."
+            data-testid="stock-search-input"/>
+        <p-button icon="pi pi-search" (onClick)="onSearch()" [loading]="isSearching" data-testid="stock-search-button"></p-button>
     </div>
 
     @if (searchResults !== undefined) {
@@ -16,7 +17,8 @@
             scrollHeight="100%"
             [(ngModel)]="selectedStock"
             [emptyMessage]="hasSearched ? 'Keine Ergebnisse gefunden.' : 'Suchbegriff eingeben und suchen...'"
-            style="height: 100%">
+            style="height: 100%"
+            data-testid="stock-search-results">
 
             <ng-template let-stock pTemplate="item">
                 <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0; width: 100%;">
@@ -48,7 +50,7 @@
 
     <div class="horizontal">
         <div class="spacer"></div>
-        <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (onClick)="onCancelClicked()" label="Abbrechen"></p-button>
-        <p-button [style]="{ 'min-width': '100px' }" [disabled]="!selectedStock" (onClick)="onSubmit()" label="Ok"></p-button>
+        <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (onClick)="onCancelClicked()" label="Abbrechen" data-testid="stock-cancel-button"></p-button>
+        <p-button [style]="{ 'min-width': '100px' }" [disabled]="!selectedStock" (onClick)="onSubmit()" label="Ok" data-testid="stock-submit-button"></p-button>
     </div>
 </div>
