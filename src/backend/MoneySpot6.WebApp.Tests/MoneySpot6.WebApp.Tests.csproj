@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="playwright.runsettings">
+    <None Update=".runsettings">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

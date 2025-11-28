@@ -9,6 +9,7 @@ import { Component, computed, input, Input, OnChanges, SimpleChanges } from '@an
 export class ValueComponent {
     public value = input<number | undefined>()
     public size = input<string | undefined>()
+    public testId = input<string | undefined>()
     public color = input<'default' | 'reverse' | 'none'>('default')
 
     private format = new Intl.NumberFormat('de-de', { style: 'currency', currency: 'EUR' });

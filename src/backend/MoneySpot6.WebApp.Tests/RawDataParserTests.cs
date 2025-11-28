@@ -3,7 +3,6 @@ using MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal.Parsing;
 using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests;
-/*
 internal class RawDataParserTests
 {
     private static DbBankAccountTransactionParsedData Parse(DbBankAccountTransactionRawData raw) => new RawDataParser(new SepaParser()).Parse(raw);
@@ -13,7 +12,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       KREF+2024-07-03T00:59:10:01
@@ -39,7 +38,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       SVWZ+Ein komischer.Verwendungszweck 
@@ -63,7 +62,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       SVWZ+Das folgende Tag gibts nicht
@@ -84,7 +83,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       SVWZ+Das folgende Tag gibts nicht
@@ -107,7 +106,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       SVWZ+Nur eine Zeile
@@ -126,7 +125,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       SVWZ+
@@ -145,7 +144,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = ""
         };
@@ -162,7 +161,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       Das ist eine Zeile ohne Tag 
@@ -184,7 +183,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       Wir koennen auch
@@ -206,7 +205,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       SVWZ+ Das geht sogar
@@ -228,7 +227,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       IBAN: DE49390500000000012345 BIC: AACSDE33 ABWA: NetAachen
@@ -250,7 +249,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       Verwendungszweck EREF: 1234
@@ -275,7 +274,7 @@ internal class RawDataParserTests
     {
         var raw = new DbBankAccountTransactionRawData
         {
-            Date = new DateOnly(2024, 1, 1),
+            Date = new DateOnly(2020, 1, 1),
             Counterparty = new CounterpartyAccount(),
             Purpose = """
                       SVWZ+Das ist Zeile 1
@@ -292,4 +291,3 @@ internal class RawDataParserTests
     }
 
 }
-*/

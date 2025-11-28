@@ -36,7 +36,7 @@
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-connection>
-                <tr>
+                <tr [attr.data-testid]="'bank-connection-row-' + connection.id">
                     <td>{{ connection.name }}</td>
                     <td>{{ connection.bankCode }}</td>
                     <td>{{ connection.userId }}</td>

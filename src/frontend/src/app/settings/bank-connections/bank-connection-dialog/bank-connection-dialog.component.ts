@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BankConnectionClient, CreateBankConnectionRequest, UpdateBankConnectionRequest, BankConnectionValidationErrorResponse } from '../../../server';
 import { lastValueFrom } from 'rxjs';
 import { MessageModule } from 'primeng/message';
@@ -11,7 +12,7 @@ import { PasswordModule } from 'primeng/password';
 
 @Component({
     selector: 'app-bank-connection-dialog',
-    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule, PasswordModule],
+    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule, PasswordModule, ProgressSpinnerModule],
     templateUrl: './bank-connection-dialog.component.html',
     styleUrl: './bank-connection-dialog.component.scss',
     standalone: true
@@ -22,6 +23,7 @@ export class BankConnectionDialogComponent implements OnInit {
     private bankConnectionClient = inject(BankConnectionClient);
 
     id: number | null;
+    loading = false;
     form = new FormGroup({
         name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
         hbciVersion: new FormControl<string>('300', { nonNullable: true, validators: [Validators.required] }),
@@ -40,15 +42,20 @@ export class BankConnectionDialogComponent implements OnInit {
 
     async ngOnInit() {
         if (this.id !== null) {
-            const connection = await lastValueFrom(this.bankConnectionClient.get(this.id));
-            this.form.setValue({
-                name: connection.name,
-                hbciVersion: connection.hbciVersion,
-                bankCode: connection.bankCode,
-                customerId: connection.customerId,
-                userId: connection.userId,
-                pin: connection.pin
-            });
+            this.loading = true;
+            try {
+                const connection = await lastValueFrom(this.bankConnectionClient.get(this.id));
+                this.form.setValue({
+                    name: connection.name,
+                    hbciVersion: connection.hbciVersion,
+                    bankCode: connection.bankCode,
+                    customerId: connection.customerId,
+                    userId: connection.userId,
+                    pin: connection.pin
+                });
+            } finally {
+                this.loading = false;
+            }
         }
     }
 
@@ -75,6 +82,7 @@ export class BankConnectionDialogComponent implements OnInit {
                     pin: this.form.value.pin!
                 })));
             } else {
+                console.log(this.form.value.bankCode!)
                 await lastValueFrom(this.bankConnectionClient.update(new UpdateBankConnectionRequest({
                     id: this.id,
                     name: this.form.value.name!,
