@@ -27,11 +27,7 @@ export class AppComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         const currentUser = await lastValueFrom(this.authClient.getUserDetails());
-        if (currentUser === undefined || currentUser === null) {
-            window.location.href = '/api/Auth/Login';
-            return;
-        }
-        this.isLoggedIn = true;
+        this.isLoggedIn = currentUser !== undefined && currentUser !== null;
         Highcharts.setOptions(this.createOptions());
         HighchartsStock.setOptions(this.createOptions());
     }

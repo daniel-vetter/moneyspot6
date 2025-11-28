@@ -9,13 +9,13 @@ namespace MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport;
 public class StockUpdater
 {
     private readonly Db _db;
-    private readonly YahooStockDateProvider _yahooStockDateProvider;
+    private readonly YahooStockDataProvider _yahooStockDataProvider;
     private readonly ILogger<StockUpdater> _logger;
 
-    public StockUpdater(Db db, YahooStockDateProvider yahooStockDateProvider, ILogger<StockUpdater> logger)
+    public StockUpdater(Db db, YahooStockDataProvider yahooStockDateProvider, ILogger<StockUpdater> logger)
     {
         _db = db;
-        _yahooStockDateProvider = yahooStockDateProvider;
+        _yahooStockDataProvider = yahooStockDateProvider;
         _logger = logger;
     }
 
@@ -67,7 +67,7 @@ public class StockUpdater
             };
             var queryEnd = DateTimeOffset.UtcNow.AddDays(1);
 
-            var prices = await _yahooStockDateProvider.Get(queryStart, queryEnd, stock.Symbol, interval);
+            var prices = await _yahooStockDataProvider.Get(queryStart, queryEnd, stock.Symbol, interval);
 
             // Sometimes yahoo provides intraday timestamp that do not match the requested interval.
             //
