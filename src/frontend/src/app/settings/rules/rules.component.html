@@ -3,7 +3,7 @@
         <div class="horizontal" style="width: 100%">
             <h1>Regeln</h1>
             <div class="spacer"></div>
-            <p-button label="Neue Regel" (onClick)="onNewRuleClicked()" />
+            <p-button label="Neue Regel" (onClick)="onNewRuleClicked()" data-testid="create-rule-button" />
         </div>
     </ng-template>
 
@@ -19,7 +19,7 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-rule let-index="rowIndex">
-            <tr [pReorderableRow]="index">
+            <tr [pReorderableRow]="index" [attr.data-testid]="'rule-row-' + rule.id">
                 <td style="width: 1rem;">
                     <span class="pi pi-bars" pReorderableRowHandle></span>
                 </td>
@@ -42,7 +42,8 @@
                             size="small"
                             (onClick)="onEditRule(rule)"
                             pTooltip="Bearbeiten"
-                            tooltipPosition="top">
+                            tooltipPosition="top"
+                            data-testid="edit-rule-button">
                         </p-button>
                         <p-button
                             icon="pi pi-trash"
@@ -51,7 +52,8 @@
                             size="small"
                             (onClick)="onDeleteRule(rule)"
                             pTooltip="Löschen"
-                            tooltipPosition="top">
+                            tooltipPosition="top"
+                            data-testid="delete-rule-button">
                         </p-button>
                     </div>
                 </td>
@@ -59,7 +61,7 @@
         </ng-template>
     </p-table>
     } @else {
-        <div style="text-align: center; padding: 2rem; opacity: 0.6;">
+        <div style="text-align: center; padding: 2rem; opacity: 0.6;" data-testid="rules-empty-state">
             <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Keine Regeln vorhanden</div>
             <div>Fügen Sie eine neue Regel hinzu, um Transaktionen automatisch zu kategorisieren.</div>
         </div>

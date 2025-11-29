@@ -23,6 +23,7 @@ public class UiTest : PageTest
         await _db.Set<DbStockPrice>().ExecuteDeleteAsync();
         await _db.Set<DbBankConnection>().ExecuteDeleteAsync();
         await _db.Set<DbCategory>().ExecuteDeleteAsync();
+        await _db.Set<DbRule>().ExecuteDeleteAsync();
     }
 
     [TearDown]
