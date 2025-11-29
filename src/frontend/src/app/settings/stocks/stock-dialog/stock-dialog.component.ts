@@ -1,90 +1,70 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { StockClient, CreateStockRequest, UpdateStockRequest, StockValidationErrorResponse } from '../../../server';
+import { StockClient, CreateStockRequest, StockSearchResponse } from '../../../server';
 import { lastValueFrom } from 'rxjs';
-import { MessageModule } from 'primeng/message';
-import { CommonModule } from '@angular/common';
+import { ListboxModule } from 'primeng/listbox';
 
 @Component({
     selector: 'app-stock-dialog',
-    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule],
+    imports: [ButtonModule, FormsModule, CommonModule, InputTextModule, ListboxModule],
     templateUrl: './stock-dialog.component.html',
     styleUrl: './stock-dialog.component.scss',
     standalone: true
 })
-export class StockDialogComponent implements OnInit {
+export class StockDialogComponent {
     private dialogConfig = inject(DynamicDialogConfig);
     private dialogRef = inject(DynamicDialogRef);
     private stockClient = inject(StockClient);
 
-    id: number | null;
-    form = new FormGroup({
-        name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-        symbol: new FormControl<string>('', { nonNullable: true })
-    });
+    searchQuery: string = '';
+    searchResults: StockSearchResponse[] | undefined;
+    selectedStock: StockSearchResponse | null = null;
+    isSearching: boolean = false;
+    hasSearched: boolean = false;
 
     constructor() {
-        this.id = this.dialogConfig.data.id;
-        this.dialogConfig.header = this.id === null ? 'Neue Aktie' : 'Aktie bearbeiten';
+        this.dialogConfig.header = 'Neue Aktie';
         this.dialogConfig.width = '600px';
+        this.dialogConfig.height = '600px';
         this.dialogConfig.modal = true;
-    }
-
-    async ngOnInit() {
-        if (this.id !== null) {
-            const stock = await lastValueFrom(this.stockClient.get(this.id));
-            this.form.setValue({
-                name: stock.name,
-                symbol: stock.symbol ?? ''
-            });
-        }
     }
 
     onCancelClicked() {
         this.dialogRef.close();
     }
 
-    async onSubmit() {
-        if (this.form.invalid) {
-            this.form.markAllAsTouched();
+    async onSearch() {
+        if (!this.searchQuery) {
+            this.searchResults = [];
             return;
         }
 
-        this.form.disable();
+        this.isSearching = true;
+        this.hasSearched = false;
+        this.selectedStock = null;
 
         try {
-            const symbol = this.form.value.symbol && this.form.value.symbol.trim() !== ''
-                ? this.form.value.symbol
-                : undefined;
-
-            if (this.id === null) {
-                await lastValueFrom(this.stockClient.create(new CreateStockRequest({
-                    name: this.form.value.name!,
-                    symbol: symbol
-                })));
-            } else {
-                await lastValueFrom(this.stockClient.update(new UpdateStockRequest({
-                    id: this.id,
-                    name: this.form.value.name!,
-                    symbol: symbol
-                })));
-            }
-
-            this.dialogRef.close(true);
-        } catch (error) {
-            if (error instanceof StockValidationErrorResponse) {
-                queueMicrotask(() => {
-                    if (error.missingName)
-                        this.form.controls.name.setErrors({ required: true });
-                    if ((error as any).nameAlreadyExists)
-                        this.form.controls.name.setErrors({ nameAlreadyExists: true });
-                });
-            }
+            this.searchResults = await lastValueFrom(this.stockClient.search(this.searchQuery));
+            this.hasSearched = true;
         } finally {
-            this.form.enable();
+            this.isSearching = false;
         }
+    }
+
+    async onSubmit() {
+        if (!this.selectedStock) {
+            return;
+        }
+
+        await lastValueFrom(this.stockClient.create(new CreateStockRequest({
+            name: this.selectedStock.name,
+            symbol: this.selectedStock.symbol
+        })));
+
+        this.dialogRef.close(true);
     }
 }

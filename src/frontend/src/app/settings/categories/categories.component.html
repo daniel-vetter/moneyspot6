@@ -3,7 +3,7 @@
         <div class="horizontal" style="width: 100%">
             <h1>Kategorien</h1>
             <div class="spacer"></div>
-            <p-button label="Neue Kategorie" (onClick)="onNewCategoryClicked(undefined)" />
+            <p-button label="Neue Kategorie" (onClick)="onNewCategoryClicked(undefined)" data-testid="create-category-button" />
         </div>
     </ng-template>
 
@@ -16,7 +16,7 @@
             </tr>
         </ng-template>
         <ng-template #body let-rowNode let-rowData="rowData">
-            <tr [ttRow]="rowNode">
+            <tr [ttRow]="rowNode" [attr.data-testid]="'category-row-' + rowData.id">
                 <td>
                     <p-treetable-toggler [rowNode]="rowNode" />
                     {{ rowData.name }}
@@ -29,7 +29,8 @@
                             size="small"
                             (onClick)="onNewCategoryClicked(rowData.id)"
                             pTooltip="Unterkategorie hinzufügen"
-                            tooltipPosition="top">
+                            tooltipPosition="top"
+                            data-testid="add-subcategory-button">
                         </p-button>
                         <p-button
                             icon="pi pi-pencil"
@@ -37,7 +38,8 @@
                             size="small"
                             (onClick)="onEditCategoryClicked(rowData.id)"
                             pTooltip="Bearbeiten"
-                            tooltipPosition="top">
+                            tooltipPosition="top"
+                            data-testid="edit-category-button">
                         </p-button>
                         <p-button
                             icon="pi pi-trash"
@@ -46,7 +48,8 @@
                             size="small"
                             (onClick)="onDeleteCategoryClicked(rowData.id)"
                             pTooltip="Löschen"
-                            tooltipPosition="top">
+                            tooltipPosition="top"
+                            data-testid="delete-category-button">
                         </p-button>
                     </div>
                 </td>
@@ -54,7 +57,7 @@
         </ng-template>
     </p-treetable>
     } @else {
-        <div style="text-align: center; padding: 2rem; opacity: 0.6;">
+        <div style="text-align: center; padding: 2rem; opacity: 0.6;" data-testid="categories-empty-state">
             <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Keine Kategorien vorhanden</div>
             <div>Fügen Sie eine neue Kategorie hinzu, um Transaktionen zu organisieren.</div>
         </div>

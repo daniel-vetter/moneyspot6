@@ -35,6 +35,7 @@ export class RulesComponent implements OnInit {
     async onNewRuleClicked() {
         this.dialogRef = this.dialogService.open(EditRuleComponent, {
             modal: true,
+            focusOnShow: false,
             data: {}
         });
 
@@ -45,6 +46,7 @@ export class RulesComponent implements OnInit {
     async onEditRule(rule: RuleResponse) {
         this.dialogRef = this.dialogService.open(EditRuleComponent, {
             modal: true,
+            focusOnShow: false,
             data: {
                 id: rule.id
             }

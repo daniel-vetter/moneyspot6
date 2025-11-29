@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -6,9 +7,12 @@ using MoneySpot6.ServiceDefaults;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
 using MoneySpot6.WebApp.Features.Ui.AccountSync;
+using MoneySpot6.WebApp.Features.Ui.Auth;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
 using Microsoft.AspNetCore.HttpOverrides;
+using MoneySpot6.WebApp.Features.Ui.InflationData.Import;
+using MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
 
 namespace MoneySpot6.WebApp;
 
@@ -35,42 +39,57 @@ public class Program
         builder.Services.AddResponseCompression();
         builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
         builder.Services.AddServiceFromAttributes();
-        builder.Services.AddHttpClient<MoneySpot6.WebApp.Features.Ui.InflationData.Import.GenesisApiClient>();
-        builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = "Cookies";
-                options.DefaultChallengeScheme = "oidc";
-            })
-            .AddCookie("Cookies")
-            .AddOpenIdConnect("oidc", options =>
-            {
-                options.Authority = builder.Configuration.GetValue<string>("Auth:Authority");
-                options.ClientId = builder.Configuration.GetValue<string>("Auth:ClientId");
-                options.ClientSecret = builder.Configuration.GetValue<string>("Auth:ClientSecret");
-                options.ResponseType = "code";
-                options.SaveTokens = true;
-                options.Scope.Add("openid");
-                options.Scope.Add("profile");
-                options.Scope.Add("email");
-                options.GetClaimsFromUserInfoEndpoint = true;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    NameClaimType = "name"
-                };
+        builder.Services.AddHttpClient<GenesisApiClient>();
+        builder.Services.AddHttpClient<YahooStockDataClient>(x =>
+        {
+            x.DefaultRequestHeaders.Host = "query1.finance.yahoo.com";
+            x.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
+        });
 
-                options.Events.OnRedirectToIdentityProvider = ctx =>
+        //if (builder.Configuration.GetValue<bool>("Auth:Disable") == true)
+        if (builder.Environment.EnvironmentName == "Testing")
+        {
+            builder.Services.AddAuthentication(DevelopmentAuthenticationHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, DevelopmentAuthenticationHandler>(DevelopmentAuthenticationHandler.SchemeName, null);
+        }
+        else
+        {
+            builder.Services.AddAuthentication(options =>
                 {
-                    if (!string.IsNullOrWhiteSpace(builder.Configuration.GetValue<string>("Domain")))
-                        ctx.ProtocolMessage.RedirectUri = builder.Configuration.GetValue<string>("Domain") + "/signin-oidc";
-                    return Task.CompletedTask;
-                };
-            });
+                    options.DefaultScheme = "Cookies";
+                    options.DefaultChallengeScheme = "oidc";
+                })
+                .AddCookie("Cookies")
+                .AddOpenIdConnect("oidc", options =>
+                {
+                    options.Authority = builder.Configuration.GetValue<string>("Auth:Authority");
+                    options.ClientId = builder.Configuration.GetValue<string>("Auth:ClientId");
+                    options.ClientSecret = builder.Configuration.GetValue<string>("Auth:ClientSecret");
+                    options.ResponseType = "code";
+                    options.SaveTokens = true;
+                    options.Scope.Add("openid");
+                    options.Scope.Add("profile");
+                    options.Scope.Add("email");
+                    options.GetClaimsFromUserInfoEndpoint = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = "name"
+                    };
+
+                    options.Events.OnRedirectToIdentityProvider = ctx =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(builder.Configuration.GetValue<string>("Domain")))
+                            ctx.ProtocolMessage.RedirectUri = builder.Configuration.GetValue<string>("Domain") + "/signin-oidc";
+                        return Task.CompletedTask;
+                    };
+                });
+        }
         builder.Services.Configure<MailIntegrationOptions>(builder.Configuration.GetSection("MailIntegration"));
         builder.Services.Configure<InflationImportOptions>(builder.Configuration.GetSection("InflationImport"));
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            options.KnownNetworks.Clear();
+            options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
         });
 

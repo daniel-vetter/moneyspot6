@@ -3,12 +3,12 @@
         <div class="horizontal" style="width: 100%">
             <h1>Aktien</h1>
             <div class="spacer"></div>
-            <p-button icon="pi pi-plus" label="Neue Aktie" (onClick)="createStock()"></p-button>
+            <p-button icon="pi pi-plus" label="Neue Aktie" (onClick)="createStock()" data-testid="create-stock-button"></p-button>
         </div>
     </ng-template>
 
     @if (stocks.length === 0) {
-        <div style="text-align: center; padding: 2rem; opacity: 0.6;">
+        <div style="text-align: center; padding: 2rem; opacity: 0.6;" data-testid="stocks-empty-state">
             <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Keine Aktien vorhanden</div>
             <div>Fügen Sie eine neue Aktie hinzu, um Kursdaten zu importieren.</div>
         </div>
@@ -20,35 +20,26 @@
                     <th>Symbol</th>
                     <th>Letzter Import</th>
                     <th>Import-Fehler</th>
-                    <th style="width: 150px;">Aktionen</th>
+                    <th style="width: 80px;">Aktionen</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-stock>
-                <tr>
+                <tr [attr.data-testid]="'stock-row-' + stock.id">
                     <td>{{ stock.name }}</td>
                     <td>{{ stock.symbol || '-' }}</td>
                     <td>{{ stock.lastImportDaily ? (stock.lastImportDaily | date:'dd.MM.yyyy HH:mm') : '-' }}</td>
                     <td>{{ stock.lastImportErrorDaily || '-' }}</td>
                     <td>
-                        <div class="horizontal" style="gap: 0.5rem;">
-                            <p-button
-                                icon="pi pi-pencil"
-                                [outlined]="true"
-                                size="small"
-                                (onClick)="editStock(stock.id)"
-                                pTooltip="Bearbeiten"
-                                tooltipPosition="top">
-                            </p-button>
-                            <p-button
-                                icon="pi pi-trash"
-                                [outlined]="true"
-                                severity="danger"
-                                size="small"
-                                (onClick)="deleteStock(stock)"
-                                pTooltip="Löschen"
-                                tooltipPosition="top">
-                            </p-button>
-                        </div>
+                        <p-button
+                            icon="pi pi-trash"
+                            [outlined]="true"
+                            severity="danger"
+                            size="small"
+                            (onClick)="deleteStock(stock)"
+                            pTooltip="Löschen"
+                            tooltipPosition="top"
+                            data-testid="delete-stock-button">
+                        </p-button>
                     </td>
                 </tr>
             </ng-template>
