@@ -28,10 +28,10 @@
                 <label for="amount">Betrag</label>
                 <div class="input-wrapper">
                     <input pInputText id="amount" type="number" formControlName="amount"
-                           style="width: 100%;" (ngModelChange)="amountOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="amountOverridden = true" data-testid="transaction-amount-input" />
                     @if (amountOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetAmount()" />
+                                  severity="secondary" (onClick)="resetAmount()" data-testid="transaction-amount-reset" />
                     }
                 </div>
             </div>
@@ -40,20 +40,20 @@
                 <label for="name">Name</label>
                 <div class="input-wrapper">
                     <input pInputText id="name" type="text" formControlName="name"
-                           style="width: 100%;" (ngModelChange)="nameOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="nameOverridden = true" data-testid="transaction-name-input" />
                     @if (nameOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetName()" />
+                                  severity="secondary" (onClick)="resetName()" data-testid="transaction-name-reset" />
                     }
                 </div>
 
                 <label for="purpose">Verwendungszweck</label>
                 <div class="input-wrapper">
                     <input pInputText id="purpose" type="text" formControlName="purpose"
-                           style="width: 100%;" (ngModelChange)="purposeOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="purposeOverridden = true" data-testid="transaction-purpose-input" />
                     @if (purposeOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetPurpose()" />
+                                  severity="secondary" (onClick)="resetPurpose()" data-testid="transaction-purpose-reset" />
                     }
                 </div>
             </div>
@@ -62,10 +62,10 @@
                 <label for="originatorIdentifier">Originator-ID</label>
                 <div class="input-wrapper">
                     <input pInputText id="originatorIdentifier" type="text" formControlName="originatorIdentifier"
-                           style="width: 100%;" (ngModelChange)="originatorIdentifierOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="originatorIdentifierOverridden = true" data-testid="transaction-originator-input" />
                     @if (originatorIdentifierOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetOriginatorIdentifier()" />
+                                  severity="secondary" (onClick)="resetOriginatorIdentifier()" data-testid="transaction-originator-reset" />
                     }
                 </div>
 
@@ -90,20 +90,20 @@
                 <label for="bankCode">Bankleitzahl</label>
                 <div class="input-wrapper">
                     <input pInputText id="bankCode" type="text" formControlName="bankCode"
-                           style="width: 100%;" (ngModelChange)="bankCodeOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="bankCodeOverridden = true" data-testid="transaction-bankcode-input" />
                     @if (bankCodeOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetBankCode()" />
+                                  severity="secondary" (onClick)="resetBankCode()" data-testid="transaction-bankcode-reset" />
                     }
                 </div>
 
                 <label for="accountNumber">Kontonummer</label>
                 <div class="input-wrapper">
                     <input pInputText id="accountNumber" type="text" formControlName="accountNumber"
-                           style="width: 100%;" (ngModelChange)="accountNumberOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="accountNumberOverridden = true" data-testid="transaction-accountnumber-input" />
                     @if (accountNumberOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetAccountNumber()" />
+                                  severity="secondary" (onClick)="resetAccountNumber()" data-testid="transaction-accountnumber-reset" />
                     }
                 </div>
             </div>
@@ -112,20 +112,20 @@
                 <label for="iban">IBAN</label>
                 <div class="input-wrapper">
                     <input pInputText id="iban" type="text" formControlName="iban"
-                           style="width: 100%;" (ngModelChange)="ibanOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="ibanOverridden = true" data-testid="transaction-iban-input" />
                     @if (ibanOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetIban()" />
+                                  severity="secondary" (onClick)="resetIban()" data-testid="transaction-iban-reset" />
                     }
                 </div>
 
                 <label for="bic">BIC</label>
                 <div class="input-wrapper">
                     <input pInputText id="bic" type="text" formControlName="bic"
-                           style="width: 100%;" (ngModelChange)="bicOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="bicOverridden = true" data-testid="transaction-bic-input" />
                     @if (bicOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetBic()" />
+                                  severity="secondary" (onClick)="resetBic()" data-testid="transaction-bic-reset" />
                     }
                 </div>
             </div>
@@ -139,20 +139,20 @@
                 <label for="endToEndReference">EndToEnd-Referenz</label>
                 <div class="input-wrapper">
                     <input pInputText id="endToEndReference" type="text" formControlName="endToEndReference"
-                           style="width: 100%;" (ngModelChange)="endToEndReferenceOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="endToEndReferenceOverridden = true" data-testid="transaction-endtoend-input" />
                     @if (endToEndReferenceOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetEndToEndReference()" />
+                                  severity="secondary" (onClick)="resetEndToEndReference()" data-testid="transaction-endtoend-reset" />
                     }
                 </div>
 
                 <label for="customerReference">Kundenreferenz</label>
                 <div class="input-wrapper">
                     <input pInputText id="customerReference" type="text" formControlName="customerReference"
-                           style="width: 100%;" (ngModelChange)="customerReferenceOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="customerReferenceOverridden = true" data-testid="transaction-customerref-input" />
                     @if (customerReferenceOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetCustomerReference()" />
+                                  severity="secondary" (onClick)="resetCustomerReference()" data-testid="transaction-customerref-reset" />
                     }
                 </div>
             </div>
@@ -161,20 +161,20 @@
                 <label for="mandateReference">Mandatsreferenz</label>
                 <div class="input-wrapper">
                     <input pInputText id="mandateReference" type="text" formControlName="mandateReference"
-                           style="width: 100%;" (ngModelChange)="mandateReferenceOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="mandateReferenceOverridden = true" data-testid="transaction-mandate-input" />
                     @if (mandateReferenceOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetMandateReference()" />
+                                  severity="secondary" (onClick)="resetMandateReference()" data-testid="transaction-mandate-reset" />
                     }
                 </div>
 
                 <label for="creditorIdentifier">Gläubiger-ID</label>
                 <div class="input-wrapper">
                     <input pInputText id="creditorIdentifier" type="text" formControlName="creditorIdentifier"
-                           style="width: 100%;" (ngModelChange)="creditorIdentifierOverridden = true" />
+                           style="width: 100%;" (ngModelChange)="creditorIdentifierOverridden = true" data-testid="transaction-creditor-input" />
                     @if (creditorIdentifierOverridden) {
                         <p-button icon="pi pi-times" [rounded]="true" [text]="true"
-                                  severity="secondary" (onClick)="resetCreditorIdentifier()" />
+                                  severity="secondary" (onClick)="resetCreditorIdentifier()" data-testid="transaction-creditor-reset" />
                     }
                 </div>
             </div>
