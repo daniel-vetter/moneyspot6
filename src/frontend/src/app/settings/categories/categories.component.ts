@@ -27,6 +27,7 @@ export class CategoriesComponent implements OnInit {
     async onNewCategoryClicked(parentId: number | undefined) {
         const dlg = this.dialogService.open(NewCategoryDialogComponent, {
             modal: true,
+            focusOnShow: false,
             data: {
                 parentId: parentId
             }
@@ -39,6 +40,7 @@ export class CategoriesComponent implements OnInit {
     async onEditCategoryClicked(id: any) {
         const dlg = this.dialogService.open(NewCategoryDialogComponent, {
             modal: true,
+            focusOnShow: false,
             data: {
                 id: id
             }

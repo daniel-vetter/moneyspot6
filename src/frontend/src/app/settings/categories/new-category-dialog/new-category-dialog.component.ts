@@ -7,10 +7,11 @@ import { CategoryConfigurationClient, CreateCategoryRequest, CreateCategoryValid
 import { lastValueFrom } from 'rxjs';
 import { MessageModule } from 'primeng/message';
 import { CommonModule } from '@angular/common';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-new-category-dialog',
-    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule],
+    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule, ProgressSpinnerModule],
     templateUrl: './new-category-dialog.component.html',
     styleUrl: './new-category-dialog.component.scss'
 })
@@ -24,6 +25,7 @@ export class NewCategoryDialogComponent implements OnInit {
         name: new FormControl<string | undefined>(undefined, { nonNullable: true, validators: [Validators.required] })
     });
     parentId: number | undefined;
+    loading = false;
 
     constructor() {
         this.id = this.dialogConfig.data.id;
@@ -35,10 +37,12 @@ export class NewCategoryDialogComponent implements OnInit {
 
     async ngOnInit() {
         if (this.id !== undefined) {
+            this.loading = true;
             const cat = await lastValueFrom(this.categoryConfigurationClient.getCategory(this.id));
             this.form.setValue({
                 name: cat.name
             });
+            this.loading = false;
         }
     }
 

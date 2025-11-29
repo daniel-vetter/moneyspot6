@@ -1,26 +1,32 @@
-<form style="height: 100%; padding-top: 0.5rem" [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="vertical" style="height: 100%">
-
-        <div class="form-field">
-            <div>Name:</div>
-            <div class="" style="width: 100%;">
-                <input type="text" pInputText formControlName="name" name="name" autocomplete="off" style="width: 100%;" width="100%" />
-            </div>
-            <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['required']">Ein Name muss angegeben werden.</p-message>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">Es existiert bereits eine Kategorie
-                    mit diesem Name.</p-message>
-            </div>
-        </div>
-
-        <div style="height: 1rem;;"></div>
-
-        <div class="spacer"></div>
-
-        <div class="horizontal">
-            <div class="spacer"></div>
-            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
-            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok"></p-button>
-        </div>
+@if (loading) {
+    <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
+        <p-progressSpinner></p-progressSpinner>
     </div>
-</form>
+} @else {
+    <form style="height: 100%; padding-top: 0.5rem" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="vertical" style="height: 100%">
+
+            <div class="form-field">
+                <div>Name:</div>
+                <div class="" style="width: 100%;">
+                    <input type="text" pInputText formControlName="name" name="name" autocomplete="off" style="width: 100%;" width="100%" data-testid="category-name-input" />
+                </div>
+                <div>
+                    <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['required']">Ein Name muss angegeben werden.</p-message>
+                    <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">Es existiert bereits eine Kategorie
+                        mit diesem Name.</p-message>
+                </div>
+            </div>
+
+            <div style="height: 1rem;;"></div>
+
+            <div class="spacer"></div>
+
+            <div class="horizontal">
+                <div class="spacer"></div>
+                <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen" data-testid="category-cancel-button"></p-button>
+                <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok" data-testid="category-submit-button"></p-button>
+            </div>
+        </div>
+    </form>
+}
