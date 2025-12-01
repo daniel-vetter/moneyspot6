@@ -13,14 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build
-        run: docker build --build-arg BUILD_TIME="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" --build-arg BUILD_COMMIT=${{ github.sha }} -t docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:latest -t docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }} .
+        run: docker build --build-arg BUILD_TIME="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" --build-arg BUILD_COMMIT=${{ github.sha }} -t gitea.dvetter.net/daniel/${{ env.NAME }}:latest -t gitea.dvetter.net/daniel/${{ env.NAME }}:${{ github.sha }} .
       - name: Login to Docker Registry
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login docker.dvetter.net -u '${{ secrets.DOCKER_USER }}' --password-stdin
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login gitea.dvetter.net -u '${{ secrets.DOCKER_USER }}' --password-stdin
       - name: Push to docker registry
         run: |
-          docker push docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}
-          docker push docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:latest 
-          docker push docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}
+          docker push gitea.dvetter.net/daniel/${{ env.NAME }}
+          docker push gitea.dvetter.net/daniel/${{ env.NAME }}:latest 
+          docker push gitea.dvetter.net/daniel/${{ env.NAME }}:${{ github.sha }}
 
   deployment-staging:
     needs: build
@@ -35,10 +35,10 @@ jobs:
       - name: Updating deployment
         run: |
           export DOCKER_HOST=ssh://root@${{ env.HOST_STAGING }}
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login docker.dvetter.net -u '${{ secrets.DOCKER_USER }}' --password-stdin
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login gitea.dvetter.net -u '${{ secrets.DOCKER_USER }}' --password-stdin
           docker stop ${{ env.NAME }} || true
           docker rm ${{ env.NAME }} || true
-          docker pull docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}
+          docker pull gitea.dvetter.net/daniel/${{ env.NAME }}:${{ github.sha }}
           docker run -d --restart always -p 80:80 --name ${{ env.NAME }} \
             -e ASPNETCORE_ENVIRONMENT="Staging" \
             -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.111:4318" \
@@ -49,7 +49,7 @@ jobs:
             -e MailIntegration__GmailClientSecret="${{ secrets.GMAIL_CLIENT_SECRET }}" \
             -e MailIntegration__OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
             -e InflationImport__GenesisApiToken="${{ secrets.GENESIS_API_TOKEN }}" \
-            docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}      
+            gitea.dvetter.net/daniel/${{ env.NAME }}:${{ github.sha }}      
           docker image prune -af
 
   deployment-prod:
@@ -65,10 +65,10 @@ jobs:
       - name: Updating deployment
         run: |
           export DOCKER_HOST=ssh://root@${{ env.HOST_PROD }}
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login docker.dvetter.net -u '${{ secrets.DOCKER_USER }}' --password-stdin
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login gitea.dvetter.net -u '${{ secrets.DOCKER_USER }}' --password-stdin
           docker stop ${{ env.NAME }} || true
           docker rm ${{ env.NAME }} || true
-          docker pull docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}
+          docker pull gitea.dvetter.net/daniel/${{ env.NAME }}:${{ github.sha }}
           docker run -d --restart always -p 80:80 --name ${{ env.NAME }} \
             -e ASPNETCORE_ENVIRONMENT="Production" \
             -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.111:4318" \
@@ -79,5 +79,5 @@ jobs:
             -e MailIntegration__GmailClientSecret="${{ secrets.GMAIL_CLIENT_SECRET }}" \
             -e MailIntegration__OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
             -e InflationImport__GenesisApiToken="${{ secrets.GENESIS_API_TOKEN }}" \
-            docker.dvetter.net/${{ env.NAME }}/${{ env.NAME }}:${{ github.sha }}      
+            gitea.dvetter.net/daniel/${{ env.NAME }}:${{ github.sha }}      
           docker image prune -af
