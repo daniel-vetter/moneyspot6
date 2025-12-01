@@ -38,8 +38,9 @@ public class TransactionProcessor
         await _db.SaveChangesAsync(); 
     }
 
-    private DbBankAccountTransactionFinalData MergeToFinal(DbBankAccountTransactionParsedData parsed, DbBankAccountTransactionProcessedData processed, DbBankAccountTransactionOverrideData overrides)
+    private DbBankAccountTransactionFinalData MergeToFinal(DbBankAccountTransactionParsedData parsed, DbBankAccountTransactionProcessedData processed, DbBankAccountTransactionOverrideData? overrides)
     {
+        overrides ??= new DbBankAccountTransactionOverrideData();
         var final = new DbBankAccountTransactionFinalData
         {
             Date = overrides.Date ?? processed.Date ?? parsed.Date,
