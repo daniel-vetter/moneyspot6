@@ -127,7 +127,7 @@ public class TransactionPageController : Controller
                 },
                 OverriddenDetails = new TransactionOverrideDetails
                 {
-                    Date = x.Overridden.Date,
+                    Date = x.Overridden!.Date,
                     Purpose = x.Overridden.Purpose,
                     Name = x.Overridden.Name,
                     BankCode = x.Overridden.BankCode,

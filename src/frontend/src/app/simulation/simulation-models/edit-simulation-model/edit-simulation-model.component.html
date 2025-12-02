@@ -1,0 +1,45 @@
+<p-panel [header]="pageTitle">
+    <div style="position: relative;">
+        @if (loading) {
+            <div style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: var(--p-surface-0); z-index: 10;">
+                <p-progressSpinner></p-progressSpinner>
+            </div>
+        }
+        <form style="height: 100%;" [formGroup]="form" (ngSubmit)="onSubmit()" [style.visibility]="loading ? 'hidden' : 'visible'">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+
+                <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                    <div class="form-field" style="flex: 1;">
+                        <div>Name:</div>
+                        <input type="text" pInputText formControlName="name" name="name" autocomplete="off" style="width: 100%;" autofocus data-testid="model-name-input" />
+                        <div>
+                            <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['required']">Ein Name muss angegeben werden.</p-message>
+                            <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">Es existiert bereits ein Modell mit diesem Name.</p-message>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <div>Startdatum:</div>
+                        <p-datepicker formControlName="startDate" dateFormat="dd.mm.yy" [showIcon]="true" data-testid="model-start-date"></p-datepicker>
+                    </div>
+                    <div class="form-field">
+                        <div>Enddatum:</div>
+                        <p-datepicker formControlName="endDate" dateFormat="dd.mm.yy" [showIcon]="true" data-testid="model-end-date"></p-datepicker>
+                    </div>
+                </div>
+
+                <div>
+                    <div #container style="flex: 1; border: 1px solid var(--p-panel-border-color); height: calc(100vh - 350px); min-height: 300px;" data-testid="model-code-editor"></div>
+                </div>
+
+
+                <p-message [severity]="infoMessageSeverity" variant="outlined">{{ infoMessage }}</p-message>
+
+                <div class="horizontal">
+                    <div class="spacer"></div>
+                    <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen" data-testid="model-cancel-button"></p-button>
+                    <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid || codeError !== undefined || codeErrorStillThinking === true" label="Ok" data-testid="model-submit-button"></p-button>
+                </div>
+            </div>
+        </form>
+    </div>
+</p-panel>

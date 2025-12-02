@@ -19,6 +19,7 @@ public class Db : DbContext
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
     public DbSet<DbInflationData> InflationData { get; init; }
     public DbSet<DbInflationSettings> InflationSettings { get; init; }
+    public DbSet<DbSimulationModel> SimulationModels { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -432,4 +433,17 @@ public class DbInflationSettings
 {
     public int Id { get; set; }
     public required decimal DefaultRate { get; set; }
+}
+
+[Table("SimulationModels")]
+public class DbSimulationModel
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public required DateOnly StartDate { get; set; }
+    public required DateOnly EndDate { get; set; }
+    public required string OriginalCode { get; set; }
+    public required string CompiledCode { get; set; }
+    public required string SourceMap { get; set; }
+    public bool HasSyntaxIssues { get; set; }
 }
