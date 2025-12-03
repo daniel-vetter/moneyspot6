@@ -21,7 +21,7 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 throw new Exception($"Model with id {id} not found.");
 
             var jsEngine = new Jint.Engine();
-            jsEngine.Execute("""
+            jsEngine.Execute($$"""
                 class DateOnly {
                     constructor(year, month, day) {
                         this.date = new Date(year, month - 1, day);
@@ -77,6 +77,18 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                         return new DateOnly(date.getFullYear(), date.getMonth() + 1, date.getDate());
                     }
 
+                    addMonths(count) {
+                        var date = new Date(this.date.valueOf());
+                        date.setMonth(date.getMonth() + count);
+                        return new DateOnly(date.getFullYear(), date.getMonth() + 1, date.getDate());
+                    }
+
+                    addYears(count) {
+                        var date = new Date(this.date.valueOf());
+                        date.setFullYear(date.getFullYear() + count);
+                        return new DateOnly(date.getFullYear(), date.getMonth() + 1, date.getDate());
+                    }
+
                     toString() {
                         return `${this.year}-${this.prefixNumber(this.month)}-${this.prefixNumber(this.day)}`
                     }
@@ -87,19 +99,23 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 }
 
                 function addTransaction(title, amount) {
-                    addTransactionExternal(today.toString(), title, amount);
+                    balance += amount;
+                    addTransactionExternal(today.toString(), title, balance, amount);
                 }
 
-
-                start = new DateOnly(2020, 1, 1);
-                end = new DateOnly(2024, 1, 1);
+                start = new DateOnly({{model.StartDate.Year}}, {{model.StartDate.Month}}, {{model.StartDate.Day}});
+                end = new DateOnly({{model.EndDate.Year}}, {{model.EndDate.Month}}, {{model.EndDate.Day}});
                 today = start;
+                today = start;
+                balance = 0;
                 """);
 
             var log = new List<string>();
             var transactions = new List<CreatedTransaction>();
+            var daySummaries = new List<DaySummary>();
             jsEngine.SetValue("log", (string str) => { log.Add(str); });
-            jsEngine.SetValue("addTransactionExternal", (string date, string str, double amount) => { transactions.Add(new CreatedTransaction(DateOnly.Parse(date), str, amount)); });
+            jsEngine.SetValue("addTransactionExternal", (string date, string str, double balance, double amount) => { transactions.Add(new CreatedTransaction(DateOnly.Parse(date), str, (decimal)balance, (decimal)amount)); });
+            jsEngine.SetValue("addDaySummaryExternal", (string date, double balance, double amount) => { daySummaries.Add(new DaySummary(DateOnly.Parse(date), (decimal)balance, (decimal)amount)); });
 
             jsEngine.Modules.Add("userCode", model.CompiledCode);
             jsEngine.Modules.Add("main", """
@@ -107,7 +123,10 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 
                 export function run() {
                     for (;today.isBeforeOrEqual(end); today = today.addDays(1)) {
+                        const balanceBefore = balance;
                         onTick();
+                        const amountChange = balance - balanceBefore;
+
                     }
                 }
                 """);
@@ -120,7 +139,20 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             {
                 SimulationModelId = id,
                 CreatedAt = DateTime.UtcNow,
-                Logs = log.Select(msg => new DbSimulationRunLog { Message = msg }).ToList()
+                Logs = log.Select(msg => new DbSimulationRunLog { Message = msg }).ToList(),
+                Transactions = transactions.Select(t => new DbSimulationRunTransaction
+                {
+                    Date = t.Date,
+                    Title = t.Title,
+                    Balance = t.BalanceBefore,
+                    Amount = t.Amount
+                }).ToList(),
+                DaySummaries = daySummaries.Select(d => new DbSimulationRunDaySummary
+                {
+                    Date = d.Date,
+                    Balance = d.BalanceBefore,
+                    Amount = d.Amount
+                }).ToList()
             };
             _db.SimulationRuns.Add(run);
             await _db.SaveChangesAsync();
@@ -129,5 +161,6 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
         }
     }
 
-    record CreatedTransaction(DateOnly Date, string Title, double Amount);
+    record CreatedTransaction(DateOnly Date, string Title, decimal BalanceBefore, decimal Amount);
+    record DaySummary(DateOnly Date, decimal BalanceBefore, decimal Amount);
 }

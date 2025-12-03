@@ -5,13 +5,17 @@ import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
-import {NewSimulationModelRequest, SimulationModelsClient, SimulationModelValidationErrorResponse, UpdateSimulationModelRequest, SimulationRunLogsResponse} from '../../../server';
+import {NewSimulationModelRequest, SimulationModelsClient, SimulationModelValidationErrorResponse, UpdateSimulationModelRequest, SimulationTransactionResponse} from '../../../server';
 import {lastValueFrom} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PanelModule} from 'primeng/panel';
 import {DatePickerModule} from 'primeng/datepicker';
+import {TabsModule} from 'primeng/tabs';
+import {TableModule} from 'primeng/table';
+import * as Highcharts from 'highcharts';
+import {HighchartsChartModule} from 'highcharts-angular';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
@@ -19,7 +23,7 @@ import * as monaco from 'monaco-editor';
 
 @Component({
     selector: 'app-edit-simulation-model',
-    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule, PanelModule, DatePickerModule],
+    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule, PanelModule, DatePickerModule, TabsModule, TableModule, HighchartsChartModule],
     templateUrl: './edit-simulation-model.component.html',
     styleUrl: './edit-simulation-model.component.scss'
 })
@@ -43,7 +47,10 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     makerChangeSubscription: monaco.IDisposable | undefined;
     loading = true;
     logs: string[] = [];
+    transactions: SimulationTransactionResponse[] = [];
     isRunning = false;
+    Highcharts: typeof Highcharts = Highcharts;
+    chartOptions: Highcharts.Options | undefined;
 
     get pageTitle(): string {
         return this.id === undefined ? "Neues Modell" : "Modell bearbeiten";
@@ -118,6 +125,9 @@ declare class DateOnly {
     isAfterOrEqual(year: number, month: number, day: number): boolean;
     isAfterOrEqual(date: DateOnly): boolean;
     isBetween(start: DateOnly, end: DateOnly);
+    addDays(count: number): DateOnly;
+    addMonths(count: number): DateOnly;
+    addYears(count: number): DateOnly;
     readonly year: number;
     readonly month: number;
     readonly day: number;
@@ -245,6 +255,8 @@ declare class DateOnly {
 
         this.isRunning = true;
         this.logs = [];
+        this.transactions = [];
+        this.chartOptions = undefined;
 
         try {
             // Save the model first
@@ -268,9 +280,43 @@ declare class DateOnly {
             // Run the simulation
             const runId = await lastValueFrom(this.simulationModelsClient.run(this.id));
 
-            // Get the logs
-            const logsResponse = await lastValueFrom(this.simulationModelsClient.getRunLogs(runId));
-            this.logs = logsResponse.logs;
+            // Get the result
+            const result = await lastValueFrom(this.simulationModelsClient.getRunResult(runId));
+            this.logs = result.logs;
+            this.transactions = result.transactions;
+
+            // Build chart from transactions
+            if (result.transactions.length > 0) {
+                const chartData = result.transactions.map(t => {
+                    const date = new Date(t.date);
+                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), t.balance];
+                });
+
+                this.chartOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 300
+                    },
+                    title: {
+                        text: undefined
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        title: { text: undefined }
+                    },
+                    yAxis: {
+                        title: { text: 'Balance' }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    series: [{
+                        type: 'line',
+                        name: 'Balance',
+                        data: chartData
+                    }]
+                };
+            }
         } catch (error) {
             console.error(error);
         } finally {

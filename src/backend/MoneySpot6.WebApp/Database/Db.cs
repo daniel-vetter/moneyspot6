@@ -22,6 +22,8 @@ public class Db : DbContext
     public DbSet<DbSimulationModel> SimulationModels { get; init; }
     public DbSet<DbSimulationRun> SimulationRuns { get; init; }
     public DbSet<DbSimulationRunLog> SimulationRunLogs { get; init; }
+    public DbSet<DbSimulationRunTransaction> SimulationRunTransactions { get; init; }
+    public DbSet<DbSimulationRunDaySummary> SimulationRunDaySummaries { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -458,6 +460,8 @@ public class DbSimulationRun
     public DbSimulationModel SimulationModel { get; set; } = null!;
     public required DateTime CreatedAt { get; set; }
     public List<DbSimulationRunLog> Logs { get; set; } = new();
+    public List<DbSimulationRunTransaction> Transactions { get; set; } = new();
+    public List<DbSimulationRunDaySummary> DaySummaries { get; set; } = new();
 }
 
 [Table("SimulationRunLogs")]
@@ -467,4 +471,27 @@ public class DbSimulationRunLog
     public int SimulationRunId { get; set; }
     public DbSimulationRun SimulationRun { get; set; } = null!;
     public required string Message { get; set; }
+}
+
+[Table("SimulationRunTransactions")]
+public class DbSimulationRunTransaction
+{
+    public int Id { get; set; }
+    public int SimulationRunId { get; set; }
+    public DbSimulationRun SimulationRun { get; set; } = null!;
+    public required DateOnly Date { get; set; }
+    public required string Title { get; set; }
+    public required decimal Balance { get; set; }
+    public required decimal Amount { get; set; }
+}
+
+[Table("SimulationRunDaySummaries")]
+public class DbSimulationRunDaySummary
+{
+    public int Id { get; set; }
+    public int SimulationRunId { get; set; }
+    public DbSimulationRun SimulationRun { get; set; } = null!;
+    public required DateOnly Date { get; set; }
+    public required decimal Balance { get; set; }
+    public required decimal Amount { get; set; }
 }

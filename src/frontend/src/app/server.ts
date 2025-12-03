@@ -1396,8 +1396,8 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    getRunLogs(runId: number | undefined): Observable<SimulationRunLogsResponse> {
-        let url_ = this.baseUrl + "/api/SimulationModels/GetRunLogs?";
+    getRunResult(runId: number | undefined): Observable<SimulationRunResultResponse> {
+        let url_ = this.baseUrl + "/api/SimulationModels/GetRunResult?";
         if (runId === null)
             throw new globalThis.Error("The parameter 'runId' cannot be null.");
         else if (runId !== undefined)
@@ -1413,20 +1413,20 @@ export class SimulationModelsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetRunLogs(response_);
+            return this.processGetRunResult(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetRunLogs(response_ as any);
+                    return this.processGetRunResult(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SimulationRunLogsResponse>;
+                    return _observableThrow(e) as any as Observable<SimulationRunResultResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SimulationRunLogsResponse>;
+                return _observableThrow(response_) as any as Observable<SimulationRunResultResponse>;
         }));
     }
 
-    protected processGetRunLogs(response: HttpResponseBase): Observable<SimulationRunLogsResponse> {
+    protected processGetRunResult(response: HttpResponseBase): Observable<SimulationRunResultResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1437,7 +1437,7 @@ export class SimulationModelsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = SimulationRunLogsResponse.fromJS(resultData200);
+            result200 = SimulationRunResultResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -5602,10 +5602,12 @@ export interface IUpdateSimulationModelRequest {
     sourceMap: string;
 }
 
-export class SimulationRunLogsResponse implements ISimulationRunLogsResponse {
+export class SimulationRunResultResponse implements ISimulationRunResultResponse {
     logs!: string[];
+    transactions!: SimulationTransactionResponse[];
+    daySummaries!: SimulationDaySummaryResponse[];
 
-    constructor(data?: ISimulationRunLogsResponse) {
+    constructor(data?: ISimulationRunResultResponse) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5614,6 +5616,8 @@ export class SimulationRunLogsResponse implements ISimulationRunLogsResponse {
         }
         if (!data) {
             this.logs = [];
+            this.transactions = [];
+            this.daySummaries = [];
         }
     }
 
@@ -5624,12 +5628,22 @@ export class SimulationRunLogsResponse implements ISimulationRunLogsResponse {
                 for (let item of _data["logs"])
                     this.logs!.push(item);
             }
+            if (Array.isArray(_data["transactions"])) {
+                this.transactions = [] as any;
+                for (let item of _data["transactions"])
+                    this.transactions!.push(SimulationTransactionResponse.fromJS(item));
+            }
+            if (Array.isArray(_data["daySummaries"])) {
+                this.daySummaries = [] as any;
+                for (let item of _data["daySummaries"])
+                    this.daySummaries!.push(SimulationDaySummaryResponse.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): SimulationRunLogsResponse {
+    static fromJS(data: any): SimulationRunResultResponse {
         data = typeof data === 'object' ? data : {};
-        let result = new SimulationRunLogsResponse();
+        let result = new SimulationRunResultResponse();
         result.init(data);
         return result;
     }
@@ -5641,12 +5655,116 @@ export class SimulationRunLogsResponse implements ISimulationRunLogsResponse {
             for (let item of this.logs)
                 data["logs"].push(item);
         }
+        if (Array.isArray(this.transactions)) {
+            data["transactions"] = [];
+            for (let item of this.transactions)
+                data["transactions"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.daySummaries)) {
+            data["daySummaries"] = [];
+            for (let item of this.daySummaries)
+                data["daySummaries"].push(item ? item.toJSON() : undefined as any);
+        }
         return data;
     }
 }
 
-export interface ISimulationRunLogsResponse {
+export interface ISimulationRunResultResponse {
     logs: string[];
+    transactions: SimulationTransactionResponse[];
+    daySummaries: SimulationDaySummaryResponse[];
+}
+
+export class SimulationTransactionResponse implements ISimulationTransactionResponse {
+    date!: Date;
+    title!: string;
+    balance!: number;
+    amount!: number;
+
+    constructor(data?: ISimulationTransactionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.title = _data["title"];
+            this.balance = _data["balance"];
+            this.amount = _data["amount"];
+        }
+    }
+
+    static fromJS(data: any): SimulationTransactionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new SimulationTransactionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : undefined as any;
+        data["title"] = this.title;
+        data["balance"] = this.balance;
+        data["amount"] = this.amount;
+        return data;
+    }
+}
+
+export interface ISimulationTransactionResponse {
+    date: Date;
+    title: string;
+    balance: number;
+    amount: number;
+}
+
+export class SimulationDaySummaryResponse implements ISimulationDaySummaryResponse {
+    date!: Date;
+    balance!: number;
+    amount!: number;
+
+    constructor(data?: ISimulationDaySummaryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.balance = _data["balance"];
+            this.amount = _data["amount"];
+        }
+    }
+
+    static fromJS(data: any): SimulationDaySummaryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new SimulationDaySummaryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : undefined as any;
+        data["balance"] = this.balance;
+        data["amount"] = this.amount;
+        return data;
+    }
+}
+
+export interface ISimulationDaySummaryResponse {
+    date: Date;
+    balance: number;
+    amount: number;
 }
 
 export class IntegrationStatusResponse implements IIntegrationStatusResponse {

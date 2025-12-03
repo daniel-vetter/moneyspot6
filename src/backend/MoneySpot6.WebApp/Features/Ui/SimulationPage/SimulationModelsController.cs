@@ -140,18 +140,33 @@ public class SimulationModelsController : Controller
         return Ok(runId);
     }
 
-    [HttpGet("GetRunLogs")]
-    [Produces<SimulationRunLogsResponse>]
-    public async Task<IActionResult> GetRunLogs(int runId)
+    [HttpGet("GetRunResult")]
+    [Produces<SimulationRunResultResponse>]
+    public async Task<IActionResult> GetRunResult(int runId)
     {
         var run = await _db.SimulationRuns
             .Include(r => r.Logs)
+            .Include(r => r.Transactions)
+            .Include(r => r.DaySummaries)
             .SingleOrDefaultAsync(r => r.Id == runId);
         if (run == null) return NotFound();
 
-        return Ok(new SimulationRunLogsResponse
+        return Ok(new SimulationRunResultResponse
         {
-            Logs = run.Logs.Select(l => l.Message).ToList()
+            Logs = run.Logs.Select(l => l.Message).ToList(),
+            Transactions = run.Transactions.Select(t => new SimulationTransactionResponse
+            {
+                Date = t.Date,
+                Title = t.Title,
+                Balance = t.Balance,
+                Amount = t.Amount
+            }).ToList(),
+            DaySummaries = run.DaySummaries.Select(d => new SimulationDaySummaryResponse
+            {
+                Date = d.Date,
+                Balance = d.Balance,
+                Amount = d.Amount
+            }).ToList()
         });
     }
 
@@ -212,7 +227,26 @@ public record SimulationModelValidationErrorResponse
 }
 
 [PublicAPI]
-public record SimulationRunLogsResponse
+public record SimulationRunResultResponse
 {
     [Required] public required List<string> Logs { get; set; }
+    [Required] public required List<SimulationTransactionResponse> Transactions { get; set; }
+    [Required] public required List<SimulationDaySummaryResponse> DaySummaries { get; set; }
+}
+
+[PublicAPI]
+public record SimulationTransactionResponse
+{
+    [Required] public required DateOnly Date { get; set; }
+    [Required] public required string Title { get; set; }
+    [Required] public required decimal Balance { get; set; }
+    [Required] public required decimal Amount { get; set; }
+}
+
+[PublicAPI]
+public record SimulationDaySummaryResponse
+{
+    [Required] public required DateOnly Date { get; set; }
+    [Required] public required decimal Balance { get; set; }
+    [Required] public required decimal Amount { get; set; }
 }
