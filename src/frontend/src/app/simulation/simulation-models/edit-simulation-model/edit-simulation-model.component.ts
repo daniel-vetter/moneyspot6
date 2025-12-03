@@ -5,7 +5,7 @@ import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
-import {NewSimulationModelRequest, SimulationModelsClient, SimulationModelValidationErrorResponse, UpdateSimulationModelRequest} from '../../../server';
+import {NewSimulationModelRequest, SimulationModelsClient, SimulationModelValidationErrorResponse, UpdateSimulationModelRequest, SimulationRunLogsResponse} from '../../../server';
 import {lastValueFrom} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
@@ -42,6 +42,8 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     codeErrorStillThinking = true;
     makerChangeSubscription: monaco.IDisposable | undefined;
     loading = true;
+    logs: string[] = [];
+    isRunning = false;
 
     get pageTitle(): string {
         return this.id === undefined ? "Neues Modell" : "Modell bearbeiten";
@@ -234,5 +236,45 @@ declare class DateOnly {
 
     onCancelClicked() {
         this.router.navigate(['/simulation']);
+    }
+
+    async onRunClicked() {
+        if (this.id === undefined) {
+            return;
+        }
+
+        this.isRunning = true;
+        this.logs = [];
+
+        try {
+            // Save the model first
+            const worker = await monaco.languages.typescript.getTypeScriptWorker();
+            const svc = await worker(this.model!.uri);
+            const emit = await svc.getEmitOutput(this.model!.uri.toString());
+
+            const jsOutput = emit.outputFiles.filter(x => x.name.endsWith('.js'))[0];
+            const mapOutput = emit.outputFiles.filter(x => x.name.endsWith('.js.map'))[0];
+
+            await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
+                id: this.id,
+                name: this.form.controls.name.value!,
+                startDate: this.form.controls.startDate.value!,
+                endDate: this.form.controls.endDate.value!,
+                originalCode: this.editor?.getModel()?.getValue() || "",
+                compiledCode: jsOutput.text,
+                sourceMap: mapOutput.text
+            })));
+
+            // Run the simulation
+            const runId = await lastValueFrom(this.simulationModelsClient.run(this.id));
+
+            // Get the logs
+            const logsResponse = await lastValueFrom(this.simulationModelsClient.getRunLogs(runId));
+            this.logs = logsResponse.logs;
+        } catch (error) {
+            console.error(error);
+        } finally {
+            this.isRunning = false;
+        }
     }
 }

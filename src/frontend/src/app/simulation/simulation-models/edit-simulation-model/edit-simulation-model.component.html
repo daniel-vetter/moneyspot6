@@ -25,10 +25,36 @@
                         <div>Enddatum:</div>
                         <p-datepicker formControlName="endDate" dateFormat="dd.mm.yy" [showIcon]="true" data-testid="model-end-date"></p-datepicker>
                     </div>
+                    @if (id !== undefined) {
+                        <div class="form-field">
+                            <div>&nbsp;</div>
+                            <p-button severity="success" (click)="onRunClicked()" [disabled]="!form.valid || codeError !== undefined || codeErrorStillThinking === true || isRunning" [loading]="isRunning" icon="pi pi-play" label="Ausführen" data-testid="model-run-button"></p-button>
+                        </div>
+                    }
                 </div>
 
-                <div>
-                    <div #container style="flex: 1; border: 1px solid var(--p-panel-border-color); height: calc(100vh - 350px); min-height: 300px;" data-testid="model-code-editor"></div>
+                <div class="split-view">
+                    <div class="editor-panel">
+                        <div #container class="editor-container" data-testid="model-code-editor"></div>
+                    </div>
+                    <div class="log-panel">
+                            <div class="log-header">Simulation Log</div>
+                            <div class="log-content">
+                                @if (isRunning) {
+                                    <div class="log-loading">
+                                        <p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
+                                        <span>Simulation läuft...</span>
+                                    </div>
+                                } @else {
+                                    @for (log of logs; track $index) {
+                                        <div class="log-entry">{{ log }}</div>
+                                    }
+                                    @if (logs.length === 0) {
+                                        <div class="log-empty">Keine Log-Einträge vorhanden.</div>
+                                    }
+                                }
+                            </div>
+                        </div>
                 </div>
 
 

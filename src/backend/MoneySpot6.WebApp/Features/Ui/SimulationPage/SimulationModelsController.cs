@@ -133,10 +133,26 @@ public class SimulationModelsController : Controller
     }
 
     [HttpPost("Run")]
+    [Produces<int>]
     public async Task<IActionResult> Run(int id)
     {
-        await _simulationRunner.Run(id);
-        return Ok();
+        var runId = await _simulationRunner.Run(id);
+        return Ok(runId);
+    }
+
+    [HttpGet("GetRunLogs")]
+    [Produces<SimulationRunLogsResponse>]
+    public async Task<IActionResult> GetRunLogs(int runId)
+    {
+        var run = await _db.SimulationRuns
+            .Include(r => r.Logs)
+            .SingleOrDefaultAsync(r => r.Id == runId);
+        if (run == null) return NotFound();
+
+        return Ok(new SimulationRunLogsResponse
+        {
+            Logs = run.Logs.Select(l => l.Message).ToList()
+        });
     }
 
     [HttpDelete("Delete")]
@@ -193,4 +209,10 @@ public record SimulationModelValidationErrorResponse
 {
     [Required] public bool MissingName { get; set; }
     [Required] public bool NameAlreadyInUse { get; set; }
+}
+
+[PublicAPI]
+public record SimulationRunLogsResponse
+{
+    [Required] public required List<string> Logs { get; set; }
 }

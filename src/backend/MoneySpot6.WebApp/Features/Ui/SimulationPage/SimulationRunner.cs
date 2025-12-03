@@ -14,7 +14,7 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             _db = db;
         }
 
-        public async Task Run(int id)
+        public async Task<int> Run(int id)
         {
             var model = await _db.SimulationModels.SingleOrDefaultAsync(x => x.Id == id);
             if (model == null)
@@ -78,7 +78,7 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                     }
 
                     toString() {
-                        return `${this.prefixNumber(this.year)}-${this.prefixNumber(this.month)}-${this.day}`
+                        return `${this.year}-${this.prefixNumber(this.month)}-${this.prefixNumber(this.day)}`
                     }
 
                     prefixNumber(number) {
@@ -116,6 +116,16 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             var tickFunction = mainModule.Get("run");
             var r = jsEngine.Invoke(tickFunction, Array.Empty<object>());
 
+            var run = new DbSimulationRun
+            {
+                SimulationModelId = id,
+                CreatedAt = DateTime.UtcNow,
+                Logs = log.Select(msg => new DbSimulationRunLog { Message = msg }).ToList()
+            };
+            _db.SimulationRuns.Add(run);
+            await _db.SaveChangesAsync();
+
+            return run.Id;
         }
     }
 

@@ -20,6 +20,8 @@ public class Db : DbContext
     public DbSet<DbInflationData> InflationData { get; init; }
     public DbSet<DbInflationSettings> InflationSettings { get; init; }
     public DbSet<DbSimulationModel> SimulationModels { get; init; }
+    public DbSet<DbSimulationRun> SimulationRuns { get; init; }
+    public DbSet<DbSimulationRunLog> SimulationRunLogs { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -446,4 +448,23 @@ public class DbSimulationModel
     public required string CompiledCode { get; set; }
     public required string SourceMap { get; set; }
     public bool HasSyntaxIssues { get; set; }
+}
+
+[Table("SimulationRuns")]
+public class DbSimulationRun
+{
+    public int Id { get; set; }
+    public int SimulationModelId { get; set; }
+    public DbSimulationModel SimulationModel { get; set; } = null!;
+    public required DateTime CreatedAt { get; set; }
+    public List<DbSimulationRunLog> Logs { get; set; } = new();
+}
+
+[Table("SimulationRunLogs")]
+public class DbSimulationRunLog
+{
+    public int Id { get; set; }
+    public int SimulationRunId { get; set; }
+    public DbSimulationRun SimulationRun { get; set; } = null!;
+    public required string Message { get; set; }
 }
