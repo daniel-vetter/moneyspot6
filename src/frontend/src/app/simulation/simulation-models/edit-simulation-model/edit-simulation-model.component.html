@@ -25,70 +25,74 @@
                     }
                 </div>
 
-                <div class="split-view">
-                    <div class="editor-panel">
-                        <div #container class="editor-container" data-testid="model-code-editor"></div>
-                    </div>
-                    <div class="result-panel">
-                        @if (isRunning) {
-                            <div class="result-loading">
-                                <p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
-                                <span>Simulation läuft...</span>
-                            </div>
-                        } @else {
-                            <p-tabs value="0">
-                                <p-tablist>
-                                    <p-tab value="0">Chart</p-tab>
-                                    <p-tab value="1">Transaktionen</p-tab>
-                                    <p-tab value="2">Logs</p-tab>
-                                </p-tablist>
-                                <p-tabpanels>
-                                    <p-tabpanel value="0">
-                                        @if (chartOptions) {
-                                            <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
-                                        } @else {
-                                            <div class="empty-state">Keine Daten vorhanden. Führe die Simulation aus.</div>
-                                        }
-                                    </p-tabpanel>
-                                    <p-tabpanel value="1">
-                                        @if (transactions.length > 0) {
-                                            <p-table [value]="transactions" [scrollable]="true" scrollHeight="flex" styleClass="p-datatable-sm">
-                                                <ng-template #header>
-                                                    <tr>
-                                                        <th>Datum</th>
-                                                        <th>Titel</th>
-                                                        <th style="text-align: right;">Betrag</th>
-                                                        <th style="text-align: right;">Balance</th>
-                                                    </tr>
-                                                </ng-template>
-                                                <ng-template #body let-t>
-                                                    <tr>
-                                                        <td>{{ t.date | date:'dd.MM.yyyy' }}</td>
-                                                        <td>{{ t.title }}</td>
-                                                        <td style="text-align: right;" [class.positive]="t.amount >= 0" [class.negative]="t.amount < 0">{{ t.amount | number:'1.2-2' }}</td>
-                                                        <td style="text-align: right;">{{ t.balance | number:'1.2-2' }}</td>
-                                                    </tr>
-                                                </ng-template>
-                                            </p-table>
-                                        } @else {
-                                            <div class="empty-state">Keine Transaktionen vorhanden.</div>
-                                        }
-                                    </p-tabpanel>
-                                    <p-tabpanel value="2">
-                                        <div class="log-content">
-                                            @for (log of logs; track $index) {
-                                                <div class="log-entry">{{ log }}</div>
+                <p-splitter class="split-view" [panelSizes]="[50, 50]" (onResizeEnd)="onSplitterResized()">
+                    <ng-template #panel>
+                        <div class="editor-panel">
+                            <div #container class="editor-container" data-testid="model-code-editor"></div>
+                        </div>
+                    </ng-template>
+                    <ng-template #panel>
+                        <div class="result-panel">
+                            @if (isRunning) {
+                                <div class="result-loading">
+                                    <p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
+                                    <span>Simulation läuft...</span>
+                                </div>
+                            } @else {
+                                <p-tabs value="0">
+                                    <p-tablist>
+                                        <p-tab value="0">Chart</p-tab>
+                                        <p-tab value="1">Transaktionen</p-tab>
+                                        <p-tab value="2">Logs</p-tab>
+                                    </p-tablist>
+                                    <p-tabpanels>
+                                        <p-tabpanel value="0">
+                                            @if (chartOptions) {
+                                                <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                            } @else {
+                                                <div class="empty-state">Keine Daten vorhanden. Führe die Simulation aus.</div>
                                             }
-                                            @if (logs.length === 0) {
-                                                <div class="empty-state">Keine Log-Einträge vorhanden.</div>
+                                        </p-tabpanel>
+                                        <p-tabpanel value="1">
+                                            @if (transactions.length > 0) {
+                                                <p-table [value]="transactions" [scrollable]="true" scrollHeight="flex" styleClass="p-datatable-sm">
+                                                    <ng-template #header>
+                                                        <tr>
+                                                            <th>Datum</th>
+                                                            <th>Titel</th>
+                                                            <th style="text-align: right;">Betrag</th>
+                                                            <th style="text-align: right;">Balance</th>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template #body let-t>
+                                                        <tr>
+                                                            <td>{{ t.date | date:'dd.MM.yyyy' }}</td>
+                                                            <td>{{ t.title }}</td>
+                                                            <td style="text-align: right;" [class.positive]="t.amount >= 0" [class.negative]="t.amount < 0">{{ t.amount | number:'1.2-2' }}</td>
+                                                            <td style="text-align: right;">{{ t.balance | number:'1.2-2' }}</td>
+                                                        </tr>
+                                                    </ng-template>
+                                                </p-table>
+                                            } @else {
+                                                <div class="empty-state">Keine Transaktionen vorhanden.</div>
                                             }
-                                        </div>
-                                    </p-tabpanel>
-                                </p-tabpanels>
-                            </p-tabs>
-                        }
-                    </div>
-                </div>
+                                        </p-tabpanel>
+                                        <p-tabpanel value="2">
+                                            <div class="log-content">
+                                                @for (log of logs; track $index) {
+                                                    <div class="log-entry">{{ log }}</div>
+                                                }
+                                                @if (logs.length === 0) {
+                                                    <div class="empty-state">Keine Log-Einträge vorhanden.</div>
+                                                }
+                                            </div>
+                                        </p-tabpanel>
+                                    </p-tabpanels>
+                                </p-tabs>
+                            }
+                        </div>
+                    </ng-template>
+                </p-splitter>
 
 
                 <p-message [severity]="infoMessageSeverity" variant="outlined">{{ infoMessage }}</p-message>

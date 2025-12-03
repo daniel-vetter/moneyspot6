@@ -12,6 +12,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PanelModule} from 'primeng/panel';
 import {TabsModule} from 'primeng/tabs';
+import {SplitterModule} from 'primeng/splitter';
 import {TableModule} from 'primeng/table';
 import * as Highcharts from 'highcharts';
 import {HighchartsChartModule} from 'highcharts-angular';
@@ -22,7 +23,7 @@ import * as monaco from 'monaco-editor';
 
 @Component({
     selector: 'app-edit-simulation-model',
-    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule, PanelModule, TabsModule, TableModule, HighchartsChartModule],
+    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule, PanelModule, TabsModule, SplitterModule, TableModule, HighchartsChartModule],
     templateUrl: './edit-simulation-model.component.html',
     styleUrl: './edit-simulation-model.component.scss'
 })
@@ -260,6 +261,10 @@ declare class DateOnly {
 
     onCancelClicked() {
         this.router.navigate(['/simulation']);
+    }
+
+    onSplitterResized() {
+        this.editor?.layout();
     }
 
     async onRunClicked() {
