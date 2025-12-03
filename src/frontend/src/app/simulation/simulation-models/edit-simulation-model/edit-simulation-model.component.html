@@ -55,7 +55,7 @@
                                         </p-tabpanel>
                                         <p-tabpanel value="1">
                                             @if (transactions.length > 0) {
-                                                <p-table [value]="transactions" [scrollable]="true" scrollHeight="flex" styleClass="p-datatable-sm">
+                                                <p-table [value]="transactions" [scrollable]="true" scrollHeight="flex" [virtualScroll]="true" [virtualScrollItemSize]="34" styleClass="p-datatable-sm">
                                                     <ng-template #header>
                                                         <tr>
                                                             <th>Datum</th>
