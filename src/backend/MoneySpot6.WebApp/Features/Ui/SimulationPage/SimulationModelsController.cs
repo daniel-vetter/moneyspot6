@@ -150,6 +150,7 @@ public class SimulationModelsController : Controller
     public async Task<IActionResult> GetRunResult(int runId)
     {
         var run = await _db.SimulationRuns
+            .AsSplitQuery()
             .Include(r => r.Logs)
             .Include(r => r.Transactions)
             .Include(r => r.DaySummaries)
@@ -170,7 +171,8 @@ public class SimulationModelsController : Controller
             {
                 Date = d.Date,
                 Balance = d.Balance,
-                Amount = d.Amount
+                Amount = d.Amount,
+                TotalStockValue = d.TotalStockValue
             }).ToList()
         });
     }
@@ -251,4 +253,5 @@ public record SimulationDaySummaryResponse
     [Required] public required DateOnly Date { get; set; }
     [Required] public required decimal Balance { get; set; }
     [Required] public required decimal Amount { get; set; }
+    [Required] public required decimal TotalStockValue { get; set; }
 }

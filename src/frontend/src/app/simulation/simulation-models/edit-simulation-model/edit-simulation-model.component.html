@@ -44,8 +44,13 @@
                                     </p-tablist>
                                     <p-tabpanels>
                                         <p-tabpanel value="0">
-                                            @if (chartOptions) {
-                                                <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                            @if (chartOptions || stockChartOptions) {
+                                                @if (chartOptions) {
+                                                    <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                }
+                                                @if (stockChartOptions) {
+                                                    <highcharts-chart [Highcharts]="Highcharts" [options]="stockChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                }
                                             } @else {
                                                 <div class="empty-state">Keine Daten vorhanden. Führe die Simulation aus.</div>
                                             }

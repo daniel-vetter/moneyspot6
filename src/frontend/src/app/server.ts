@@ -5783,6 +5783,7 @@ export class SimulationDaySummaryResponse implements ISimulationDaySummaryRespon
     date!: Date;
     balance!: number;
     amount!: number;
+    totalStockValue!: number;
 
     constructor(data?: ISimulationDaySummaryResponse) {
         if (data) {
@@ -5798,6 +5799,7 @@ export class SimulationDaySummaryResponse implements ISimulationDaySummaryRespon
             this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
             this.balance = _data["balance"];
             this.amount = _data["amount"];
+            this.totalStockValue = _data["totalStockValue"];
         }
     }
 
@@ -5813,6 +5815,7 @@ export class SimulationDaySummaryResponse implements ISimulationDaySummaryRespon
         data["date"] = this.date ? formatDate(this.date) : undefined as any;
         data["balance"] = this.balance;
         data["amount"] = this.amount;
+        data["totalStockValue"] = this.totalStockValue;
         return data;
     }
 }
@@ -5821,6 +5824,7 @@ export interface ISimulationDaySummaryResponse {
     date: Date;
     balance: number;
     amount: number;
+    totalStockValue: number;
 }
 
 export class IntegrationStatusResponse implements IIntegrationStatusResponse {

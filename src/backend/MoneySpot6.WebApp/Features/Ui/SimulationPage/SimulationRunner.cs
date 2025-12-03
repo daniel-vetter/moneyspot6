@@ -109,7 +109,47 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 balance = 0;
 
                 class SPPLinearYearly {
-                    constructor(refDate, refValue, yearlyIncrease) {}
+                    constructor(refDate, refValue, yearlyIncrease) {
+                        this.referenceDate = refDate;
+                        this.referenceValue = refValue;
+                        this.increasePerYear = yearlyIncrease;
+                    }
+
+                    getValue(date) {
+                        const yearsDiff = (date.year - this.referenceDate.year) +
+                                          (date.month - this.referenceDate.month) / 12 +
+                                          (date.day - this.referenceDate.day) / 365;
+                        return this.referenceValue * Math.pow(1 + this.increasePerYear / 100, yearsDiff);
+                    }
+                }
+
+                const stockHoldings = {};
+                const stockPredictors = {};
+
+                function buyStocksFor(stockName, amount) {
+                    const predictor = stockPredictors[stockName];
+                    if (!predictor) {
+                        log("ERROR: Unknown stock: " + stockName);
+                        return;
+                    }
+
+                    const currentPrice = predictor.getValue(today);
+                    const sharesBought = amount / currentPrice;
+
+                    stockHoldings[stockName] = (stockHoldings[stockName] || 0) + sharesBought;
+                    addTransaction("Buy " + stockName, -amount);
+                }
+
+                function getTotalStockValue() {
+                    let total = 0;
+                    for (const stockName in stockHoldings) {
+                        const predictor = stockPredictors[stockName];
+                        if (predictor) {
+                            const currentPrice = predictor.getValue(today);
+                            total += stockHoldings[stockName] * currentPrice;
+                        }
+                    }
+                    return total;
                 }
                 """);
 
@@ -118,12 +158,12 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             var daySummaries = new List<DaySummary>();
             jsEngine.SetValue("log", (string str) => { log.Add(str); });
             jsEngine.SetValue("addTransactionExternal", (string date, string str, double balance, double amount) => { transactions.Add(new CreatedTransaction(DateOnly.Parse(date), str, (decimal)balance, (decimal)amount)); });
-            jsEngine.SetValue("addDaySummaryExternal", (string date, double balance, double amount) => { daySummaries.Add(new DaySummary(DateOnly.Parse(date), (decimal)balance, (decimal)amount)); });
+            jsEngine.SetValue("addDaySummaryExternal", (string date, double balance, double amount, double totalStockValue) => { daySummaries.Add(new DaySummary(DateOnly.Parse(date), (decimal)balance, (decimal)amount, (decimal)totalStockValue)); });
 
             jsEngine.Modules.Add("userCode", model.CompiledCode);
             jsEngine.Modules.Add("main", """
                 import { onTick, onInit } from "userCode";
-                
+
                 export function run() {
 
                     const config = onInit();
@@ -133,11 +173,20 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                     today = config.startDate;
                     balance = config.startBalance;
 
+                    // Initialize stocks from config
+                    if (config.stocks && Array.isArray(config.stocks)) {
+                        for (const stock of config.stocks) {
+                            stockHoldings[stock.name] = stock.startAmount || 0;
+                            stockPredictors[stock.name] = stock.pricePredictor;
+                        }
+                    }
+
                     for (;today.isBeforeOrEqual(end); today = today.addDays(1)) {
                         const balanceBefore = balance;
                         onTick();
                         const amountChange = balance - balanceBefore;
-
+                        const totalStockValue = getTotalStockValue();
+                        addDaySummaryExternal(today.toString(), balance, amountChange, totalStockValue);
                     }
                 }
                 """);
@@ -162,7 +211,8 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 {
                     Date = d.Date,
                     Balance = d.BalanceBefore,
-                    Amount = d.Amount
+                    Amount = d.Amount,
+                    TotalStockValue = d.TotalStockValue
                 }).ToList()
             };
             _db.SimulationRuns.Add(run);
@@ -173,5 +223,5 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
     }
 
     record CreatedTransaction(DateOnly Date, string Title, decimal BalanceBefore, decimal Amount);
-    record DaySummary(DateOnly Date, decimal BalanceBefore, decimal Amount);
+    record DaySummary(DateOnly Date, decimal BalanceBefore, decimal Amount, decimal TotalStockValue);
 }

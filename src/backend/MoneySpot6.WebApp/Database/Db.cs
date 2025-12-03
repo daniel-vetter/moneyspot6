@@ -492,4 +492,5 @@ public class DbSimulationRunDaySummary
     public required DateOnly Date { get; set; }
     public required decimal Balance { get; set; }
     public required decimal Amount { get; set; }
+    public required decimal TotalStockValue { get; set; }
 }

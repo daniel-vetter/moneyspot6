@@ -49,6 +49,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     isRunning = false;
     Highcharts: typeof Highcharts = Highcharts;
     chartOptions: Highcharts.Options | undefined;
+    stockChartOptions: Highcharts.Options | undefined;
 
     get pageTitle(): string {
         return this.id === undefined ? "Neue Simulation" : `Simulation: ${this.modelName}`;
@@ -97,6 +98,7 @@ declare const start: DateOnly;
 declare const end: DateOnly;
 declare const balance: number;
 declare function addTransaction(purpose: string, amount: number): void;
+declare function buyStocksFor(stockName: string, amount: number): void;
 declare function adjust(amount: number): Adjustment;
 
 declare class Adjustment {
@@ -277,6 +279,7 @@ declare class DateOnly {
         this.logs = [];
         this.transactions = [];
         this.chartOptions = undefined;
+        this.stockChartOptions = undefined;
 
         try {
             await this.saveModel();
@@ -318,6 +321,39 @@ declare class DateOnly {
                         type: 'line',
                         name: 'Balance',
                         data: chartData
+                    }]
+                };
+            }
+
+            // Build stock chart from day summaries
+            if (result.daySummaries.length > 0) {
+                const stockChartData = result.daySummaries.map(d => {
+                    const date = new Date(d.date);
+                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.totalStockValue];
+                });
+
+                this.stockChartOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 300
+                    },
+                    title: {
+                        text: undefined
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        title: { text: undefined }
+                    },
+                    yAxis: {
+                        title: { text: 'Stock Value' }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    series: [{
+                        type: 'line',
+                        name: 'Stock Value',
+                        data: stockChartData
                     }]
                 };
             }
