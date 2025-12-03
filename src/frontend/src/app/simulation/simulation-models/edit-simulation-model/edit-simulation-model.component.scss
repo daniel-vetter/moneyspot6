@@ -1,3 +1,31 @@
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.panel-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.panel-title {
+    font-weight: 600;
+}
+
+.name-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.panel-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
 .split-view {
     height: calc(100vh - 350px);
     min-height: 300px;

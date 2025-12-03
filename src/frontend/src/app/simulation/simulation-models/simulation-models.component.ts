@@ -4,16 +4,19 @@ import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { SimulationModelResponse, SimulationModelsClient } from '../../server';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
+import { DialogService } from 'primeng/dynamicdialog';
+import { SimulationModelNameDialogComponent } from './simulation-model-name-dialog/simulation-model-name-dialog.component';
 
 
 @Component({
     selector: 'app-simulation-models',
     imports: [PanelModule, ButtonModule, TableModule, CommonModule, TooltipModule, TagModule],
+    providers: [DialogService],
     templateUrl: './simulation-models.component.html',
     styleUrl: './simulation-models.component.scss'
 })
@@ -21,6 +24,7 @@ export class SimulationModelsComponent implements OnInit {
     private simulationModelsClient = inject(SimulationModelsClient);
     private confirmationService = inject(ConfirmationService);
     private router = inject(Router);
+    private dialogService = inject(DialogService);
 
     models = signal(<SimulationModelResponse[]>[]);
 
@@ -29,8 +33,17 @@ export class SimulationModelsComponent implements OnInit {
     }
 
 
-    onNewModelClicked() {
-        this.router.navigate(['/simulation/new']);
+    async onNewModelClicked() {
+        const dlg = this.dialogService.open(SimulationModelNameDialogComponent, {
+            modal: true,
+            focusOnShow: false,
+            data: {}
+        });
+
+        const newId = await firstValueFrom(dlg.onClose);
+        if (newId === undefined) return;
+
+        await this.router.navigate(['/simulation', newId]);
     }
 
     onEditModel(model: SimulationModelResponse) {

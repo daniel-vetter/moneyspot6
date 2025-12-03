@@ -76,9 +76,9 @@ public class SimulationModelsController : Controller
         var model = new DbSimulationModel
         {
             Name = request.Name,
-            OriginalCode = request.OriginalCode,
-            CompiledCode = request.CompiledCode,
-            SourceMap = request.SourceMap,
+            OriginalCode = "export function onTick() {\n    \n}",
+            CompiledCode = "",
+            SourceMap = "",
             HasSyntaxIssues = false
         };
 
@@ -89,8 +89,25 @@ public class SimulationModelsController : Controller
     }
 
     [HttpPost("Update")]
-    [ProducesResponseType<SimulationModelValidationErrorResponse>(400)]
     public async Task<IActionResult> Update(UpdateSimulationModelRequest request)
+    {
+        var model = await _db.SimulationModels.FindAsync(request.Id);
+
+        if (model == null)
+            return NotFound();
+
+        model.OriginalCode = request.OriginalCode;
+        model.CompiledCode = request.CompiledCode;
+        model.SourceMap = request.SourceMap;
+
+        await _db.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    [HttpPost("Rename")]
+    [ProducesResponseType<SimulationModelValidationErrorResponse>(400)]
+    public async Task<IActionResult> Rename(RenameSimulationModelRequest request)
     {
         var model = await _db.SimulationModels.FindAsync(request.Id);
 
@@ -115,10 +132,6 @@ public class SimulationModelsController : Controller
         }
 
         model.Name = request.Name;
-        model.OriginalCode = request.OriginalCode;
-        model.CompiledCode = request.CompiledCode;
-        model.SourceMap = request.SourceMap;
-
         await _db.SaveChangesAsync();
 
         return Ok();
@@ -190,19 +203,22 @@ public record SimulationModelResponse
 public record NewSimulationModelRequest
 {
     [Required] public required string Name { get; set; }
-    [Required] public required string OriginalCode { get; set; }
-    [Required] public required string CompiledCode { get; set; }
-    [Required] public required string SourceMap { get; set; }
 }
 
 [PublicAPI]
 public record UpdateSimulationModelRequest
 {
     [Required] public required int Id { get; set; }
-    [Required] public required string Name { get; set; }
     [Required] public required string OriginalCode { get; set; }
     [Required] public required string CompiledCode { get; set; }
     [Required] public required string SourceMap { get; set; }
+}
+
+[PublicAPI]
+public record RenameSimulationModelRequest
+{
+    [Required] public required int Id { get; set; }
+    [Required] public required string Name { get; set; }
 }
 
 [PublicAPI]

@@ -1,12 +1,9 @@
 import {AfterViewInit, Component, inject, OnDestroy} from '@angular/core';
-import {FormsModule} from '@angular/forms';
 import {ViewChild, ElementRef} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
-import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {InputTextModule} from 'primeng/inputtext';
-import {NewSimulationModelRequest, SimulationModelsClient, SimulationModelValidationErrorResponse, UpdateSimulationModelRequest, SimulationTransactionResponse} from '../../../server';
-import {lastValueFrom} from 'rxjs';
+import {SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse} from '../../../server';
+import {firstValueFrom, lastValueFrom} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -14,8 +11,11 @@ import {PanelModule} from 'primeng/panel';
 import {TabsModule} from 'primeng/tabs';
 import {SplitterModule} from 'primeng/splitter';
 import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
 import * as Highcharts from 'highcharts';
 import {HighchartsChartModule} from 'highcharts-angular';
+import {DialogService} from 'primeng/dynamicdialog';
+import {SimulationModelNameDialogComponent} from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
@@ -23,7 +23,8 @@ import * as monaco from 'monaco-editor';
 
 @Component({
     selector: 'app-edit-simulation-model',
-    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule, PanelModule, TabsModule, SplitterModule, TableModule, HighchartsChartModule],
+    imports: [ButtonModule, MessageModule, CommonModule, ProgressSpinnerModule, PanelModule, TabsModule, SplitterModule, TableModule, TooltipModule, HighchartsChartModule],
+    providers: [DialogService],
     templateUrl: './edit-simulation-model.component.html',
     styleUrl: './edit-simulation-model.component.scss'
 })
@@ -32,11 +33,10 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     private router = inject(Router);
     @ViewChild('container') container!: ElementRef;
     private simulationModelsClient = inject(SimulationModelsClient);
+    private dialogService = inject(DialogService);
 
     id: undefined | number;
-    form = new FormGroup({
-        name: new FormControl<string | undefined>(undefined, {nonNullable: true, validators: [Validators.required]})
-    });
+    modelName: string = '';
     typeLib: monaco.IDisposable | undefined;
     editor: monaco.editor.IStandaloneCodeEditor | undefined;
     model: monaco.editor.ITextModel | undefined;
@@ -51,7 +51,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     chartOptions: Highcharts.Options | undefined;
 
     get pageTitle(): string {
-        return this.id === undefined ? "Neues Modell" : "Modell bearbeiten";
+        return this.id === undefined ? "Neue Simulation" : `Simulation: ${this.modelName}`;
     }
 
     constructor() {
@@ -160,7 +160,7 @@ declare class DateOnly {
         let code = 'export function onTick() {\n    \n}';
         if (this.id !== undefined) {
             const r = await lastValueFrom(this.simulationModelsClient.getById(this.id));
-            this.form.get('name')?.setValue(r.name);
+            this.modelName = r.name;
             code = r.originalCode || "";
         }
 
@@ -182,6 +182,11 @@ declare class DateOnly {
                 enabled: false
             }
         });
+
+        this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+            this.onRunClicked();
+        });
+
         this.updateMarkerInfo();
         this.loading = false;
 
@@ -219,6 +224,35 @@ declare class DateOnly {
     }
 
     async onSubmit() {
+        try {
+            await this.saveModel();
+            await this.router.navigate(['/simulation']);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    onSplitterResized() {
+        this.editor?.layout();
+    }
+
+    async openNameDialog() {
+        const dlg = this.dialogService.open(SimulationModelNameDialogComponent, {
+            modal: true,
+            focusOnShow: false,
+            data: {
+                id: this.id,
+                name: this.modelName
+            }
+        });
+
+        const newName = await firstValueFrom(dlg.onClose);
+        if (newName) {
+            this.modelName = newName;
+        }
+    }
+
+    private async saveModel() {
         const worker = await monaco.languages.typescript.getTypeScriptWorker();
         const svc = await worker(this.model!.uri);
         const emit = await svc.getEmitOutput(this.model!.uri.toString());
@@ -226,45 +260,12 @@ declare class DateOnly {
         const jsOutput = emit.outputFiles.filter(x => x.name.endsWith('.js'))[0];
         const mapOutput = emit.outputFiles.filter(x => x.name.endsWith('.js.map'))[0];
 
-        try {
-            if (this.id === undefined) {
-                await lastValueFrom(this.simulationModelsClient.create(new NewSimulationModelRequest({
-                    name: this.form.controls.name.value!,
-                    originalCode: this.editor?.getModel()?.getValue() || "",
-                    compiledCode: jsOutput.text,
-                    sourceMap: mapOutput.text
-                })));
-            } else {
-                await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
-                    id: this.id,
-                    name: this.form.controls.name.value!,
-                    originalCode: this.editor?.getModel()?.getValue() || "",
-                    compiledCode: jsOutput.text,
-                    sourceMap: mapOutput.text
-                })));
-            }
-
-            await this.router.navigate(['/simulation']);
-        } catch (error) {
-            if (error instanceof SimulationModelValidationErrorResponse) {
-                queueMicrotask(() => {
-                    if (error.missingName)
-                        this.form.controls.name.setErrors({missingName: true});
-                    if (error.nameAlreadyInUse)
-                        this.form.controls.name.setErrors({nameAlreadyInUse: true});
-                });
-            } else {
-                console.error(error);
-            }
-        }
-    }
-
-    onCancelClicked() {
-        this.router.navigate(['/simulation']);
-    }
-
-    onSplitterResized() {
-        this.editor?.layout();
+        await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
+            id: this.id!,
+            originalCode: this.editor?.getModel()?.getValue() || "",
+            compiledCode: jsOutput.text,
+            sourceMap: mapOutput.text
+        })));
     }
 
     async onRunClicked() {
@@ -278,21 +279,7 @@ declare class DateOnly {
         this.chartOptions = undefined;
 
         try {
-            // Save the model first
-            const worker = await monaco.languages.typescript.getTypeScriptWorker();
-            const svc = await worker(this.model!.uri);
-            const emit = await svc.getEmitOutput(this.model!.uri.toString());
-
-            const jsOutput = emit.outputFiles.filter(x => x.name.endsWith('.js'))[0];
-            const mapOutput = emit.outputFiles.filter(x => x.name.endsWith('.js.map'))[0];
-
-            await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
-                id: this.id,
-                name: this.form.controls.name.value!,
-                originalCode: this.editor?.getModel()?.getValue() || "",
-                compiledCode: jsOutput.text,
-                sourceMap: mapOutput.text
-            })));
+            await this.saveModel();
 
             // Run the simulation
             const runId = await lastValueFrom(this.simulationModelsClient.run(this.id));

@@ -1292,8 +1292,64 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    update(request: UpdateSimulationModelRequest): Observable<void> {
+    update(request: UpdateSimulationModelRequest): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/SimulationModels/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    rename(request: RenameSimulationModelRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/SimulationModels/Rename";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(request);
@@ -1308,11 +1364,11 @@ export class SimulationModelsClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdate(response_);
+            return this.processRename(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUpdate(response_ as any);
+                    return this.processRename(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -1321,7 +1377,7 @@ export class SimulationModelsClient {
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<void> {
+    protected processRename(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -5480,9 +5536,6 @@ export interface ISimulationModelValidationErrorResponse {
 
 export class NewSimulationModelRequest implements INewSimulationModelRequest {
     name!: string;
-    originalCode!: string;
-    compiledCode!: string;
-    sourceMap!: string;
 
     constructor(data?: INewSimulationModelRequest) {
         if (data) {
@@ -5496,9 +5549,6 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
-            this.originalCode = _data["originalCode"];
-            this.compiledCode = _data["compiledCode"];
-            this.sourceMap = _data["sourceMap"];
         }
     }
 
@@ -5512,23 +5562,16 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
-        data["originalCode"] = this.originalCode;
-        data["compiledCode"] = this.compiledCode;
-        data["sourceMap"] = this.sourceMap;
         return data;
     }
 }
 
 export interface INewSimulationModelRequest {
     name: string;
-    originalCode: string;
-    compiledCode: string;
-    sourceMap: string;
 }
 
 export class UpdateSimulationModelRequest implements IUpdateSimulationModelRequest {
     id!: number;
-    name!: string;
     originalCode!: string;
     compiledCode!: string;
     sourceMap!: string;
@@ -5545,7 +5588,6 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.name = _data["name"];
             this.originalCode = _data["originalCode"];
             this.compiledCode = _data["compiledCode"];
             this.sourceMap = _data["sourceMap"];
@@ -5562,7 +5604,6 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["name"] = this.name;
         data["originalCode"] = this.originalCode;
         data["compiledCode"] = this.compiledCode;
         data["sourceMap"] = this.sourceMap;
@@ -5572,10 +5613,49 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
 
 export interface IUpdateSimulationModelRequest {
     id: number;
-    name: string;
     originalCode: string;
     compiledCode: string;
     sourceMap: string;
+}
+
+export class RenameSimulationModelRequest implements IRenameSimulationModelRequest {
+    id!: number;
+    name!: string;
+
+    constructor(data?: IRenameSimulationModelRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): RenameSimulationModelRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RenameSimulationModelRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IRenameSimulationModelRequest {
+    id: number;
+    name: string;
 }
 
 export class SimulationRunResultResponse implements ISimulationRunResultResponse {

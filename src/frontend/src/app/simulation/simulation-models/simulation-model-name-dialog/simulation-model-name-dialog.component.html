@@ -1,0 +1,11 @@
+<div class="dialog-content">
+    <label for="simulation-name">Name:</label>
+    <input id="simulation-name" type="text" pInputText [(ngModel)]="name" style="width: 100%;" (keydown.enter)="onConfirm()" [disabled]="isSaving" autofocus />
+    @if (errorMessage) {
+        <p-message severity="error" [text]="errorMessage" variant="simple" size="small"></p-message>
+    }
+</div>
+<div class="dialog-footer">
+    <p-button label="Abbrechen" [text]="true" (click)="onCancel()" [disabled]="isSaving"></p-button>
+    <p-button [label]="isEditMode ? 'OK' : 'Erstellen'" (click)="onConfirm()" [disabled]="!name.trim() || isSaving" [loading]="isSaving"></p-button>
+</div>
