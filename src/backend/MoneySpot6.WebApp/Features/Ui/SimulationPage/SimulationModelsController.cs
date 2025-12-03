@@ -160,14 +160,14 @@ public class SimulationModelsController : Controller
         return Ok(new SimulationRunResultResponse
         {
             Logs = run.Logs.Select(l => l.Message).ToList(),
-            Transactions = run.Transactions.Select(t => new SimulationTransactionResponse
+            Transactions = run.Transactions.OrderBy(t => t.Date).Select(t => new SimulationTransactionResponse
             {
                 Date = t.Date,
                 Title = t.Title,
                 Balance = t.Balance,
                 Amount = t.Amount
             }).ToList(),
-            DaySummaries = run.DaySummaries.Select(d => new SimulationDaySummaryResponse
+            DaySummaries = run.DaySummaries.OrderBy(d => d.Date).Select(d => new SimulationDaySummaryResponse
             {
                 Date = d.Date,
                 Balance = d.Balance,
