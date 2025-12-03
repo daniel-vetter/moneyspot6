@@ -44,7 +44,10 @@
                                     </p-tablist>
                                     <p-tabpanels>
                                         <p-tabpanel value="0">
-                                            @if (chartOptions || stockChartOptions) {
+                                            @if (totalChartOptions || chartOptions || stockChartOptions) {
+                                                @if (totalChartOptions) {
+                                                    <highcharts-chart [Highcharts]="Highcharts" [options]="totalChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                }
                                                 @if (chartOptions) {
                                                     <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
                                                 }

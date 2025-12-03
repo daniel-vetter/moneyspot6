@@ -48,6 +48,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     transactions: SimulationTransactionResponse[] = [];
     isRunning = false;
     Highcharts: typeof Highcharts = Highcharts;
+    totalChartOptions: Highcharts.Options | undefined;
     chartOptions: Highcharts.Options | undefined;
     stockChartOptions: Highcharts.Options | undefined;
 
@@ -278,6 +279,7 @@ declare class DateOnly {
         this.isRunning = true;
         this.logs = [];
         this.transactions = [];
+        this.totalChartOptions = undefined;
         this.chartOptions = undefined;
         this.stockChartOptions = undefined;
 
@@ -291,6 +293,39 @@ declare class DateOnly {
             const result = await lastValueFrom(this.simulationModelsClient.getRunResult(runId));
             this.logs = result.logs;
             this.transactions = result.transactions;
+
+            // Build total chart from day summaries (balance + stock value)
+            if (result.daySummaries.length > 0) {
+                const totalChartData = result.daySummaries.map(d => {
+                    const date = new Date(d.date);
+                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance + d.totalStockValue];
+                });
+
+                this.totalChartOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 300
+                    },
+                    title: {
+                        text: undefined
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        title: { text: undefined }
+                    },
+                    yAxis: {
+                        title: { text: 'Total' }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    series: [{
+                        type: 'line',
+                        name: 'Total',
+                        data: totalChartData
+                    }]
+                };
+            }
 
             // Build chart from transactions
             if (result.transactions.length > 0) {
