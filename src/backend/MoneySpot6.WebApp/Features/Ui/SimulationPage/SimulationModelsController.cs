@@ -28,8 +28,6 @@ public class SimulationModelsController : Controller
         {
             Id = x.Id,
             Name = x.Name,
-            StartDate = x.StartDate,
-            EndDate = x.EndDate,
             OriginalCode = x.OriginalCode,
             HasSyntaxErrors = x.HasSyntaxIssues
         }).ToImmutableArray();
@@ -48,8 +46,6 @@ public class SimulationModelsController : Controller
         {
             Id = model.Id,
             Name = model.Name,
-            StartDate = model.StartDate,
-            EndDate = model.EndDate,
             OriginalCode = model.OriginalCode,
             HasSyntaxErrors = model.HasSyntaxIssues
         });
@@ -80,8 +76,6 @@ public class SimulationModelsController : Controller
         var model = new DbSimulationModel
         {
             Name = request.Name,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
             OriginalCode = request.OriginalCode,
             CompiledCode = request.CompiledCode,
             SourceMap = request.SourceMap,
@@ -121,8 +115,6 @@ public class SimulationModelsController : Controller
         }
 
         model.Name = request.Name;
-        model.StartDate = request.StartDate;
-        model.EndDate = request.EndDate;
         model.OriginalCode = request.OriginalCode;
         model.CompiledCode = request.CompiledCode;
         model.SourceMap = request.SourceMap;
@@ -190,8 +182,6 @@ public record SimulationModelResponse
 {
     [Required] public int Id { get; set; }
     [Required] public required string Name { get; set; }
-    [Required] public required DateOnly StartDate { get; set; }
-    [Required] public required DateOnly EndDate { get; set; }
     [Required] public required string OriginalCode { get; set; }
     [Required] public required bool HasSyntaxErrors { get; set; }
 }
@@ -200,8 +190,6 @@ public record SimulationModelResponse
 public record NewSimulationModelRequest
 {
     [Required] public required string Name { get; set; }
-    [Required] public required DateOnly StartDate { get; set; }
-    [Required] public required DateOnly EndDate { get; set; }
     [Required] public required string OriginalCode { get; set; }
     [Required] public required string CompiledCode { get; set; }
     [Required] public required string SourceMap { get; set; }
@@ -212,8 +200,6 @@ public record UpdateSimulationModelRequest
 {
     [Required] public required int Id { get; set; }
     [Required] public required string Name { get; set; }
-    [Required] public required DateOnly StartDate { get; set; }
-    [Required] public required DateOnly EndDate { get; set; }
     [Required] public required string OriginalCode { get; set; }
     [Required] public required string CompiledCode { get; set; }
     [Required] public required string SourceMap { get; set; }

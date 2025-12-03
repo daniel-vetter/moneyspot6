@@ -11,7 +11,6 @@ import {CommonModule} from '@angular/common';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PanelModule} from 'primeng/panel';
-import {DatePickerModule} from 'primeng/datepicker';
 import {TabsModule} from 'primeng/tabs';
 import {TableModule} from 'primeng/table';
 import * as Highcharts from 'highcharts';
@@ -23,7 +22,7 @@ import * as monaco from 'monaco-editor';
 
 @Component({
     selector: 'app-edit-simulation-model',
-    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule, PanelModule, DatePickerModule, TabsModule, TableModule, HighchartsChartModule],
+    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule, PanelModule, TabsModule, TableModule, HighchartsChartModule],
     templateUrl: './edit-simulation-model.component.html',
     styleUrl: './edit-simulation-model.component.scss'
 })
@@ -35,9 +34,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
 
     id: undefined | number;
     form = new FormGroup({
-        name: new FormControl<string | undefined>(undefined, {nonNullable: true, validators: [Validators.required]}),
-        startDate: new FormControl<Date | undefined>(undefined, {nonNullable: true, validators: [Validators.required]}),
-        endDate: new FormControl<Date | undefined>(undefined, {nonNullable: true, validators: [Validators.required]})
+        name: new FormControl<string | undefined>(undefined, {nonNullable: true, validators: [Validators.required]})
     });
     typeLib: monaco.IDisposable | undefined;
     editor: monaco.editor.IStandaloneCodeEditor | undefined;
@@ -95,6 +92,9 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
         this.typeLib = monaco.languages.typescript.typescriptDefaults.addExtraLib(
             `
 declare const today: DateOnly;
+declare const start: DateOnly;
+declare const end: DateOnly;
+declare const balance: number;
 declare function addTransaction(purpose: string, amount: number): void;
 declare function adjust(amount: number): Adjustment;
 
@@ -108,6 +108,26 @@ declare class AdjustmentWithStartDate {
     to(year: number, month: number, day: number): number;
 }
 
+declare interface InitialConfig {
+    startDate: DateOnly;
+    endDate: DateOnly;
+    startBalance: number;
+    stocks?: StockInitialConfig[];
+}
+
+declare interface StockInitialConfig {
+    name: string;
+    startAmount: number;
+    pricePredictor: IPricePredictor;
+}
+
+declare interface PricePredictor {
+    getValue(date: DateOnly): number;
+}
+
+declare class SPPLinearYearly implements PricePredictor {
+    constructor(referenceDate: DateOnly, referenceValue: number, increasePerYear: number);
+}
 
 declare class DateOnly {
     constructor(year: number, month: number, day: number);
@@ -140,8 +160,6 @@ declare class DateOnly {
         if (this.id !== undefined) {
             const r = await lastValueFrom(this.simulationModelsClient.getById(this.id));
             this.form.get('name')?.setValue(r.name);
-            this.form.get('startDate')?.setValue(new Date(r.startDate));
-            this.form.get('endDate')?.setValue(new Date(r.endDate));
             code = r.originalCode || "";
         }
 
@@ -211,8 +229,6 @@ declare class DateOnly {
             if (this.id === undefined) {
                 await lastValueFrom(this.simulationModelsClient.create(new NewSimulationModelRequest({
                     name: this.form.controls.name.value!,
-                    startDate: this.form.controls.startDate.value!,
-                    endDate: this.form.controls.endDate.value!,
                     originalCode: this.editor?.getModel()?.getValue() || "",
                     compiledCode: jsOutput.text,
                     sourceMap: mapOutput.text
@@ -221,8 +237,6 @@ declare class DateOnly {
                 await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
                     id: this.id,
                     name: this.form.controls.name.value!,
-                    startDate: this.form.controls.startDate.value!,
-                    endDate: this.form.controls.endDate.value!,
                     originalCode: this.editor?.getModel()?.getValue() || "",
                     compiledCode: jsOutput.text,
                     sourceMap: mapOutput.text
@@ -270,8 +284,6 @@ declare class DateOnly {
             await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
                 id: this.id,
                 name: this.form.controls.name.value!,
-                startDate: this.form.controls.startDate.value!,
-                endDate: this.form.controls.endDate.value!,
                 originalCode: this.editor?.getModel()?.getValue() || "",
                 compiledCode: jsOutput.text,
                 sourceMap: mapOutput.text

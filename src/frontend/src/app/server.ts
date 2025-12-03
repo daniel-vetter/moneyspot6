@@ -5393,8 +5393,6 @@ export enum StockPriceInterval {
 export class SimulationModelResponse implements ISimulationModelResponse {
     id!: number;
     name!: string;
-    startDate!: Date;
-    endDate!: Date;
     originalCode!: string;
     hasSyntaxErrors!: boolean;
 
@@ -5411,8 +5409,6 @@ export class SimulationModelResponse implements ISimulationModelResponse {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
-            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
-            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : undefined as any;
             this.originalCode = _data["originalCode"];
             this.hasSyntaxErrors = _data["hasSyntaxErrors"];
         }
@@ -5429,8 +5425,6 @@ export class SimulationModelResponse implements ISimulationModelResponse {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
-        data["startDate"] = this.startDate ? formatDate(this.startDate) : undefined as any;
-        data["endDate"] = this.endDate ? formatDate(this.endDate) : undefined as any;
         data["originalCode"] = this.originalCode;
         data["hasSyntaxErrors"] = this.hasSyntaxErrors;
         return data;
@@ -5440,8 +5434,6 @@ export class SimulationModelResponse implements ISimulationModelResponse {
 export interface ISimulationModelResponse {
     id: number;
     name: string;
-    startDate: Date;
-    endDate: Date;
     originalCode: string;
     hasSyntaxErrors: boolean;
 }
@@ -5488,8 +5480,6 @@ export interface ISimulationModelValidationErrorResponse {
 
 export class NewSimulationModelRequest implements INewSimulationModelRequest {
     name!: string;
-    startDate!: Date;
-    endDate!: Date;
     originalCode!: string;
     compiledCode!: string;
     sourceMap!: string;
@@ -5506,8 +5496,6 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
-            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
-            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : undefined as any;
             this.originalCode = _data["originalCode"];
             this.compiledCode = _data["compiledCode"];
             this.sourceMap = _data["sourceMap"];
@@ -5524,8 +5512,6 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
-        data["startDate"] = this.startDate ? formatDate(this.startDate) : undefined as any;
-        data["endDate"] = this.endDate ? formatDate(this.endDate) : undefined as any;
         data["originalCode"] = this.originalCode;
         data["compiledCode"] = this.compiledCode;
         data["sourceMap"] = this.sourceMap;
@@ -5535,8 +5521,6 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
 
 export interface INewSimulationModelRequest {
     name: string;
-    startDate: Date;
-    endDate: Date;
     originalCode: string;
     compiledCode: string;
     sourceMap: string;
@@ -5545,8 +5529,6 @@ export interface INewSimulationModelRequest {
 export class UpdateSimulationModelRequest implements IUpdateSimulationModelRequest {
     id!: number;
     name!: string;
-    startDate!: Date;
-    endDate!: Date;
     originalCode!: string;
     compiledCode!: string;
     sourceMap!: string;
@@ -5564,8 +5546,6 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
-            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
-            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : undefined as any;
             this.originalCode = _data["originalCode"];
             this.compiledCode = _data["compiledCode"];
             this.sourceMap = _data["sourceMap"];
@@ -5583,8 +5563,6 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
-        data["startDate"] = this.startDate ? formatDate(this.startDate) : undefined as any;
-        data["endDate"] = this.endDate ? formatDate(this.endDate) : undefined as any;
         data["originalCode"] = this.originalCode;
         data["compiledCode"] = this.compiledCode;
         data["sourceMap"] = this.sourceMap;
@@ -5595,8 +5573,6 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
 export interface IUpdateSimulationModelRequest {
     id: number;
     name: string;
-    startDate: Date;
-    endDate: Date;
     originalCode: string;
     compiledCode: string;
     sourceMap: string;

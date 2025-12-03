@@ -17,14 +17,6 @@
                             <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">Es existiert bereits ein Modell mit diesem Name.</p-message>
                         </div>
                     </div>
-                    <div class="form-field">
-                        <div>Startdatum:</div>
-                        <p-datepicker formControlName="startDate" dateFormat="dd.mm.yy" [showIcon]="true" data-testid="model-start-date"></p-datepicker>
-                    </div>
-                    <div class="form-field">
-                        <div>Enddatum:</div>
-                        <p-datepicker formControlName="endDate" dateFormat="dd.mm.yy" [showIcon]="true" data-testid="model-end-date"></p-datepicker>
-                    </div>
                     @if (id !== undefined) {
                         <div class="form-field">
                             <div>&nbsp;</div>

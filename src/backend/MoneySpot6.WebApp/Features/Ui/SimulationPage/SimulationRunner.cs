@@ -103,11 +103,14 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                     addTransactionExternal(today.toString(), title, balance, amount);
                 }
 
-                start = new DateOnly({{model.StartDate.Year}}, {{model.StartDate.Month}}, {{model.StartDate.Day}});
-                end = new DateOnly({{model.EndDate.Year}}, {{model.EndDate.Month}}, {{model.EndDate.Day}});
-                today = start;
-                today = start;
+                start = new DateOnly(1900, 1, 1);
+                end = new DateOnly(1900, 1, 1);
+                today = new DateOnly(1900, 1, 1);
                 balance = 0;
+
+                class SPPLinearYearly {
+                    constructor(refDate, refValue, yearlyIncrease) {}
+                }
                 """);
 
             var log = new List<string>();
@@ -119,9 +122,17 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
 
             jsEngine.Modules.Add("userCode", model.CompiledCode);
             jsEngine.Modules.Add("main", """
-                import { onTick } from "userCode";
+                import { onTick, onInit } from "userCode";
                 
                 export function run() {
+
+                    const config = onInit();
+                    log(config.startDate);
+                    start = config.startDate;
+                    end = config.endDate;
+                    today = config.startDate;
+                    balance = config.startBalance;
+
                     for (;today.isBeforeOrEqual(end); today = today.addDays(1)) {
                         const balanceBefore = balance;
                         onTick();

@@ -444,8 +444,6 @@ public class DbSimulationModel
 {
     public int Id { get; set; }
     public required string Name { get; set; }
-    public required DateOnly StartDate { get; set; }
-    public required DateOnly EndDate { get; set; }
     public required string OriginalCode { get; set; }
     public required string CompiledCode { get; set; }
     public required string SourceMap { get; set; }
