@@ -1,17 +1,35 @@
 <p-dialog
-    [header]="title"
+    header="Fehler"
     [modal]="true"
     [(visible)]="visible"
     [closable]="false"
-    [style]="{ width: '1000px', height: '1000px', border: '2px solid var(--p-red-600)' }"
+    [style]="{ width: '600px', maxWidth: '90vw' }"
 >
-    <div style="display: flex; flex-direction: column">
-        <pre>{{ message }}</pre>
+    <div class="vertical">
+        <div class="horizontal">
+            <i class="pi pi-exclamation-triangle error-icon"></i>
+            <div>
+                <h3 style="margin: 0">{{ errorName }}</h3>
+                @if (httpStatus) {
+                    <small>HTTP {{ httpStatus }}</small>
+                }
+            </div>
+        </div>
+
+        <div class="error-message">{{ errorMessage }}</div>
+
         @if (stack) {
             <pre>{{ stack }}</pre>
         }
         @if (src) {
-            <iframe style="flex: 1; width: 100%" [src]="src"></iframe>
+            <iframe [src]="src"></iframe>
+        }
+        @if (!stack && !src && rawError) {
+            <pre>{{ rawError }}</pre>
         }
     </div>
+
+    <ng-template #footer>
+        <p-button label="Seite neu laden" (click)="reload()"></p-button>
+    </ng-template>
 </p-dialog>
