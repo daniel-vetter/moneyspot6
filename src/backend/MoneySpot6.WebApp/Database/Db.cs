@@ -20,10 +20,10 @@ public class Db : DbContext
     public DbSet<DbInflationData> InflationData { get; init; }
     public DbSet<DbInflationSettings> InflationSettings { get; init; }
     public DbSet<DbSimulationModel> SimulationModels { get; init; }
-    public DbSet<DbSimulationRun> SimulationRuns { get; init; }
-    public DbSet<DbSimulationRunLog> SimulationRunLogs { get; init; }
-    public DbSet<DbSimulationRunTransaction> SimulationRunTransactions { get; init; }
-    public DbSet<DbSimulationRunDaySummary> SimulationRunDaySummaries { get; init; }
+    public DbSet<DbSimulationModelRevision> SimulationModelRevisions { get; init; }
+    public DbSet<DbSimulationLog> SimulationLogs { get; init; }
+    public DbSet<DbSimulationTransaction> SimulationTransactions { get; init; }
+    public DbSet<DbSimulationDaySummary> SimulationDaySummaries { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -444,51 +444,44 @@ public class DbSimulationModel
 {
     public int Id { get; set; }
     public required string Name { get; set; }
+}
+
+[Table("SimulationModelRevisions")]
+public class DbSimulationModelRevision
+{
+    public int Id { get; set; }
+    public required DbSimulationModel SimulationModel { get; set; }
+    public required DateTimeOffset CreatedAt { get; set; }
     public required string OriginalCode { get; set; }
     public required string CompiledCode { get; set; }
     public required string SourceMap { get; set; }
-    public bool HasSyntaxIssues { get; set; }
+    public DateTimeOffset? LastRunAt { get; set; }
 }
 
-[Table("SimulationRuns")]
-public class DbSimulationRun
+[Table("SimulationLogs")]
+public class DbSimulationLog
 {
     public int Id { get; set; }
-    public int SimulationModelId { get; set; }
-    public DbSimulationModel SimulationModel { get; set; } = null!;
-    public required DateTime CreatedAt { get; set; }
-    public List<DbSimulationRunLog> Logs { get; set; } = new();
-    public List<DbSimulationRunTransaction> Transactions { get; set; } = new();
-    public List<DbSimulationRunDaySummary> DaySummaries { get; set; } = new();
-}
-
-[Table("SimulationRunLogs")]
-public class DbSimulationRunLog
-{
-    public int Id { get; set; }
-    public int SimulationRunId { get; set; }
-    public DbSimulationRun SimulationRun { get; set; } = null!;
+    public required DbSimulationModelRevision Revision { get; set; }
     public required string Message { get; set; }
 }
 
-[Table("SimulationRunTransactions")]
-public class DbSimulationRunTransaction
+[Table("SimulationTransactions")]
+public class DbSimulationTransaction
 {
     public int Id { get; set; }
-    public int SimulationRunId { get; set; }
-    public DbSimulationRun SimulationRun { get; set; } = null!;
+    public required DbSimulationModelRevision Revision { get; set; }
     public required DateOnly Date { get; set; }
     public required string Title { get; set; }
     public required decimal Balance { get; set; }
     public required decimal Amount { get; set; }
 }
 
-[Table("SimulationRunDaySummaries")]
-public class DbSimulationRunDaySummary
+[Table("SimulationDaySummaries")]
+public class DbSimulationDaySummary
 {
     public int Id { get; set; }
-    public int SimulationRunId { get; set; }
-    public DbSimulationRun SimulationRun { get; set; } = null!;
+    public required DbSimulationModelRevision Revision { get; set; }
     public required DateOnly Date { get; set; }
     public required decimal Balance { get; set; }
     public required decimal Amount { get; set; }

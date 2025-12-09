@@ -14,11 +14,14 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             _db = db;
         }
 
-        public async Task<int> Run(int id)
+        public async Task Run(int revisionId)
         {
-            var model = await _db.SimulationModels.SingleOrDefaultAsync(x => x.Id == id);
-            if (model == null)
-                throw new Exception($"Model with id {id} not found.");
+            var revision = await _db.SimulationModelRevisions
+                .Include(x => x.SimulationModel)
+                .FirstOrDefaultAsync(x => x.Id == revisionId);
+
+            if (revision == null)
+                throw new Exception($"Revision with id {revisionId} not found.");
 
             var jsEngine = new Jint.Engine();
             jsEngine.Execute($$"""
@@ -160,7 +163,7 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             jsEngine.SetValue("addTransactionExternal", (string date, string str, double balance, double amount) => { transactions.Add(new CreatedTransaction(DateOnly.Parse(date), str, (decimal)balance, (decimal)amount)); });
             jsEngine.SetValue("addDaySummaryExternal", (string date, double balance, double amount, double totalStockValue) => { daySummaries.Add(new DaySummary(DateOnly.Parse(date), (decimal)balance, (decimal)amount, (decimal)totalStockValue)); });
 
-            jsEngine.Modules.Add("userCode", model.CompiledCode);
+            jsEngine.Modules.Add("userCode", revision.CompiledCode);
             jsEngine.Modules.Add("main", """
                 import { onTick, onInit } from "userCode";
 
@@ -195,30 +198,34 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             var tickFunction = mainModule.Get("run");
             var r = jsEngine.Invoke(tickFunction, Array.Empty<object>());
 
-            var run = new DbSimulationRun
-            {
-                SimulationModelId = id,
-                CreatedAt = DateTime.UtcNow,
-                Logs = log.Select(msg => new DbSimulationRunLog { Message = msg }).ToList(),
-                Transactions = transactions.Select(t => new DbSimulationRunTransaction
-                {
-                    Date = t.Date,
-                    Title = t.Title,
-                    Balance = t.BalanceBefore,
-                    Amount = t.Amount
-                }).ToList(),
-                DaySummaries = daySummaries.Select(d => new DbSimulationRunDaySummary
-                {
-                    Date = d.Date,
-                    Balance = d.BalanceBefore,
-                    Amount = d.Amount,
-                    TotalStockValue = d.TotalStockValue
-                }).ToList()
-            };
-            _db.SimulationRuns.Add(run);
-            await _db.SaveChangesAsync();
+            // Clear previous run results from all revisions of this model
+            var modelId = revision.SimulationModel.Id;
+            await _db.SimulationLogs.Where(l => l.Revision.SimulationModel.Id == modelId).ExecuteDeleteAsync();
+            await _db.SimulationTransactions.Where(t => t.Revision.SimulationModel.Id == modelId).ExecuteDeleteAsync();
+            await _db.SimulationDaySummaries.Where(d => d.Revision.SimulationModel.Id == modelId).ExecuteDeleteAsync();
 
-            return run.Id;
+            // Store new results
+            revision.LastRunAt = DateTimeOffset.UtcNow;
+
+            _db.SimulationLogs.AddRange(log.Select(msg => new DbSimulationLog { Revision = revision, Message = msg }));
+            _db.SimulationTransactions.AddRange(transactions.Select(t => new DbSimulationTransaction
+            {
+                Revision = revision,
+                Date = t.Date,
+                Title = t.Title,
+                Balance = t.BalanceBefore,
+                Amount = t.Amount
+            }));
+            _db.SimulationDaySummaries.AddRange(daySummaries.Select(d => new DbSimulationDaySummary
+            {
+                Revision = revision,
+                Date = d.Date,
+                Balance = d.BalanceBefore,
+                Amount = d.Amount,
+                TotalStockValue = d.TotalStockValue
+            }));
+
+            await _db.SaveChangesAsync();
         }
     }
 

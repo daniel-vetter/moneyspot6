@@ -1125,7 +1125,7 @@ export class SimulationModelsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(): Observable<SimulationModelResponse[]> {
+    getAll(): Observable<SimulationModelListItemResponse[]> {
         let url_ = this.baseUrl + "/api/SimulationModels/GetAll";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1144,14 +1144,14 @@ export class SimulationModelsClient {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SimulationModelResponse[]>;
+                    return _observableThrow(e) as any as Observable<SimulationModelListItemResponse[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SimulationModelResponse[]>;
+                return _observableThrow(response_) as any as Observable<SimulationModelListItemResponse[]>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<SimulationModelResponse[]> {
+    protected processGetAll(response: HttpResponseBase): Observable<SimulationModelListItemResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1165,7 +1165,7 @@ export class SimulationModelsClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(SimulationModelResponse.fromJS(item));
+                    result200!.push(SimulationModelListItemResponse.fromJS(item));
             }
             else {
                 result200 = null as any;
@@ -1292,7 +1292,7 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    update(request: UpdateSimulationModelRequest): Observable<FileResponse> {
+    update(request: UpdateSimulationModelRequest): Observable<number> {
         let url_ = this.baseUrl + "/api/SimulationModels/Update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1304,7 +1304,7 @@ export class SimulationModelsClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             })
         };
 
@@ -1315,31 +1315,28 @@ export class SimulationModelsClient {
                 try {
                     return this.processUpdate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
+                    return _observableThrow(e) as any as Observable<number>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
+                return _observableThrow(response_) as any as Observable<number>;
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<FileResponse> {
+    protected processUpdate(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(result200);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1399,19 +1396,19 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    run(id: number | undefined): Observable<number> {
+    run(revisionId: number | undefined): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/SimulationModels/Run?";
-        if (id === null)
-            throw new globalThis.Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        if (revisionId === null)
+            throw new globalThis.Error("The parameter 'revisionId' cannot be null.");
+        else if (revisionId !== undefined)
+            url_ += "revisionId=" + encodeURIComponent("" + revisionId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Accept": "application/json"
+                "Accept": "application/octet-stream"
             })
         };
 
@@ -1422,28 +1419,31 @@ export class SimulationModelsClient {
                 try {
                     return this.processRun(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<number>;
+                    return _observableThrow(e) as any as Observable<FileResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<number>;
+                return _observableThrow(response_) as any as Observable<FileResponse>;
         }));
     }
 
-    protected processRun(response: HttpResponseBase): Observable<number> {
+    protected processRun(response: HttpResponseBase): Observable<FileResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : null as any;
-    
-            return _observableOf(result200);
-            }));
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1452,12 +1452,12 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    getRunResult(runId: number | undefined): Observable<SimulationRunResultResponse> {
+    getRunResult(revisionId: number | undefined): Observable<SimulationRunResultResponse> {
         let url_ = this.baseUrl + "/api/SimulationModels/GetRunResult?";
-        if (runId === null)
-            throw new globalThis.Error("The parameter 'runId' cannot be null.");
-        else if (runId !== undefined)
-            url_ += "runId=" + encodeURIComponent("" + runId) + "&";
+        if (revisionId === null)
+            throw new globalThis.Error("The parameter 'revisionId' cannot be null.");
+        else if (revisionId !== undefined)
+            url_ += "revisionId=" + encodeURIComponent("" + revisionId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -5446,11 +5446,51 @@ export enum StockPriceInterval {
     Daily = 1440,
 }
 
+export class SimulationModelListItemResponse implements ISimulationModelListItemResponse {
+    id!: number;
+    name!: string;
+
+    constructor(data?: ISimulationModelListItemResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): SimulationModelListItemResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new SimulationModelListItemResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ISimulationModelListItemResponse {
+    id: number;
+    name: string;
+}
+
 export class SimulationModelResponse implements ISimulationModelResponse {
     id!: number;
     name!: string;
+    latestRevisionId?: number | undefined;
     originalCode!: string;
-    hasSyntaxErrors!: boolean;
 
     constructor(data?: ISimulationModelResponse) {
         if (data) {
@@ -5465,8 +5505,8 @@ export class SimulationModelResponse implements ISimulationModelResponse {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.latestRevisionId = _data["latestRevisionId"];
             this.originalCode = _data["originalCode"];
-            this.hasSyntaxErrors = _data["hasSyntaxErrors"];
         }
     }
 
@@ -5481,8 +5521,8 @@ export class SimulationModelResponse implements ISimulationModelResponse {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["latestRevisionId"] = this.latestRevisionId;
         data["originalCode"] = this.originalCode;
-        data["hasSyntaxErrors"] = this.hasSyntaxErrors;
         return data;
     }
 }
@@ -5490,8 +5530,8 @@ export class SimulationModelResponse implements ISimulationModelResponse {
 export interface ISimulationModelResponse {
     id: number;
     name: string;
+    latestRevisionId?: number | undefined;
     originalCode: string;
-    hasSyntaxErrors: boolean;
 }
 
 export class SimulationModelValidationErrorResponse implements ISimulationModelValidationErrorResponse {
@@ -5536,6 +5576,7 @@ export interface ISimulationModelValidationErrorResponse {
 
 export class NewSimulationModelRequest implements INewSimulationModelRequest {
     name!: string;
+    includeSampleCode!: boolean;
 
     constructor(data?: INewSimulationModelRequest) {
         if (data) {
@@ -5549,6 +5590,7 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
+            this.includeSampleCode = _data["includeSampleCode"];
         }
     }
 
@@ -5562,12 +5604,14 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
+        data["includeSampleCode"] = this.includeSampleCode;
         return data;
     }
 }
 
 export interface INewSimulationModelRequest {
     name: string;
+    includeSampleCode: boolean;
 }
 
 export class UpdateSimulationModelRequest implements IUpdateSimulationModelRequest {

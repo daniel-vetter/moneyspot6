@@ -36,6 +36,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     private dialogService = inject(DialogService);
 
     id: undefined | number;
+    currentRevisionId: undefined | number;
     modelName: string = '';
     typeLib: monaco.IDisposable | undefined;
     editor: monaco.editor.IStandaloneCodeEditor | undefined;
@@ -164,6 +165,7 @@ declare class DateOnly {
         if (this.id !== undefined) {
             const r = await lastValueFrom(this.simulationModelsClient.getById(this.id));
             this.modelName = r.name;
+            this.currentRevisionId = r.latestRevisionId ?? undefined;
             code = r.originalCode || "";
         }
 
@@ -263,7 +265,7 @@ declare class DateOnly {
         const jsOutput = emit.outputFiles.filter(x => x.name.endsWith('.js'))[0];
         const mapOutput = emit.outputFiles.filter(x => x.name.endsWith('.js.map'))[0];
 
-        await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
+        this.currentRevisionId = await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
             id: this.id!,
             originalCode: this.editor?.getModel()?.getValue() || "",
             compiledCode: jsOutput.text,
@@ -287,10 +289,10 @@ declare class DateOnly {
             await this.saveModel();
 
             // Run the simulation
-            const runId = await lastValueFrom(this.simulationModelsClient.run(this.id));
+            await lastValueFrom(this.simulationModelsClient.run(this.currentRevisionId!));
 
             // Get the result
-            const result = await lastValueFrom(this.simulationModelsClient.getRunResult(runId));
+            const result = await lastValueFrom(this.simulationModelsClient.getRunResult(this.currentRevisionId!));
             this.logs = result.logs;
             this.transactions = result.transactions;
 

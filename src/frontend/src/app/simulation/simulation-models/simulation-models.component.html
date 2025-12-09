@@ -20,14 +20,7 @@
         </ng-template>
         <ng-template pTemplate="body" let-model>
             <tr [attr.data-testid]="'model-row-' + model.id">
-                <td>
-                    <span style="padding-right: 1rem;">
-                        {{ model.name }}
-                    </span>
-                    @if (model.hasSyntaxErrors) {
-                    <p-tag value="Syntax Fehler" severity="danger" pTooltip="Dieses Modell hat Syntaxfehler." [rounded]="true" />
-                    }
-                </td>
+                <td>{{ model.name }}</td>
                 <td style="text-align: right;">
                     <div class="horizontal" style="gap: 0.5rem; justify-content: flex-end;">
                         <p-button

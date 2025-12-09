@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Infrastructure;
 
 namespace MoneySpot6.WebApp.Features.Ui.SimulationPage;
 
@@ -21,33 +22,39 @@ public class SimulationModelsController : Controller
     }
 
     [HttpGet("GetAll")]
-    [Produces<SimulationModelResponse[]>]
-    public async Task<ImmutableArray<SimulationModelResponse>> GetAll()
+    [Produces<SimulationModelListItemResponse[]>]
+    public async Task<ImmutableArray<SimulationModelListItemResponse>> GetAll()
     {
-        return (await _db.SimulationModels.ToListAsync()).Select(x => new SimulationModelResponse
-        {
-            Id = x.Id,
-            Name = x.Name,
-            OriginalCode = x.OriginalCode,
-            HasSyntaxErrors = x.HasSyntaxIssues
-        }).ToImmutableArray();
+        return await _db.SimulationModels
+            .Select(m => new SimulationModelListItemResponse
+            {
+                Id = m.Id,
+                Name = m.Name
+            })
+            .ToImmutableArrayAsync();
     }
 
     [HttpGet("GetById")]
     [Produces<SimulationModelResponse>]
     public async Task<IActionResult> GetById(int id)
     {
-        var model = await _db.SimulationModels.FindAsync(id);
+        var model = await _db.SimulationModels
+            .SingleOrDefaultAsync(x => x.Id == id);
 
         if (model == null)
             return NotFound();
+
+        var latestRevision = await _db.SimulationModelRevisions
+            .Where(r => r.SimulationModel.Id == id)
+            .OrderByDescending(r => r.CreatedAt)
+            .FirstOrDefaultAsync();
 
         return Ok(new SimulationModelResponse
         {
             Id = model.Id,
             Name = model.Name,
-            OriginalCode = model.OriginalCode,
-            HasSyntaxErrors = model.HasSyntaxIssues
+            LatestRevisionId = latestRevision?.Id,
+            OriginalCode = latestRevision?.OriginalCode ?? ""
         });
     }
 
@@ -75,20 +82,81 @@ public class SimulationModelsController : Controller
 
         var model = new DbSimulationModel
         {
-            Name = request.Name,
-            OriginalCode = "export function onTick() {\n    \n}",
-            CompiledCode = "",
-            SourceMap = "",
-            HasSyntaxIssues = false
+            Name = request.Name
         };
 
         _db.SimulationModels.Add(model);
+        await _db.SaveChangesAsync();
+
+        var initialCode = request.IncludeSampleCode ? $$"""
+        // Beispiel: Finanzsimulation mit monatlichem Gehalt, Ausgaben und ETF-Sparplan
+        export function onInit(): InitialConfig {
+            return {
+                startDate: new DateOnly({{DateTime.Now.Year}}, 1, 1),
+                endDate: new DateOnly({{DateTime.Now.Year + 50}}, 12, 31),
+                startBalance: 10000,
+                stocks: [
+                    {
+                        name: "MSCI World ETF",
+                        startAmount: 0,
+                        pricePredictor: new SPPLinearYearly(new DateOnly({{DateTime.Now.Year}}, 1, 1), 100, 7)
+                    }
+                ]
+            };
+        }
+
+        export function onTick() {
+            // Gehalt am 1. des Monats
+            if (today.day === 1) {
+                addTransaction("Gehalt", 3500);
+            }
+
+            // Miete am 1. des Monats
+            if (today.day === 1) {
+                addTransaction("Miete", -1200);
+            }
+
+            // ETF-Sparplan am 15. des Monats
+            if (today.day === 15 && balance > 500) {
+                buyStocksFor("MSCI World ETF", 500);
+            }
+
+            // Monatliche Ausgaben (Lebensmittel, etc.) verteilt
+            if (today.day === 10 || today.day === 20) {
+                addTransaction("Lebensmittel", -200);
+            }
+        }
+        """ : $$"""
+        export function onInit(): InitialConfig {
+            return {
+                startDate: new DateOnly({{DateTime.Now.Year}}, 1, 1),
+                endDate: new DateOnly({{DateTime.Now.Year + 50}}, 12, 31),
+                startBalance: 10000
+            };
+        }
+
+        export function onTick() {
+            
+        }
+        """;
+
+        var revision = new DbSimulationModelRevision
+        {
+            SimulationModel = model,
+            CreatedAt = DateTimeOffset.UtcNow,
+            OriginalCode = initialCode,
+            CompiledCode = "",
+            SourceMap = ""
+        };
+
+        _db.SimulationModelRevisions.Add(revision);
         await _db.SaveChangesAsync();
 
         return Ok(model.Id);
     }
 
     [HttpPost("Update")]
+    [Produces<int>]
     public async Task<IActionResult> Update(UpdateSimulationModelRequest request)
     {
         var model = await _db.SimulationModels.FindAsync(request.Id);
@@ -96,13 +164,19 @@ public class SimulationModelsController : Controller
         if (model == null)
             return NotFound();
 
-        model.OriginalCode = request.OriginalCode;
-        model.CompiledCode = request.CompiledCode;
-        model.SourceMap = request.SourceMap;
+        var newRevision = new DbSimulationModelRevision
+        {
+            SimulationModel = model,
+            CreatedAt = DateTimeOffset.UtcNow,
+            OriginalCode = request.OriginalCode,
+            CompiledCode = request.CompiledCode,
+            SourceMap = request.SourceMap
+        };
 
+        _db.SimulationModelRevisions.Add(newRevision);
         await _db.SaveChangesAsync();
 
-        return Ok();
+        return Ok(newRevision.Id);
     }
 
     [HttpPost("Rename")]
@@ -138,42 +212,54 @@ public class SimulationModelsController : Controller
     }
 
     [HttpPost("Run")]
-    [Produces<int>]
-    public async Task<IActionResult> Run(int id)
+    public async Task<IActionResult> Run(int revisionId)
     {
-        var runId = await _simulationRunner.Run(id);
-        return Ok(runId);
+        await _simulationRunner.Run(revisionId);
+        return Ok();
     }
 
     [HttpGet("GetRunResult")]
     [Produces<SimulationRunResultResponse>]
-    public async Task<IActionResult> GetRunResult(int runId)
+    public async Task<IActionResult> GetRunResult(int revisionId)
     {
-        var run = await _db.SimulationRuns
-            .AsSplitQuery()
-            .Include(r => r.Logs)
-            .Include(r => r.Transactions)
-            .Include(r => r.DaySummaries)
-            .SingleOrDefaultAsync(r => r.Id == runId);
-        if (run == null) return NotFound();
+        var revision = await _db.SimulationModelRevisions
+            .SingleOrDefaultAsync(r => r.Id == revisionId);
+        if (revision == null) return NotFound();
 
-        return Ok(new SimulationRunResultResponse
-        {
-            Logs = run.Logs.Select(l => l.Message).ToList(),
-            Transactions = run.Transactions.OrderBy(t => t.Date).Select(t => new SimulationTransactionResponse
+        var logs = await _db.SimulationLogs
+            .Where(l => l.Revision.Id == revisionId)
+            .Select(l => l.Message)
+            .ToListAsync();
+
+        var transactions = await _db.SimulationTransactions
+            .Where(t => t.Revision.Id == revisionId)
+            .OrderBy(t => t.Date)
+            .Select(t => new SimulationTransactionResponse
             {
                 Date = t.Date,
                 Title = t.Title,
                 Balance = t.Balance,
                 Amount = t.Amount
-            }).ToList(),
-            DaySummaries = run.DaySummaries.OrderBy(d => d.Date).Select(d => new SimulationDaySummaryResponse
+            })
+            .ToListAsync();
+
+        var daySummaries = await _db.SimulationDaySummaries
+            .Where(d => d.Revision.Id == revisionId)
+            .OrderBy(d => d.Date)
+            .Select(d => new SimulationDaySummaryResponse
             {
                 Date = d.Date,
                 Balance = d.Balance,
                 Amount = d.Amount,
                 TotalStockValue = d.TotalStockValue
-            }).ToList()
+            })
+            .ToListAsync();
+
+        return Ok(new SimulationRunResultResponse
+        {
+            Logs = logs,
+            Transactions = transactions,
+            DaySummaries = daySummaries
         });
     }
 
@@ -193,18 +279,26 @@ public class SimulationModelsController : Controller
 }
 
 [PublicAPI]
+public record SimulationModelListItemResponse
+{
+    [Required] public int Id { get; set; }
+    [Required] public required string Name { get; set; }
+}
+
+[PublicAPI]
 public record SimulationModelResponse
 {
     [Required] public int Id { get; set; }
     [Required] public required string Name { get; set; }
+    public int? LatestRevisionId { get; set; }
     [Required] public required string OriginalCode { get; set; }
-    [Required] public required bool HasSyntaxErrors { get; set; }
 }
 
 [PublicAPI]
 public record NewSimulationModelRequest
 {
     [Required] public required string Name { get; set; }
+    [Required] public required bool IncludeSampleCode { get; set; }
 }
 
 [PublicAPI]

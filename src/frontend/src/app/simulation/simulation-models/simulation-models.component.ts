@@ -3,7 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { SimulationModelResponse, SimulationModelsClient } from '../../server';
+import { SimulationModelListItemResponse, SimulationModelsClient } from '../../server';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
@@ -26,7 +26,7 @@ export class SimulationModelsComponent implements OnInit {
     private router = inject(Router);
     private dialogService = inject(DialogService);
 
-    models = signal(<SimulationModelResponse[]>[]);
+    models = signal(<SimulationModelListItemResponse[]>[]);
 
     async ngOnInit(): Promise<void> {
         await this.update();
@@ -46,11 +46,11 @@ export class SimulationModelsComponent implements OnInit {
         await this.router.navigate(['/simulation', newId]);
     }
 
-    onEditModel(model: SimulationModelResponse) {
+    onEditModel(model: SimulationModelListItemResponse) {
         this.router.navigate(['/simulation', model.id]);
     }
 
-    onDeleteModel(model: SimulationModelResponse) {
+    onDeleteModel(model: SimulationModelListItemResponse) {
         this.confirmationService.confirm({
             header: 'Modell löschen',
             message: 'Möchten Sie dieses Modell "' + model.name + '" wirklich löschen?',

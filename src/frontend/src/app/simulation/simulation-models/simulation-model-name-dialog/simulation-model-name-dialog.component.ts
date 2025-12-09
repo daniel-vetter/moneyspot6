@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -10,7 +11,7 @@ import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-simulation-model-name-dialog',
-    imports: [ButtonModule, FormsModule, InputTextModule, MessageModule, CommonModule],
+    imports: [ButtonModule, CheckboxModule, FormsModule, InputTextModule, MessageModule, CommonModule],
     templateUrl: './simulation-model-name-dialog.component.html',
     styleUrl: './simulation-model-name-dialog.component.scss'
 })
@@ -24,6 +25,7 @@ export class SimulationModelNameDialogComponent {
     isEditMode: boolean;
     isSaving = false;
     errorMessage: string | undefined;
+    includeSampleCode = true;
 
     constructor() {
         this.id = this.dialogConfig.data?.id;
@@ -52,7 +54,8 @@ export class SimulationModelNameDialogComponent {
                 this.dialogRef.close(this.name.trim());
             } else {
                 const newId = await lastValueFrom(this.simulationModelsClient.create(new NewSimulationModelRequest({
-                    name: this.name.trim()
+                    name: this.name.trim(),
+                    includeSampleCode: this.includeSampleCode
                 })));
                 this.dialogRef.close(newId);
             }
