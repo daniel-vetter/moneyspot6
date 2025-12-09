@@ -90,6 +90,7 @@ public class SimulationModelsController : Controller
 
         var initialCode = request.IncludeSampleCode ? $$"""
         // Beispiel: Finanzsimulation mit monatlichem Gehalt, Ausgaben und ETF-Sparplan
+
         export function onInit(): InitialConfig {
             return {
                 startDate: new DateOnly({{DateTime.Now.Year}}, 1, 1),
@@ -108,22 +109,22 @@ public class SimulationModelsController : Controller
         export function onTick() {
             // Gehalt am 1. des Monats
             if (today.day === 1) {
-                addTransaction("Gehalt", 3500);
+                addTransaction("Gehalt", adjust(3500).from(start).to(today));
             }
 
             // Miete am 1. des Monats
             if (today.day === 1) {
-                addTransaction("Miete", -1200);
+                addTransaction("Miete", -adjust(1200).from(start).to(today));
             }
 
             // ETF-Sparplan am 15. des Monats
-            if (today.day === 15 && balance > 500) {
-                buyStocksFor("MSCI World ETF", 500);
+            if (today.day === 15 && balance > adjust(500).from(start).to(today)) {
+                buyStocksFor("MSCI World ETF", adjust(500).from(start).to(today));
             }
 
-            // Monatliche Ausgaben (Lebensmittel, etc.) verteilt
+            // Monatliche Ausgaben verteilt
             if (today.day === 10 || today.day === 20) {
-                addTransaction("Lebensmittel", -200);
+                addTransaction("Lebensmittel", -adjust(200).from(start).to(today));
             }
         }
         """ : $$"""

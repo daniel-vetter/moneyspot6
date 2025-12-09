@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
-using System.CodeDom;
+using MoneySpot6.WebApp.Features.Core.Inflation;
 
 namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
 {
@@ -8,10 +8,12 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
     public class SimulationRunner
     {
         private readonly Db _db;
+        private readonly InflationCalculator _inflationCalculator;
 
-        public SimulationRunner(Db db)
+        public SimulationRunner(Db db, InflationCalculator inflationCalculator)
         {
             _db = db;
+            _inflationCalculator = inflationCalculator;
         }
 
         public async Task Run(int revisionId)
@@ -174,7 +176,43 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                     }
                     return total;
                 }
+
+                class Adjustment {
+                    constructor(amount) {
+                        this.amount = amount;
+                    }
+
+                    from(dateOrYear, month, day) {
+                        if (dateOrYear instanceof DateOnly) {
+                            return new AdjustmentWithStartDate(this.amount, dateOrYear);
+                        } else {
+                            return new AdjustmentWithStartDate(this.amount, new DateOnly(dateOrYear, month, day));
+                        }
+                    }
+                }
+
+                class AdjustmentWithStartDate {
+                    constructor(amount, fromDate) {
+                        this.amount = amount;
+                        this.fromDate = fromDate;
+                    }
+
+                    to(dateOrYear, month, day) {
+                        if (dateOrYear instanceof DateOnly) {
+                            return calculateInflationAdjustmentExternal(this.amount, this.fromDate.toString(), dateOrYear.toString());
+                        } else {
+                            return calculateInflationAdjustmentExternal(this.amount, this.fromDate.toString(), new DateOnly(dateOrYear, month, day).toString());
+                        }
+                    }
+                }
+
+                function adjust(amount) {
+                    return new Adjustment(amount);
+                }
                 """);
+
+            // Load inflation data
+            await _inflationCalculator.EnsureConfigIsLoaded();
 
             var log = new List<string>();
             var transactions = new List<CreatedTransaction>();
@@ -182,6 +220,12 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             jsEngine.SetValue("log", (string str) => { log.Add(str); });
             jsEngine.SetValue("addTransactionExternal", (string date, string str, double balance, double amount) => { transactions.Add(new CreatedTransaction(DateOnly.Parse(date), str, (decimal)balance, (decimal)amount)); });
             jsEngine.SetValue("addDaySummaryExternal", (string date, double balance, double amount, double totalStockValue) => { daySummaries.Add(new DaySummary(DateOnly.Parse(date), (decimal)balance, (decimal)amount, (decimal)totalStockValue)); });
+            jsEngine.SetValue("calculateInflationAdjustmentExternal", (double amount, string fromDate, string toDate) =>
+            {
+                var from = DateOnly.Parse(fromDate);
+                var to = DateOnly.Parse(toDate);
+                return (double)_inflationCalculator.CalculateInflationAdjustedValue((decimal)amount, from, to);
+            });
 
             jsEngine.Modules.Add("userCode", revision.CompiledCode);
             jsEngine.Modules.Add("main", """
