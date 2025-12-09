@@ -74,6 +74,26 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                         }
                     }
 
+                    is(dateOrYear, month, day) {
+                        if (dateOrYear instanceof DateOnly) {
+                            return this.date.getTime() === dateOrYear.date.getTime();
+                        } else {
+                            return this.is(new DateOnly(dateOrYear, month, day))
+                        }
+                    }
+
+                    isNot(dateOrYear, month, day) {
+                        if (dateOrYear instanceof DateOnly) {
+                            return this.date.getTime() !== dateOrYear.date.getTime();
+                        } else {
+                            return this.isNot(new DateOnly(dateOrYear, month, day))
+                        }
+                    }
+
+                    isBetween(start, end) {
+                        return this.isAfterOrEqual(start) && this.isBeforeOrEqual(end);
+                    }
+
                     addDays(count) {
                         var date = new Date(this.date.valueOf());
                         date.setDate(date.getDate() + count);
