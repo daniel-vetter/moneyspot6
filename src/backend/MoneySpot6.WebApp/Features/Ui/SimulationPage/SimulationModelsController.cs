@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Ui.Shared;
 using MoneySpot6.WebApp.Infrastructure;
 
 namespace MoneySpot6.WebApp.Features.Ui.SimulationPage;
@@ -14,11 +15,15 @@ public class SimulationModelsController : Controller
 {
     private readonly Db _db;
     private readonly SimulationRunner _simulationRunner;
+    private readonly BalanceProvider _balanceProvider;
+    private readonly StockDataProvider _stockDataProvider;
 
-    public SimulationModelsController(Db db, SimulationRunner simulationRunner)
+    public SimulationModelsController(Db db, SimulationRunner simulationRunner, BalanceProvider balanceProvider, StockDataProvider stockDataProvider)
     {
         _db = db;
         _simulationRunner = simulationRunner;
+        _balanceProvider = balanceProvider;
+        _stockDataProvider = stockDataProvider;
     }
 
     [HttpGet("GetAll")]
@@ -282,11 +287,41 @@ public class SimulationModelsController : Controller
             })
             .ToListAsync();
 
+        // Get actual balances and stock values for the simulation period (up to today, exclusive)
+        var actualBalances = new List<ActualBalanceResponse>();
+        var actualStockValues = new List<ActualStockValueResponse>();
+        if (daySummaries.Count > 0)
+        {
+            var startDate = daySummaries[0].Date;
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            // endDate is exclusive, so use today (not today+1) to get data up to yesterday
+            var endDate = daySummaries[^1].Date < today ? daySummaries[^1].Date.AddDays(1) : today;
+
+            if (startDate < endDate)
+            {
+                var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate, endDate);
+                actualBalances = balanceHistory.Select(x => new ActualBalanceResponse
+                {
+                    Date = x.Key,
+                    Balance = x.Value
+                }).ToList();
+
+                var stockHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate, endDate);
+                actualStockValues = stockHistory.Select(x => new ActualStockValueResponse
+                {
+                    Date = x.Key,
+                    Value = x.Value.EndOfDay.CurrentValue
+                }).ToList();
+            }
+        }
+
         return Ok(new SimulationRunResultResponse
         {
             Logs = logs,
             Transactions = transactions,
-            DaySummaries = daySummaries
+            DaySummaries = daySummaries,
+            ActualBalances = actualBalances,
+            ActualStockValues = actualStockValues
         });
     }
 
@@ -357,6 +392,8 @@ public record SimulationRunResultResponse
     [Required] public required List<SimulationLogResponse> Logs { get; set; }
     [Required] public required List<SimulationTransactionResponse> Transactions { get; set; }
     [Required] public required List<SimulationDaySummaryResponse> DaySummaries { get; set; }
+    [Required] public required List<ActualBalanceResponse> ActualBalances { get; set; }
+    [Required] public required List<ActualStockValueResponse> ActualStockValues { get; set; }
 }
 
 [PublicAPI]
@@ -382,4 +419,18 @@ public record SimulationDaySummaryResponse
     [Required] public required decimal Balance { get; set; }
     [Required] public required decimal Amount { get; set; }
     [Required] public required decimal TotalStockValue { get; set; }
+}
+
+[PublicAPI]
+public record ActualBalanceResponse
+{
+    [Required] public required DateOnly Date { get; set; }
+    [Required] public required decimal Balance { get; set; }
+}
+
+[PublicAPI]
+public record ActualStockValueResponse
+{
+    [Required] public required DateOnly Date { get; set; }
+    [Required] public required decimal Value { get; set; }
 }

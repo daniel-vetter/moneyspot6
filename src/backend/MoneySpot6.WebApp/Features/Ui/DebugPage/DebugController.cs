@@ -215,6 +215,19 @@ public class DebugController : Controller
             Price = 100,
             Stock = stock
         });
+
+        _db.InflationSettings.Add(new DbInflationSettings
+        {
+            DefaultRate = 1.9m,
+        });
+
+        _db.InflationData.Add(new DbInflationData
+        {
+            ImportedAt = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            IndexValue = 2m,
+            Month = 1,
+            Year = 2025
+        });
         
         await _db.SaveChangesAsync();
     }

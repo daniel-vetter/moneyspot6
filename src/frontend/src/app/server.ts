@@ -5706,6 +5706,8 @@ export class SimulationRunResultResponse implements ISimulationRunResultResponse
     logs!: SimulationLogResponse[];
     transactions!: SimulationTransactionResponse[];
     daySummaries!: SimulationDaySummaryResponse[];
+    actualBalances!: ActualBalanceResponse[];
+    actualStockValues!: ActualStockValueResponse[];
 
     constructor(data?: ISimulationRunResultResponse) {
         if (data) {
@@ -5718,6 +5720,8 @@ export class SimulationRunResultResponse implements ISimulationRunResultResponse
             this.logs = [];
             this.transactions = [];
             this.daySummaries = [];
+            this.actualBalances = [];
+            this.actualStockValues = [];
         }
     }
 
@@ -5737,6 +5741,16 @@ export class SimulationRunResultResponse implements ISimulationRunResultResponse
                 this.daySummaries = [] as any;
                 for (let item of _data["daySummaries"])
                     this.daySummaries!.push(SimulationDaySummaryResponse.fromJS(item));
+            }
+            if (Array.isArray(_data["actualBalances"])) {
+                this.actualBalances = [] as any;
+                for (let item of _data["actualBalances"])
+                    this.actualBalances!.push(ActualBalanceResponse.fromJS(item));
+            }
+            if (Array.isArray(_data["actualStockValues"])) {
+                this.actualStockValues = [] as any;
+                for (let item of _data["actualStockValues"])
+                    this.actualStockValues!.push(ActualStockValueResponse.fromJS(item));
             }
         }
     }
@@ -5765,6 +5779,16 @@ export class SimulationRunResultResponse implements ISimulationRunResultResponse
             for (let item of this.daySummaries)
                 data["daySummaries"].push(item ? item.toJSON() : undefined as any);
         }
+        if (Array.isArray(this.actualBalances)) {
+            data["actualBalances"] = [];
+            for (let item of this.actualBalances)
+                data["actualBalances"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.actualStockValues)) {
+            data["actualStockValues"] = [];
+            for (let item of this.actualStockValues)
+                data["actualStockValues"].push(item ? item.toJSON() : undefined as any);
+        }
         return data;
     }
 }
@@ -5773,6 +5797,8 @@ export interface ISimulationRunResultResponse {
     logs: SimulationLogResponse[];
     transactions: SimulationTransactionResponse[];
     daySummaries: SimulationDaySummaryResponse[];
+    actualBalances: ActualBalanceResponse[];
+    actualStockValues: ActualStockValueResponse[];
 }
 
 export class SimulationLogResponse implements ISimulationLogResponse {
@@ -5909,6 +5935,86 @@ export interface ISimulationDaySummaryResponse {
     balance: number;
     amount: number;
     totalStockValue: number;
+}
+
+export class ActualBalanceResponse implements IActualBalanceResponse {
+    date!: Date;
+    balance!: number;
+
+    constructor(data?: IActualBalanceResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.balance = _data["balance"];
+        }
+    }
+
+    static fromJS(data: any): ActualBalanceResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActualBalanceResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : undefined as any;
+        data["balance"] = this.balance;
+        return data;
+    }
+}
+
+export interface IActualBalanceResponse {
+    date: Date;
+    balance: number;
+}
+
+export class ActualStockValueResponse implements IActualStockValueResponse {
+    date!: Date;
+    value!: number;
+
+    constructor(data?: IActualStockValueResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): ActualStockValueResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActualStockValueResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : undefined as any;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IActualStockValueResponse {
+    date: Date;
+    value: number;
 }
 
 export class IntegrationStatusResponse implements IIntegrationStatusResponse {
