@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -15,10 +15,12 @@ import { lastValueFrom } from 'rxjs';
     templateUrl: './simulation-model-name-dialog.component.html',
     styleUrl: './simulation-model-name-dialog.component.scss'
 })
-export class SimulationModelNameDialogComponent {
+export class SimulationModelNameDialogComponent implements AfterViewInit {
     private dialogConfig = inject(DynamicDialogConfig);
     private dialogRef = inject(DynamicDialogRef);
     private simulationModelsClient = inject(SimulationModelsClient);
+
+    @ViewChild('nameInput') nameInput!: ElementRef<HTMLInputElement>;
 
     name: string = '';
     id: number | undefined;
@@ -33,6 +35,10 @@ export class SimulationModelNameDialogComponent {
         this.name = this.dialogConfig.data?.name || '';
         this.dialogConfig.header = this.isEditMode ? 'Name bearbeiten' : 'Neue Simulation';
         this.dialogConfig.width = '400px';
+    }
+
+    ngAfterViewInit() {
+        setTimeout(() => this.nameInput.nativeElement.focus(), 0);
     }
 
     onCancel() {

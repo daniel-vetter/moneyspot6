@@ -15,7 +15,8 @@
       "Bash(nul)",
       "Bash(npx ng build:*)",
       "Bash(cat:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

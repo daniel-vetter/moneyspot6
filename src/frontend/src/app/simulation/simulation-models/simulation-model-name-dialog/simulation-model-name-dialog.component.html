@@ -1,6 +1,6 @@
 <div class="dialog-content">
     <label for="simulation-name">Name:</label>
-    <input id="simulation-name" type="text" pInputText [(ngModel)]="name" style="width: 100%;" (keydown.enter)="onConfirm()" [disabled]="isSaving" autofocus />
+    <input #nameInput id="simulation-name" type="text" pInputText [(ngModel)]="name" style="width: 100%;" (keydown.enter)="onConfirm()" [disabled]="isSaving" />
     @if (!isEditMode) {
         <div class="sample-code-option">
             <p-checkbox [(ngModel)]="includeSampleCode" [binary]="true" inputId="include-sample-code"></p-checkbox>
