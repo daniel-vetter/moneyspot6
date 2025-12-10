@@ -197,7 +197,6 @@ declare class DateOnly {
 
         this.updateMarkerInfo();
         this.loading = false;
-
     }
 
     private updateMarkerInfo() {
@@ -316,6 +315,22 @@ declare class DateOnly {
                     return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance + d.totalStockValue];
                 });
 
+                // Combine actual balances and stock values by date
+                const actualTotalMap = new Map<number, number>();
+                for (const b of result.actualBalances) {
+                    const date = new Date(b.date);
+                    const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+                    actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + b.balance);
+                }
+                for (const s of result.actualStockValues) {
+                    const date = new Date(s.date);
+                    const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+                    actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + s.value);
+                }
+                const actualTotalData = Array.from(actualTotalMap.entries())
+                    .sort((a, b) => a[0] - b[0])
+                    .map(([date, value]) => [date, value]);
+
                 this.totalChartOptions = {
                     chart: {
                         type: 'line',
@@ -332,21 +347,30 @@ declare class DateOnly {
                         title: { text: 'Total' }
                     },
                     legend: {
-                        enabled: false
+                        enabled: true
                     },
                     series: [{
                         type: 'line',
-                        name: 'Total',
+                        name: 'Simuliert',
                         data: totalChartData
+                    }, {
+                        type: 'line',
+                        name: 'Echt',
+                        data: actualTotalData
                     }]
                 };
             }
 
-            // Build chart from transactions
-            if (result.transactions.length > 0) {
-                const chartData = result.transactions.map(t => {
-                    const date = new Date(t.date);
-                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), t.balance];
+            // Build chart from day summaries (balance only)
+            if (result.daySummaries.length > 0) {
+                const chartData = result.daySummaries.map(d => {
+                    const date = new Date(d.date);
+                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance];
+                });
+
+                const actualBalanceData = result.actualBalances.map(b => {
+                    const date = new Date(b.date);
+                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), b.balance];
                 });
 
                 this.chartOptions = {
@@ -365,12 +389,16 @@ declare class DateOnly {
                         title: { text: 'Balance' }
                     },
                     legend: {
-                        enabled: false
+                        enabled: true
                     },
                     series: [{
                         type: 'line',
-                        name: 'Balance',
+                        name: 'Simuliert',
                         data: chartData
+                    }, {
+                        type: 'line',
+                        name: 'Echt',
+                        data: actualBalanceData
                     }]
                 };
             }
@@ -380,6 +408,11 @@ declare class DateOnly {
                 const stockChartData = result.daySummaries.map(d => {
                     const date = new Date(d.date);
                     return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.totalStockValue];
+                });
+
+                const actualStockData = result.actualStockValues.map(s => {
+                    const date = new Date(s.date);
+                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), s.value];
                 });
 
                 this.stockChartOptions = {
@@ -398,12 +431,16 @@ declare class DateOnly {
                         title: { text: 'Stock Value' }
                     },
                     legend: {
-                        enabled: false
+                        enabled: true
                     },
                     series: [{
                         type: 'line',
-                        name: 'Stock Value',
+                        name: 'Simuliert',
                         data: stockChartData
+                    }, {
+                        type: 'line',
+                        name: 'Echt',
+                        data: actualStockData
                     }]
                 };
             }
