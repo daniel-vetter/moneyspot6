@@ -94,7 +94,7 @@ public class SimulationModelsController : Controller
         export function onInit(): InitialConfig {
             return {
                 startDate: new DateOnly({{DateTime.Now.Year}}, 1, 1),
-                endDate: new DateOnly({{DateTime.Now.Year + 50}}, 12, 31),
+                endDate: new DateOnly({{DateTime.Now.Year + 25}}, 12, 31),
                 startBalance: 10000,
                 stocks: [
                     {
@@ -117,14 +117,36 @@ public class SimulationModelsController : Controller
                 addTransaction("Miete", -adjust(1200).from(start).to(today));
             }
 
-            // ETF-Sparplan am 15. des Monats
-            if (today.day === 15 && balance > adjust(500).from(start).to(today)) {
-                buyStocksFor("MSCI World ETF", adjust(500).from(start).to(today));
-            }
-
             // Monatliche Ausgaben verteilt
             if (today.day === 10 || today.day === 20) {
                 addTransaction("Lebensmittel", -adjust(200).from(start).to(today));
+            }
+
+            const yearsElapsed = today.year - start.year;
+
+            // Autokauf alle 10 Jahre
+            if (today.month === 1 && today.day === 1 && yearsElapsed > 0 && yearsElapsed % 10 === 0) {
+                addTransaction("Autokauf", -adjust(25000).from(start).to(today));
+            }
+
+            // PC-Kauf alle 5 Jahre
+            if (today.month === 1 && today.day === 1 && yearsElapsed > 0 && yearsElapsed % 5 === 0) {
+                addTransaction("PC-Kauf", -adjust(1500).from(start).to(today));
+            }
+
+            // ETF-Sparplan am 15. des Monats
+            if (today.day === 15) {
+                // Fester Sparplan: 500€
+                const sparplan = adjust(500).from(start).to(today);
+                if (balance > sparplan) {
+                    buyStocksFor("MSCI World ETF", sparplan);
+                }
+
+                // Überschuss über 60.000€ investieren
+                const threshold = adjust(60000).from(start).to(today);
+                if (balance > threshold) {
+                    buyStocksFor("MSCI World ETF", balance - threshold);
+                }
             }
         }
         """ : $$"""
