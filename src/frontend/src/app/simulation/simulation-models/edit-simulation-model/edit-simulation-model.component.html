@@ -15,7 +15,23 @@
             </div>
         </div>
     </ng-template>
-    <div style="position: relative;">
+
+    @if (maximizedChart && maximizedChartOptions) {
+        <div class="maximized-chart-container">
+            <div class="maximized-chart-header">
+                <span class="maximized-chart-title">
+                    @switch (maximizedChart) {
+                        @case ('total') { Total }
+                        @case ('balance') { Balance }
+                        @case ('stock') { Stocks }
+                    }
+                </span>
+                <p-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" (click)="toggleMaximizeChart(maximizedChart)" pTooltip="Schließen"></p-button>
+            </div>
+            <highcharts-chart [Highcharts]="Highcharts" [options]="maximizedChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+        </div>
+    }
+    <div style="position: relative;" [style.display]="maximizedChart ? 'none' : 'block'">
         @if (loading) {
             <div style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: var(--p-surface-0); z-index: 10;">
                 <p-progressSpinner></p-progressSpinner>
@@ -46,13 +62,22 @@
                                         <p-tabpanel value="0">
                                             @if (totalChartOptions || chartOptions || stockChartOptions) {
                                                 @if (totalChartOptions) {
-                                                    <highcharts-chart [Highcharts]="Highcharts" [options]="totalChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                    <div class="chart-wrapper">
+                                                        <p-button icon="pi pi-window-maximize" [text]="true" [rounded]="true" size="small" class="chart-maximize-btn" (click)="toggleMaximizeChart('total')" pTooltip="Maximieren"></p-button>
+                                                        <highcharts-chart [Highcharts]="Highcharts" [options]="totalChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                    </div>
                                                 }
                                                 @if (chartOptions) {
-                                                    <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                    <div class="chart-wrapper">
+                                                        <p-button icon="pi pi-window-maximize" [text]="true" [rounded]="true" size="small" class="chart-maximize-btn" (click)="toggleMaximizeChart('balance')" pTooltip="Maximieren"></p-button>
+                                                        <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                    </div>
                                                 }
                                                 @if (stockChartOptions) {
-                                                    <highcharts-chart [Highcharts]="Highcharts" [options]="stockChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                    <div class="chart-wrapper">
+                                                        <p-button icon="pi pi-window-maximize" [text]="true" [rounded]="true" size="small" class="chart-maximize-btn" (click)="toggleMaximizeChart('stock')" pTooltip="Maximieren"></p-button>
+                                                        <highcharts-chart [Highcharts]="Highcharts" [options]="stockChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                    </div>
                                                 }
                                             } @else {
                                                 <div class="empty-state">Keine Daten vorhanden. Führe die Simulation aus.</div>

@@ -116,3 +116,37 @@
 .negative {
     color: var(--p-red-500);
 }
+
+.chart-wrapper {
+    position: relative;
+
+    ::ng-deep .chart-maximize-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        z-index: 100;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        background: var(--p-surface-0) !important;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    &:hover ::ng-deep .chart-maximize-btn {
+        opacity: 1;
+    }
+}
+
+.maximized-chart-container {
+    .maximized-chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .maximized-chart-title {
+        font-weight: 600;
+    }
+}
+

@@ -54,6 +54,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     totalChartOptions: Highcharts.Options | undefined;
     chartOptions: Highcharts.Options | undefined;
     stockChartOptions: Highcharts.Options | undefined;
+    maximizedChart: 'total' | 'balance' | 'stock' | null = null;
 
     get pageTitle(): string {
         return this.id === undefined ? "Neue Simulation" : `Simulation: ${this.modelName}`;
@@ -261,6 +262,30 @@ declare class DateOnly {
         const newName = await firstValueFrom(dlg.onClose);
         if (newName) {
             this.modelName = newName;
+        }
+    }
+
+    maximizedChartOptions: Highcharts.Options | undefined;
+
+    toggleMaximizeChart(chart: 'total' | 'balance' | 'stock') {
+        if (this.maximizedChart === chart) {
+            this.maximizedChart = null;
+            this.maximizedChartOptions = undefined;
+        } else {
+            this.maximizedChart = chart;
+            const baseOptions = chart === 'total' ? this.totalChartOptions
+                : chart === 'balance' ? this.chartOptions
+                : this.stockChartOptions;
+
+            if (baseOptions) {
+                this.maximizedChartOptions = {
+                    ...baseOptions,
+                    chart: {
+                        ...baseOptions.chart,
+                        height: 1000
+                    }
+                };
+            }
         }
     }
 
