@@ -2,7 +2,7 @@ import {AfterViewInit, Component, inject, OnDestroy} from '@angular/core';
 import {ViewChild, ElementRef} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
-import {SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse} from '../../../server';
+import {SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse, SimulationLogResponse} from '../../../server';
 import {firstValueFrom, lastValueFrom} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
@@ -45,8 +45,10 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     codeErrorStillThinking = true;
     makerChangeSubscription: monaco.IDisposable | undefined;
     loading = true;
-    logs: string[] = [];
+    logs: SimulationLogResponse[] = [];
     transactions: SimulationTransactionResponse[] = [];
+    activeTab = '0';
+    @ViewChild('logContent') logContent?: ElementRef<HTMLDivElement>;
     isRunning = false;
     Highcharts: typeof Highcharts = Highcharts;
     totalChartOptions: Highcharts.Options | undefined;
@@ -102,6 +104,7 @@ declare const balance: number;
 declare function addTransaction(purpose: string, amount: number): void;
 declare function buyStocksFor(stockName: string, amount: number): void;
 declare function adjust(amount: number): Adjustment;
+declare function log(message: any): void;
 
 declare class Adjustment {
     from(date: DateOnly): AdjustmentWithStartDate;
@@ -295,6 +298,16 @@ declare class DateOnly {
             const result = await lastValueFrom(this.simulationModelsClient.getRunResult(this.currentRevisionId!));
             this.logs = result.logs;
             this.transactions = result.transactions;
+
+            // If there are error logs, switch to log tab and scroll to bottom
+            if (this.logs.some(l => l.isError)) {
+                this.activeTab = '2';
+                setTimeout(() => {
+                    if (this.logContent) {
+                        this.logContent.nativeElement.scrollTop = this.logContent.nativeElement.scrollHeight;
+                    }
+                }, 0);
+            }
 
             // Build total chart from day summaries (balance + stock value)
             if (result.daySummaries.length > 0) {

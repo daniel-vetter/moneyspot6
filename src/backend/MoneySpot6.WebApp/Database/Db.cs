@@ -464,6 +464,7 @@ public class DbSimulationLog
     public int Id { get; set; }
     public required DbSimulationModelRevision Revision { get; set; }
     public required string Message { get; set; }
+    public bool IsError { get; set; }
 }
 
 [Table("SimulationTransactions")]

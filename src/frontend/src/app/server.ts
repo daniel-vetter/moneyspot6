@@ -5703,7 +5703,7 @@ export interface IRenameSimulationModelRequest {
 }
 
 export class SimulationRunResultResponse implements ISimulationRunResultResponse {
-    logs!: string[];
+    logs!: SimulationLogResponse[];
     transactions!: SimulationTransactionResponse[];
     daySummaries!: SimulationDaySummaryResponse[];
 
@@ -5726,7 +5726,7 @@ export class SimulationRunResultResponse implements ISimulationRunResultResponse
             if (Array.isArray(_data["logs"])) {
                 this.logs = [] as any;
                 for (let item of _data["logs"])
-                    this.logs!.push(item);
+                    this.logs!.push(SimulationLogResponse.fromJS(item));
             }
             if (Array.isArray(_data["transactions"])) {
                 this.transactions = [] as any;
@@ -5753,7 +5753,7 @@ export class SimulationRunResultResponse implements ISimulationRunResultResponse
         if (Array.isArray(this.logs)) {
             data["logs"] = [];
             for (let item of this.logs)
-                data["logs"].push(item);
+                data["logs"].push(item ? item.toJSON() : undefined as any);
         }
         if (Array.isArray(this.transactions)) {
             data["transactions"] = [];
@@ -5770,9 +5770,49 @@ export class SimulationRunResultResponse implements ISimulationRunResultResponse
 }
 
 export interface ISimulationRunResultResponse {
-    logs: string[];
+    logs: SimulationLogResponse[];
     transactions: SimulationTransactionResponse[];
     daySummaries: SimulationDaySummaryResponse[];
+}
+
+export class SimulationLogResponse implements ISimulationLogResponse {
+    message!: string;
+    isError!: boolean;
+
+    constructor(data?: ISimulationLogResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"];
+            this.isError = _data["isError"];
+        }
+    }
+
+    static fromJS(data: any): SimulationLogResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new SimulationLogResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message;
+        data["isError"] = this.isError;
+        return data;
+    }
+}
+
+export interface ISimulationLogResponse {
+    message: string;
+    isError: boolean;
 }
 
 export class SimulationTransactionResponse implements ISimulationTransactionResponse {

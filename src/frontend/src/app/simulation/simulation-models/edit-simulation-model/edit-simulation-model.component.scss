@@ -95,6 +95,12 @@
     &:last-child {
         border-bottom: none;
     }
+
+    &.log-error {
+        color: var(--p-red-500);
+        background-color: var(--p-red-50);
+        font-weight: 600;
+    }
 }
 
 .empty-state {

@@ -154,7 +154,7 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 function buyStocksFor(stockName, amount) {
                     const predictor = stockPredictors[stockName];
                     if (!predictor) {
-                        log("ERROR: Unknown stock: " + stockName);
+                        throw Error("ERROR: Unknown stock: " + stockName);
                         return;
                     }
 
@@ -214,10 +214,10 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             // Load inflation data
             await _inflationCalculator.EnsureConfigIsLoaded();
 
-            var log = new List<string>();
+            var log = new List<LogEntry>();
             var transactions = new List<CreatedTransaction>();
             var daySummaries = new List<DaySummary>();
-            jsEngine.SetValue("log", (string str) => { log.Add(str); });
+            jsEngine.SetValue("log", (string str) => { log.Add(new LogEntry(str, false)); });
             jsEngine.SetValue("addTransactionExternal", (string date, string str, double balance, double amount) => { transactions.Add(new CreatedTransaction(DateOnly.Parse(date), str, (decimal)balance, (decimal)amount)); });
             jsEngine.SetValue("addDaySummaryExternal", (string date, double balance, double amount, double totalStockValue) => { daySummaries.Add(new DaySummary(DateOnly.Parse(date), (decimal)balance, (decimal)amount, (decimal)totalStockValue)); });
             jsEngine.SetValue("calculateInflationAdjustmentExternal", (double amount, string fromDate, string toDate) =>
@@ -234,7 +234,6 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 export function run() {
 
                     const config = onInit();
-                    log(config.startDate);
                     start = config.startDate;
                     end = config.endDate;
                     today = config.startDate;
@@ -258,9 +257,16 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                 }
                 """);
 
-            var mainModule = jsEngine.Modules.Import("main");
-            var tickFunction = mainModule.Get("run");
-            var r = jsEngine.Invoke(tickFunction, Array.Empty<object>());
+            try
+            {
+                var mainModule = jsEngine.Modules.Import("main");
+                var tickFunction = mainModule.Get("run");
+                jsEngine.Invoke(tickFunction, Array.Empty<object>());
+            }
+            catch (Exception ex)
+            {
+                log.Add(new LogEntry($"Fehler: {ex.Message}", true));
+            }
 
             // Clear previous run results from all revisions of this model
             var modelId = revision.SimulationModel.Id;
@@ -271,7 +277,7 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             // Store new results
             revision.LastRunAt = DateTimeOffset.UtcNow;
 
-            _db.SimulationLogs.AddRange(log.Select(msg => new DbSimulationLog { Revision = revision, Message = msg }));
+            _db.SimulationLogs.AddRange(log.Select(entry => new DbSimulationLog { Revision = revision, Message = entry.Message, IsError = entry.IsError }));
             _db.SimulationTransactions.AddRange(transactions.Select(t => new DbSimulationTransaction
             {
                 Revision = revision,
@@ -293,6 +299,7 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
         }
     }
 
+    record LogEntry(string Message, bool IsError);
     record CreatedTransaction(DateOnly Date, string Title, decimal BalanceBefore, decimal Amount);
     record DaySummary(DateOnly Date, decimal BalanceBefore, decimal Amount, decimal TotalStockValue);
 }

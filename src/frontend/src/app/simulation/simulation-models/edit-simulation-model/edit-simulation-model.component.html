@@ -36,7 +36,7 @@
                                     <span>Simulation läuft...</span>
                                 </div>
                             } @else {
-                                <p-tabs value="0">
+                                <p-tabs [(value)]="activeTab">
                                     <p-tablist>
                                         <p-tab value="0">Chart</p-tab>
                                         <p-tab value="1">Transaktionen</p-tab>
@@ -83,9 +83,9 @@
                                             }
                                         </p-tabpanel>
                                         <p-tabpanel value="2">
-                                            <div class="log-content">
+                                            <div #logContent class="log-content">
                                                 @for (log of logs; track $index) {
-                                                    <div class="log-entry">{{ log }}</div>
+                                                    <div class="log-entry" [class.log-error]="log.isError">{{ log.message }}</div>
                                                 }
                                                 @if (logs.length === 0) {
                                                     <div class="empty-state">Keine Log-Einträge vorhanden.</div>

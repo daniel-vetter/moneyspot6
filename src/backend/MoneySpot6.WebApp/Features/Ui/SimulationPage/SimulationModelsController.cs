@@ -251,7 +251,11 @@ public class SimulationModelsController : Controller
 
         var logs = await _db.SimulationLogs
             .Where(l => l.Revision.Id == revisionId)
-            .Select(l => l.Message)
+            .Select(l => new SimulationLogResponse
+            {
+                Message = l.Message,
+                IsError = l.IsError
+            })
             .ToListAsync();
 
         var transactions = await _db.SimulationTransactions
@@ -350,9 +354,16 @@ public record SimulationModelValidationErrorResponse
 [PublicAPI]
 public record SimulationRunResultResponse
 {
-    [Required] public required List<string> Logs { get; set; }
+    [Required] public required List<SimulationLogResponse> Logs { get; set; }
     [Required] public required List<SimulationTransactionResponse> Transactions { get; set; }
     [Required] public required List<SimulationDaySummaryResponse> DaySummaries { get; set; }
+}
+
+[PublicAPI]
+public record SimulationLogResponse
+{
+    [Required] public required string Message { get; set; }
+    [Required] public required bool IsError { get; set; }
 }
 
 [PublicAPI]
