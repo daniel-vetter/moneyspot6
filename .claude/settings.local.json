@@ -14,7 +14,9 @@
       "Bash(dir /s /b srchbci-adaptersrc*.java 2)",
       "Bash(nul)",
       "Bash(npx ng build:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

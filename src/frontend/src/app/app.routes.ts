@@ -15,6 +15,8 @@ import {MailIntegrationComponent} from "./settings/mail-integration/mail-integra
 import {InflationDataComponent} from "./settings/inflation-data/inflation-data.component";
 import {BankConnectionsComponent} from "./settings/bank-connections/bank-connections.component";
 import {StocksComponent} from "./settings/stocks/stocks.component";
+import {SimulationModelsComponent} from "./simulation/simulation-models/simulation-models.component";
+import {EditSimulationModelComponent} from "./simulation/simulation-models/edit-simulation-model/edit-simulation-model.component";
 
 export const routes: Routes = [
     { path: '', component: SummaryComponent, title: 'MoneySpot - Übersicht' },
@@ -34,4 +36,7 @@ export const routes: Routes = [
     { path: 'settings/categories', component: CategoriesEditorComponent, title: 'MoneySpot - Kategorien' },
     { path: 'settings/inflation-data', component: InflationDataComponent, title: 'MoneySpot - VPI-Daten' },
     { path: 'settings/mail-integration', component: MailIntegrationComponent, title: 'MoneySpot - Mail Integration' },
+    { path: 'simulation', component: SimulationModelsComponent, title: 'MoneySpot - Simulation' },
+    { path: 'simulation/new', component: EditSimulationModelComponent, title: 'MoneySpot - Neues Modell' },
+    { path: 'simulation/:id', component: EditSimulationModelComponent, title: 'MoneySpot - Modell bearbeiten' },
 ];

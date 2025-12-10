@@ -19,6 +19,11 @@ public class Db : DbContext
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
     public DbSet<DbInflationData> InflationData { get; init; }
     public DbSet<DbInflationSettings> InflationSettings { get; init; }
+    public DbSet<DbSimulationModel> SimulationModels { get; init; }
+    public DbSet<DbSimulationModelRevision> SimulationModelRevisions { get; init; }
+    public DbSet<DbSimulationLog> SimulationLogs { get; init; }
+    public DbSet<DbSimulationTransaction> SimulationTransactions { get; init; }
+    public DbSet<DbSimulationDaySummary> SimulationDaySummaries { get; init; }
 
     public Db(DbContextOptions<Db> options) : base(options)
     {
@@ -432,4 +437,54 @@ public class DbInflationSettings
 {
     public int Id { get; set; }
     public required decimal DefaultRate { get; set; }
+}
+
+[Table("SimulationModels")]
+public class DbSimulationModel
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+}
+
+[Table("SimulationModelRevisions")]
+public class DbSimulationModelRevision
+{
+    public int Id { get; set; }
+    public required DbSimulationModel SimulationModel { get; set; }
+    public required DateTimeOffset CreatedAt { get; set; }
+    public required string OriginalCode { get; set; }
+    public required string CompiledCode { get; set; }
+    public required string SourceMap { get; set; }
+    public DateTimeOffset? LastRunAt { get; set; }
+}
+
+[Table("SimulationLogs")]
+public class DbSimulationLog
+{
+    public int Id { get; set; }
+    public required DbSimulationModelRevision Revision { get; set; }
+    public required string Message { get; set; }
+    public bool IsError { get; set; }
+}
+
+[Table("SimulationTransactions")]
+public class DbSimulationTransaction
+{
+    public int Id { get; set; }
+    public required DbSimulationModelRevision Revision { get; set; }
+    public required DateOnly Date { get; set; }
+    public required string Title { get; set; }
+    public required decimal Balance { get; set; }
+    public required decimal Amount { get; set; }
+}
+
+[Table("SimulationDaySummaries")]
+public class DbSimulationDaySummary
+{
+    public int Id { get; set; }
+    public required DbSimulationModelRevision Revision { get; set; }
+    public required DateOnly Date { get; set; }
+    public required decimal Balance { get; set; }
+    public required decimal Amount { get; set; }
+    public required decimal TotalStockValue { get; set; }
 }

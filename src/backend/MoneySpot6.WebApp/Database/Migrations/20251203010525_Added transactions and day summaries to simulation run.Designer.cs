@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20251203010525_Added transactions and day summaries to simulation run")]
+    partial class Addedtransactionsanddaysummariestosimulationrun
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -729,79 +732,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.ToTable("Rules");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationDaySummary", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
-
-                    b.Property<int>("RevisionId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalStockValue")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RevisionId");
-
-                    b.ToTable("SimulationDaySummaries");
-                });
-
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsError")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("RevisionId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RevisionId");
-
-                    b.ToTable("SimulationLogs");
-                });
-
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SimulationModels");
-                });
-
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModelRevision", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -813,31 +744,54 @@ namespace MoneySpot6.WebApp.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTimeOffset?>("LastRunAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<bool>("HasSyntaxIssues")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("OriginalCode")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("SimulationModelId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("SourceMap")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SimulationModels");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRun", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SimulationModelId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SimulationModelId");
 
-                    b.ToTable("SimulationModelRevisions");
+                    b.ToTable("SimulationRuns");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationTransaction", b =>
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRunDaySummary", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -854,7 +808,56 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<int>("RevisionId")
+                    b.Property<int>("SimulationRunId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SimulationRunId");
+
+                    b.ToTable("SimulationRunDaySummaries");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRunLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SimulationRunId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SimulationRunId");
+
+                    b.ToTable("SimulationRunLogs");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRunTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("SimulationRunId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -863,9 +866,9 @@ namespace MoneySpot6.WebApp.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RevisionId");
+                    b.HasIndex("SimulationRunId");
 
-                    b.ToTable("SimulationTransactions");
+                    b.ToTable("SimulationRunTransactions");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbStock", b =>
@@ -1105,29 +1108,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.Navigation("ProcessedData");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationDaySummary", b =>
-                {
-                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
-                        .WithMany()
-                        .HasForeignKey("RevisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Revision");
-                });
-
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationLog", b =>
-                {
-                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
-                        .WithMany()
-                        .HasForeignKey("RevisionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Revision");
-                });
-
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModelRevision", b =>
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRun", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModel", "SimulationModel")
                         .WithMany()
@@ -1138,15 +1119,37 @@ namespace MoneySpot6.WebApp.Database.Migrations
                     b.Navigation("SimulationModel");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationTransaction", b =>
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRunDaySummary", b =>
                 {
-                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
-                        .WithMany()
-                        .HasForeignKey("RevisionId")
+                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationRun", "SimulationRun")
+                        .WithMany("DaySummaries")
+                        .HasForeignKey("SimulationRunId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Revision");
+                    b.Navigation("SimulationRun");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRunLog", b =>
+                {
+                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationRun", "SimulationRun")
+                        .WithMany("Logs")
+                        .HasForeignKey("SimulationRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SimulationRun");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRunTransaction", b =>
+                {
+                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationRun", "SimulationRun")
+                        .WithMany("Transactions")
+                        .HasForeignKey("SimulationRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SimulationRun");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbStockPrice", b =>
@@ -1169,6 +1172,15 @@ namespace MoneySpot6.WebApp.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Stock");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRun", b =>
+                {
+                    b.Navigation("DaySummaries");
+
+                    b.Navigation("Logs");
+
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }
