@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MoneySpot6.WebApp.Database.Migrations
 {
     [DbContext(typeof(Db))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [Migration("20251203195532_Moved simulation results to revision")]
+    partial class Movedsimulationresultstorevision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -767,9 +770,6 @@ namespace MoneySpot6.WebApp.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsError")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("text");
@@ -815,6 +815,9 @@ namespace MoneySpot6.WebApp.Database.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("HasSyntaxIssues")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LastRunAt")
                         .HasColumnType("timestamp with time zone");
@@ -1108,7 +1111,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationDaySummary", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
-                        .WithMany()
+                        .WithMany("DaySummaries")
                         .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1119,7 +1122,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationLog", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
-                        .WithMany()
+                        .WithMany("Logs")
                         .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1130,7 +1133,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModelRevision", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModel", "SimulationModel")
-                        .WithMany()
+                        .WithMany("Revisions")
                         .HasForeignKey("SimulationModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1141,7 +1144,7 @@ namespace MoneySpot6.WebApp.Database.Migrations
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationTransaction", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
-                        .WithMany()
+                        .WithMany("Transactions")
                         .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1169,6 +1172,20 @@ namespace MoneySpot6.WebApp.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Stock");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModel", b =>
+                {
+                    b.Navigation("Revisions");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModelRevision", b =>
+                {
+                    b.Navigation("DaySummaries");
+
+                    b.Navigation("Logs");
+
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

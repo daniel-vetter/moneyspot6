@@ -1,0 +1,118 @@
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.panel-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.panel-title {
+    font-weight: 600;
+}
+
+.name-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.panel-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.split-view {
+    height: calc(100vh - 350px);
+    min-height: 300px;
+    border: none;
+}
+
+.editor-panel {
+    height: 100%;
+    width: 100%;
+}
+
+.editor-container {
+    height: 100%;
+    width: 100%;
+    border: 1px solid var(--p-panel-border-color);
+}
+
+.result-panel {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--p-panel-border-color);
+    background: var(--p-surface-50);
+    overflow: hidden;
+
+    ::ng-deep {
+        p-tabs {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .p-tabpanels {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .p-tabpanel {
+            height: 100%;
+            overflow: auto;
+        }
+    }
+}
+
+.result-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    height: 100%;
+    color: var(--p-text-muted-color);
+}
+
+.log-content {
+    padding: 0.5rem;
+    font-family: monospace;
+    font-size: 0.875rem;
+}
+
+.log-entry {
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid var(--p-surface-200);
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &.log-error {
+        color: var(--p-red-500);
+        background-color: var(--p-red-50);
+        font-weight: 600;
+    }
+}
+
+.empty-state {
+    padding: 2rem;
+    color: var(--p-text-muted-color);
+    text-align: center;
+}
+
+.positive {
+    color: var(--p-green-500);
+}
+
+.negative {
+    color: var(--p-red-500);
+}

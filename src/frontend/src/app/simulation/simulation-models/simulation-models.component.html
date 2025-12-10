@@ -1,0 +1,57 @@
+<p-panel>
+    <ng-template pTemplate="header">
+        <div class="horizontal" style="width: 100%">
+            <h1>Simulation - Modelle</h1>
+            <div class="spacer"></div>
+            <p-button label="Neues Modell" (onClick)="onNewModelClicked()" data-testid="create-model-button" />
+        </div>
+    </ng-template>
+
+    @if (models().length > 0) {
+
+    <p>Modelle sind TypeScript-Scripte, die zur Vorhersage von zukünftigen Finanzdaten verwendet werden können.</p>
+
+    <p-table [value]="models()" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-model>
+            <tr [attr.data-testid]="'model-row-' + model.id">
+                <td>{{ model.name }}</td>
+                <td style="text-align: right;">
+                    <div class="horizontal" style="gap: 0.5rem; justify-content: flex-end;">
+                        <p-button
+                            icon="pi pi-pencil"
+                            [outlined]="true"
+                            size="small"
+                            (onClick)="onEditModel(model)"
+                            pTooltip="Bearbeiten"
+                            tooltipPosition="top"
+                            data-testid="edit-model-button">
+                        </p-button>
+                        <p-button
+                            icon="pi pi-trash"
+                            [outlined]="true"
+                            severity="danger"
+                            size="small"
+                            (onClick)="onDeleteModel(model)"
+                            pTooltip="Löschen"
+                            tooltipPosition="top"
+                            data-testid="delete-model-button">
+                        </p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    } @else {
+        <div style="text-align: center; padding: 2rem; opacity: 0.6;" data-testid="models-empty-state">
+            <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Keine Modelle vorhanden</div>
+            <div>Fügen Sie ein neues Modell hinzu, um Vorhersagen für Ihre Finanzdaten zu erstellen.</div>
+        </div>
+    }
+</p-panel>
+
