@@ -170,6 +170,11 @@ declare class DateOnly {
             this.modelName = r.name;
             this.currentRevisionId = r.latestRevisionId ?? undefined;
             code = r.originalCode || "";
+
+            // Load last run result if available
+            if (this.currentRevisionId !== undefined) {
+                await this.loadRunResult(this.currentRevisionId);
+            }
         }
 
         this.model = monaco.editor.createModel(code, 'typescript', monaco.Uri.parse('file:///simulation-model.ts'));
@@ -293,10 +298,8 @@ declare class DateOnly {
             // Run the simulation
             await lastValueFrom(this.simulationModelsClient.run(this.currentRevisionId!));
 
-            // Get the result
-            const result = await lastValueFrom(this.simulationModelsClient.getRunResult(this.currentRevisionId!));
-            this.logs = result.logs;
-            this.transactions = result.transactions;
+            // Load the result
+            await this.loadRunResult(this.currentRevisionId!);
 
             // If there are error logs, switch to log tab and scroll to bottom
             if (this.logs.some(l => l.isError)) {
@@ -307,147 +310,153 @@ declare class DateOnly {
                     }
                 }, 0);
             }
-
-            // Build total chart from day summaries (balance + stock value)
-            if (result.daySummaries.length > 0) {
-                const totalChartData = result.daySummaries.map(d => {
-                    const date = new Date(d.date);
-                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance + d.totalStockValue];
-                });
-
-                // Combine actual balances and stock values by date
-                const actualTotalMap = new Map<number, number>();
-                for (const b of result.actualBalances) {
-                    const date = new Date(b.date);
-                    const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-                    actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + b.balance);
-                }
-                for (const s of result.actualStockValues) {
-                    const date = new Date(s.date);
-                    const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-                    actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + s.value);
-                }
-                const actualTotalData = Array.from(actualTotalMap.entries())
-                    .sort((a, b) => a[0] - b[0])
-                    .map(([date, value]) => [date, value]);
-
-                this.totalChartOptions = {
-                    chart: {
-                        type: 'line',
-                        height: 300
-                    },
-                    title: {
-                        text: undefined
-                    },
-                    xAxis: {
-                        type: 'datetime',
-                        title: { text: undefined }
-                    },
-                    yAxis: {
-                        title: { text: 'Total' }
-                    },
-                    legend: {
-                        enabled: true
-                    },
-                    series: [{
-                        type: 'line',
-                        name: 'Simuliert',
-                        data: totalChartData
-                    }, {
-                        type: 'line',
-                        name: 'Echt',
-                        data: actualTotalData
-                    }]
-                };
-            }
-
-            // Build chart from day summaries (balance only)
-            if (result.daySummaries.length > 0) {
-                const chartData = result.daySummaries.map(d => {
-                    const date = new Date(d.date);
-                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance];
-                });
-
-                const actualBalanceData = result.actualBalances.map(b => {
-                    const date = new Date(b.date);
-                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), b.balance];
-                });
-
-                this.chartOptions = {
-                    chart: {
-                        type: 'line',
-                        height: 300
-                    },
-                    title: {
-                        text: undefined
-                    },
-                    xAxis: {
-                        type: 'datetime',
-                        title: { text: undefined }
-                    },
-                    yAxis: {
-                        title: { text: 'Balance' }
-                    },
-                    legend: {
-                        enabled: true
-                    },
-                    series: [{
-                        type: 'line',
-                        name: 'Simuliert',
-                        data: chartData
-                    }, {
-                        type: 'line',
-                        name: 'Echt',
-                        data: actualBalanceData
-                    }]
-                };
-            }
-
-            // Build stock chart from day summaries
-            if (result.daySummaries.length > 0) {
-                const stockChartData = result.daySummaries.map(d => {
-                    const date = new Date(d.date);
-                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.totalStockValue];
-                });
-
-                const actualStockData = result.actualStockValues.map(s => {
-                    const date = new Date(s.date);
-                    return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), s.value];
-                });
-
-                this.stockChartOptions = {
-                    chart: {
-                        type: 'line',
-                        height: 300
-                    },
-                    title: {
-                        text: undefined
-                    },
-                    xAxis: {
-                        type: 'datetime',
-                        title: { text: undefined }
-                    },
-                    yAxis: {
-                        title: { text: 'Stock Value' }
-                    },
-                    legend: {
-                        enabled: true
-                    },
-                    series: [{
-                        type: 'line',
-                        name: 'Simuliert',
-                        data: stockChartData
-                    }, {
-                        type: 'line',
-                        name: 'Echt',
-                        data: actualStockData
-                    }]
-                };
-            }
         } catch (error) {
             console.error(error);
         } finally {
             this.isRunning = false;
+        }
+    }
+
+    private async loadRunResult(revisionId: number) {
+        const result = await lastValueFrom(this.simulationModelsClient.getRunResult(revisionId));
+        this.logs = result.logs;
+        this.transactions = result.transactions;
+
+        // Build total chart from day summaries (balance + stock value)
+        if (result.daySummaries.length > 0) {
+            const totalChartData = result.daySummaries.map(d => {
+                const date = new Date(d.date);
+                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance + d.totalStockValue];
+            });
+
+            // Combine actual balances and stock values by date
+            const actualTotalMap = new Map<number, number>();
+            for (const b of result.actualBalances) {
+                const date = new Date(b.date);
+                const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+                actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + b.balance);
+            }
+            for (const s of result.actualStockValues) {
+                const date = new Date(s.date);
+                const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+                actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + s.value);
+            }
+            const actualTotalData = Array.from(actualTotalMap.entries())
+                .sort((a, b) => a[0] - b[0])
+                .map(([date, value]) => [date, value]);
+
+            this.totalChartOptions = {
+                chart: {
+                    type: 'line',
+                    height: 300
+                },
+                title: {
+                    text: undefined
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: { text: undefined }
+                },
+                yAxis: {
+                    title: { text: 'Total' }
+                },
+                legend: {
+                    enabled: true
+                },
+                series: [{
+                    type: 'line',
+                    name: 'Simuliert',
+                    data: totalChartData
+                }, {
+                    type: 'line',
+                    name: 'Echt',
+                    data: actualTotalData
+                }]
+            };
+        }
+
+        // Build chart from day summaries (balance only)
+        if (result.daySummaries.length > 0) {
+            const chartData = result.daySummaries.map(d => {
+                const date = new Date(d.date);
+                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance];
+            });
+
+            const actualBalanceData = result.actualBalances.map(b => {
+                const date = new Date(b.date);
+                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), b.balance];
+            });
+
+            this.chartOptions = {
+                chart: {
+                    type: 'line',
+                    height: 300
+                },
+                title: {
+                    text: undefined
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: { text: undefined }
+                },
+                yAxis: {
+                    title: { text: 'Balance' }
+                },
+                legend: {
+                    enabled: true
+                },
+                series: [{
+                    type: 'line',
+                    name: 'Simuliert',
+                    data: chartData
+                }, {
+                    type: 'line',
+                    name: 'Echt',
+                    data: actualBalanceData
+                }]
+            };
+        }
+
+        // Build stock chart from day summaries
+        if (result.daySummaries.length > 0) {
+            const stockChartData = result.daySummaries.map(d => {
+                const date = new Date(d.date);
+                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.totalStockValue];
+            });
+
+            const actualStockData = result.actualStockValues.map(s => {
+                const date = new Date(s.date);
+                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), s.value];
+            });
+
+            this.stockChartOptions = {
+                chart: {
+                    type: 'line',
+                    height: 300
+                },
+                title: {
+                    text: undefined
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: { text: undefined }
+                },
+                yAxis: {
+                    title: { text: 'Stock Value' }
+                },
+                legend: {
+                    enabled: true
+                },
+                series: [{
+                    type: 'line',
+                    name: 'Simuliert',
+                    data: stockChartData
+                }, {
+                    type: 'line',
+                    name: 'Echt',
+                    data: actualStockData
+                }]
+            };
         }
     }
 }
