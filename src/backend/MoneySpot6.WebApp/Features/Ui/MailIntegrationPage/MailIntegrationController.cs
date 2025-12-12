@@ -331,7 +331,7 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             {
                 RecipientName = data.RecipientName,
                 Merchant = data.Merchant,
-                TransactionTimestamp = data.TransactionTimestamp.HasValue ? data.TransactionTimestamp.Value.ToUniversalTime() : null,
+                TransactionTimestamp = data.TransactionTimestamp,
                 OrderNumber = data.OrderNumber,
                 Tax = data.Tax,
                 TotalAmount = data.TotalAmount,
