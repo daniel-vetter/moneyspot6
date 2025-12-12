@@ -55,8 +55,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
             var credential = new UserCredential(flow, "1", new TokenResponse
             {
-                RefreshToken = account.RefreshToken,
-                AccessToken = account.AccessToken
+                RefreshToken = account.RefreshToken
             });
 
             var client = new GmailService(new BaseClientService.Initializer()

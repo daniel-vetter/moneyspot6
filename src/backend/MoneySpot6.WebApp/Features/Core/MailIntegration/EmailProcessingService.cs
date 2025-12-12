@@ -113,6 +113,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                 else
                 {
                     email.ProcessedData = validatedData;
+                    email.ProcessedData.TransactionTimestamp = email.ProcessedData.TransactionTimestamp.HasValue ? email.ProcessedData.TransactionTimestamp.Value.ToUniversalTime() : null;
                     email.ProcessedAt = DateTimeOffset.UtcNow;
                     _logger.LogInformation("Processed email {EmailId}: {Subject}", email.Id, email.Subject);
                 }
