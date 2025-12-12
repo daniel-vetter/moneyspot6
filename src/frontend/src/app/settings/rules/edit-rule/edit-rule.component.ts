@@ -80,6 +80,7 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
         this.typeLib = monaco.languages.typescript.typescriptDefaults.addExtraLib(
             `
                 declare interface Transaction {
+                    readonly date: string;
                     purpose: string;
                     name: string;
                     bankCode: string;
@@ -124,6 +125,8 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
                     recipientName?: string;
                     merchant?: string;
                     transactionTimestamp?: string;
+                    transactionTimestampToleranceDaysBefore?: number;
+                    transactionTimestampToleranceDaysAfter?: number;
                     orderNumber?: string;
                     tax?: number;
                     totalAmount?: number;
