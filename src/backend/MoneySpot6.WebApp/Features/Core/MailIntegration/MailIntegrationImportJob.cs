@@ -110,7 +110,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                     GMailAccount = dbAccount,
                     MonitoredAddress = dbMonitoredAddress,
                     MessageId = mail.Id,
-                    InternalDate = mail.InternalDate,
+                    InternalDate = mail.InternalDate.ToUniversalTime(),
                     FromAddress = mail.From,
                     Subject = mail.Subject,
                     Body = mail.Body,
