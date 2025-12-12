@@ -30,6 +30,7 @@ public class RuleProcessor
         {
             var data = new TransactionData
             {
+                Date = transaction.Parsed.Date,
                 Purpose = transaction.Parsed.Purpose,
                 Name = transaction.Parsed.Name,
                 BankCode = transaction.Parsed.BankCode,
@@ -120,6 +121,8 @@ public class RuleProcessor
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 class TransactionData
 {
+    public required DateOnly Date { get; init; }
+
     public required string Purpose { get; init; }
     public bool PurposeChanged { get; set; }
 

@@ -95,9 +95,13 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
                                    constructor(inner) {
                                        this.inner = inner;
                                    }
-                                   
-                                   get purpose() { 
-                                       return this.inner.Purpose; 
+
+                                   get date() {
+                                       return this.inner.Date;
+                                   }
+
+                                   get purpose() {
+                                       return this.inner.Purpose;
                                    }
                                    set purpose(value) { 
                                        this.inner.Purpose = value;
@@ -240,8 +244,17 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
                                        if (filter.merchant !== undefined && mail.Merchant !== filter.merchant) {
                                            match = false;
                                        }
-                                       if (filter.transactionTimestamp !== undefined && mail.TransactionTimestamp !== filter.transactionTimestamp) {
-                                           match = false;
+                                       if (filter.transactionTimestamp !== undefined) {
+                                           const toleranceMsBefore = (filter.transactionTimestampToleranceDaysBefore || 0) * 24 * 60 * 60 * 1000;
+                                           const toleranceMsAfter = (filter.transactionTimestampToleranceDaysAfter || 0) * 24 * 60 * 60 * 1000;
+                                           const filterDate = new Date(filter.transactionTimestamp).getTime();
+                                           const mailDate = new Date(mail.TransactionTimestamp).getTime();
+                                           const diff = mailDate - filterDate;
+                                           // diff > 0: Mail ist nach dem Filter-Datum (Zukunft)
+                                           // diff < 0: Mail ist vor dem Filter-Datum (Vergangenheit)
+                                           if (diff > toleranceMsAfter || diff < -toleranceMsBefore) {
+                                               match = false;
+                                           }
                                        }
                                        if (filter.orderNumber !== undefined && mail.OrderNumber !== filter.orderNumber) {
                                            match = false;
