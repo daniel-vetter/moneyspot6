@@ -155,14 +155,73 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                     const predictor = stockPredictors[stockName];
                     if (!predictor) {
                         throw Error("ERROR: Unknown stock: " + stockName);
-                        return;
                     }
 
                     const currentPrice = predictor.getValue(today);
                     const sharesBought = amount / currentPrice;
 
-                    stockHoldings[stockName] = (stockHoldings[stockName] || 0) + sharesBought;
-                    addTransaction("Buy " + stockName, -amount);
+                    if (!stockHoldings[stockName]) {
+                        stockHoldings[stockName] = [];
+                    }
+                    stockHoldings[stockName].push({ shares: sharesBought, buyPrice: currentPrice });
+                    addTransaction("Buy " + sharesBought.toFixed(4) + " " + stockName, -amount);
+                }
+
+                function sellStocksFor(stockName, amount) {
+                    const predictor = stockPredictors[stockName];
+                    if (!predictor) {
+                        throw Error("ERROR: Unknown stock: " + stockName);
+                    }
+
+                    const holdings = stockHoldings[stockName] || [];
+                    const currentPrice = predictor.getValue(today);
+                    let remainingNetNeeded = amount;
+                    let totalGross = 0;
+                    let totalTax = 0;
+                    let totalSharesSold = 0;
+
+                    while (remainingNetNeeded > 0) {
+                        if (holdings.length === 0) {
+                            throw Error("ERROR: Not enough shares to sell for " + stockName);
+                        }
+                        const oldest = holdings[0];
+                        const buyPrice = oldest.buyPrice;
+
+                        // Net per share after 25% tax on gains
+                        const netPerShare = currentPrice > buyPrice
+                            ? 0.75 * currentPrice + 0.25 * buyPrice
+                            : currentPrice;
+
+                        const sharesNeeded = remainingNetNeeded / netPerShare;
+
+                        if (oldest.shares <= sharesNeeded) {
+                            const gross = oldest.shares * currentPrice;
+                            const gain = Math.max(0, oldest.shares * (currentPrice - buyPrice));
+                            const tax = gain * 0.25;
+                            const net = gross - tax;
+
+                            totalGross += gross;
+                            totalTax += tax;
+                            totalSharesSold += oldest.shares;
+                            remainingNetNeeded -= net;
+                            holdings.shift();
+                        } else {
+                            const gross = sharesNeeded * currentPrice;
+                            const gain = Math.max(0, sharesNeeded * (currentPrice - buyPrice));
+                            const tax = gain * 0.25;
+
+                            totalGross += gross;
+                            totalTax += tax;
+                            totalSharesSold += sharesNeeded;
+                            oldest.shares -= sharesNeeded;
+                            remainingNetNeeded = 0;
+                        }
+                    }
+
+                    addTransaction("Sell " + totalSharesSold.toFixed(4) + " " + stockName, totalGross);
+                    if (totalTax > 0) {
+                        addTransaction("Tax " + stockName, -totalTax);
+                    }
                 }
 
                 function getTotalStockValue() {
@@ -171,7 +230,10 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                         const predictor = stockPredictors[stockName];
                         if (predictor) {
                             const currentPrice = predictor.getValue(today);
-                            total += stockHoldings[stockName] * currentPrice;
+                            const holdings = stockHoldings[stockName];
+                            for (const lot of holdings) {
+                                total += lot.shares * currentPrice;
+                            }
                         }
                     }
                     return total;
@@ -242,8 +304,14 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
                     // Initialize stocks from config
                     if (config.stocks && Array.isArray(config.stocks)) {
                         for (const stock of config.stocks) {
-                            stockHoldings[stock.name] = stock.startAmount || 0;
                             stockPredictors[stock.name] = stock.pricePredictor;
+                            const startAmount = stock.startAmount || 0;
+                            if (startAmount > 0) {
+                                const startPrice = stock.pricePredictor.getValue(start);
+                                stockHoldings[stock.name] = [{ shares: startAmount, buyPrice: startPrice }];
+                            } else {
+                                stockHoldings[stock.name] = [];
+                            }
                         }
                     }
 
