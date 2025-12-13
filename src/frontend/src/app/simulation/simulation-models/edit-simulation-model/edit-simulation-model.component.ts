@@ -1,21 +1,21 @@
-import {AfterViewInit, Component, inject, OnDestroy} from '@angular/core';
-import {ViewChild, ElementRef} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {MessageModule} from 'primeng/message';
-import {SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse, SimulationLogResponse} from '../../../server';
-import {firstValueFrom, lastValueFrom} from 'rxjs';
-import {CommonModule} from '@angular/common';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {ActivatedRoute, Router} from '@angular/router';
-import {PanelModule} from 'primeng/panel';
-import {TabsModule} from 'primeng/tabs';
-import {SplitterModule} from 'primeng/splitter';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
+import { AfterViewInit, Component, inject, OnDestroy } from '@angular/core';
+import { ViewChild, ElementRef } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
+import { SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse, SimulationLogResponse } from '../../../server';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PanelModule } from 'primeng/panel';
+import { TabsModule } from 'primeng/tabs';
+import { SplitterModule } from 'primeng/splitter';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
 import * as Highcharts from 'highcharts';
-import {HighchartsChartModule} from 'highcharts-angular';
-import {DialogService} from 'primeng/dynamicdialog';
-import {SimulationModelNameDialogComponent} from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
+import { HighchartsChartModule } from 'highcharts-angular';
+import { DialogService } from 'primeng/dynamicdialog';
+import { SimulationModelNameDialogComponent } from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
@@ -104,6 +104,8 @@ declare const end: DateOnly;
 declare const balance: number;
 declare function addTransaction(purpose: string, amount: number): void;
 declare function buyStocksFor(stockName: string, amount: number): void;
+declare function sellStocksFor(stockName: string, netAmount: number): void;
+declare function getTotalStockValue(): number;
 declare function adjust(amount: number): Adjustment;
 declare function log(message: any): void;
 
@@ -206,7 +208,7 @@ declare class DateOnly {
     }
 
     private updateMarkerInfo() {
-        const markers = monaco.editor.getModelMarkers({resource: this.model!.uri});
+        const markers = monaco.editor.getModelMarkers({ resource: this.model!.uri });
         const errors = markers.filter(m => m.severity >= monaco.MarkerSeverity.Error);
         if (errors.length === 0) {
             this.codeError = undefined;
@@ -275,7 +277,7 @@ declare class DateOnly {
             this.maximizedChart = chart;
             const baseOptions = chart === 'total' ? this.totalChartOptions
                 : chart === 'balance' ? this.chartOptions
-                : this.stockChartOptions;
+                    : this.stockChartOptions;
 
             if (baseOptions) {
                 this.maximizedChartOptions = {
