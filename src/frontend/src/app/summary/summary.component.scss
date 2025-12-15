@@ -49,8 +49,8 @@ a:hover {
     grid-template-areas:
         "total           total"
         "accounts        stocks"
-        "months          months"
-        "balance-history stock-history";
+        "balance-history stock-history"
+        "months          months";
 }
 
 @media only screen and (max-width: 1000px) {
@@ -60,7 +60,8 @@ a:hover {
             "accounts        accounts"
             "stocks          stocks"
             "balance-history balance-history"
-            "stock-history   stock-history";
+            "stock-history   stock-history"
+            "months          months";
     }
 }
 

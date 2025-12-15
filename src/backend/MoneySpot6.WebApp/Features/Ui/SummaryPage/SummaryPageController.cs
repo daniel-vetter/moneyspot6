@@ -46,7 +46,7 @@ public class SummaryPageController : Controller
     public async Task<ActionResult<BalanceHistoryResponse>> GetCurrentMonthBalanceHistory()
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var startDate = today.AddDays(-31);
+        var startDate = today.AddDays(-62);
 
         var history = await _balanceProvider.GetBalanceHistory(startDate, today.AddDays(1));
 
@@ -60,7 +60,7 @@ public class SummaryPageController : Controller
     public async Task<ActionResult<StockValueHistoryResponse>> GetStockValueHistory()
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var startDate = today.AddDays(-31);
+        var startDate = today.AddDays(-62);
 
         var history = await _stockDataProvider.GetDailyOwnedStockValue(startDate, today.AddDays(1));
 
