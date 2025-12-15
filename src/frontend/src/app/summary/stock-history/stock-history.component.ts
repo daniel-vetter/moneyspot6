@@ -19,8 +19,7 @@ export class StockHistoryComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         const r = await lastValueFrom(this.summaryPageClient.getStockValueHistory());
-        const now = new Date();
-        const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1).valueOf();
+        const monthStarts = this.getMonthStarts(62);
 
         this.chart = {
             title: {
@@ -41,13 +40,13 @@ export class StockHistoryComponent implements OnInit {
                         fontSize: "1rem"
                     }
                 },
-                plotLines: [{
+                plotLines: monthStarts.map(date => ({
                     color: '#888888',
                     width: 2,
-                    value: startOfCurrentMonth,
-                    dashStyle: 'Dash',
+                    value: date,
+                    dashStyle: 'Dash' as Highcharts.DashStyleValue,
                     zIndex: 5
-                }]
+                }))
             },
             tooltip: {
                 shared: true,
@@ -68,6 +67,9 @@ export class StockHistoryComponent implements OnInit {
             credits: {
                 enabled: false,
             },
+            legend: {
+                enabled: false,
+            },
             chart: {
                 animation: {
                     duration: 0,
@@ -77,5 +79,18 @@ export class StockHistoryComponent implements OnInit {
                 },
             },
         };
+    }
+
+    private getMonthStarts(daysBack: number): number[] {
+        const result: number[] = [];
+        const now = new Date();
+        const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+
+        let current = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1);
+        while (current <= now) {
+            result.push(current.valueOf());
+            current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+        }
+        return result;
     }
 }
