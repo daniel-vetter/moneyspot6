@@ -25,9 +25,6 @@ a:hover {
 .accounts {
     grid-area: accounts;
 }
-.goal {
-    grid-area: goal;
-}
 .stocks {
     grid-area: stocks;
 }
@@ -36,25 +33,34 @@ a:hover {
     grid-area: months;
 }
 
+.balance-history {
+    grid-area: balance-history;
+}
+
+.stock-history {
+    grid-area: stock-history;
+}
+
 .dashboard {
     display: grid;
     gap: 1rem;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
     grid-template-areas:
-        "total    total"
-        "accounts stocks"
-        "months   months"
-        "goal     .";
+        "total           total"
+        "accounts        stocks"
+        "months          months"
+        "balance-history stock-history";
 }
 
 @media only screen and (max-width: 1000px) {
     .dashboard {
         grid-template-areas:
-            "total    total"
-            "accounts accounts"
-            "stocks   stocks"
-            "goal     goal";
+            "total           total"
+            "accounts        accounts"
+            "stocks          stocks"
+            "balance-history balance-history"
+            "stock-history   stock-history";
     }
 }
 

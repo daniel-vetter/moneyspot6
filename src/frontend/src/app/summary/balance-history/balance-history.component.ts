@@ -4,30 +4,24 @@ import { SummaryPageClient } from '../../server';
 import { lastValueFrom } from 'rxjs';
 import { HighchartsChartModule } from 'highcharts-angular';
 import Highcharts from 'highcharts';
-import { ValueComponent } from '../../common/value/value.component';
-import { CustomDatePipe } from '../../common/custom-date.pipe';
 
 @Component({
-    selector: 'app-goal',
-    imports: [PanelModule, HighchartsChartModule, ValueComponent, CustomDatePipe],
-    templateUrl: './goal.component.html',
-    styleUrl: './goal.component.scss'
+    selector: 'app-balance-history',
+    imports: [PanelModule, HighchartsChartModule],
+    templateUrl: './balance-history.component.html',
+    styleUrl: './balance-history.component.scss'
 })
-export class GoalComponent implements OnInit {
+export class BalanceHistoryComponent implements OnInit {
     private summaryPageClient = inject(SummaryPageClient);
 
     Highcharts: typeof Highcharts = Highcharts;
     chart?: Highcharts.Options = undefined;
 
-    targetValue = 0;
-    targetDate!: Date;
-    requiredSavingPerMonth: number | undefined = undefined;
-
     async ngOnInit(): Promise<void> {
-        const r = await lastValueFrom(this.summaryPageClient.getBankAccountGoal());
-        this.targetValue = r.endBalance;
-        this.targetDate = r.endDate;
-        this.requiredSavingPerMonth = r.requiredSavingPerMonth;
+        const r = await lastValueFrom(this.summaryPageClient.getCurrentMonthBalanceHistory());
+        const now = new Date();
+        const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1).valueOf();
+
         this.chart = {
             title: {
                 text: undefined,
@@ -46,7 +40,14 @@ export class GoalComponent implements OnInit {
                     style: {
                         fontSize: "1rem"
                     }
-                }
+                },
+                plotLines: [{
+                    color: '#888888',
+                    width: 2,
+                    value: startOfCurrentMonth,
+                    dashStyle: 'Dash',
+                    zIndex: 5
+                }]
             },
             tooltip: {
                 shared: true,
@@ -56,22 +57,13 @@ export class GoalComponent implements OnInit {
             },
             series: [
                 {
-                    name: 'Aktuell',
+                    name: 'Kontostand',
                     type: 'line',
-                    data: r.actualHistory.map((x) => [x.date.valueOf(), Math.round(x.balance * 100) / 100]),
+                    data: r.entries.map((x) => [x.date.valueOf(), Math.round(x.balance * 100) / 100]),
                     animation: {
                         duration: 0
                     }
-                },
-                {
-                    name: 'Erwartet',
-                    type: 'line',
-                    dashStyle: 'ShortDash',
-                    data: r.expectedHistory.map((x) => [x.date.valueOf(), Math.round(x.balance * 100) / 100]),
-                    animation: {
-                        duration: 0
-                    }
-                },
+                }
             ],
             credits: {
                 enabled: false,
