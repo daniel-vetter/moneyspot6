@@ -15,11 +15,13 @@ public class SummaryPageController : Controller
 {
     private readonly Db _db;
     private readonly StockDataProvider _stockDataProvider;
+    private readonly BalanceProvider _balanceProvider;
 
-    public SummaryPageController(Db db, StockDataProvider stockDataProvider)
+    public SummaryPageController(Db db, StockDataProvider stockDataProvider, BalanceProvider balanceProvider)
     {
         _db = db;
         _stockDataProvider = stockDataProvider;
+        _balanceProvider = balanceProvider;
     }
 
     [HttpGet("GetBankAccountSummary")]
@@ -37,6 +39,34 @@ public class SummaryPageController : Controller
         {
             Total = entries.Aggregate(0m, (a, b) => a + b.Total),
             Accounts = [..entries]
+        });
+    }
+
+    [HttpGet("GetCurrentMonthBalanceHistory")]
+    public async Task<ActionResult<BalanceHistoryResponse>> GetCurrentMonthBalanceHistory()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var startDate = today.AddDays(-31);
+
+        var history = await _balanceProvider.GetBalanceHistory(startDate, today.AddDays(1));
+
+        return Ok(new BalanceHistoryResponse
+        {
+            Entries = [..history.Select(x => new BalanceHistoryEntryResponse { Date = x.Key, Balance = x.Value })]
+        });
+    }
+
+    [HttpGet("GetStockValueHistory")]
+    public async Task<ActionResult<StockValueHistoryResponse>> GetStockValueHistory()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var startDate = today.AddDays(-31);
+
+        var history = await _stockDataProvider.GetDailyOwnedStockValue(startDate, today.AddDays(1));
+
+        return Ok(new StockValueHistoryResponse
+        {
+            Entries = [..history.Select(x => new StockValueHistoryEntryResponse { Date = x.Key, Value = x.Value.EndOfDay.CurrentValue })]
         });
     }
 
@@ -197,4 +227,30 @@ public record MonthSummaryCategoryResponse
 {
     [Required] public required string Name { get; init; }
     [Required] public required decimal Total { get; init; }
+}
+
+[PublicAPI]
+public record BalanceHistoryResponse
+{
+    [Required] public required ImmutableArray<BalanceHistoryEntryResponse> Entries { get; init; }
+}
+
+[PublicAPI]
+public record BalanceHistoryEntryResponse
+{
+    [Required] public required DateOnly Date { get; init; }
+    [Required] public required decimal Balance { get; init; }
+}
+
+[PublicAPI]
+public record StockValueHistoryResponse
+{
+    [Required] public required ImmutableArray<StockValueHistoryEntryResponse> Entries { get; init; }
+}
+
+[PublicAPI]
+public record StockValueHistoryEntryResponse
+{
+    [Required] public required DateOnly Date { get; init; }
+    [Required] public required decimal Value { get; init; }
 }

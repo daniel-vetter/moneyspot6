@@ -10,11 +10,13 @@ import { AccountSyncComponent } from '../account-sync/account-sync.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { minDelay } from '../common/load-delay';
 import { MonthCarouselComponent } from "./month-carousel/month-carousel.component";
+import { BalanceHistoryComponent } from "./balance-history/balance-history.component";
+import { StockHistoryComponent } from "./stock-history/stock-history.component";
 import { AppEvents } from '../app-events';
 
 @Component({
     selector: 'app-summary',
-    imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, ProgressSpinnerModule, MonthCarouselComponent],
+    imports: [ButtonModule, RippleModule, CardModule, ValueComponent, PanelModule, AccountSyncComponent, ProgressSpinnerModule, MonthCarouselComponent, BalanceHistoryComponent, StockHistoryComponent],
     templateUrl: './summary.component.html',
     styleUrl: './summary.component.scss'
 })

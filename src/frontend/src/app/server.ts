@@ -397,6 +397,102 @@ export class SummaryPageClient {
         return _observableOf(null as any);
     }
 
+    getCurrentMonthBalanceHistory(): Observable<BalanceHistoryResponse> {
+        let url_ = this.baseUrl + "/api/SummaryPage/GetCurrentMonthBalanceHistory";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentMonthBalanceHistory(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentMonthBalanceHistory(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BalanceHistoryResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BalanceHistoryResponse>;
+        }));
+    }
+
+    protected processGetCurrentMonthBalanceHistory(response: HttpResponseBase): Observable<BalanceHistoryResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BalanceHistoryResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getStockValueHistory(): Observable<StockValueHistoryResponse> {
+        let url_ = this.baseUrl + "/api/SummaryPage/GetStockValueHistory";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetStockValueHistory(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetStockValueHistory(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StockValueHistoryResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StockValueHistoryResponse>;
+        }));
+    }
+
+    protected processGetStockValueHistory(response: HttpResponseBase): Observable<StockValueHistoryResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StockValueHistoryResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     getStockSummary(): Observable<StockSummaryResponse> {
         let url_ = this.baseUrl + "/api/SummaryPage/GetStockSummary";
         url_ = url_.replace(/[?&]$/, "");
@@ -4734,6 +4830,180 @@ export interface IBankAccountEntrySummaryResponse {
     id: number;
     name: string;
     total: number;
+}
+
+export class BalanceHistoryResponse implements IBalanceHistoryResponse {
+    entries!: BalanceHistoryEntryResponse[];
+
+    constructor(data?: IBalanceHistoryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.entries = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(BalanceHistoryEntryResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): BalanceHistoryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BalanceHistoryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IBalanceHistoryResponse {
+    entries: BalanceHistoryEntryResponse[];
+}
+
+export class BalanceHistoryEntryResponse implements IBalanceHistoryEntryResponse {
+    date!: Date;
+    balance!: number;
+
+    constructor(data?: IBalanceHistoryEntryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.balance = _data["balance"];
+        }
+    }
+
+    static fromJS(data: any): BalanceHistoryEntryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BalanceHistoryEntryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : undefined as any;
+        data["balance"] = this.balance;
+        return data;
+    }
+}
+
+export interface IBalanceHistoryEntryResponse {
+    date: Date;
+    balance: number;
+}
+
+export class StockValueHistoryResponse implements IStockValueHistoryResponse {
+    entries!: StockValueHistoryEntryResponse[];
+
+    constructor(data?: IStockValueHistoryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.entries = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(StockValueHistoryEntryResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StockValueHistoryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new StockValueHistoryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IStockValueHistoryResponse {
+    entries: StockValueHistoryEntryResponse[];
+}
+
+export class StockValueHistoryEntryResponse implements IStockValueHistoryEntryResponse {
+    date!: Date;
+    value!: number;
+
+    constructor(data?: IStockValueHistoryEntryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : undefined as any;
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): StockValueHistoryEntryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new StockValueHistoryEntryResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? formatDate(this.date) : undefined as any;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IStockValueHistoryEntryResponse {
+    date: Date;
+    value: number;
 }
 
 export class StockSummaryResponse implements IStockSummaryResponse {
