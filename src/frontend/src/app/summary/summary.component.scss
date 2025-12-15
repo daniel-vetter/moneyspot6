@@ -25,9 +25,6 @@ a:hover {
 .accounts {
     grid-area: accounts;
 }
-.goal {
-    grid-area: goal;
-}
 .stocks {
     grid-area: stocks;
 }
@@ -44,8 +41,7 @@ a:hover {
     grid-template-areas:
         "total    total"
         "accounts stocks"
-        "months   months"
-        "goal     .";
+        "months   months";
 }
 
 @media only screen and (max-width: 1000px) {
@@ -53,8 +49,7 @@ a:hover {
         grid-template-areas:
             "total    total"
             "accounts accounts"
-            "stocks   stocks"
-            "goal     goal";
+            "stocks   stocks";
     }
 }
 

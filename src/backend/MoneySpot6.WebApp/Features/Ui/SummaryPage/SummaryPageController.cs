@@ -14,13 +14,11 @@ namespace MoneySpot6.WebApp.Features.Ui.SummaryPage;
 public class SummaryPageController : Controller
 {
     private readonly Db _db;
-    private readonly BalanceProvider _balanceProvider;
     private readonly StockDataProvider _stockDataProvider;
 
-    public SummaryPageController(Db db, BalanceProvider balanceProvider, StockDataProvider stockDataProvider)
+    public SummaryPageController(Db db, StockDataProvider stockDataProvider)
     {
         _db = db;
-        _balanceProvider = balanceProvider;
         _stockDataProvider = stockDataProvider;
     }
 
@@ -40,47 +38,6 @@ public class SummaryPageController : Controller
             Total = entries.Aggregate(0m, (a, b) => a + b.Total),
             Accounts = [..entries]
         });
-    }
-
-    [HttpGet("GetBankAccountGoal")]
-    public async Task<ActionResult<BankAccountTotalGoalResponse>> GetBankAccountGoal()
-    {
-        var startDate = new DateOnly(2024, 09, 01);
-        var targetDate = new DateOnly(2025, 06, 01);
-        var targetBalance = 60_000m;
-        var startBalance = await _balanceProvider.GetBalanceAtStartOf(startDate);
-        var actualHistory = await _balanceProvider.GetBalanceHistory(new DateOnly(2024, 09, 01), DateOnly.FromDateTime(DateTime.Now).AddDays(1));
-
-        var change = targetBalance - startBalance;
-        var totalDayCount = (decimal)(targetDate.ToDateTime(TimeOnly.MinValue) - startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
-        var expected = ImmutableArray.CreateBuilder<BalanceEntryResponse>();
-        for (var cur = startDate; cur <= targetDate; cur = cur.AddDays(1))
-        {
-            var percentage = expected.Count / totalDayCount;
-            var value = startBalance + change * percentage;
-            expected.Add(new BalanceEntryResponse(cur, value));
-        }
-            
-        return Ok(new BankAccountTotalGoalResponse
-        {
-            EndBalance = targetBalance,
-            EndDate = targetDate,
-            RequiredSavingPerMonth = await CalculateSavingRatePerMonth(targetBalance, targetDate),
-            ActualHistory = [..actualHistory.Select(x => new BalanceEntryResponse(x.Key, x.Value))],
-            ExpectedHistory = expected.ToImmutable()
-        });
-    }
-
-    private async Task<decimal?> CalculateSavingRatePerMonth(decimal targetBalance, DateOnly targetDate)
-    {
-        var today = DateTime.Today;
-        var firstOfMonth = new DateOnly(today.Year, today.Month, 1);
-        var remainingMoney = targetBalance - await _balanceProvider.GetBalanceAtStartOf(firstOfMonth);
-        var remainingDays = (decimal)(targetDate.ToDateTime(TimeOnly.MinValue) - firstOfMonth.ToDateTime(TimeOnly.MinValue)).TotalDays;
-        if (remainingDays <= 0)
-            return null;
-        var requiredSavingPerDay = remainingMoney / remainingDays;
-        return requiredSavingPerDay * 30m;
     }
 
     [HttpGet("GetStockSummary")]
@@ -218,19 +175,6 @@ public record BankAccountEntrySummaryResponse
     [Required] public required string Name { get; init; }
     [Required] public required decimal Total { get; init; }
 }
-
-[PublicAPI]
-public record BankAccountTotalGoalResponse
-{
-    [Required] public required DateOnly EndDate { get; init; }
-    [Required] public required decimal EndBalance { get; init; }
-    public required decimal? RequiredSavingPerMonth { get; init; }
-    [Required] public required ImmutableArray<BalanceEntryResponse> ActualHistory { get; init; }
-    [Required] public required ImmutableArray<BalanceEntryResponse> ExpectedHistory { get; init; }
-}
-
-[PublicAPI]
-public record BalanceEntryResponse([property:Required] DateOnly Date, [property:Required] decimal Balance);
 
 [PublicAPI]
 public record BankAccountSummaryResponse
