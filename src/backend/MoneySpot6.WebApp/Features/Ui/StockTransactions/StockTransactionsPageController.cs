@@ -27,7 +27,7 @@ public class StockTransactionsPageController : Controller
     }
 
     [HttpGet("GetStockTransactions")]
-    public async Task<ActionResult<ImmutableArray<StockTransactionResponse>>> GetStockTransactions() //TODO: StockId
+    public async Task<ActionResult<ImmutableArray<StockTransactionResponse>>> GetStockTransactions()
     {
         var transactions = await _db.StockTransactions
             .AsNoTracking()
