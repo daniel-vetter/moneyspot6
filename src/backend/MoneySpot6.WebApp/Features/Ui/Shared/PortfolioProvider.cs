@@ -97,7 +97,7 @@ public class PortfolioProvider
                 StockName = stock.StockName,
                 PurchasePrice = resultEntriesOfCurrentStock.Sum(x => x.PurchasePrice),
                 PurchaseAmount = resultEntriesOfCurrentStock.Sum(x => x.PurchaseAmount),
-                SoldPrice = resultEntriesOfCurrentStock.Sum(x => x.SoldAmount),
+                SoldPrice = resultEntriesOfCurrentStock.Sum(x => x.SoldPrice),
                 SoldAmount = resultEntriesOfCurrentStock.Sum(x => x.SoldAmount),
                 SoldTax = resultEntriesOfCurrentStock.Sum(x => x.SoldTax),
                 RemainingPrice = resultEntriesOfCurrentStock.Sum(x => x.RemainingPrice),
