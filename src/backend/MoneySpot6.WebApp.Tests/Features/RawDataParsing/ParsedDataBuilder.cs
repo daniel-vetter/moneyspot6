@@ -1,6 +1,6 @@
 ﻿using MoneySpot6.WebApp.Database;
 
-namespace MoneySpot6.WebApp.Tests;
+namespace MoneySpot6.WebApp.Tests.Features.RawDataParsing;
 
 public class ParsedDataBuilder
 {
