@@ -1,12 +1,12 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
-import { PanelModule } from "primeng/panel";
-import { TableModule, TableLazyLoadEvent } from "primeng/table";
-import { ProgressSpinnerModule } from "primeng/progressspinner";
-import { MailIntegrationClient, ImportedEmailResponse, PagedImportedEmailsResponse } from "../../../server";
-import { lastValueFrom } from "rxjs";
-import { DatePipe } from "@angular/common";
-import { DialogService } from "primeng/dynamicdialog";
-import { EmailDetailsDialogComponent } from "./email-details-dialog/email-details-dialog.component";
+import {Component, inject, OnInit, OnDestroy, signal} from '@angular/core';
+import {PanelModule} from "primeng/panel";
+import {TableModule, TableLazyLoadEvent} from "primeng/table";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {MailIntegrationClient, ImportedEmailResponse, PagedImportedEmailsResponse} from "../../../server";
+import {lastValueFrom} from "rxjs";
+import {DatePipe} from "@angular/common";
+import {DialogService} from "primeng/dynamicdialog";
+import {EmailDetailsDialogComponent} from "./email-details-dialog/email-details-dialog.component";
 
 @Component({
     selector: 'app-imported-emails',
@@ -27,7 +27,7 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
     private statusPollingInterval?: number;
 
     async ngOnInit(): Promise<void> {
-        await this.loadEmails({ first: 0, rows: 20 });
+        await this.loadEmails({first: 0, rows: 20});
         await this.loadProcessingStatus();
 
         this.statusPollingInterval = window.setInterval(() => {
@@ -59,12 +59,8 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
     }
 
     async loadProcessingStatus(): Promise<void> {
-        try {
-            const status = await lastValueFrom(this.mailIntegrationClient.getProcessingStatus());
-            this.unprocessedCount.set(status.unprocessedEmailCount);
-        } catch (error) {
-            console.error('Failed to load processing status', error);
-        }
+        const status = await lastValueFrom(this.mailIntegrationClient.getProcessingStatus());
+        this.unprocessedCount.set(status.unprocessedEmailCount);
     }
 
     protected onEmailClicked(email: ImportedEmailResponse): void {

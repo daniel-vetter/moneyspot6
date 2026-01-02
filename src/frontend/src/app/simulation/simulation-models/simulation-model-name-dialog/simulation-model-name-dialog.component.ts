@@ -74,7 +74,7 @@ export class SimulationModelNameDialogComponent implements AfterViewInit {
                 }
             } else {
                 this.errorMessage = 'Ein Fehler ist aufgetreten.';
-                console.error(error);
+                throw error;
             }
         } finally {
             this.isSaving = false;

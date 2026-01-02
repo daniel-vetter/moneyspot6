@@ -239,7 +239,7 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
                         this.form.controls.name.setErrors({ nameAlreadyInUse: true });
                 });
             } else {
-                console.error(error);
+                throw error;
             }
         }
     }

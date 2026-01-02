@@ -53,9 +53,6 @@ export class DefaultRateDialogComponent implements OnInit {
             });
 
             await lastValueFrom(this.inflationDataClient.updateDefaultRate(request));
-        } catch (error) {
-            console.error(error);
-            return;
         } finally {
             this.form.enable();
         }
