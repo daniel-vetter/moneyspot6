@@ -1,6 +1,6 @@
 using Microsoft.Playwright;
 
-namespace MoneySpot6.WebApp.Tests;
+namespace MoneySpot6.WebApp.Tests.Ui;
 
 public class BasicUiTests : UiTest
 {
