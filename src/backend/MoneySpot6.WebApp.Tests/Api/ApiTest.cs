@@ -10,8 +10,9 @@ namespace MoneySpot6.WebApp.Tests.Api;
 public abstract class ApiTest
 {
     private ServiceProvider _serviceProvider = null!;
+    private IServiceScope _scope = null!;
 
-    protected IServiceProvider Services => _serviceProvider;
+    protected IServiceProvider Services => _scope.ServiceProvider;
 
     [SetUp]
     public async Task SetUp()
@@ -23,12 +24,25 @@ public abstract class ApiTest
         services.RegisterAppServices(config);
 
         _serviceProvider = services.BuildServiceProvider();
-        var db = _serviceProvider.GetRequiredService<Db>();
+        _scope = _serviceProvider.CreateScope();
+        var db = Services.GetRequiredService<Db>();
         await db.Database.MigrateAsync();
+        await db.Set<DbSimulationLog>().ExecuteDeleteAsync();
+        await db.Set<DbSimulationTransaction>().ExecuteDeleteAsync();
+        await db.Set<DbSimulationDaySummary>().ExecuteDeleteAsync();
+        await db.Set<DbSimulationModelRevision>().ExecuteDeleteAsync();
+        await db.Set<DbSimulationModel>().ExecuteDeleteAsync();
+        await db.Set<DbImportedEmail>().ExecuteDeleteAsync();
+        await db.Set<DbEmailSyncStatus>().ExecuteDeleteAsync();
+        await db.Set<DbMonitoredEmailAddress>().ExecuteDeleteAsync();
+        await db.Set<DbGMailIntegration>().ExecuteDeleteAsync();
+        await db.Set<DbInflationData>().ExecuteDeleteAsync();
+        await db.Set<DbInflationSettings>().ExecuteDeleteAsync();
         await db.Set<DbBankAccountTransaction>().ExecuteDeleteAsync();
         await db.Set<DbBankAccount>().ExecuteDeleteAsync();
-        await db.Set<DbStock>().ExecuteDeleteAsync();
+        await db.Set<DbStockTransaction>().ExecuteDeleteAsync();
         await db.Set<DbStockPrice>().ExecuteDeleteAsync();
+        await db.Set<DbStock>().ExecuteDeleteAsync();
         await db.Set<DbBankConnection>().ExecuteDeleteAsync();
         await db.Set<DbCategory>().ExecuteDeleteAsync();
         await db.Set<DbRule>().ExecuteDeleteAsync();
@@ -37,6 +51,7 @@ public abstract class ApiTest
     [TearDown]
     public void TearDown()
     {
+        _scope.Dispose();
         _serviceProvider.Dispose();
     }
 

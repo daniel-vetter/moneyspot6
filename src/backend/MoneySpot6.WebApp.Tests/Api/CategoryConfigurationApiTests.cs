@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 using Shouldly;
 
@@ -15,27 +16,44 @@ public class CategoryConfigurationApiTests : ApiTest
     }
 
     [Test]
+    public async Task GetCategoryTree_WithCategories_ReturnsTree()
+    {
+        var food = new DbCategory { Name = "Food" };
+        var groceries = new DbCategory { Name = "Groceries", ParentId = 1 };
+        Get<Db>().Categories.Add(food);
+        await Get<Db>().SaveChangesAsync();
+        groceries.ParentId = food.Id;
+        Get<Db>().Categories.Add(groceries);
+        await Get<Db>().SaveChangesAsync();
+
+        var result = await Get<CategoryConfigurationController>().GetCategoryTree();
+
+        result.Length.ShouldBe(1);
+        result[0].Name.ShouldBe("Food");
+        result[0].Children.Length.ShouldBe(1);
+        result[0].Children[0].Name.ShouldBe("Groceries");
+    }
+
+    [Test]
     public async Task CreateCategory_ValidRequest_ReturnsNewCategoryId()
     {
         var result = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Groceries", null));
 
-        result.ShouldBeOfType<OkObjectResult>();
-        var categoryId = (int)((OkObjectResult)result).Value!;
+        var categoryId = result.ShouldBeOkObjectResult<int>();
         categoryId.ShouldBeGreaterThan(0);
     }
 
     [Test]
     public async Task CreateCategory_WithParent_CreatesChildCategory()
     {
-        var parentResult = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Food", null));
-        var parentId = (int)((OkObjectResult)parentResult).Value!;
+        Get<Db>().Categories.Add(new DbCategory { Name = "Food" });
+        await Get<Db>().SaveChangesAsync();
+        var parentId = Get<Db>().Categories.Single().Id;
 
-        var childResult = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Groceries", parentId));
+        var result = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Groceries", parentId));
 
-        childResult.ShouldBeOfType<OkObjectResult>();
+        result.ShouldBeOfType<OkObjectResult>();
         var tree = await Get<CategoryConfigurationController>().GetCategoryTree();
-        tree.Length.ShouldBe(1);
-        tree[0].Name.ShouldBe("Food");
         tree[0].Children.Length.ShouldBe(1);
         tree[0].Children[0].Name.ShouldBe("Groceries");
     }
@@ -45,36 +63,36 @@ public class CategoryConfigurationApiTests : ApiTest
     {
         var result = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("", null));
 
-        result.ShouldBeOfType<BadRequestObjectResult>();
-        var error = (CreateCategoryValidationErrorResponse)((BadRequestObjectResult)result).Value!;
+        var error = result.ShouldBeBadRequestObjectResult<CreateCategoryValidationErrorResponse>();
         error.MissingName.ShouldBeTrue();
     }
 
     [Test]
     public async Task CreateCategory_DuplicateName_ReturnsBadRequest()
     {
-        await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Groceries", null));
+        Get<Db>().Categories.Add(new DbCategory { Name = "Groceries" });
+        await Get<Db>().SaveChangesAsync();
 
         var result = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Groceries", null));
 
-        result.ShouldBeOfType<BadRequestObjectResult>();
-        var error = (CreateCategoryValidationErrorResponse)((BadRequestObjectResult)result).Value!;
+        var error = result.ShouldBeBadRequestObjectResult<CreateCategoryValidationErrorResponse>();
         error.NameAlreadyInUse.ShouldBeTrue();
     }
 
     [Test]
     public async Task GetCategoryPath_ReturnsFullPath()
     {
-        var foodResult = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Food", null));
-        var foodId = (int)((OkObjectResult)foodResult).Value!;
+        var food = new DbCategory { Name = "Food" };
+        Get<Db>().Categories.Add(food);
+        await Get<Db>().SaveChangesAsync();
+        var groceries = new DbCategory { Name = "Groceries", ParentId = food.Id };
+        Get<Db>().Categories.Add(groceries);
+        await Get<Db>().SaveChangesAsync();
+        var vegetables = new DbCategory { Name = "Vegetables", ParentId = groceries.Id };
+        Get<Db>().Categories.Add(vegetables);
+        await Get<Db>().SaveChangesAsync();
 
-        var groceriesResult = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Groceries", foodId));
-        var groceriesId = (int)((OkObjectResult)groceriesResult).Value!;
-
-        var vegetablesResult = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Vegetables", groceriesId));
-        var vegetablesId = (int)((OkObjectResult)vegetablesResult).Value!;
-
-        var path = await Get<CategoryConfigurationController>().GetCategoryPath(vegetablesId);
+        var path = await Get<CategoryConfigurationController>().GetCategoryPath(vegetables.Id);
 
         path.ShouldBe(["Food", "Groceries", "Vegetables"]);
     }
@@ -82,27 +100,28 @@ public class CategoryConfigurationApiTests : ApiTest
     [Test]
     public async Task DeleteCategory_DeletesWithChildren()
     {
-        var parentResult = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Food", null));
-        var parentId = (int)((OkObjectResult)parentResult).Value!;
-        await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Groceries", parentId));
+        var food = new DbCategory { Name = "Food" };
+        Get<Db>().Categories.Add(food);
+        await Get<Db>().SaveChangesAsync();
+        Get<Db>().Categories.Add(new DbCategory { Name = "Groceries", ParentId = food.Id });
+        await Get<Db>().SaveChangesAsync();
 
-        var deleteResult = await Get<CategoryConfigurationController>().Delete(parentId);
+        var result = await Get<CategoryConfigurationController>().Delete(food.Id);
 
-        deleteResult.ShouldBeOfType<OkResult>();
-        var tree = await Get<CategoryConfigurationController>().GetCategoryTree();
-        tree.ShouldBeEmpty();
+        result.ShouldBeOfType<OkResult>();
+        Get<Db>().Categories.Count().ShouldBe(0);
     }
 
     [Test]
     public async Task UpdateCategory_ChangesName()
     {
-        var createResult = await Get<CategoryConfigurationController>().Create(new CreateCategoryRequest("Food", null));
-        var categoryId = (int)((OkObjectResult)createResult).Value!;
+        var category = new DbCategory { Name = "Food" };
+        Get<Db>().Categories.Add(category);
+        await Get<Db>().SaveChangesAsync();
 
-        var updateResult = await Get<CategoryConfigurationController>().Update(new UpdateCategoryRequest(categoryId, "Lebensmittel"));
+        var result = await Get<CategoryConfigurationController>().Update(new UpdateCategoryRequest(category.Id, "Lebensmittel"));
 
-        updateResult.ShouldBeOfType<OkResult>();
-        var tree = await Get<CategoryConfigurationController>().GetCategoryTree();
-        tree[0].Name.ShouldBe("Lebensmittel");
+        result.ShouldBeOfType<OkResult>();
+        Get<Db>().Categories.Single().Name.ShouldBe("Lebensmittel");
     }
 }
