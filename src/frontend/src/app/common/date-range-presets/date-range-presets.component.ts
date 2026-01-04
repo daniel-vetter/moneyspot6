@@ -1,12 +1,11 @@
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { ButtonGroupModule } from 'primeng/buttongroup';
 import { DateRange } from '../date-range-picker/date-range-picker.component';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-date-range-presets',
-    imports: [ButtonGroupModule, ButtonModule],
+    imports: [ButtonModule],
     templateUrl: './date-range-presets.component.html',
     styleUrl: './date-range-presets.component.scss'
 })
