@@ -1,5 +1,5 @@
 <div class="no-indicator">
-    <p-carousel [value]="months" [numVisible]="4" [numScroll]="1" [circular]="false">
+    <p-carousel [value]="months" [numVisible]="tileCount" [showNavigators]="showNavigator" [numScroll]="1" [circular]="false">
         <ng-template let-month #item>
             <div class="tile">
                 <p-scrollpanel [style]="{ width: '100%', height: '21rem' }">
