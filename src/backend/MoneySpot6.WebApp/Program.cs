@@ -5,14 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoneySpot6.ServiceDefaults;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
 using MoneySpot6.WebApp.Features.Ui.AccountSync;
 using MoneySpot6.WebApp.Features.Ui.Auth;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema.Generation;
 using Microsoft.AspNetCore.HttpOverrides;
-using MoneySpot6.WebApp.Features.Ui.InflationData.Import;
-using MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
 
 namespace MoneySpot6.WebApp;
 
@@ -27,6 +24,8 @@ public class Program
                 .RequireAuthenticatedUser()
                 .Build()));
         });
+
+        builder.AddNpgsqlDbContext<Db>("db");
         builder.AddServiceDefaults();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument(x =>
@@ -35,18 +34,15 @@ public class Program
             x.Title = "MoneySpot6 API";
         });
         builder.Services.AddSignalR();
-        builder.AddNpgsqlDbContext<Db>("db");
         builder.Services.AddResponseCompression();
-        builder.Services.Configure<HbciAdapterOptions>(builder.Configuration.GetSection("HbciAdapter"));
-        builder.Services.AddServiceFromAttributes();
-        builder.Services.AddHttpClient<GenesisApiClient>();
-        builder.Services.AddHttpClient<YahooStockDataClient>(x =>
+        builder.Services.RegisterAppServices(builder.Configuration);
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
-            x.DefaultRequestHeaders.Host = "query1.finance.yahoo.com";
-            x.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownIPNetworks.Clear();
+            options.KnownProxies.Clear();
         });
 
-        //if (builder.Configuration.GetValue<bool>("Auth:Disable") == true)
         if (builder.Environment.EnvironmentName == "Testing")
         {
             builder.Services.AddAuthentication(DevelopmentAuthenticationHandler.SchemeName)
@@ -55,10 +51,10 @@ public class Program
         else
         {
             builder.Services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = "Cookies";
-                    options.DefaultChallengeScheme = "oidc";
-                })
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
                 .AddCookie("Cookies")
                 .AddOpenIdConnect("oidc", options =>
                 {
@@ -84,14 +80,6 @@ public class Program
                     };
                 });
         }
-        builder.Services.Configure<MailIntegrationOptions>(builder.Configuration.GetSection("MailIntegration"));
-        builder.Services.Configure<InflationImportOptions>(builder.Configuration.GetSection("InflationImport"));
-        builder.Services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            options.KnownIPNetworks.Clear();
-            options.KnownProxies.Clear();
-        });
 
         var app = builder.Build();
         app.UseForwardedHeaders();

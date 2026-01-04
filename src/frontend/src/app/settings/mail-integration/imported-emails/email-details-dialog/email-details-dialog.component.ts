@@ -1,10 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
-import { ImportedEmailDetailsResponse, MailIntegrationClient } from "../../../../server";
-import { lastValueFrom } from "rxjs";
-import { ProgressSpinnerModule } from "primeng/progressspinner";
-import { DatePipe, DecimalPipe } from "@angular/common";
-import { ButtonModule } from "primeng/button";
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {DynamicDialogConfig, DynamicDialogRef} from "primeng/dynamicdialog";
+import {ImportedEmailDetailsResponse, MailIntegrationClient} from "../../../../server";
+import {lastValueFrom} from "rxjs";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {DatePipe, DecimalPipe} from "@angular/common";
+import {ButtonModule} from "primeng/button";
 
 @Component({
     selector: 'app-email-details-dialog',
@@ -27,12 +27,8 @@ export class EmailDetailsDialogComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<void> {
-        try {
-            const details = await lastValueFrom(this.mailIntegrationClient.getImportedEmailDetails(this.emailId));
-            this.emailDetails.set(details);
-        } catch (error) {
-            console.error('Failed to load email details', error);
-        }
+        const details = await lastValueFrom(this.mailIntegrationClient.getImportedEmailDetails(this.emailId));
+        this.emailDetails.set(details);
     }
 
     protected onCloseClicked() {

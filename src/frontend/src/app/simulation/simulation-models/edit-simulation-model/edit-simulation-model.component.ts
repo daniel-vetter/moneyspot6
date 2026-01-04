@@ -1,21 +1,21 @@
-import { AfterViewInit, Component, inject, OnDestroy } from '@angular/core';
-import { ViewChild, ElementRef } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
-import { SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse, SimulationLogResponse } from '../../../server';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PanelModule } from 'primeng/panel';
-import { TabsModule } from 'primeng/tabs';
-import { SplitterModule } from 'primeng/splitter';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
+import {AfterViewInit, Component, inject, OnDestroy} from '@angular/core';
+import {ViewChild, ElementRef} from '@angular/core';
+import {ButtonModule} from 'primeng/button';
+import {MessageModule} from 'primeng/message';
+import {SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse, SimulationLogResponse} from '../../../server';
+import {firstValueFrom, lastValueFrom} from 'rxjs';
+import {CommonModule} from '@angular/common';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {ActivatedRoute, Router} from '@angular/router';
+import {PanelModule} from 'primeng/panel';
+import {TabsModule} from 'primeng/tabs';
+import {SplitterModule} from 'primeng/splitter';
+import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
 import * as Highcharts from 'highcharts';
-import { HighchartsChartModule } from 'highcharts-angular';
-import { DialogService } from 'primeng/dynamicdialog';
-import { SimulationModelNameDialogComponent } from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
+import {HighchartsChartModule} from 'highcharts-angular';
+import {DialogService} from 'primeng/dynamicdialog';
+import {SimulationModelNameDialogComponent} from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
@@ -208,7 +208,7 @@ declare class DateOnly {
     }
 
     private updateMarkerInfo() {
-        const markers = monaco.editor.getModelMarkers({ resource: this.model!.uri });
+        const markers = monaco.editor.getModelMarkers({resource: this.model!.uri});
         const errors = markers.filter(m => m.severity >= monaco.MarkerSeverity.Error);
         if (errors.length === 0) {
             this.codeError = undefined;
@@ -239,12 +239,8 @@ declare class DateOnly {
     }
 
     async onSubmit() {
-        try {
-            await this.saveModel();
-            await this.router.navigate(['/simulation']);
-        } catch (error) {
-            console.error(error);
-        }
+        await this.saveModel();
+        await this.router.navigate(['/simulation']);
     }
 
     onSplitterResized() {
@@ -313,13 +309,13 @@ declare class DateOnly {
         }
 
         this.isRunning = true;
-        this.logs = [];
-        this.transactions = [];
-        this.totalChartOptions = undefined;
-        this.chartOptions = undefined;
-        this.stockChartOptions = undefined;
-
         try {
+            this.logs = [];
+            this.transactions = [];
+            this.totalChartOptions = undefined;
+            this.chartOptions = undefined;
+            this.stockChartOptions = undefined;
+
             await this.saveModel();
 
             // Run the simulation
@@ -337,8 +333,6 @@ declare class DateOnly {
                     }
                 }, 0);
             }
-        } catch (error) {
-            console.error(error);
         } finally {
             this.isRunning = false;
         }
@@ -382,10 +376,10 @@ declare class DateOnly {
                 },
                 xAxis: {
                     type: 'datetime',
-                    title: { text: undefined }
+                    title: {text: undefined}
                 },
                 yAxis: {
-                    title: { text: 'Total' }
+                    title: {text: 'Total'}
                 },
                 legend: {
                     enabled: true
@@ -424,10 +418,10 @@ declare class DateOnly {
                 },
                 xAxis: {
                     type: 'datetime',
-                    title: { text: undefined }
+                    title: {text: undefined}
                 },
                 yAxis: {
-                    title: { text: 'Balance' }
+                    title: {text: 'Balance'}
                 },
                 legend: {
                     enabled: true
@@ -466,10 +460,10 @@ declare class DateOnly {
                 },
                 xAxis: {
                     type: 'datetime',
-                    title: { text: undefined }
+                    title: {text: undefined}
                 },
                 yAxis: {
-                    title: { text: 'Stock Value' }
+                    title: {text: 'Stock Value'}
                 },
                 legend: {
                     enabled: true

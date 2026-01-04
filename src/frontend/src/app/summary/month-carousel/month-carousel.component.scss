@@ -2,6 +2,13 @@
     margin: 0 -45px 0 -46px;
 }
 
+@media only screen and (max-width: 1000px) {
+    :host {
+        margin: 0 -7px 0 -7px;
+    }
+}
+
+
 .tile {
     border: 1px solid var(--p-content-border-color);
     border-radius: var(--p-content-border-radius);

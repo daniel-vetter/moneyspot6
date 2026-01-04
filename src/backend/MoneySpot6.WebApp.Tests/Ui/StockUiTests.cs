@@ -1,7 +1,7 @@
 using Microsoft.Playwright;
 using MoneySpot6.WebApp.Database;
 
-namespace MoneySpot6.WebApp.Tests;
+namespace MoneySpot6.WebApp.Tests.Ui;
 
 public class StockUiTests : UiTest
 {

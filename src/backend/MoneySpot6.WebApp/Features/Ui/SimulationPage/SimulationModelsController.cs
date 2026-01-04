@@ -240,10 +240,9 @@ public class SimulationModelsController : Controller
     }
 
     [HttpPost("Run")]
-    public async Task<IActionResult> Run(int revisionId)
+    public async Task Run(int revisionId)
     {
         await _simulationRunner.Run(revisionId);
-        return Ok();
     }
 
     [HttpGet("GetRunResult")]
