@@ -6,151 +6,239 @@
     </div>
 
     @if (isLoading) {
-    <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem">
-        <p-progressSpinner></p-progressSpinner>
-    </div>
+        <div style="width: 100%; display: flex; justify-content: center; padding-top: 10rem">
+            <p-progressSpinner></p-progressSpinner>
+        </div>
     } @else {
-    @if (blocks.length === 0) {
-    <div style="width: 100%; display: flex; justify-content: center; align-items: center; padding-top: 10rem;">
-        <div style="text-align: center; opacity: 0.6">
-            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">Keine Transaktionen vorhanden</div>
-            <div style="font-size: 1rem;">Es wurden keine Transaktionen gefunden, die den aktuellen Filterkriterien entsprechen.</div>
-        </div>
-    </div>
-    }
-
-    @for (block of blocks; track block.id) {
-    <p-panel>
-        <ng-template pTemplate="header">
-            <div class="horizontal" style="width: 100%; gap: 2rem">
-                <h1>{{ block.name }}</h1>
-
-                <div class="spacer"></div>
-
-                @if (dataType === "Account") {
-                <div class="header-value hidden-on-mobile">
-                    <div>Einnahmen</div>
-                    <app-value [value]="block.income" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Ausgaben</div>
-                    <app-value [value]="block.expense" color="reverse" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Gesamt</div>
-                    <app-value [value]="block.accountBalance" size="1.5rem" />
-                </div>
-                }
-
-                @if (dataType === "Stocks") {
-                <div class="header-value hidden-on-mobile">
-                    <div>Gesamt</div>
-                    <app-value [value]="block.stockBalance" size="1.5rem" />
-                </div>
-                }
-
-                @if (dataType === "AccountAndStocks") {
-                <div class="header-value hidden-on-mobile">
-                    <div>Einnahmen</div>
-                    <app-value [value]="block.income" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Ausgaben</div>
-                    <app-value [value]="block.expense" color="reverse" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Konto Bilanz</div>
-                    <app-value [value]="block.accountBalance" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Aktien Bilanz</div>
-                    <app-value [value]="block.stockBalance" size="1.5rem" />
-                </div>
-
-                <div class="header-value hidden-on-mobile">
-                    <div>Gesamt</div>
-                    <app-value [value]="block.total" size="1.5rem" />
-                </div>
-                }
-
-                <div class="hidden-on-desktop">
-                    <app-value [value]="block.total" size="1.5rem" />
+        @if (blocks.length === 0) {
+            <div style="width: 100%; display: flex; justify-content: center; align-items: center; padding-top: 10rem;">
+                <div style="text-align: center; opacity: 0.6">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">Keine Transaktionen vorhanden</div>
+                    <div style="font-size: 1rem;">Es wurden keine Transaktionen gefunden, die den aktuellen Filterkriterien entsprechen.</div>
                 </div>
             </div>
-        </ng-template>
-        <div class="table">
-            <div class="header hidden-on-mobile">
-                <div class="name">Zeitraum</div>
-                @if (dataType === "Account") {
-                <div class="value">Einnahmen</div>
-                <div class="value">Ausgaben</div>
-                <div class="value">Gesamt</div>
-                }
-                @if (dataType === "Stocks") {
-                <div class="value">Bilanz</div>
-                }
-                @if (dataType === "AccountAndStocks") {
-                <div class="value">Einnahmen</div>
-                <div class="value">Ausgaben</div>
-                <div class="value">Konto Bilanz</div>
-                <div class="value">Aktien Bilanz</div>
-                <div class="value">Gesamt</div>
-                }
-                <div class="hidden-on-mobile"></div>
-            </div>
-            @for (line of block.lines; track line.id) {
-            <a class="line hidden-on-mobile" [routerLink]="['/transactions']" [queryParams]="{dateRange: line.dateRange }" pRipple>
-                <div class="name">{{ line.name }}</div>
-                @if (dataType === "Account") {
-                <div class="value"><app-value [value]="line.income" /></div>
-                <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
-                <div class="value"><app-value [value]="line.accountBalance" /></div>
-                }
-                @if (dataType === "Stocks") {
-                <div class="value"><app-value [value]="line.stockBalance" /></div>
-                }
-                @if (dataType === "AccountAndStocks") {
-                <div class="value"><app-value [value]="line.income" /></div>
-                <div class="value"><app-value [value]="line.expense" color="reverse" /></div>
-                <div class="value"><app-value [value]="line.accountBalance" /></div>
-                <div class="value"><app-value [value]="line.stockBalance" /></div>
-                <div class="value"><app-value [value]="line.total" /></div>
-                }
-                <div class="horizontal hidden-on-mobile" style="position: relative; flex: 1; align-items: center">
-                    <div [style.width.%]="line.bar.width" [style.left.%]="line.bar.left" [style.background]="line.bar.color" [style.borderRadius]="line.bar.radius"
-                        style="height: 0.8rem; opacity: 0.7; position: absolute">
-                        &nbsp;
+        }
+
+        @for (block of blocks; track block.id) {
+            <p-panel>
+                <ng-template pTemplate="header">
+                    <div class="horizontal" style="width: 100%; gap: 2rem">
+                        <h1>{{ block.name }}</h1>
+
+                        <div class="spacer"></div>
+
+                        @if (dataType === "Account") {
+                            <div class="header-value hidden-on-mobile">
+                                <div>Einnahmen</div>
+                                <app-value [value]="block.income" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
+                                <div>Ausgaben</div>
+                                <app-value [value]="block.expense" color="reverse" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
+                                <div>Gesamt</div>
+                                <app-value [value]="block.accountBalance" size="1.5rem"/>
+                            </div>
+
+                            <div class="hidden-on-desktop">
+                                <app-value [value]="block.accountBalance" size="1.5rem"/>
+                            </div>
+                        }
+
+                        @if (dataType === "Stocks") {
+                            <div class="header-value hidden-on-mobile">
+                                <div>Gesamt</div>
+                                <app-value [value]="block.stockBalance" size="1.5rem"/>
+                            </div>
+
+                            <div class="hidden-on-desktop">
+                                <app-value [value]="block.stockBalance" size="1.5rem"/>
+                            </div>
+                        }
+
+                        @if (dataType === "AccountAndStocks") {
+                            <div class="header-value hidden-on-mobile">
+                                <div>Einnahmen</div>
+                                <app-value [value]="block.income" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
+                                <div>Ausgaben</div>
+                                <app-value [value]="block.expense" color="reverse" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
+                                <div>Konto Bilanz</div>
+                                <app-value [value]="block.accountBalance" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
+                                <div>Aktien Bilanz</div>
+                                <app-value [value]="block.stockBalance" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
+                                <div>Gesamt</div>
+                                <app-value [value]="block.total" size="1.5rem"/>
+                            </div>
+
+                            <div class="hidden-on-desktop">
+                                <app-value [value]="block.total" size="1.5rem"/>
+                            </div>
+                        }
                     </div>
-                    <div style="background: var(--p-gray-400); height: 14px; width: 2px; position: absolute; left: 50%">&nbsp;</div>
+                </ng-template>
+                <div class="table">
+                    <div class="header hidden-on-mobile">
+                        <div class="name">Zeitraum</div>
+                        @if (dataType === "Account") {
+                            <div class="value">Einnahmen</div>
+                            <div class="value">Ausgaben</div>
+                            <div class="value">Gesamt</div>
+                        }
+                        @if (dataType === "Stocks") {
+                            <div class="value">Bilanz</div>
+                        }
+                        @if (dataType === "AccountAndStocks") {
+                            <div class="value">Einnahmen</div>
+                            <div class="value">Ausgaben</div>
+                            <div class="value">Konto Bilanz</div>
+                            <div class="value">Aktien Bilanz</div>
+                            <div class="value">Gesamt</div>
+                        }
+                        <div class="hidden-on-mobile"></div>
+                    </div>
+                    @for (line of block.lines; track line.id) {
+                        <a class="line hidden-on-mobile" [routerLink]="['/transactions']" [queryParams]="{dateRange: line.dateRange }" pRipple>
+                            <div class="name">{{ line.name }}</div>
+                            @if (dataType === "Account") {
+                                <div class="value">
+                                    <app-value [value]="line.income"/>
+                                </div>
+                                <div class="value">
+                                    <app-value [value]="line.expense" color="reverse"/>
+                                </div>
+                                <div class="value">
+                                    <app-value [value]="line.accountBalance"/>
+                                </div>
+                            }
+                            @if (dataType === "Stocks") {
+                                <div class="value">
+                                    <app-value [value]="line.stockBalance"/>
+                                </div>
+                            }
+                            @if (dataType === "AccountAndStocks") {
+                                <div class="value">
+                                    <app-value [value]="line.income"/>
+                                </div>
+                                <div class="value">
+                                    <app-value [value]="line.expense" color="reverse"/>
+                                </div>
+                                <div class="value">
+                                    <app-value [value]="line.accountBalance"/>
+                                </div>
+                                <div class="value">
+                                    <app-value [value]="line.stockBalance"/>
+                                </div>
+                                <div class="value">
+                                    <app-value [value]="line.total"/>
+                                </div>
+                            }
+                            <div class="horizontal hidden-on-mobile" style="position: relative; flex: 1; align-items: center">
+                                <div [style.width.%]="line.bar.width" [style.left.%]="line.bar.left" [style.background]="line.bar.color"
+                                     [style.borderRadius]="line.bar.radius"
+                                     style="height: 0.8rem; opacity: 0.7; position: absolute">
+                                    &nbsp;
+                                </div>
+                                <div style="background: var(--p-gray-400); height: 14px; width: 2px; position: absolute; left: 50%">&nbsp;</div>
+                            </div>
+                        </a>
+
+                        <a class="line hidden-on-desktop" style="margin-bottom: 2rem" [routerLink]="['/transactions']"
+                           [queryParams]="{dateRange: line.dateRange }" pRipple>
+                            <div class="vertical" style="width: 100%">
+                                @if (dataType === "Account") {
+                                    <div class="horizontal">
+                                        <div style="flex: 1; font-weight: bold">{{ line.name }}</div>
+                                        <div class="right">
+                                            <app-value [value]="line.accountBalance"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Einnahmen:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.income"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Ausgaben:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.expense" color="reverse"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Gesamt:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.accountBalance"/>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (dataType === "Stocks") {
+                                    <div class="horizontal">
+                                        <div style="flex: 1; font-weight: bold">{{ line.name }}</div>
+                                        <div class="right">
+                                            <app-value [value]="line.stockBalance"/>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (dataType === "AccountAndStocks") {
+                                    <div class="horizontal">
+                                        <div style="flex: 1; font-weight: bold">{{ line.name }}</div>
+                                        <div class="right">
+                                            <app-value [value]="line.total"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Einnahmen:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.income"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Ausgaben:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.expense" color="reverse"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Konto Bilanz:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.accountBalance"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Aktien Bilanz:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.stockBalance"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Gesamt:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.total"/>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </a>
+                    }
                 </div>
-            </a>
-
-            <a class="line hidden-on-desktop" style="margin-bottom: 2rem" pRipple>
-                <div class="vertical" style="width: 100%">
-                    <div class="horizontal">
-                        <div style="flex: 1; font-weight: bold">{{ line.name }}</div>
-                        <div class="right"><app-value [value]="line.total" /></div>
-                    </div>
-
-                    <div class="horizontal" style="opacity: 0.8">
-                        <div style="flex: 1">Einnahmen:</div>
-                        <div class="right"><app-value [value]="line.income" /></div>
-                    </div>
-
-                    <div class="horizontal" style="opacity: 0.8">
-                        <div style="flex: 1">Ausgaben:</div>
-                        <div class="right"><app-value [value]="line.expense" /></div>
-                    </div>
-                </div>
-            </a>
-            }
-        </div>
-    </p-panel>
-    }
+            </p-panel>
+        }
     }
 </div>
