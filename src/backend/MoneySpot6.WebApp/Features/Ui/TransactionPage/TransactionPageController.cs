@@ -338,18 +338,18 @@ public record TransactionParsedDataResponse
 [PublicAPI]
 public record TransactionResponse
 {
-    public required ImmutableArray<TransactionEntryResponse> Entries { get; init; }
+    [Required] public required ImmutableArray<TransactionEntryResponse> Entries { get; init; }
 }
 
 [PublicAPI]
 public record TransactionEntryResponse
 {
-    public required int Id { get; init; }
-    public required DateOnly Date { get; init; }
-    public required string? Name { get; init; }
-    public required string? Purpose { get; init; }
-    public required string? CategoryName { get; init; }
-    public required decimal Amount { get; init; }
-    public required bool IsNew { get; init; }
-    public required TransactionType TransactionType { get; init; }
+    [Required] public required int Id { get; init; }
+    [Required] public required DateOnly Date { get; init; }
+    [Required] public required string Name { get; init; }
+    [Required] public required string Purpose { get; init; }
+    [Required] public required string CategoryName { get; init; }
+    [Required] public required decimal Amount { get; init; }
+    [Required] public required bool IsNew { get; init; }
+    [Required] public required TransactionType TransactionType { get; init; }
 }

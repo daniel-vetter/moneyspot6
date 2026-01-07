@@ -4222,7 +4222,7 @@ export class AuthClient {
 }
 
 export class TransactionResponse implements ITransactionResponse {
-    entries?: TransactionEntryResponse[];
+    entries!: TransactionEntryResponse[];
 
     constructor(data?: ITransactionResponse) {
         if (data) {
@@ -4230,6 +4230,9 @@ export class TransactionResponse implements ITransactionResponse {
                 if (data.hasOwnProperty(property))
                     (this as any)[property] = (data as any)[property];
             }
+        }
+        if (!data) {
+            this.entries = [];
         }
     }
 
@@ -4262,18 +4265,18 @@ export class TransactionResponse implements ITransactionResponse {
 }
 
 export interface ITransactionResponse {
-    entries?: TransactionEntryResponse[];
+    entries: TransactionEntryResponse[];
 }
 
 export class TransactionEntryResponse implements ITransactionEntryResponse {
-    id?: number;
-    date?: Date;
-    name?: string | undefined;
-    purpose?: string | undefined;
-    categoryName?: string | undefined;
-    amount?: number;
-    isNew?: boolean;
-    transactionType?: TransactionType;
+    id!: number;
+    date!: Date;
+    name!: string;
+    purpose!: string;
+    categoryName!: string;
+    amount!: number;
+    isNew!: boolean;
+    transactionType!: TransactionType;
 
     constructor(data?: ITransactionEntryResponse) {
         if (data) {
@@ -4319,14 +4322,14 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
 }
 
 export interface ITransactionEntryResponse {
-    id?: number;
-    date?: Date;
-    name?: string | undefined;
-    purpose?: string | undefined;
-    categoryName?: string | undefined;
-    amount?: number;
-    isNew?: boolean;
-    transactionType?: TransactionType;
+    id: number;
+    date: Date;
+    name: string;
+    purpose: string;
+    categoryName: string;
+    amount: number;
+    isNew: boolean;
+    transactionType: TransactionType;
 }
 
 export enum TransactionType {
