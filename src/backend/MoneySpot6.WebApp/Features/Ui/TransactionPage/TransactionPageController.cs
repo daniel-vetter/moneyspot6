@@ -59,6 +59,7 @@ public class TransactionPageController : Controller
             x.Final.Purpose,
             x.Final.CategoryId,
             x.Final.Amount,
+            x.Final.TransactionType,
             x.IsNew,
         }).AsAsyncEnumerable();
 
@@ -85,7 +86,8 @@ public class TransactionPageController : Controller
                 Purpose = x.Purpose,
                 CategoryName = x.CategoryId.HasValue && categories.TryGetValue(x.CategoryId.Value, out var catName) ? catName : null,
                 Amount = amount,
-                IsNew = x.IsNew
+                IsNew = x.IsNew,
+                TransactionType = x.TransactionType
             });
         }
 
@@ -349,4 +351,5 @@ public record TransactionEntryResponse
     public required string? CategoryName { get; init; }
     public required decimal Amount { get; init; }
     public required bool IsNew { get; init; }
+    public required TransactionType TransactionType { get; init; }
 }

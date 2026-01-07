@@ -4273,6 +4273,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
     categoryName?: string | undefined;
     amount?: number;
     isNew?: boolean;
+    transactionType?: TransactionType;
 
     constructor(data?: ITransactionEntryResponse) {
         if (data) {
@@ -4292,6 +4293,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
             this.categoryName = _data["categoryName"];
             this.amount = _data["amount"];
             this.isNew = _data["isNew"];
+            this.transactionType = _data["transactionType"];
         }
     }
 
@@ -4311,6 +4313,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
         data["categoryName"] = this.categoryName;
         data["amount"] = this.amount;
         data["isNew"] = this.isNew;
+        data["transactionType"] = this.transactionType;
         return data;
     }
 }
@@ -4323,6 +4326,14 @@ export interface ITransactionEntryResponse {
     categoryName?: string | undefined;
     amount?: number;
     isNew?: boolean;
+    transactionType?: TransactionType;
+}
+
+export enum TransactionType {
+    External = 0,
+    Transfer = 1,
+    Investment = 2,
+    Refund = 3,
 }
 
 export class TransactionDetailsResponse implements ITransactionDetailsResponse {
@@ -4484,13 +4495,6 @@ export interface ITransactionBaseDetails {
 export enum PaymentProcessor {
     None = 0,
     Paypal = 1,
-}
-
-export enum TransactionType {
-    External = 0,
-    Transfer = 1,
-    Investment = 2,
-    Refund = 3,
 }
 
 export class TransactionOverrideDetails implements ITransactionOverrideDetails {
