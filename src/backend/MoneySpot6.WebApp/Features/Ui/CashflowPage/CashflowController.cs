@@ -24,6 +24,13 @@ public class CashflowController : Controller
     [HttpGet("GetMonthlyIncomeAndExpenses")]
     public async Task<ActionResult<ImmutableArray<IncomeExpenseEntryResponse>>> Get(string? search, [BindRequired] IncomeExpenseGrouping grouping)
     {
+        //External >= 0 -> Income
+        //External <  0 -> Expense
+        //Transfer      -> Ignored
+        //Refund   <  0 -> Income
+        //Refund   >= 0 -> Expense
+        //Investment    -> Investment
+
         var groups = await _db
             .BankAccountTransactions
             .Where(x => string.IsNullOrWhiteSpace(search) || EF.Functions.ILike(x.Final.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Final.Name, "%" + search + "%"))
@@ -34,8 +41,9 @@ public class CashflowController : Controller
             .Select(x => new
             {
                 GroupKey = x.Key,
-                Income = x.Sum(y => Math.Max(0, y.Final.Amount)),
-                Expense = -x.Sum(y => Math.Min(0, y.Final.Amount)),
+                Income = x.Sum(y => (y.Final.TransactionType == TransactionType.External && y.Final.Amount >= 0) || (y.Final.TransactionType == TransactionType.Refund && y.Final.Amount < 0) ? y.Final.Amount : 0),
+                Expense = x.Sum(y => (y.Final.TransactionType == TransactionType.External && y.Final.Amount < 0) || (y.Final.TransactionType == TransactionType.Refund && y.Final.Amount >= 0) ? -y.Final.Amount : 0),
+                Investment = x.Sum(y => y.Final.TransactionType == TransactionType.Investment ? -y.Final.Amount : 0)
             })
             .OrderBy(x => x.GroupKey)
             .ToArrayAsync();
@@ -55,6 +63,7 @@ public class CashflowController : Controller
                     Month = x.GroupKey,
                     Income = x.Income,
                     Expense = x.Expense,
+                    Investment = x.Investment,
                     StockBalance = stocks[groupEnd].StartOfDay.CurrentValue - stocks[groupStart].StartOfDay.CurrentValue
                 };
             })
@@ -93,5 +102,6 @@ public record IncomeExpenseEntryResponse
     [Required] public int Month { get; set; }
     [Required] public decimal Income { get; set; }
     [Required] public decimal Expense { get; set; }
+    [Required] public decimal Investment { get; set; }
     [Required] public decimal StockBalance { get; set; }
 }

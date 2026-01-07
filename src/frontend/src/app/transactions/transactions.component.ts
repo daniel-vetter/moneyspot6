@@ -174,6 +174,15 @@ export class TransactionsComponent implements OnInit {
         }
     }
 
+    getTypeColor(type: TransactionType | undefined, amount: number | undefined): string {
+        switch (type) {
+            case TransactionType.Transfer: return '#64B5F6';
+            case TransactionType.Investment: return '#BA68C8';
+            case TransactionType.Refund: return '#FFB74D';
+            default: return (amount ?? 0) >= 0 ? '#81C784' : '#E57373';
+        }
+    }
+
     async toggleInflationAdjustment() {
         if (this.inflationAdjustmentDate !== undefined) {
             // Deaktivieren

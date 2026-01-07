@@ -65,6 +65,7 @@ export class CashflowComponent implements OnInit {
                     lines: [],
                     income: 0,
                     expense: 0,
+                    investment: 0,
                     accountBalance: 0,
                     stockBalance: 0,
                     total: 0
@@ -77,9 +78,10 @@ export class CashflowComponent implements OnInit {
                 name: this.getLineName(entry.month),
                 expense: entry.expense,
                 income: entry.income,
-                accountBalance: entry.income - entry.expense,
+                investment: entry.investment,
+                accountBalance: entry.income - entry.expense - entry.investment,
                 stockBalance: entry.stockBalance,
-                total: entry.income - entry.expense + entry.stockBalance,
+                total: entry.income - entry.expense - entry.investment + entry.stockBalance,
                 bar: <any>{}!,
                 dateRange: this.getDateRange(entry.month)
             });
@@ -96,6 +98,7 @@ export class CashflowComponent implements OnInit {
         for (const line of block.lines) {
             block.income += line.income;
             block.expense += line.expense;
+            block.investment += line.investment;
             block.accountBalance += line.accountBalance;
             block.stockBalance += line.stockBalance;
             block.total += line.total;
@@ -172,6 +175,7 @@ interface Line {
     name: string;
     income: number;
     expense: number;
+    investment: number;
     accountBalance: number;
     stockBalance: number;
     total: number;
@@ -192,6 +196,7 @@ interface Block {
     lines: Line[];
     income: number;
     expense: number;
+    investment: number;
     accountBalance: number;
     stockBalance: number;
     total: number;

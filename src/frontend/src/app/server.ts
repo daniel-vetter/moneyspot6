@@ -8233,6 +8233,7 @@ export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
     month!: number;
     income!: number;
     expense!: number;
+    investment!: number;
     stockBalance!: number;
 
     constructor(data?: IIncomeExpenseEntryResponse) {
@@ -8249,6 +8250,7 @@ export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
             this.month = _data["month"];
             this.income = _data["income"];
             this.expense = _data["expense"];
+            this.investment = _data["investment"];
             this.stockBalance = _data["stockBalance"];
         }
     }
@@ -8265,6 +8267,7 @@ export class IncomeExpenseEntryResponse implements IIncomeExpenseEntryResponse {
         data["month"] = this.month;
         data["income"] = this.income;
         data["expense"] = this.expense;
+        data["investment"] = this.investment;
         data["stockBalance"] = this.stockBalance;
         return data;
     }
@@ -8274,6 +8277,7 @@ export interface IIncomeExpenseEntryResponse {
     month: number;
     income: number;
     expense: number;
+    investment: number;
     stockBalance: number;
 }
 
