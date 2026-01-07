@@ -247,7 +247,8 @@ public class TransactionUiTests : UiTest
             OriginatorIdentifier = "ORIGINATOR-ID",
             AlternateInitiator = "",
             AlternateReceiver = "",
-            PaymentProcessor = PaymentProcessor.None
+            PaymentProcessor = PaymentProcessor.None,
+            TransactionType = TransactionType.External
         };
 
         // Final data reflects the highest priority: Overridden > Processed > Parsed

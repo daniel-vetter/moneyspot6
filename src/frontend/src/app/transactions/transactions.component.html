@@ -51,6 +51,11 @@
                 </div>
 
                 <div class="header-value hidden-on-mobile">
+                    <div>Investment</div>
+                    <app-value [value]="block.investment" color="reverse" size="1.5rem" />
+                </div>
+
+                <div class="header-value hidden-on-mobile">
                     <div>Gesamt</div>
                     <app-value [value]="block.total" size="1.5rem" />
                 </div>
@@ -73,7 +78,7 @@
 
             @for (transaction of block.transactions; track transaction.id) {
             <a pRipple class="horizontal line hidden-on-mobile" [class.isNew]="transaction.isNew" (click)="openTransaction(transaction)" [attr.data-testid]="'transaction-row-' + transaction.id">
-                <div class="type-icon"><i [class]="getTypeIcon(transaction.transactionType, transaction.amount)" [pTooltip]="getTypeTooltip(transaction.transactionType, transaction.amount)" style="opacity: 0.7"></i></div>
+                <div class="type-icon"><i [class]="getTypeIcon(transaction.transactionType, transaction.amount)" [pTooltip]="getTypeTooltip(transaction.transactionType, transaction.amount)" [style.color]="getTypeColor(transaction.transactionType, transaction.amount)"></i></div>
                 <div class="date oneLine">{{ transaction.date! | customDate }}</div>
                 <div class="name oneLine">{{ transaction.name }}</div>
                 <div class="purpose oneLine">{{ transaction.purpose }}</div>
@@ -82,7 +87,7 @@
             </a>
 
             <a pRipple class="horizontal line hidden-on-desktop" (click)="openTransaction(transaction)">
-                <i [class]="getTypeIcon(transaction.transactionType, transaction.amount)" style="opacity: 0.7; margin-right: 0.75rem"></i>
+                <i [class]="getTypeIcon(transaction.transactionType, transaction.amount)" [style.color]="getTypeColor(transaction.transactionType, transaction.amount)" style="margin-right: 0.75rem"></i>
                 <div class="vertical" style="gap: 0; flex: 1">
                     <div (click)="openTransaction(transaction)" style="font-size: 80%; opacity: 0.8">{{ transaction.date! | customDate }}</div>
                     <div style="font-weight: bold; overflow-wrap: anywhere">{{ transaction.name }}</div>

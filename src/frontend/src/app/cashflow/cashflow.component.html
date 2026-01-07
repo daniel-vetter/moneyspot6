@@ -39,6 +39,11 @@
                             </div>
 
                             <div class="header-value hidden-on-mobile">
+                                <div>Investment</div>
+                                <app-value [value]="block.investment" color="reverse" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
                                 <div>Gesamt</div>
                                 <app-value [value]="block.accountBalance" size="1.5rem"/>
                             </div>
@@ -71,6 +76,11 @@
                             </div>
 
                             <div class="header-value hidden-on-mobile">
+                                <div>Investment</div>
+                                <app-value [value]="block.investment" color="reverse" size="1.5rem"/>
+                            </div>
+
+                            <div class="header-value hidden-on-mobile">
                                 <div>Konto Bilanz</div>
                                 <app-value [value]="block.accountBalance" size="1.5rem"/>
                             </div>
@@ -97,6 +107,7 @@
                         @if (dataType === "Account") {
                             <div class="value">Einnahmen</div>
                             <div class="value">Ausgaben</div>
+                            <div class="value">Investment</div>
                             <div class="value">Gesamt</div>
                         }
                         @if (dataType === "Stocks") {
@@ -105,6 +116,7 @@
                         @if (dataType === "AccountAndStocks") {
                             <div class="value">Einnahmen</div>
                             <div class="value">Ausgaben</div>
+                            <div class="value">Investment</div>
                             <div class="value">Konto Bilanz</div>
                             <div class="value">Aktien Bilanz</div>
                             <div class="value">Gesamt</div>
@@ -122,6 +134,9 @@
                                     <app-value [value]="line.expense" color="reverse"/>
                                 </div>
                                 <div class="value">
+                                    <app-value [value]="line.investment" color="reverse"/>
+                                </div>
+                                <div class="value">
                                     <app-value [value]="line.accountBalance"/>
                                 </div>
                             }
@@ -136,6 +151,9 @@
                                 </div>
                                 <div class="value">
                                     <app-value [value]="line.expense" color="reverse"/>
+                                </div>
+                                <div class="value">
+                                    <app-value [value]="line.investment" color="reverse"/>
                                 </div>
                                 <div class="value">
                                     <app-value [value]="line.accountBalance"/>
@@ -180,6 +198,12 @@
                                         </div>
                                     </div>
                                     <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Investment:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.investment" color="reverse"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
                                         <div style="flex: 1">Gesamt:</div>
                                         <div class="right">
                                             <app-value [value]="line.accountBalance"/>
@@ -213,6 +237,12 @@
                                         <div style="flex: 1">Ausgaben:</div>
                                         <div class="right">
                                             <app-value [value]="line.expense" color="reverse"/>
+                                        </div>
+                                    </div>
+                                    <div class="horizontal" style="opacity: 0.8">
+                                        <div style="flex: 1">Investment:</div>
+                                        <div class="right">
+                                            <app-value [value]="line.investment" color="reverse"/>
                                         </div>
                                     </div>
                                     <div class="horizontal" style="opacity: 0.8">

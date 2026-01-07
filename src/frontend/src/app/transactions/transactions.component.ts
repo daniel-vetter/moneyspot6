@@ -76,23 +76,46 @@ export class TransactionsComponent implements OnInit {
         this.isLoading = false;
         const blocks: Block[] = [];
         let currentBlock: Block | undefined;
-        for (const transaction of response.entries!) {
-            const groupId = this.getGroupId(transaction.date!);
+        for (const transaction of response.entries) {
+            const groupId = this.getGroupId(transaction.date);
             if (currentBlock === undefined || currentBlock.id != groupId) {
                 currentBlock = {
                     id: groupId,
                     total: 0,
                     expense: 0,
                     income: 0,
+                    investment: 0,
                     transactions: [],
-                    title: this.getTitle(transaction.date!),
+                    title: this.getTitle(transaction.date),
                 };
                 blocks.push(currentBlock);
             }
 
-            currentBlock.total += transaction.amount!;
-            currentBlock.income += transaction.amount! > 0 ? transaction.amount! : 0;
-            currentBlock.expense += transaction.amount! < 0 ? -transaction.amount! : 0;
+            const amount = transaction.amount;
+            const type = transaction.transactionType;
+
+            currentBlock.total += amount;
+
+            if (type === TransactionType.Investment) {
+                currentBlock.investment += -amount;
+            }
+
+            if (type === TransactionType.External && amount >= 0) {
+                currentBlock.income += amount;
+            }
+
+            if (type === TransactionType.External && amount < 0) {
+                currentBlock.expense += -amount;
+            }
+
+            if (type === TransactionType.Refund && amount >= 0) {
+                currentBlock.expense += -amount;
+            }
+
+            if (type === TransactionType.Refund && amount < 0) {
+                currentBlock.income += amount;
+            }
+
             currentBlock.transactions.push(transaction);
         }
 
@@ -174,6 +197,15 @@ export class TransactionsComponent implements OnInit {
         }
     }
 
+    getTypeColor(type: TransactionType | undefined, amount: number | undefined): string {
+        switch (type) {
+            case TransactionType.Transfer: return '#64B5F6';
+            case TransactionType.Investment: return '#BA68C8';
+            case TransactionType.Refund: return '#FFB74D';
+            default: return (amount ?? 0) >= 0 ? '#81C784' : '#E57373';
+        }
+    }
+
     async toggleInflationAdjustment() {
         if (this.inflationAdjustmentDate !== undefined) {
             // Deaktivieren
@@ -201,4 +233,5 @@ interface Block {
     total: number;
     income: number;
     expense: number;
+    investment: number;
 }
