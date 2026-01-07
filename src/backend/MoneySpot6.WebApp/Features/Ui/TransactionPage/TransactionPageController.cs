@@ -123,7 +123,8 @@ public class TransactionPageController : Controller
                     OriginatorIdentifier = x.Processed.OriginatorIdentifier ?? x.Parsed.OriginatorIdentifier,
                     AlternateInitiator = x.Processed.AlternateInitiator ?? x.Parsed.AlternateInitiator,
                     AlternateReceiver = x.Processed.AlternateReceiver ?? x.Parsed.AlternateReceiver,
-                    PaymentProcessor = x.Processed.PaymentProcessor ?? x.Parsed.PaymentProcessor
+                    PaymentProcessor = x.Processed.PaymentProcessor ?? x.Parsed.PaymentProcessor,
+                    TransactionType = x.Processed.TransactionType ?? x.Parsed.TransactionType
                 },
                 OverriddenDetails = new TransactionOverrideDetails
                 {
@@ -143,7 +144,8 @@ public class TransactionPageController : Controller
                     OriginatorIdentifier = x.Overridden.OriginatorIdentifier,
                     AlternateInitiator = x.Overridden.AlternateInitiator,
                     AlternateReceiver = x.Overridden.AlternateReceiver,
-                    PaymentProcessor = x.Overridden.PaymentProcessor
+                    PaymentProcessor = x.Overridden.PaymentProcessor,
+                    TransactionType = x.Overridden.TransactionType
                 },
                 Note = x.Note
             }).FirstOrDefaultAsync();
@@ -175,7 +177,8 @@ public class TransactionPageController : Controller
                 OriginatorIdentifier = x.Parsed.OriginatorIdentifier,
                 AlternateInitiator = x.Parsed.AlternateInitiator,
                 AlternateReceiver = x.Parsed.AlternateReceiver,
-                PaymentProcessor = x.Parsed.PaymentProcessor
+                PaymentProcessor = x.Parsed.PaymentProcessor,
+                TransactionType = x.Parsed.TransactionType
             }).FirstOrDefaultAsync();
         if (entry == null) return NotFound();
         return Ok(entry);
@@ -211,7 +214,8 @@ public class TransactionPageController : Controller
             OriginatorIdentifier = update.OverriddenDetails.OriginatorIdentifier,
             AlternateInitiator = update.OverriddenDetails.AlternateInitiator,
             AlternateReceiver = update.OverriddenDetails.AlternateReceiver,
-            PaymentProcessor = update.OverriddenDetails.PaymentProcessor
+            PaymentProcessor = update.OverriddenDetails.PaymentProcessor,
+            TransactionType = update.OverriddenDetails.TransactionType
         };
         entry.Note = update.Note;
         await _db.SaveChangesAsync();
@@ -280,7 +284,7 @@ public class TransactionBaseDetails
     public string AlternateInitiator { get; set; } = "";
     public string AlternateReceiver { get; set; } = "";
     public PaymentProcessor PaymentProcessor { get; set; } = PaymentProcessor.None;
-
+    public TransactionType TransactionType { get; set; } = TransactionType.External;
 }
 
 [PublicAPI]
@@ -303,6 +307,7 @@ public class TransactionOverrideDetails
     public string? AlternateInitiator { get; set; }
     public string? AlternateReceiver { get; set; }
     public PaymentProcessor? PaymentProcessor { get; set; }
+    public TransactionType? TransactionType { get; set; }
 }
 
 [PublicAPI]
@@ -325,6 +330,7 @@ public record TransactionParsedDataResponse
     [Required] public required string AlternateInitiator { get; init; }
     [Required] public required string AlternateReceiver { get; init; }
     [Required] public required PaymentProcessor PaymentProcessor { get; init; }
+    [Required] public required TransactionType TransactionType { get; init; }
 }
 
 [PublicAPI]

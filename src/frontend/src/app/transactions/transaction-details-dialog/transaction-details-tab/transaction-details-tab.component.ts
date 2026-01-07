@@ -5,14 +5,15 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
 import { TreeNode } from 'primeng/api';
-import { TransactionDetailsResponse, CategoryConfigurationClient, CategoryResponse, TransactionPageClient, TransactionDetailsUpdateRequest, TransactionOverrideDetails } from '../../../server';
+import { TransactionDetailsResponse, CategoryConfigurationClient, CategoryResponse, TransactionPageClient, TransactionDetailsUpdateRequest, TransactionOverrideDetails, TransactionType } from '../../../server';
 import { lastValueFrom } from 'rxjs';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-transaction-details-tab',
-    imports: [ButtonModule, InputTextModule, DatePickerModule, TreeSelectModule, ReactiveFormsModule, TextareaModule, ProgressSpinnerModule],
+    imports: [ButtonModule, InputTextModule, DatePickerModule, TreeSelectModule, ReactiveFormsModule, TextareaModule, ProgressSpinnerModule, SelectModule],
     templateUrl: './transaction-details-tab.component.html',
     styleUrl: './transaction-details-tab.component.scss'
 })
@@ -26,6 +27,13 @@ export class TransactionDetailsTabComponent implements OnInit {
     transaction!: TransactionDetailsResponse;
     categoryNodes: TreeNode[] = [];
     isLoading = false;
+
+    transactionTypeOptions = [
+        { label: 'Extern', value: TransactionType.External },
+        { label: 'Umbuchung', value: TransactionType.Transfer },
+        { label: 'Investment', value: TransactionType.Investment },
+        { label: 'Erstattung', value: TransactionType.Refund }
+    ];
 
     dateOverridden = false;
     amountOverridden = false;
@@ -41,6 +49,7 @@ export class TransactionDetailsTabComponent implements OnInit {
     mandateReferenceOverridden = false;
     creditorIdentifierOverridden = false;
     originatorIdentifierOverridden = false;
+    transactionTypeOverridden = false;
 
     form = new FormGroup({
         date: new FormControl<Date>(new Date(), { nonNullable: true }),
@@ -60,6 +69,7 @@ export class TransactionDetailsTabComponent implements OnInit {
         alternateInitiator: new FormControl<string>("", { nonNullable: true }),
         alternateReceiver: new FormControl<string>("", { nonNullable: true }),
         note: new FormControl<string>("", { nonNullable: true }),
+        transactionType: new FormControl<TransactionType>(TransactionType.External, { nonNullable: true }),
     })
 
     async ngOnInit(): Promise<void> {
@@ -87,7 +97,8 @@ export class TransactionDetailsTabComponent implements OnInit {
             originatorIdentifier: this.transaction.overriddenDetails.originatorIdentifier ?? this.transaction.baseDetails.originatorIdentifier,
             alternateInitiator: this.transaction.overriddenDetails.alternateInitiator ?? this.transaction.baseDetails.alternateInitiator,
             alternateReceiver: this.transaction.overriddenDetails.alternateReceiver ?? this.transaction.baseDetails.alternateReceiver,
-            note: this.transaction.note
+            note: this.transaction.note,
+            transactionType: this.transaction.overriddenDetails.transactionType ?? this.transaction.baseDetails.transactionType
         });
 
         this.dateOverridden = this.transaction.overriddenDetails.date !== undefined && this.transaction.overriddenDetails.date !== null;
@@ -104,6 +115,7 @@ export class TransactionDetailsTabComponent implements OnInit {
         this.mandateReferenceOverridden = this.transaction.overriddenDetails.mandateReference !== undefined && this.transaction.overriddenDetails.mandateReference !== null;
         this.creditorIdentifierOverridden = this.transaction.overriddenDetails.creditorIdentifier !== undefined && this.transaction.overriddenDetails.creditorIdentifier !== null;
         this.originatorIdentifierOverridden = this.transaction.overriddenDetails.originatorIdentifier !== undefined && this.transaction.overriddenDetails.originatorIdentifier !== null;
+        this.transactionTypeOverridden = this.transaction.overriddenDetails.transactionType !== undefined && this.transaction.overriddenDetails.transactionType !== null;
 
         this.form.enable();
         this.isLoading = false;
@@ -217,6 +229,13 @@ export class TransactionDetailsTabComponent implements OnInit {
         this.originatorIdentifierOverridden = false;
     }
 
+    resetTransactionType() {
+        this.form.patchValue({
+            transactionType: this.transaction.baseDetails.transactionType
+        });
+        this.transactionTypeOverridden = false;
+    }
+
     async onSubmit() {
         await lastValueFrom(this.transactionPageClient.update(new TransactionDetailsUpdateRequest({
             id: this.transactionId,
@@ -236,7 +255,8 @@ export class TransactionDetailsTabComponent implements OnInit {
                 creditorIdentifier: this.creditorIdentifierOverridden ? this.form.value.creditorIdentifier : undefined,
                 originatorIdentifier: this.originatorIdentifierOverridden ? this.form.value.originatorIdentifier : undefined,
                 alternateInitiator: undefined,
-                alternateReceiver: undefined
+                alternateReceiver: undefined,
+                transactionType: this.transactionTypeOverridden ? this.form.value.transactionType : undefined
             }),
             note: this.form.value.note ?? "",
         })));

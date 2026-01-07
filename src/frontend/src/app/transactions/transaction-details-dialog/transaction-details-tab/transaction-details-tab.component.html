@@ -80,6 +80,23 @@
                     }
                 </div>
             </div>
+
+            <div class="form-row-double">
+                <label for="transactionType">Transaktionstyp</label>
+                <div class="input-wrapper">
+                    <p-select id="transactionType" formControlName="transactionType"
+                              [options]="transactionTypeOptions" optionLabel="label" optionValue="value"
+                              [style]="{'width': '100%'}"
+                              (ngModelChange)="transactionTypeOverridden = true"></p-select>
+                    @if (transactionTypeOverridden) {
+                        <p-button icon="pi pi-times" [rounded]="true" [text]="true"
+                                  severity="secondary" (onClick)="resetTransactionType()" />
+                    }
+                </div>
+
+                <div></div>
+                <div></div>
+            </div>
         </div>
 
         <!-- Bankdaten -->

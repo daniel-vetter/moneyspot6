@@ -166,6 +166,7 @@ public class DbBankAccountTransactionParsedData
     public required string AlternateInitiator { get; set; }
     public required string AlternateReceiver { get; set; }
     public required PaymentProcessor PaymentProcessor { get; set; }
+    public required TransactionType TransactionType { get; set; }
 
     public static DbBankAccountTransactionParsedData Default => new()
     {
@@ -184,7 +185,8 @@ public class DbBankAccountTransactionParsedData
         CreditorIdentifier = "",
         OriginatorIdentifier = "",
         AlternateReceiver = "",
-        PaymentProcessor = PaymentProcessor.None
+        PaymentProcessor = PaymentProcessor.None,
+        TransactionType = TransactionType.External
     };
 }
 
@@ -209,6 +211,7 @@ public class DbBankAccountTransactionProcessedData
     public string? AlternateInitiator { get; set; }
     public string? AlternateReceiver { get; set; }
     public PaymentProcessor? PaymentProcessor { get; set; }
+    public TransactionType? TransactionType { get; set; }
 }
 
 [ComplexType]
@@ -231,6 +234,7 @@ public class DbBankAccountTransactionOverrideData
     public string? AlternateInitiator { get; set; }
     public string? AlternateReceiver { get; set; }
     public PaymentProcessor? PaymentProcessor { get; set; }
+    public TransactionType? TransactionType { get; set; }
 }
 
 [ComplexType]
@@ -265,7 +269,8 @@ public class DbBankAccountTransactionFinalData
     public string AlternateInitiator { get; set; } = "";
     public string AlternateReceiver { get; set; } = "";
     public PaymentProcessor PaymentProcessor { get; set; } = PaymentProcessor.None;
-    
+    public TransactionType TransactionType { get; set; } = TransactionType.External;
+
     public static DbBankAccountTransactionFinalData Default => new()
     {
         AccountNumber = "",
@@ -283,7 +288,8 @@ public class DbBankAccountTransactionFinalData
         CreditorIdentifier = "",
         OriginatorIdentifier = "",
         AlternateReceiver = "",
-        PaymentProcessor = PaymentProcessor.None
+        PaymentProcessor = PaymentProcessor.None,
+        TransactionType = TransactionType.External
     };
 }
 
@@ -291,6 +297,14 @@ public enum PaymentProcessor
 {
     None = 0,
     Paypal = 1
+}
+
+public enum TransactionType
+{
+    External = 0,
+    Transfer = 1,
+    Investment = 2,
+    Refund = 3
 }
 
 [Table("Stocks")]

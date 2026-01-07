@@ -96,10 +96,18 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
                     originatorIdentifier: string;
                     alternateInitiator: string;
                     alternateReceiver: string;
+                    type: TransactionType;
                 }
 
                 declare enum Category {
                     ${categoryKeysString}
+                }
+
+                declare enum TransactionType {
+                    External = 0,
+                    Transfer = 1,
+                    Investment = 2,
+                    Refund = 3
                 }
 
                 declare interface ExtractedEmailItem {

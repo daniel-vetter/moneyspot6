@@ -215,17 +215,35 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
                                        this.inner.AlternateInitiatorChanged = true;
                                    }
 
-                                   get alternateReceiver() { 
-                                       return this.inner.AlternateReceiver; 
+                                   get alternateReceiver() {
+                                       return this.inner.AlternateReceiver;
                                    }
-                                   set alternateReceiver(value) { 
+                                   set alternateReceiver(value) {
                                        this.inner.AlternateReceiver = value;
                                        this.inner.AlternateReceiverChanged = true;
+                                   }
+
+                                   get type() {
+                                       return this.inner.TransactionType;
+                                   }
+                                   set type(value) {
+                                       if ([0, 1, 2, 3].indexOf(value) === -1) {
+                                           throw Error("Unknown transaction type: " + value + ". Valid values are: External (0), Transfer (1), Investment (2), Refund (3)");
+                                       }
+                                       this.inner.TransactionType = value;
+                                       this.inner.TransactionTypeChanged = true;
                                    }
                                }
                                 
                                const Category = Object.freeze({
                                  {{string.Join(",\n", categories.Select(x => $"{x.Name}: {x.Id}").ToArray())}}
+                               });
+
+                               const TransactionType = Object.freeze({
+                                 External: 0,
+                                 Transfer: 1,
+                                 Investment: 2,
+                                 Refund: 3
                                });
 
                                function findMail(filter) {
