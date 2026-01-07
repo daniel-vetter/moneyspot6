@@ -20,7 +20,8 @@ public class ParsedDataBuilder
     private string? _alternateInitiator;
     private string? _alternateReceiver;
     private PaymentProcessor _paymentProcessor;
-    
+    private TransactionType _transactionType;
+
     public ParsedDataBuilder WithDate(DateOnly date)
     {
         _date = date;
@@ -117,6 +118,12 @@ public class ParsedDataBuilder
         return this;
     }
 
+    public ParsedDataBuilder WithTransactionType(TransactionType transactionType)
+    {
+        _transactionType = transactionType;
+        return this;
+    }
+
     public DbBankAccountTransactionParsedData Build()
     {
         return new DbBankAccountTransactionParsedData
@@ -136,7 +143,8 @@ public class ParsedDataBuilder
             OriginatorIdentifier = _originatorIdentifier ?? "",
             AlternateInitiator = _alternateInitiator ?? "",
             AlternateReceiver = _alternateReceiver ?? "",
-            PaymentProcessor = _paymentProcessor
+            PaymentProcessor = _paymentProcessor,
+            TransactionType = _transactionType
         };
     }
 }
