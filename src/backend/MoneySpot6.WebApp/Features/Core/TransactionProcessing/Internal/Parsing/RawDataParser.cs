@@ -36,7 +36,8 @@ public class RawDataParser
             OriginatorIdentifier = parsedPurpose.GetValueOrDefault(Header.DBET).TrimToEmptyString(),
             AlternateInitiator = parsedPurpose.GetValueOrDefault(Header.ABWA).TrimToEmptyString(),
             AlternateReceiver = parsedPurpose.GetValueOrDefault(Header.ABWE).TrimToEmptyString(),
-            PaymentProcessor = PaymentProcessor.None
+            PaymentProcessor = PaymentProcessor.None,
+            TransactionType = TransactionType.External
         };
 
         FixCounterpartAccountDetails(result);

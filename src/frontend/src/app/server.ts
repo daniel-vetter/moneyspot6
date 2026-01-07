@@ -4273,6 +4273,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
     categoryName?: string | undefined;
     amount?: number;
     isNew?: boolean;
+    transactionType?: TransactionType;
 
     constructor(data?: ITransactionEntryResponse) {
         if (data) {
@@ -4292,6 +4293,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
             this.categoryName = _data["categoryName"];
             this.amount = _data["amount"];
             this.isNew = _data["isNew"];
+            this.transactionType = _data["transactionType"];
         }
     }
 
@@ -4311,6 +4313,7 @@ export class TransactionEntryResponse implements ITransactionEntryResponse {
         data["categoryName"] = this.categoryName;
         data["amount"] = this.amount;
         data["isNew"] = this.isNew;
+        data["transactionType"] = this.transactionType;
         return data;
     }
 }
@@ -4323,6 +4326,14 @@ export interface ITransactionEntryResponse {
     categoryName?: string | undefined;
     amount?: number;
     isNew?: boolean;
+    transactionType?: TransactionType;
+}
+
+export enum TransactionType {
+    External = 0,
+    Transfer = 1,
+    Investment = 2,
+    Refund = 3,
 }
 
 export class TransactionDetailsResponse implements ITransactionDetailsResponse {
@@ -4395,6 +4406,7 @@ export class TransactionBaseDetails implements ITransactionBaseDetails {
     alternateInitiator?: string;
     alternateReceiver?: string;
     paymentProcessor?: PaymentProcessor;
+    transactionType?: TransactionType;
 
     constructor(data?: ITransactionBaseDetails) {
         if (data) {
@@ -4424,6 +4436,7 @@ export class TransactionBaseDetails implements ITransactionBaseDetails {
             this.alternateInitiator = _data["alternateInitiator"];
             this.alternateReceiver = _data["alternateReceiver"];
             this.paymentProcessor = _data["paymentProcessor"];
+            this.transactionType = _data["transactionType"];
         }
     }
 
@@ -4453,6 +4466,7 @@ export class TransactionBaseDetails implements ITransactionBaseDetails {
         data["alternateInitiator"] = this.alternateInitiator;
         data["alternateReceiver"] = this.alternateReceiver;
         data["paymentProcessor"] = this.paymentProcessor;
+        data["transactionType"] = this.transactionType;
         return data;
     }
 }
@@ -4475,6 +4489,7 @@ export interface ITransactionBaseDetails {
     alternateInitiator?: string;
     alternateReceiver?: string;
     paymentProcessor?: PaymentProcessor;
+    transactionType?: TransactionType;
 }
 
 export enum PaymentProcessor {
@@ -4500,6 +4515,7 @@ export class TransactionOverrideDetails implements ITransactionOverrideDetails {
     alternateInitiator?: string | undefined;
     alternateReceiver?: string | undefined;
     paymentProcessor?: PaymentProcessor | undefined;
+    transactionType?: TransactionType | undefined;
 
     constructor(data?: ITransactionOverrideDetails) {
         if (data) {
@@ -4529,6 +4545,7 @@ export class TransactionOverrideDetails implements ITransactionOverrideDetails {
             this.alternateInitiator = _data["alternateInitiator"];
             this.alternateReceiver = _data["alternateReceiver"];
             this.paymentProcessor = _data["paymentProcessor"];
+            this.transactionType = _data["transactionType"];
         }
     }
 
@@ -4558,6 +4575,7 @@ export class TransactionOverrideDetails implements ITransactionOverrideDetails {
         data["alternateInitiator"] = this.alternateInitiator;
         data["alternateReceiver"] = this.alternateReceiver;
         data["paymentProcessor"] = this.paymentProcessor;
+        data["transactionType"] = this.transactionType;
         return data;
     }
 }
@@ -4580,6 +4598,7 @@ export interface ITransactionOverrideDetails {
     alternateInitiator?: string | undefined;
     alternateReceiver?: string | undefined;
     paymentProcessor?: PaymentProcessor | undefined;
+    transactionType?: TransactionType | undefined;
 }
 
 export class TransactionParsedDataResponse implements ITransactionParsedDataResponse {
@@ -4600,6 +4619,7 @@ export class TransactionParsedDataResponse implements ITransactionParsedDataResp
     alternateInitiator!: string;
     alternateReceiver!: string;
     paymentProcessor!: PaymentProcessor;
+    transactionType!: TransactionType;
 
     constructor(data?: ITransactionParsedDataResponse) {
         if (data) {
@@ -4629,6 +4649,7 @@ export class TransactionParsedDataResponse implements ITransactionParsedDataResp
             this.alternateInitiator = _data["alternateInitiator"];
             this.alternateReceiver = _data["alternateReceiver"];
             this.paymentProcessor = _data["paymentProcessor"];
+            this.transactionType = _data["transactionType"];
         }
     }
 
@@ -4658,6 +4679,7 @@ export class TransactionParsedDataResponse implements ITransactionParsedDataResp
         data["alternateInitiator"] = this.alternateInitiator;
         data["alternateReceiver"] = this.alternateReceiver;
         data["paymentProcessor"] = this.paymentProcessor;
+        data["transactionType"] = this.transactionType;
         return data;
     }
 }
@@ -4680,6 +4702,7 @@ export interface ITransactionParsedDataResponse {
     alternateInitiator: string;
     alternateReceiver: string;
     paymentProcessor: PaymentProcessor;
+    transactionType: TransactionType;
 }
 
 export class TransactionDetailsUpdateRequest implements ITransactionDetailsUpdateRequest {

@@ -152,7 +152,8 @@ public class DebugController : Controller
                     OriginatorIdentifier = "",
                     AlternateInitiator = "",
                     AlternateReceiver = "",
-                    PaymentProcessor = PaymentProcessor.None
+                    PaymentProcessor = PaymentProcessor.None,
+                    TransactionType = TransactionType.External
                 },
                 Processed = new(),
                 Overridden = new DbBankAccountTransactionOverrideData(),

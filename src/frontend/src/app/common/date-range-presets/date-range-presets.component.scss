@@ -1,0 +1,16 @@
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0rem;
+
+    & > * {
+        margin-left: -1px;
+        margin-top: -1px;
+
+        ::ng-deep {
+            & > * {
+                border: 1px solid var(--p-button-outlined-secondary-border-color) !important;
+            }
+        }
+    }
+}

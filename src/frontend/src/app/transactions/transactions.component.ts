@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { TransactionEntryResponse, TransactionPageClient, TransactionResponse } from '../server';
+import { TransactionEntryResponse, TransactionPageClient, TransactionResponse, TransactionType } from '../server';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ValueComponent } from '../common/value/value.component';
 import { CustomDatePipe } from '../common/custom-date.pipe';
@@ -153,6 +153,24 @@ export class TransactionsComponent implements OnInit {
         const result = await firstValueFrom(dlg.onClose)
         if (result === true) {
             await this.update(true);
+        }
+    }
+
+    getTypeIcon(type: TransactionType | undefined, amount: number | undefined): string {
+        switch (type) {
+            case TransactionType.Transfer: return 'pi pi-arrows-h';
+            case TransactionType.Investment: return 'pi pi-chart-line';
+            case TransactionType.Refund: return 'pi pi-replay';
+            default: return (amount ?? 0) >= 0 ? 'pi pi-arrow-up-right' : 'pi pi-arrow-down-right';
+        }
+    }
+
+    getTypeTooltip(type: TransactionType | undefined, amount: number | undefined): string {
+        switch (type) {
+            case TransactionType.Transfer: return 'Umbuchung';
+            case TransactionType.Investment: return 'Investment';
+            case TransactionType.Refund: return 'Erstattung';
+            default: return (amount ?? 0) >= 0 ? 'Einnahme' : 'Ausgabe';
         }
     }
 

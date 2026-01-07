@@ -46,6 +46,7 @@ public class RuleProcessor
                 OriginatorIdentifier = transaction.Parsed.OriginatorIdentifier,
                 AlternateInitiator = transaction.Parsed.AlternateInitiator,
                 AlternateReceiver = transaction.Parsed.AlternateReceiver,
+                TransactionType = (int)transaction.Parsed.TransactionType,
             };
 
             var processed = new DbBankAccountTransactionProcessedData();
@@ -87,6 +88,8 @@ public class RuleProcessor
                 processed.AlternateInitiator = data.AlternateInitiator;
             if (data.AlternateReceiverChanged)
                 processed.AlternateReceiver = data.AlternateReceiver;
+            if (data.TransactionTypeChanged)
+                processed.TransactionType = (TransactionType)data.TransactionType;
 
             transaction.Processed = processed;
         }
@@ -167,5 +170,8 @@ class TransactionData
 
     public required string AlternateReceiver { get; init; }
     public bool AlternateReceiverChanged { get; set; }
+
+    public required int TransactionType { get; init; }
+    public bool TransactionTypeChanged { get; set; }
 }
 // ReSharper enable UnusedAutoPropertyAccessor.Global

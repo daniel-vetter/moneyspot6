@@ -59,7 +59,8 @@ public class TransactionProcessor
             OriginatorIdentifier = overrides.OriginatorIdentifier ?? processed.OriginatorIdentifier ?? parsed.OriginatorIdentifier,
             AlternateInitiator = overrides.AlternateInitiator ?? processed.AlternateInitiator ?? parsed.AlternateInitiator,
             AlternateReceiver = overrides.AlternateReceiver ?? processed.AlternateReceiver ?? parsed.AlternateReceiver,
-            PaymentProcessor = overrides.PaymentProcessor ?? processed.PaymentProcessor ?? parsed.PaymentProcessor
+            PaymentProcessor = overrides.PaymentProcessor ?? processed.PaymentProcessor ?? parsed.PaymentProcessor,
+            TransactionType = overrides.TransactionType ?? processed.TransactionType ?? parsed.TransactionType
         };
         return final;
     }
