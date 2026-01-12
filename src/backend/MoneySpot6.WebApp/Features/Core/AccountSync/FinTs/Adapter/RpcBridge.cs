@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+namespace MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 
 public class RpcBridge(Stream inputStream, Stream outputStream)
 {

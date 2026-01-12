@@ -1,15 +1,17 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
-using MoneySpot6.WebApp.Common;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs;
+using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 
 namespace MoneySpot6.WebApp.Features.Core.AccountSync;
 
 [ScopedService]
-public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, ExternalDataProvider externalDataProvider, TransactionProcessingFacade transactionProcessingFacade)
+public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, TransactionProcessingFacade transactionProcessingFacade, FinTsSync finTsSync)
 {
+    private readonly FinTsSync _finTsSync = finTsSync;
+
     public async Task<ImmutableArray<int>> SyncAll(IAdapterCallbackHandler callbackHandler, CancellationToken ct)
     {
         var connections = await db.BankConnections
@@ -23,15 +25,26 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
         }
 
         var allNewTransactionIds = ImmutableArray.CreateBuilder<int>();
-
         foreach (var connection in connections)
         {
-            logger.LogInformation("Syncing connection {ConnectionId}: {ConnectionName}", connection.Id, connection.Name);
-
             try
             {
-                var newIds = await Sync(connection.Id, callbackHandler, ct);
+                SyncResult result = connection.Type switch
+                {
+                    BankConnectionType.FinTS => await _finTsSync.Sync(connection.Id, callbackHandler, ct),
+                    //BankConnectionType.Demo => null!, // TODO
+                    _ => throw new Exception($"Unsupported connection type {connection.Type} on connection {connection.Id}."),
+                };
+
+                connection.LastSuccessfulSync = DateTimeOffset.UtcNow;
+                var newTransactions = await MergeAccounts(connection, result);
+                await db.SaveChangesAsync(ct);
+
+                var newIds = newTransactions
+                    .Select(x => x.Id)
+                    .ToImmutableArray();
                 allNewTransactionIds.AddRange(newIds);
+                await transactionProcessingFacade.UpdateTransactions(newIds);
             }
             catch (Exception ex)
             {
@@ -43,44 +56,7 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
         return allNewTransactionIds.ToImmutable();
     }
 
-    public async Task<ImmutableArray<int>> Sync(int connectionId, IAdapterCallbackHandler callbackHandler, CancellationToken ct)
-    {
-        var connection = await db.BankConnections
-            .AsTracking()
-            .SingleOrDefaultAsync(x => x.Id == connectionId, ct);
-
-        if (connection == null)
-            throw new Exception($"Connection with ID {connectionId} not found");
-
-        logger.LogInformation("Syncing data for connection \"{connectionName}\"", connection.Name);
-
-        var result = await externalDataProvider.Run(
-            connectionId: connection.Id,
-            hbciVersion: connection.HbciVersion,
-            bankCode: connection.BankCode,
-            userId: connection.UserId,
-            customerId: connection.CustomerId,
-            pin: connection.Pin,
-            startDate: connection.LastSuccessfulSync?.AddDays(-2) ?? DateTimeOffset.UtcNow.AddDays(-10),
-            callbackHandler: callbackHandler,
-            ct
-        );
-
-        ct.ThrowIfCancellationRequested();
-
-        connection.LastSuccessfulSync = DateTimeOffset.UtcNow;
-        var newTransactions = await MergeAccounts(connection, result);
-        await db.SaveChangesAsync(ct);
-
-        var newIds = newTransactions
-            .Select(x => x.Id)
-            .ToImmutableArray();
-        
-        await transactionProcessingFacade.UpdateTransactions(newIds);
-        return newIds;
-    }
-
-    private async Task<ImmutableArray<DbBankAccountTransaction>> MergeAccounts(DbBankConnection connection, RpcSyncResponse result)
+    private async Task<ImmutableArray<DbBankAccountTransaction>> MergeAccounts(DbBankConnection connection, SyncResult result)
     {
         var newTransactions = ImmutableArray.CreateBuilder<DbBankAccountTransaction>();
         foreach (var account in result.Accounts)
@@ -89,27 +65,25 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
                 .AsTracking()
                 .SingleOrDefaultAsync(x => x.BankConnection.Id == connection.Id &&
                                            x.BankCode == account.BankCode &&
-                                           x.AccountNumber == account.Number);
+                                           x.AccountNumber == account.AccountNumber);
 
             if (dbAccount == null)
             {
                 dbAccount = new DbBankAccount
                 {
                     BankConnection = connection,
-                    Icon = null,
-                    IconColor = null,
                     Name = account.Name,
                     Name2 = account.Name2,
                     BankCode = account.BankCode,
                     CustomerId = account.CustomerId,
-                    AccountNumber = account.Number,
+                    AccountNumber = account.AccountNumber,
                     Country = account.Country,
                     Bic = account.Bic,
                     Iban = account.Iban,
                     Type = account.Type,
                     AccountType = account.AccountType,
                     Currency = account.Currency,
-                    Balance = account.Balance / 100.0m
+                    Balance = account.Balance
                 };
                 await db.BankAccounts.AddAsync(dbAccount);
             }
@@ -124,7 +98,7 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
                 dbAccount.Type = account.Type;
                 dbAccount.AccountType = account.AccountType;
                 dbAccount.Currency = account.Currency;
-                dbAccount.Balance = account.Balance / 100.0m;
+                dbAccount.Balance = account.Balance;
             }
 
             newTransactions.AddRange(await MergeTransactions(dbAccount, account.Transactions));
@@ -133,43 +107,43 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
         return newTransactions.ToImmutable();
     }
 
-    private async Task<ImmutableArray<DbBankAccountTransaction>> MergeTransactions(DbBankAccount dbAccount, ImmutableArray<RpcSyncAccountTransactionResponse> rpcTransactions)
+    private async Task<ImmutableArray<DbBankAccountTransaction>> MergeTransactions(DbBankAccount dbAccount, ImmutableArray<SyncAccountTransaction> transactions)
     {
         var allNewTransactions = ImmutableArray.CreateBuilder<DbBankAccountTransaction>();
-        foreach (var rpcTransaction in rpcTransactions)
+        foreach (var transaction in transactions)
         {
             // Create a raw data package
             var rawData = new DbBankAccountTransactionRawData
             {
                 Counterparty = new CounterpartyAccount
                 {
-                    Name = rpcTransaction.AccountName.TrimToNull(),
-                    Name2 = rpcTransaction.AccountName2.TrimToNull(),
-                    BankCode = rpcTransaction.AccountBankCode.TrimToNull(),
-                    Number = rpcTransaction.AccountNumber.TrimToNull(),
-                    Bic = rpcTransaction.AccountBic.TrimToNull(),
-                    Iban = rpcTransaction.AccountIban.TrimToNull(),
-                    Country = rpcTransaction.AccountCountry.TrimToNull(),
+                    Name = transaction.Counterparty.Name,
+                    Name2 = transaction.Counterparty.Name2,
+                    BankCode = transaction.Counterparty.BankCode,
+                    Number = transaction.Counterparty.Number,
+                    Bic = transaction.Counterparty.Bic,
+                    Iban = transaction.Counterparty.Iban,
+                    Country = transaction.Counterparty.Country,
                 },
-                Purpose = string.Join("\n", rpcTransaction.Usage).TrimToNull(),
-                NewBalance = rpcTransaction.Balance / 100.0m,
-                AddKey = rpcTransaction.AddKey.TrimToNull(),
-                Additional = rpcTransaction.Additional.TrimToNull(),
-                Amount = rpcTransaction.Amount / 100.0m,
-                ChargeAmount = rpcTransaction.ChargeAmount / 100.0m,
-                Code = rpcTransaction.Code.TrimToNull(),
-                CustomerReference = rpcTransaction.CustomerReference.TrimToNull(),
-                Date = rpcTransaction.Date,
-                EndToEndId = rpcTransaction.EndToEndId.TrimToNull(),
-                InstituteReference = rpcTransaction.InstituteReference.TrimToNull(),
-                IsCamt = rpcTransaction.IsCamt,
-                IsSepa = rpcTransaction.IsSepa,
-                IsCancelation = rpcTransaction.IsCancelation,
-                MandateId = rpcTransaction.MandateId.TrimToNull(),
-                OriginalAmount = rpcTransaction.OriginalAmount / 100.0m,
-                Primanota = rpcTransaction.Primanota.TrimToNull(),
-                PurposeCode = rpcTransaction.PurposeCode.TrimToNull(),
-                Text = rpcTransaction.Text.TrimToNull()
+                Purpose = transaction.Purpose,
+                NewBalance = transaction.NewBalance,
+                AddKey = transaction.AddKey,
+                Additional = transaction.Additional,
+                Amount = transaction.Amount,
+                ChargeAmount = transaction.ChargeAmount,
+                Code = transaction.Code,
+                CustomerReference = transaction.CustomerReference,
+                Date = transaction.Date,
+                EndToEndId = transaction.EndToEndId,
+                InstituteReference = transaction.InstituteReference,
+                IsCamt = transaction.IsCamt,
+                IsSepa = transaction.IsSepa,
+                IsCancelation = transaction.IsCancelation,
+                MandateId = transaction.MandateId,
+                OriginalAmount = transaction.OriginalAmount,
+                Primanota = transaction.Primanota,
+                PurposeCode = transaction.PurposeCode,
+                Text = transaction.Text
             };
 
             // Check if the same entry already exist
@@ -205,7 +179,7 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Exter
                 IsNew = true
             };
 
-            db.BankAccountTransactions.Add(newTrans); 
+            db.BankAccountTransactions.Add(newTrans);
             allNewTransactions.Add(newTrans);
         }
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
 
-namespace MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+namespace MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 
 [SingletonService]
 public class ExternalProcessMonitor

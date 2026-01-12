@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+namespace MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 
 public record RpcSyncRequest(
     string AccountId,

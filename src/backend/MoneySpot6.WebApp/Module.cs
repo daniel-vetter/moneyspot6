@@ -1,4 +1,4 @@
-﻿using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+﻿using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 using MoneySpot6.WebApp.Features.Ui.InflationData.Import;
 using MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
 

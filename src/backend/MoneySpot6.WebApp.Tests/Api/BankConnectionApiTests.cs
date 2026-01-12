@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
@@ -8,7 +9,7 @@ namespace MoneySpot6.WebApp.Tests.Api;
 
 public class BankConnectionApiTests : ApiTest
 {
-    private static CreateBankConnectionRequest ValidRequest => new()
+    private static CreateFinTsBankConnectionRequest ValidRequest => new()
     {
         Name = "Test Bank",
         HbciVersion = "300",
@@ -21,11 +22,15 @@ public class BankConnectionApiTests : ApiTest
     private DbBankConnection CreateTestConnection(string name = "Test Bank") => new()
     {
         Name = name,
-        HbciVersion = "300",
-        BankCode = "12345678",
-        CustomerId = "customer123",
-        UserId = "user123",
-        Pin = "secret123"
+        Type = BankConnectionType.FinTS,
+        Settings = JsonSerializer.Serialize(new BankConnectionSettingsFinTS
+        {
+            HbciVersion = "300",
+            BankCode = "12345678",
+            CustomerId = "customer123",
+            UserId = "user123",
+            Pin = "secret123"
+        })
     };
 
     [Test]
@@ -52,7 +57,7 @@ public class BankConnectionApiTests : ApiTest
     [Test]
     public async Task Create_ValidRequest_ReturnsNewConnectionId()
     {
-        var result = await Get<BankConnectionController>().Create(ValidRequest);
+        var result = await Get<BankConnectionController>().CreateFinTsConnection(ValidRequest);
 
         var connectionId = result.ShouldBeOkObjectResult<int>();
         connectionId.ShouldBeGreaterThan(0);
@@ -61,7 +66,7 @@ public class BankConnectionApiTests : ApiTest
     [Test]
     public async Task Create_MissingName_ReturnsBadRequest()
     {
-        var result = await Get<BankConnectionController>().Create(ValidRequest with { Name = "" });
+        var result = await Get<BankConnectionController>().CreateFinTsConnection(ValidRequest with { Name = "" });
 
         var error = result.ShouldBeBadRequestObjectResult<BankConnectionValidationErrorResponse>();
         error.MissingName.ShouldBeTrue();
@@ -70,7 +75,7 @@ public class BankConnectionApiTests : ApiTest
     [Test]
     public async Task Create_MissingHbciVersion_ReturnsBadRequest()
     {
-        var result = await Get<BankConnectionController>().Create(ValidRequest with { HbciVersion = "" });
+        var result = await Get<BankConnectionController>().CreateFinTsConnection(ValidRequest with { HbciVersion = "" });
 
         var error = result.ShouldBeBadRequestObjectResult<BankConnectionValidationErrorResponse>();
         error.MissingHbciVersion.ShouldBeTrue();
@@ -79,7 +84,7 @@ public class BankConnectionApiTests : ApiTest
     [Test]
     public async Task Create_MissingBankCode_ReturnsBadRequest()
     {
-        var result = await Get<BankConnectionController>().Create(ValidRequest with { BankCode = "" });
+        var result = await Get<BankConnectionController>().CreateFinTsConnection(ValidRequest with { BankCode = "" });
 
         var error = result.ShouldBeBadRequestObjectResult<BankConnectionValidationErrorResponse>();
         error.MissingBankCode.ShouldBeTrue();
@@ -91,7 +96,7 @@ public class BankConnectionApiTests : ApiTest
         Get<Db>().BankConnections.Add(CreateTestConnection());
         await Get<Db>().SaveChangesAsync();
 
-        var result = await Get<BankConnectionController>().Create(ValidRequest);
+        var result = await Get<BankConnectionController>().CreateFinTsConnection(ValidRequest);
 
         var error = result.ShouldBeBadRequestObjectResult<BankConnectionValidationErrorResponse>();
         error.NameAlreadyExists.ShouldBeTrue();
@@ -104,7 +109,7 @@ public class BankConnectionApiTests : ApiTest
         Get<Db>().BankConnections.Add(connection);
         await Get<Db>().SaveChangesAsync();
 
-        var result = await Get<BankConnectionController>().Get(connection.Id);
+        var result = await Get<BankConnectionController>().GetFinTsConnection(connection.Id);
 
         var response = result.ShouldBeOkObjectResult<BankConnectionDetailsResponse>();
         response.Name.ShouldBe("Test Bank");
@@ -115,7 +120,7 @@ public class BankConnectionApiTests : ApiTest
     [Test]
     public async Task Get_NonExistingConnection_ReturnsNotFound()
     {
-        var result = await Get<BankConnectionController>().Get(999);
+        var result = await Get<BankConnectionController>().GetFinTsConnection(999);
 
         result.ShouldBeOfType<NotFoundResult>();
     }
@@ -127,7 +132,7 @@ public class BankConnectionApiTests : ApiTest
         Get<Db>().BankConnections.Add(connection);
         await Get<Db>().SaveChangesAsync();
 
-        var result = await Get<BankConnectionController>().Update(new UpdateBankConnectionRequest
+        var result = await Get<BankConnectionController>().UpdateFinTsConnection(new UpdateFinTsBankConnectionRequest
         {
             Id = connection.Id,
             Name = "Updated Bank",
@@ -139,14 +144,19 @@ public class BankConnectionApiTests : ApiTest
         });
 
         result.ShouldBeOfType<OkResult>();
-        Get<Db>().BankConnections.Single().Name.ShouldBe("Updated Bank");
-        Get<Db>().BankConnections.Single().BankCode.ShouldBe("87654321");
+
+        var updatedConnection = Get<Db>().BankConnections.Single();
+        updatedConnection.Name.ShouldBe("Updated Bank");
+
+        var settings = JsonSerializer.Deserialize<BankConnectionSettingsFinTS>(updatedConnection.Settings)!;
+        settings.BankCode.ShouldBe("87654321");
+        settings.HbciVersion.ShouldBe("400");
     }
 
     [Test]
     public async Task Update_NonExistingConnection_ReturnsNotFound()
     {
-        var result = await Get<BankConnectionController>().Update(new UpdateBankConnectionRequest
+        var result = await Get<BankConnectionController>().UpdateFinTsConnection(new UpdateFinTsBankConnectionRequest
         {
             Id = 999,
             Name = "Test",

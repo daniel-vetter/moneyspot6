@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Playwright;
 using MoneySpot6.WebApp.Database;
 
@@ -145,11 +146,15 @@ public class TransactionUiTests : UiTest
         var connection = new DbBankConnection
         {
             Name = "Test Connection",
-            HbciVersion = "300",
-            BankCode = "12345678",
-            CustomerId = "customer",
-            UserId = "user",
-            Pin = "1234"
+            Type = BankConnectionType.FinTS,
+            Settings = JsonSerializer.Serialize(new BankConnectionSettingsFinTS
+            {
+                HbciVersion = "300",
+                BankCode = "12345678",
+                CustomerId = "customer",
+                UserId = "user",
+                Pin = "1234"
+            })
         };
         _db.BankConnections.Add(connection);
         await _db.SaveChangesAsync();
@@ -161,8 +166,6 @@ public class TransactionUiTests : UiTest
         var account = new DbBankAccount
         {
             BankConnection = bankConnection,
-            Icon = null,
-            IconColor = null,
             Name = "Test Account",
             Name2 = null,
             Country = "DE",

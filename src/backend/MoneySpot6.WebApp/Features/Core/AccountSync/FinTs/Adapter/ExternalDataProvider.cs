@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
 
-namespace MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+namespace MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 
 [ScopedService]
 public class ExternalDataProvider(IOptions<HbciAdapterOptions> options, ILogger<ExternalDataProvider> logger, ExternalProcessMonitor externalProcessMonitor)
