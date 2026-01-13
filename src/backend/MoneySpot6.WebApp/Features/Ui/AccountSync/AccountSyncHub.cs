@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.SignalR;
 using MoneySpot6.WebApp.Features.Core.AccountSync;
-using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 
 namespace MoneySpot6.WebApp.Features.Ui.AccountSync;
 

@@ -2720,7 +2720,7 @@ export class BankConnectionClient {
         return _observableOf(null as any);
     }
 
-    get(id: number | undefined): Observable<BankConnectionDetailsResponse> {
+    getFinTsConnection(id: number | undefined): Observable<BankConnectionDetailsResponse> {
         let url_ = this.baseUrl + "/api/BankConnection/Get?";
         if (id === null)
             throw new globalThis.Error("The parameter 'id' cannot be null.");
@@ -2737,11 +2737,11 @@ export class BankConnectionClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGet(response_);
+            return this.processGetFinTsConnection(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGet(response_ as any);
+                    return this.processGetFinTsConnection(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<BankConnectionDetailsResponse>;
                 }
@@ -2750,7 +2750,7 @@ export class BankConnectionClient {
         }));
     }
 
-    protected processGet(response: HttpResponseBase): Observable<BankConnectionDetailsResponse> {
+    protected processGetFinTsConnection(response: HttpResponseBase): Observable<BankConnectionDetailsResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2772,7 +2772,7 @@ export class BankConnectionClient {
         return _observableOf(null as any);
     }
 
-    create(request: CreateBankConnectionRequest): Observable<number> {
+    createFinTsConnection(request: CreateFinTsBankConnectionRequest): Observable<number> {
         let url_ = this.baseUrl + "/api/BankConnection/Create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2789,11 +2789,11 @@ export class BankConnectionClient {
         };
 
         return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreate(response_);
+            return this.processCreateFinTsConnection(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processCreate(response_ as any);
+                    return this.processCreateFinTsConnection(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<number>;
                 }
@@ -2802,7 +2802,7 @@ export class BankConnectionClient {
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<number> {
+    protected processCreateFinTsConnection(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2832,7 +2832,7 @@ export class BankConnectionClient {
         return _observableOf(null as any);
     }
 
-    update(request: UpdateBankConnectionRequest): Observable<void> {
+    updateFinTsConnection(request: UpdateFinTsBankConnectionRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/BankConnection/Update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2848,11 +2848,11 @@ export class BankConnectionClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdate(response_);
+            return this.processUpdateFinTsConnection(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUpdate(response_ as any);
+                    return this.processUpdateFinTsConnection(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -2861,7 +2861,7 @@ export class BankConnectionClient {
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<void> {
+    protected processUpdateFinTsConnection(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -7334,7 +7334,7 @@ export interface IBankConnectionValidationErrorResponse {
     nameAlreadyExists?: boolean;
 }
 
-export class CreateBankConnectionRequest implements ICreateBankConnectionRequest {
+export class CreateFinTsBankConnectionRequest implements ICreateFinTsBankConnectionRequest {
     name!: string;
     hbciVersion!: string;
     bankCode!: string;
@@ -7342,7 +7342,7 @@ export class CreateBankConnectionRequest implements ICreateBankConnectionRequest
     userId!: string;
     pin!: string;
 
-    constructor(data?: ICreateBankConnectionRequest) {
+    constructor(data?: ICreateFinTsBankConnectionRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -7362,9 +7362,9 @@ export class CreateBankConnectionRequest implements ICreateBankConnectionRequest
         }
     }
 
-    static fromJS(data: any): CreateBankConnectionRequest {
+    static fromJS(data: any): CreateFinTsBankConnectionRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateBankConnectionRequest();
+        let result = new CreateFinTsBankConnectionRequest();
         result.init(data);
         return result;
     }
@@ -7381,7 +7381,7 @@ export class CreateBankConnectionRequest implements ICreateBankConnectionRequest
     }
 }
 
-export interface ICreateBankConnectionRequest {
+export interface ICreateFinTsBankConnectionRequest {
     name: string;
     hbciVersion: string;
     bankCode: string;
@@ -7390,7 +7390,7 @@ export interface ICreateBankConnectionRequest {
     pin: string;
 }
 
-export class UpdateBankConnectionRequest implements IUpdateBankConnectionRequest {
+export class UpdateFinTsBankConnectionRequest implements IUpdateFinTsBankConnectionRequest {
     id!: number;
     name!: string;
     hbciVersion!: string;
@@ -7399,7 +7399,7 @@ export class UpdateBankConnectionRequest implements IUpdateBankConnectionRequest
     userId!: string;
     pin!: string;
 
-    constructor(data?: IUpdateBankConnectionRequest) {
+    constructor(data?: IUpdateFinTsBankConnectionRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -7420,9 +7420,9 @@ export class UpdateBankConnectionRequest implements IUpdateBankConnectionRequest
         }
     }
 
-    static fromJS(data: any): UpdateBankConnectionRequest {
+    static fromJS(data: any): UpdateFinTsBankConnectionRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new UpdateBankConnectionRequest();
+        let result = new UpdateFinTsBankConnectionRequest();
         result.init(data);
         return result;
     }
@@ -7440,7 +7440,7 @@ export class UpdateBankConnectionRequest implements IUpdateBankConnectionRequest
     }
 }
 
-export interface IUpdateBankConnectionRequest {
+export interface IUpdateFinTsBankConnectionRequest {
     id: number;
     name: string;
     hbciVersion: string;

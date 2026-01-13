@@ -348,7 +348,7 @@ public record TransactionEntryResponse
     [Required] public required DateOnly Date { get; init; }
     [Required] public required string Name { get; init; }
     [Required] public required string Purpose { get; init; }
-    [Required] public required string CategoryName { get; init; }
+    [Required] public required string? CategoryName { get; init; }
     [Required] public required decimal Amount { get; init; }
     [Required] public required bool IsNew { get; init; }
     [Required] public required TransactionType TransactionType { get; init; }

@@ -56,13 +56,25 @@ public class DbBankConnection
 {
     public int Id { get; set; }
     public required string Name { get; set; }
+    public required BankConnectionType Type { get; set; }
+    public required string Settings { get; set; }
+    
+    public DateTimeOffset? LastSuccessfulSync { get; set; }
+}
+
+public enum BankConnectionType
+{
+    FinTS = 0,
+    Demo = 1
+}
+
+public class BankConnectionSettingsFinTS
+{
     public required string HbciVersion { get; set; }
     public required string BankCode { get; set; }
     public required string CustomerId { get; set; }
     public required string UserId { get; set; }
     public required string Pin { get; set; }
-    public byte[]? Passport { get; set; }
-    public DateTimeOffset? LastSuccessfulSync { get; set; }
 }
 
 [Table("BankAccounts")]
@@ -70,8 +82,6 @@ public class DbBankAccount
 {
     public int Id { get; set; }
     public required DbBankConnection BankConnection { get; set; }
-    public required string? Icon { get; set; }
-    public required string? IconColor { get; set; }
     public required string Name { get; set; }
     public required string? Name2 { get; set; }
     public required string Country { get; set; }

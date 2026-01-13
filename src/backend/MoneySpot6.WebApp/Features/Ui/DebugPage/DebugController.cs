@@ -1,11 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Core.AccountSync.Adapter;
+using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 
 namespace MoneySpot6.WebApp.Features.Ui.DebugPage;
@@ -87,11 +88,15 @@ public class DebugController : Controller
         var bankConnection = new DbBankConnection
         {
             Name = "TestBank",
-            HbciVersion = "300",
-            BankCode = "12345678",
-            CustomerId = "CUST1",
-            UserId = "USER1",
-            Pin = "1234"
+            Type = BankConnectionType.FinTS,
+            Settings = JsonSerializer.Serialize(new BankConnectionSettingsFinTS
+            {
+                HbciVersion = "300",
+                BankCode = "12345678",
+                CustomerId = "CUST1",
+                UserId = "USER1",
+                Pin = "1234"
+            })
         };
         _db.BankConnections.Add(bankConnection);
         await _db.SaveChangesAsync();
@@ -99,8 +104,6 @@ public class DebugController : Controller
         var bankAccount = new DbBankAccount
         {
             BankConnection = bankConnection,
-            Icon = null,
-            IconColor = null,
             Name = "TestKonto",
             Name2 = null,
             Country = "DE",

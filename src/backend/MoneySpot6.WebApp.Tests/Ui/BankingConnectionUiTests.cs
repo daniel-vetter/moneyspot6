@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using MoneySpot6.WebApp.Database;
@@ -220,15 +221,18 @@ public class BankingConnectionUiTests : UiTest
         var connection = new DbBankConnection
         {
             Name = name,
-            HbciVersion = hbciVersion,
-            BankCode = bankCode,
-            CustomerId = customerId,
-            UserId = userId,
-            Pin = pin
+            Type = BankConnectionType.FinTS,
+            Settings = JsonSerializer.Serialize(new BankConnectionSettingsFinTS
+            {
+                HbciVersion = hbciVersion,
+                BankCode = bankCode,
+                CustomerId = customerId,
+                UserId = userId,
+                Pin = pin
+            })
         };
         _db.BankConnections.Add(connection);
         await _db.SaveChangesAsync();
         return connection;
     }
-
 }

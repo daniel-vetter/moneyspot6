@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { BankConnectionClient, CreateBankConnectionRequest, UpdateBankConnectionRequest, BankConnectionValidationErrorResponse } from '../../../server';
+import { BankConnectionClient, CreateFinTsBankConnectionRequest, UpdateFinTsBankConnectionRequest, BankConnectionValidationErrorResponse } from '../../../server';
 import { lastValueFrom } from 'rxjs';
 import { MessageModule } from 'primeng/message';
 import { CommonModule } from '@angular/common';
@@ -44,7 +44,7 @@ export class BankConnectionDialogComponent implements OnInit {
         if (this.id !== null) {
             this.loading = true;
             try {
-                const connection = await lastValueFrom(this.bankConnectionClient.get(this.id));
+                const connection = await lastValueFrom(this.bankConnectionClient.getFinTsConnection(this.id));
                 this.form.setValue({
                     name: connection.name,
                     hbciVersion: connection.hbciVersion,
@@ -73,7 +73,7 @@ export class BankConnectionDialogComponent implements OnInit {
 
         try {
             if (this.id === null) {
-                await lastValueFrom(this.bankConnectionClient.create(new CreateBankConnectionRequest({
+                await lastValueFrom(this.bankConnectionClient.createFinTsConnection(new CreateFinTsBankConnectionRequest({
                     name: this.form.value.name!,
                     hbciVersion: this.form.value.hbciVersion!,
                     bankCode: this.form.value.bankCode!,
@@ -82,8 +82,7 @@ export class BankConnectionDialogComponent implements OnInit {
                     pin: this.form.value.pin!
                 })));
             } else {
-                console.log(this.form.value.bankCode!)
-                await lastValueFrom(this.bankConnectionClient.update(new UpdateBankConnectionRequest({
+                await lastValueFrom(this.bankConnectionClient.updateFinTsConnection(new UpdateFinTsBankConnectionRequest({
                     id: this.id,
                     name: this.form.value.name!,
                     hbciVersion: this.form.value.hbciVersion!,
@@ -110,7 +109,7 @@ export class BankConnectionDialogComponent implements OnInit {
                         this.form.controls.userId.setErrors({ required: true });
                     if (error.missingPin)
                         this.form.controls.pin.setErrors({ required: true });
-                    if ((error as any).nameAlreadyExists)
+                    if (error.nameAlreadyExists)
                         this.form.controls.name.setErrors({ nameAlreadyExists: true });
                 });
             }

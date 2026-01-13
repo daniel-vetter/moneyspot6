@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace MoneySpot6.WebApp.Features.Ui.ConfigurationPage;
 
@@ -27,13 +28,24 @@ public class BankConnectionController : Controller
             .OrderBy(x => x.Name)
             .ToListAsync();
 
-        var response = connections.Select(x => new BankConnectionListResponse
+        var response = connections.Select(x =>
         {
-            Id = x.Id,
-            Name = x.Name,
-            BankCode = x.BankCode,
-            UserId = x.UserId,
-            LastSuccessfulSync = x.LastSuccessfulSync
+            if (x.Type == BankConnectionType.FinTS)
+            {
+                var settings = JsonSerializer.Deserialize<BankConnectionSettingsFinTS>(x.Settings) ?? throw new Exception($"Failed to deserialize settings for connection {x.Id}");
+
+                return new BankConnectionListResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    BankCode = settings?.BankCode ?? "",
+                    UserId = settings?.UserId ?? "",
+                    LastSuccessfulSync = x.LastSuccessfulSync
+                };
+            }
+            else
+                throw new NotImplementedException($"Unsupported bank connection type {x.Type} for connection {x.Id}");
+
         }).ToImmutableArray();
 
         return Ok(response);
@@ -41,7 +53,7 @@ public class BankConnectionController : Controller
 
     [HttpGet("Get")]
     [ProducesResponseType<BankConnectionDetailsResponse>(200)]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> GetFinTsConnection(int id)
     {
         var connection = await _db.BankConnections
             .AsNoTracking()
@@ -50,22 +62,26 @@ public class BankConnectionController : Controller
         if (connection == null)
             return NotFound();
 
+        if (connection.Type != BankConnectionType.FinTS)
+            return BadRequest("Connection is not a FinTS connection");
+
+        var settings = JsonSerializer.Deserialize<BankConnectionSettingsFinTS>(connection.Settings) ?? throw new Exception($"Failed to deserialize settings for connection {id}");
         return Ok(new BankConnectionDetailsResponse
         {
             Id = connection.Id,
             Name = connection.Name,
-            HbciVersion = connection.HbciVersion,
-            BankCode = connection.BankCode,
-            CustomerId = connection.CustomerId,
-            UserId = connection.UserId,
-            Pin = connection.Pin
+            HbciVersion = settings.HbciVersion,
+            BankCode = settings.BankCode,
+            CustomerId = settings.CustomerId,
+            UserId = settings.UserId,
+            Pin = settings.Pin
         });
     }
 
     [HttpPut("Create")]
     [ProducesResponseType<int>(200)]
     [ProducesResponseType<BankConnectionValidationErrorResponse>(400)]
-    public async Task<IActionResult> Create(CreateBankConnectionRequest request)
+    public async Task<IActionResult> CreateFinTsConnection(CreateFinTsBankConnectionRequest request)
     {
         var validationError = ValidateRequest(request.Name, request.HbciVersion, request.BankCode,
             request.CustomerId, request.UserId, request.Pin);
@@ -73,11 +89,7 @@ public class BankConnectionController : Controller
         if (validationError != null)
             return BadRequest(validationError);
 
-        // Check if name already exists
-        var nameExists = await _db.BankConnections
-            .AnyAsync(x => x.Name == request.Name);
-
-        if (nameExists)
+        if (await _db.BankConnections.AnyAsync(x => x.Name == request.Name))
         {
             return BadRequest(new BankConnectionValidationErrorResponse
             {
@@ -85,15 +97,20 @@ public class BankConnectionController : Controller
             });
         }
 
-        var newConnection = new DbBankConnection
+        var settings = new BankConnectionSettingsFinTS
         {
-            Name = request.Name,
             HbciVersion = request.HbciVersion,
             BankCode = request.BankCode,
             CustomerId = request.CustomerId,
             UserId = request.UserId,
-            Pin = request.Pin,
-            Passport = null,
+            Pin = request.Pin
+        };
+
+        var newConnection = new DbBankConnection
+        {
+            Name = request.Name,
+            Type = BankConnectionType.FinTS,
+            Settings = JsonSerializer.Serialize(settings),
             LastSuccessfulSync = null
         };
 
@@ -106,7 +123,7 @@ public class BankConnectionController : Controller
     [HttpPost("Update")]
     [ProducesResponseType(200)]
     [ProducesResponseType<BankConnectionValidationErrorResponse>(400)]
-    public async Task<IActionResult> Update(UpdateBankConnectionRequest request)
+    public async Task<IActionResult> UpdateFinTsConnection(UpdateFinTsBankConnectionRequest request)
     {
         var connection = await _db.BankConnections
             .SingleOrDefaultAsync(x => x.Id == request.Id);
@@ -114,17 +131,15 @@ public class BankConnectionController : Controller
         if (connection == null)
             return NotFound();
 
-        var validationError = ValidateRequest(request.Name, request.HbciVersion, request.BankCode,
-            request.CustomerId, request.UserId, request.Pin);
+        if (connection.Type != BankConnectionType.FinTS)
+            return BadRequest("Connection is not a FinTS connection");
+
+        var validationError = ValidateRequest(request.Name, request.HbciVersion, request.BankCode, request.CustomerId, request.UserId, request.Pin);
 
         if (validationError != null)
             return BadRequest(validationError);
 
-        // Check if name already exists (excluding current connection)
-        var nameExists = await _db.BankConnections
-            .AnyAsync(x => x.Name == request.Name && x.Id != request.Id);
-
-        if (nameExists)
+        if (await _db.BankConnections.AnyAsync(x => x.Name == request.Name && x.Id != request.Id))
         {
             return BadRequest(new BankConnectionValidationErrorResponse
             {
@@ -132,12 +147,17 @@ public class BankConnectionController : Controller
             });
         }
 
+        var settings = new BankConnectionSettingsFinTS
+        {
+            HbciVersion = request.HbciVersion,
+            BankCode = request.BankCode,
+            CustomerId = request.CustomerId,
+            UserId = request.UserId,
+            Pin = request.Pin
+        };
+
         connection.Name = request.Name;
-        connection.HbciVersion = request.HbciVersion;
-        connection.BankCode = request.BankCode;
-        connection.CustomerId = request.CustomerId;
-        connection.UserId = request.UserId;
-        connection.Pin = request.Pin;
+        connection.Settings = JsonSerializer.Serialize(settings);
 
         await _db.SaveChangesAsync();
 
@@ -217,7 +237,7 @@ public record BankConnectionDetailsResponse
 }
 
 [PublicAPI]
-public record CreateBankConnectionRequest
+public record CreateFinTsBankConnectionRequest
 {
     [Required] public required string Name { get; init; }
     [Required] public required string HbciVersion { get; init; }
@@ -228,7 +248,7 @@ public record CreateBankConnectionRequest
 }
 
 [PublicAPI]
-public record UpdateBankConnectionRequest
+public record UpdateFinTsBankConnectionRequest
 {
     [Required] public required int Id { get; init; }
     [Required] public required string Name { get; init; }
