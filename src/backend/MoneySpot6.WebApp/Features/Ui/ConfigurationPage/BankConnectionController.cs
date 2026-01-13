@@ -30,25 +30,37 @@ public class BankConnectionController : Controller
 
         var response = connections.Select(x =>
         {
-            if (x.Type == BankConnectionType.FinTS)
+            return x.Type switch
             {
-                var settings = JsonSerializer.Deserialize<BankConnectionSettingsFinTS>(x.Settings) ?? throw new Exception($"Failed to deserialize settings for connection {x.Id}");
-
-                return new BankConnectionListResponse
+                BankConnectionType.FinTS => CreateFinTsListResponse(x),
+                BankConnectionType.Demo => new BankConnectionListResponse
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    BankCode = settings?.BankCode ?? "",
-                    UserId = settings?.UserId ?? "",
+                    BankCode = "DEMO",
+                    UserId = "DEMO",
                     LastSuccessfulSync = x.LastSuccessfulSync
-                };
-            }
-            else
-                throw new NotImplementedException($"Unsupported bank connection type {x.Type} for connection {x.Id}");
-
+                },
+                _ => throw new NotImplementedException($"Unsupported bank connection type {x.Type} for connection {x.Id}")
+            };
         }).ToImmutableArray();
 
         return Ok(response);
+    }
+
+    private static BankConnectionListResponse CreateFinTsListResponse(DbBankConnection x)
+    {
+        var settings = JsonSerializer.Deserialize<BankConnectionSettingsFinTS>(x.Settings)
+                       ?? throw new Exception($"Failed to deserialize settings for connection {x.Id}");
+
+        return new BankConnectionListResponse
+        {
+            Id = x.Id,
+            Name = x.Name,
+            BankCode = settings.BankCode,
+            UserId = settings.UserId,
+            LastSuccessfulSync = x.LastSuccessfulSync
+        };
     }
 
     [HttpGet("Get")]

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.AccountSync.Demo;
 using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs;
 using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
@@ -8,9 +9,8 @@ using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 namespace MoneySpot6.WebApp.Features.Core.AccountSync;
 
 [ScopedService]
-public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, TransactionProcessingFacade transactionProcessingFacade, FinTsSync finTsSync)
+public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, TransactionProcessingFacade transactionProcessingFacade, FinTsSync finTsSync, DemoSync demoSync)
 {
-    private readonly FinTsSync _finTsSync = finTsSync;
 
     public async Task<ImmutableArray<int>> SyncAll(IAdapterCallbackHandler callbackHandler, CancellationToken ct)
     {
@@ -31,8 +31,8 @@ public class AccountSyncService(Db db, ILogger<AccountSyncService> logger, Trans
             {
                 SyncResult result = connection.Type switch
                 {
-                    BankConnectionType.FinTS => await _finTsSync.Sync(connection.Id, callbackHandler, ct),
-                    //BankConnectionType.Demo => null!, // TODO
+                    BankConnectionType.FinTS => await finTsSync.Sync(connection.Id, callbackHandler, ct),
+                    BankConnectionType.Demo => await demoSync.Sync(connection.Id, ct),
                     _ => throw new Exception($"Unsupported connection type {connection.Type} on connection {connection.Id}."),
                 };
 
