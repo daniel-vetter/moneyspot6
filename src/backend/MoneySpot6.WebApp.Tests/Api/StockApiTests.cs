@@ -89,3 +89,5 @@ public class StockApiTests : ApiTest
         result.ShouldBeOfType<NotFoundResult>();
     }
 }
+
+

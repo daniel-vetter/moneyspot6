@@ -39,7 +39,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update=".runsettings">
+    <None Update="sqlite.runsettings">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="postgres.runsettings">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

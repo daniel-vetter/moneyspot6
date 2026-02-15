@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+	<Playwright>
+		<BrowserName>chromium</BrowserName>
+		<LaunchOptions>
+			<Headless>false</Headless>
+		</LaunchOptions>
+	</Playwright>
+
+
+	<RunConfiguration>
+		<EnvironmentVariables>
+			<DEBUG>pw:api</DEBUG>
+			<DB_PROVIDER>postgres</DB_PROVIDER>
+		</EnvironmentVariables>
+	</RunConfiguration>
+</RunSettings>

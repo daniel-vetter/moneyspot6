@@ -17,3 +17,5 @@ public class BasicUiTests : UiTest
         await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Dashboard" })).ToBeVisibleAsync();
     }
 }
+
+

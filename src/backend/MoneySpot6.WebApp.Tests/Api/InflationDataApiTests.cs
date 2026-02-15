@@ -32,3 +32,5 @@ public class InflationDataApiTests : ApiTest
         data.DefaultRate.ShouldBe(2.0m);
     }
 }
+
+

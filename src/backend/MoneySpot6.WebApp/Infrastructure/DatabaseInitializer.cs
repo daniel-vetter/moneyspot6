@@ -4,19 +4,20 @@ using MoneySpot6.WebApp.Database;
 namespace MoneySpot6.WebApp.Infrastructure;
 
 [ScopedService]
-public class DatabaseInitializer(Db db, IConfiguration configuration)
+public class DatabaseInitializer(Db db)
 {
-    public async Task Initialize()
+    public async Task Initialize(bool seedDemoData)
     {
         await InitializeInflationData();
-        await InitializeDemoMode();
+
+        if (seedDemoData)
+        {
+            await InitializeDemoMode();
+        }
     }
 
     private async Task InitializeDemoMode()
     {
-        if (!configuration.GetValue<bool>("DemoMode"))
-            return;
-
         var hasAnyConnection = await db.BankConnections.AnyAsync();
         if (hasAnyConnection)
             return;

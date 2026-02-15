@@ -15,3 +15,5 @@ public class DashboardUiTests : UiTest
         Assert.That(await totalPanel.TextContentAsync(), Is.EqualTo("0,00 €"));
     }
 }
+
+

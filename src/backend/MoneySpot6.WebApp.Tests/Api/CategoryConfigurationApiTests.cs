@@ -125,3 +125,5 @@ public class CategoryConfigurationApiTests : ApiTest
         Get<Db>().Categories.Single().Name.ShouldBe("Lebensmittel");
     }
 }
+
+

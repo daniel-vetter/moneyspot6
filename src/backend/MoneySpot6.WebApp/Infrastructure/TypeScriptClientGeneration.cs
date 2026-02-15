@@ -25,7 +25,6 @@ public static class TypeScriptClientGeneration
         };
         
         var json = document.ToJson();
-        File.WriteAllText("C:\\temp\\doc.json", json);
         var typescript = new TypeScriptClientGenerator(await OpenApiDocument.FromJsonAsync(json), settings).GenerateFile();
         typescript = typescript.Replace("@Injectable()", "@Injectable({providedIn: 'root'})");
         await File.WriteAllTextAsync(args[index+1], typescript + " ");

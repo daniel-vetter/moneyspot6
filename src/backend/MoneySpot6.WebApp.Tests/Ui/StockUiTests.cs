@@ -145,3 +145,5 @@ public class StockUiTests : UiTest
         return stock;
     }
 }
+
+

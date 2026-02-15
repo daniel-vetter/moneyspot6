@@ -7119,6 +7119,7 @@ export class AppDetails implements IAppDetails {
     buildCommit?: string;
     dotNetVersion?: string;
     osDescription?: string;
+    databaseType?: string;
 
     constructor(data?: IAppDetails) {
         if (data) {
@@ -7135,6 +7136,7 @@ export class AppDetails implements IAppDetails {
             this.buildCommit = _data["buildCommit"];
             this.dotNetVersion = _data["dotNetVersion"];
             this.osDescription = _data["osDescription"];
+            this.databaseType = _data["databaseType"];
         }
     }
 
@@ -7151,6 +7153,7 @@ export class AppDetails implements IAppDetails {
         data["buildCommit"] = this.buildCommit;
         data["dotNetVersion"] = this.dotNetVersion;
         data["osDescription"] = this.osDescription;
+        data["databaseType"] = this.databaseType;
         return data;
     }
 }
@@ -7160,6 +7163,7 @@ export interface IAppDetails {
     buildCommit?: string;
     dotNetVersion?: string;
     osDescription?: string;
+    databaseType?: string;
 }
 
 export class BankConnectionListResponse implements IBankConnectionListResponse {
