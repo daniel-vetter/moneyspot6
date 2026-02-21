@@ -13,8 +13,6 @@ A self-hosted personal finance management application with German bank integrati
 - **Financial Simulations** - Run forecasting scenarios with a scripting environment
 - **Inflation Data** - Track purchasing power with VPI/CPI data (German Federal Statistics Office)
 - **Email Monitoring** - Detect transactions from email notifications (Gmail)
-- **AI Chat** - Interactive financial assistant powered by OpenAI
-- **Real-time Sync** - Live progress updates during bank sync via SignalR
 
 ## Tech Stack
 
@@ -43,7 +41,7 @@ cd src/backend
 dotnet run --project MoneySpot6.AppHost
 ```
 
-This starts all components including PostgreSQL, the HBCI adapter, backend and frontend.
+This starts all components including PostgreSQL, the HBCI adapter, backend and frontend. Docker must be running.
 
 ## Project Structure
 
