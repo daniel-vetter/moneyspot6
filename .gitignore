@@ -4,3 +4,4 @@ src/**/obj
 /build
 *.user
 **/.idea/*/.idea/dataSources.xml
+.claude/settings.local.json
