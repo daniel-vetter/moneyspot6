@@ -27,6 +27,26 @@
     </table><br><br>
 }
 
+@if (updateStatus !== undefined && updateStatus.isUpdateFeatureAvailable) {
+    <h2>Update</h2>
+    @if (isUpdating) {
+        <p>Update wird installiert... Die Seite wird automatisch neu geladen.</p>
+        <p-progressSpinner strokeWidth="4" />
+    } @else {
+        @if (updateStatus!.isUpdateAvailable) {
+            <p>Ein Update ist verfügbar.</p>
+            <p-button (onClick)="onApplyUpdateClicked()" severity="success">Update installieren</p-button>&nbsp;
+        } @else {
+            <p>Kein Update verfügbar.</p>
+        }
+        <p-button (onClick)="onCheckForUpdateClicked()" [loading]="isChecking" severity="secondary">Jetzt prüfen</p-button>
+        @if (updateStatus!.lastCheck) {
+            <p style="margin-top: 8px; color: gray; font-size: 0.9em">Letzte Prüfung: {{ updateStatus!.lastCheck | date:'medium' }}</p>
+        }
+    }
+    <br><br>
+}
+
 <p-button (onClick)="OnReprocessTransactionpParsingClicked()">Reprocess transaction parsing</p-button><br><br>
 <p-button (onClick)="OnReimportStockDataLast30DaysClicked()">Reimport stock data (last 30 days)</p-button><br><br>
 <p-button (onClick)="OnReseedDatabaseClicked()">Reseed Database</p-button><br><br>

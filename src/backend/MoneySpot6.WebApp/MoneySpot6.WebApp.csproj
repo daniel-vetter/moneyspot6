@@ -36,6 +36,7 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.9.0-beta.1" />
 		<PackageReference Include="Google.Apis.Gmail.v1" Version="1.72.0.3966" />
+		<PackageReference Include="Docker.DotNet" Version="3.125.15" />
 	</ItemGroup>
 
 	<ItemGroup>
