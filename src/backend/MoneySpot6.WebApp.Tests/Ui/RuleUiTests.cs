@@ -8,7 +8,7 @@ public class RuleUiTests : UiTest
     [Test]
     public async Task Shows_empty_state_when_no_rules()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Expect(Page.GetByTestId("rules-empty-state")).ToBeVisibleAsync();
@@ -20,7 +20,7 @@ public class RuleUiTests : UiTest
     {
         var rule = await CreateRule(name: "Test Regel");
 
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"rule-row-{rule.Id}");
@@ -31,7 +31,7 @@ public class RuleUiTests : UiTest
     [Test]
     public async Task Can_open_create_dialog()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-rule-button").ClickAsync();
@@ -42,7 +42,7 @@ public class RuleUiTests : UiTest
     [Test]
     public async Task Can_create_rule()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-rule-button").ClickAsync();
@@ -63,7 +63,7 @@ public class RuleUiTests : UiTest
     [Test]
     public async Task Can_cancel_create_dialog()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-rule-button").ClickAsync();
@@ -79,7 +79,7 @@ public class RuleUiTests : UiTest
     {
         var rule = await CreateRule(name: "Rule To Delete");
 
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"rule-row-{rule.Id}");
@@ -96,7 +96,7 @@ public class RuleUiTests : UiTest
     {
         var rule = await CreateRule(name: "Rule To Keep");
 
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"rule-row-{rule.Id}");
@@ -111,7 +111,7 @@ public class RuleUiTests : UiTest
     {
         var rule = await CreateRule(name: "Original Rule Name");
 
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"rule-row-{rule.Id}");
@@ -134,7 +134,7 @@ public class RuleUiTests : UiTest
     [Test]
     public async Task Name_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-rule-button").ClickAsync();
@@ -150,7 +150,7 @@ public class RuleUiTests : UiTest
     {
         var rule = await CreateRule(name: "Rule With Error", hasSyntaxIssues: true);
 
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"rule-row-{rule.Id}");
@@ -162,7 +162,7 @@ public class RuleUiTests : UiTest
     {
         var rule = await CreateRule(name: "Rule With Runtime Error", runtimeError: "Some error occurred");
 
-        await Page.GotoAsync("http://localhost:4200/settings/rules");
+        await Page.GotoAsync("/settings/rules");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"rule-row-{rule.Id}");

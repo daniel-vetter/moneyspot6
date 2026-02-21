@@ -1,0 +1,215 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+    branches: [develop, master]
+
+jobs:
+  backend:
+    name: Backend (.NET)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Test
+        run: dotnet test -c Release --no-build --filter "FullyQualifiedName!~Ui"
+
+      - name: Publish
+        run: dotnet publish MoneySpot6.WebApp/MoneySpot6.WebApp.csproj -c Release --no-build -o publish
+
+      - name: Cache build output
+        uses: actions/cache/save@v4
+        with:
+          path: src/backend/publish
+          key: backend-${{ github.sha }}
+
+  frontend:
+    name: Frontend (Angular)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Cache build output
+        uses: actions/cache/save@v4
+        with:
+          path: src/frontend/dist/money-spot6.client/browser
+          key: frontend-${{ github.sha }}
+
+  hbci-adapter:
+    name: HBCI Adapter (Java/Kotlin)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/hbci-adapter
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          generate-job-summary: false
+
+      - name: Build
+        run: chmod +x ./gradlew && ./gradlew jar
+
+      - name: Cache build output
+        uses: actions/cache/save@v4
+        with:
+          path: src/hbci-adapter/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar
+          key: hbci-adapter-${{ github.sha }}
+
+  docker:
+    name: Docker Image
+    needs: [backend, frontend, hbci-adapter]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore backend
+        uses: actions/cache/restore@v4
+        with:
+          path: src/backend/publish
+          key: backend-${{ github.sha }}
+
+      - name: Restore frontend
+        uses: actions/cache/restore@v4
+        with:
+          path: src/frontend/dist/money-spot6.client/browser
+          key: frontend-${{ github.sha }}
+
+      - name: Restore HBCI adapter
+        uses: actions/cache/restore@v4
+        with:
+          path: src/hbci-adapter/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar
+          key: hbci-adapter-${{ github.sha }}
+
+      - name: Create Dockerfile
+        run: |
+          cat <<'EOF' > Dockerfile
+          FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.22
+          WORKDIR /app
+          RUN apk update && apk add openjdk21
+          COPY src/backend/publish /app
+          COPY src/frontend/dist/money-spot6.client/browser /app/wwwroot
+          COPY src/hbci-adapter/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar /app/hbci-adapter/HbciAdapter6.jar
+          ENV ASPNETCORE_URLS="http://0.0.0.0:80"
+          ENTRYPOINT [ "dotnet", "MoneySpot6.WebApp.dll" ]
+          EOF
+
+      - name: Build Docker image
+        run: docker build -t moneyspot6:${{ github.sha }} .
+
+      - name: Save Docker image
+        run: docker save moneyspot6:${{ github.sha }} -o /tmp/docker-image.tar
+
+      - name: Cache Docker image
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/docker-image.tar
+          key: docker-image-${{ github.sha }}
+
+  ui-tests:
+    name: UI Tests
+    needs: [docker]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Docker image
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/docker-image.tar
+          key: docker-image-${{ github.sha }}
+
+      - name: Load Docker image
+        run: docker load -i /tmp/docker-image.tar
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Install Playwright browsers
+        run: pwsh MoneySpot6.WebApp.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Run UI tests
+        run: dotnet test -c Release --no-build --filter "FullyQualifiedName~Ui"
+        env:
+          TEST_DOCKER_IMAGE: moneyspot6:${{ github.sha }}
+
+  push:
+    name: Push Docker Image
+    needs: [ui-tests]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Restore Docker image
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/docker-image.tar
+          key: docker-image-${{ github.sha }}
+
+      - name: Load Docker image
+        run: docker load -i /tmp/docker-image.tar
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push
+        run: |
+          docker tag moneyspot6:${{ github.sha }} ghcr.io/${{ github.repository }}:sha-${GITHUB_SHA::7}
+          docker tag moneyspot6:${{ github.sha }} ghcr.io/${{ github.repository }}:latest
+          docker push ghcr.io/${{ github.repository }}:sha-${GITHUB_SHA::7}
+          docker push ghcr.io/${{ github.repository }}:latest
