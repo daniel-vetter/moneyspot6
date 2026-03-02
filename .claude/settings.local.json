@@ -16,7 +16,8 @@
       "Bash(npx ng build:*)",
       "Bash(cat:*)",
       "Bash(find:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(gh issue view:*)"
     ],
     "deny": [],
     "ask": []
