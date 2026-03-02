@@ -80,7 +80,7 @@ public class SummaryPageController : Controller
             var currentPrice = (await _db.StockPrices
                 .AsNoTracking()
                 .Where(x => x.Stock.Id == stock.Id)
-                .Where(x => x.Interval == StockPriceInterval.FiveMinutes)
+                .Where(x => x.Interval == StockPriceInterval.Daily)
                 .OrderByDescending(x => x.Timestamp)
                 .FirstOrDefaultAsync())?.Close ?? 0;
 
