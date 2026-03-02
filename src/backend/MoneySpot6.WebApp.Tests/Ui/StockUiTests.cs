@@ -8,7 +8,7 @@ public class StockUiTests : UiTest
     [Test]
     public async Task Shows_empty_state_when_no_stocks()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Expect(Page.GetByTestId("stocks-empty-state")).ToBeVisibleAsync();
@@ -20,7 +20,7 @@ public class StockUiTests : UiTest
     {
         var stock = await CreateStock(name: "Apple Inc.", symbol: "AAPL");
 
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"stock-row-{stock.Id}");
@@ -32,7 +32,7 @@ public class StockUiTests : UiTest
     [Test]
     public async Task Can_open_create_dialog()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-stock-button").ClickAsync();
@@ -44,7 +44,7 @@ public class StockUiTests : UiTest
     [Test]
     public async Task Can_search_for_stocks()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-stock-button").ClickAsync();
@@ -58,7 +58,7 @@ public class StockUiTests : UiTest
     [Test]
     public async Task Can_create_stock_via_search()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-stock-button").ClickAsync();
@@ -79,7 +79,7 @@ public class StockUiTests : UiTest
     [Test]
     public async Task Can_cancel_create_dialog()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-stock-button").ClickAsync();
@@ -95,7 +95,7 @@ public class StockUiTests : UiTest
     {
         var stock = await CreateStock(name: "Stock To Delete", symbol: "DEL");
 
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"stock-row-{stock.Id}");
@@ -112,7 +112,7 @@ public class StockUiTests : UiTest
     {
         var stock = await CreateStock(name: "Stock To Keep", symbol: "KEEP");
 
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"stock-row-{stock.Id}");
@@ -125,7 +125,7 @@ public class StockUiTests : UiTest
     [Test]
     public async Task Submit_button_disabled_without_selection()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/stocks");
+        await Page.GotoAsync("/settings/stocks");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-stock-button").ClickAsync();

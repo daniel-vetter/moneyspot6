@@ -8,7 +8,7 @@ public class CategoryUiTests : UiTest
     [Test]
     public async Task Shows_empty_state_when_no_categories()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Expect(Page.GetByTestId("categories-empty-state")).ToBeVisibleAsync();
@@ -20,7 +20,7 @@ public class CategoryUiTests : UiTest
     {
         var category = await CreateCategory(name: "Test Kategorie");
 
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"category-row-{category.Id}");
@@ -31,7 +31,7 @@ public class CategoryUiTests : UiTest
     [Test]
     public async Task Can_open_create_dialog()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-category-button").ClickAsync();
@@ -42,7 +42,7 @@ public class CategoryUiTests : UiTest
     [Test]
     public async Task Can_create_category()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-category-button").ClickAsync();
@@ -59,7 +59,7 @@ public class CategoryUiTests : UiTest
     [Test]
     public async Task Can_cancel_create_dialog()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-category-button").ClickAsync();
@@ -75,7 +75,7 @@ public class CategoryUiTests : UiTest
     {
         var category = await CreateCategory(name: "Category To Delete");
 
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"category-row-{category.Id}");
@@ -92,7 +92,7 @@ public class CategoryUiTests : UiTest
     {
         var category = await CreateCategory(name: "Category To Keep");
 
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"category-row-{category.Id}");
@@ -107,7 +107,7 @@ public class CategoryUiTests : UiTest
     {
         var category = await CreateCategory(name: "Original Category Name");
 
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"category-row-{category.Id}");
@@ -126,7 +126,7 @@ public class CategoryUiTests : UiTest
     [Test]
     public async Task Name_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await Page.GetByTestId("create-category-button").ClickAsync();
@@ -142,7 +142,7 @@ public class CategoryUiTests : UiTest
     {
         var parentCategory = await CreateCategory(name: "Parent Category");
 
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var row = Page.GetByTestId($"category-row-{parentCategory.Id}");
@@ -167,7 +167,7 @@ public class CategoryUiTests : UiTest
         var parentCategory = await CreateCategory(name: "Parent");
         var childCategory = await CreateCategory(name: "Child", parentId: parentCategory.Id);
 
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Parent should be visible
@@ -189,7 +189,7 @@ public class CategoryUiTests : UiTest
         var parentCategory = await CreateCategory(name: "Parent To Delete");
         var childCategory = await CreateCategory(name: "Child To Delete", parentId: parentCategory.Id);
 
-        await Page.GotoAsync("http://localhost:4200/settings/categories");
+        await Page.GotoAsync("/settings/categories");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var parentRow = Page.GetByTestId($"category-row-{parentCategory.Id}");

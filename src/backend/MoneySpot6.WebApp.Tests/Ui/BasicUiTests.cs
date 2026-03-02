@@ -8,7 +8,7 @@ public class BasicUiTests : UiTest
     public async Task Web_app_starts_successfully()
     {
         // Navigate to the frontend
-        await Page.GotoAsync("http://localhost:4200");
+        await Page.GotoAsync("/");
 
         // Wait for Angular to load and check if the main app is visible
         await Expect(Page.GetByText("MoneySpot 6")).ToBeVisibleAsync();

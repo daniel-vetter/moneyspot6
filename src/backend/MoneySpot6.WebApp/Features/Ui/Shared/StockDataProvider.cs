@@ -127,14 +127,15 @@ public class StockDataProvider
                 var ownedStock = ownedStockTimeline[date];
                 var stockValue = stockValueTimeline[date];
 
+                var existing = r[date.DayNumber - start.DayNumber];
                 r[date.DayNumber - start.DayNumber] = new StartAndEnd<OwnedStockValue>(
                     new OwnedStockValue(
-                        ownedStock.StartOfDay.Amount * stockValue.StartOfDay,
-                        ownedStock.StartOfDay.PriceBoughtFor
+                        existing.StartOfDay.CurrentValue + ownedStock.StartOfDay.Amount * stockValue.StartOfDay,
+                        existing.StartOfDay.InvestedValue + ownedStock.StartOfDay.PriceBoughtFor
                     ),
                     new OwnedStockValue(
-                        ownedStock.EndOfDay.Amount * stockValue.EndOfDay,
-                        ownedStock.EndOfDay.PriceBoughtFor
+                        existing.EndOfDay.CurrentValue + ownedStock.EndOfDay.Amount * stockValue.EndOfDay,
+                        existing.EndOfDay.InvestedValue + ownedStock.EndOfDay.PriceBoughtFor
                     )
                 );
             }
