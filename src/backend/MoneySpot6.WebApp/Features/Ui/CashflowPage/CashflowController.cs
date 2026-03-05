@@ -52,7 +52,7 @@ public class CashflowController : Controller
             return Ok(ImmutableArray<IncomeExpenseEntryResponse>.Empty);
 
         var (stockQueryStart, stockQueryEnd) = GetMinMaxGroupDate(groups.Select(x => x.GroupKey).Min(), groups.Select(x => x.GroupKey).Max());
-        var stocks = await _stockDataProvider.GetDailyOwnedStockValue(stockQueryStart, stockQueryEnd.AddDays(1));
+        var stocks = await _stockDataProvider.GetDailyOwnedStockValue(stockQueryStart.AddDays(-1), stockQueryEnd);
 
         var result = groups.Select(x =>
             {
@@ -64,7 +64,7 @@ public class CashflowController : Controller
                     Income = x.Income,
                     Expense = x.Expense,
                     Investment = x.Investment,
-                    StockBalance = stocks[groupEnd].StartOfDay.CurrentValue - stocks[groupStart].StartOfDay.CurrentValue
+                    StockBalance = stocks[groupEnd.AddDays(-1)].EndOfDay.CurrentValue - stocks[groupStart.AddDays(-1)].EndOfDay.CurrentValue
                 };
             })
             .ToArray();
