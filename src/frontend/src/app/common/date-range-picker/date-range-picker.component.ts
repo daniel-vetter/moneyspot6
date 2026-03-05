@@ -78,10 +78,13 @@ export class DateRange {
         return new DateRange(start, end);
     }
 
-    static currentYear() {
-        const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
-        const end = new Date(now.getFullYear(), 11, 31, 0, 0, 0, 0);
+    static lastMonths(count: number) {
+        const start = new Date();
+        start.setDate(start.getDate() + 1);
+        start.setMonth(start.getMonth() - count);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date();
+        end.setHours(0, 0, 0, 0);
         return new DateRange(start, end);
     }
 
