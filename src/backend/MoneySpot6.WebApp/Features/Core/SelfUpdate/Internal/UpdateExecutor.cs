@@ -1,125 +1,80 @@
-using System.Collections.Immutable;
-using Docker.DotNet;
-using Docker.DotNet.Models;
-
 namespace MoneySpot6.WebApp.Features.Core.SelfUpdate.Internal;
 
 [SingletonService]
 public class UpdateExecutor
 {
-    private const string ImageReference = "ghcr.io/daniel-vetter/moneyspot6:latest";
     private const string SidecarImage = "docker:cli";
 
     private readonly ILogger<UpdateExecutor> _logger;
-    private readonly DockerRunFlagBuilder _dockerRunFlagBuilder;
-    private readonly DockerEnvironmentDetector _dockerEnvironmentDetector;
+    private readonly IDockerService _dockerService;
 
-    public UpdateExecutor(ILogger<UpdateExecutor> logger, DockerRunFlagBuilder flagBuilder, DockerEnvironmentDetector detector)
+    public UpdateExecutor(ILogger<UpdateExecutor> logger, IDockerService dockerService)
     {
         _logger = logger;
-        _dockerRunFlagBuilder = flagBuilder;
-        _dockerEnvironmentDetector = detector;
+        _dockerService = dockerService;
     }
 
-    public async Task Execute(CancellationToken cancellationToken)
+    public async Task Execute()
     {
-        if (!_dockerEnvironmentDetector.IsDockerWithSocket)
-            throw new InvalidOperationException("Update feature is not available: not running in Docker with socket mounted.");
+        if (!_dockerService.IsRunningInContainer)
+            throw new InvalidOperationException("Update feature is not available: not running in a Docker container.");
 
-        using var client = new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
+        if (!_dockerService.IsDockerSocketAvailable)
+            throw new InvalidOperationException("Update feature is not available: Docker socket is not mounted.");
 
         var containerId = Environment.MachineName;
-        var container = await client.Containers.InspectContainerAsync(containerId, cancellationToken);
-        var containerName = container.Name.TrimStart('/');
+        var inspection = await _dockerService.InspectContainer(containerId);
 
-        _logger.LogInformation("Starting update for container {Name} ({Id})", containerName, containerId);
+        _logger.LogInformation("Starting update for container {Name} ({Id}) using image {Image}",
+            inspection.ContainerName, containerId, inspection.Image.FullReference);
 
-        // Ensure sidecar image is available
-        await PullImage(client, SidecarImage, cancellationToken);
+        await _dockerService.PullImage(SidecarImage);
+        await _dockerService.PullImage(inspection.Image.FullReference);
 
-        // Pull new app image
-        await PullImage(client, ImageReference, cancellationToken);
-
-        // Build run flags from current container config
-        var config = ExtractConfig(container);
-        var runFlags = _dockerRunFlagBuilder.BuildRunFlags(config);
-
-        // Build the sidecar script
-        var script = $"""
-                      set -e
-                      echo "Stopping container {containerName}..."
-                      docker stop {containerName}
-                      echo "Removing container {containerName}..."
-                      docker rm {containerName}
-                      echo "Starting new container {containerName}..."
-                      docker run -d --name {containerName} {runFlags} {ImageReference}
-                      echo "Update complete."
-                      """;
+        var script = BuildScript(inspection);
 
         _logger.LogInformation("Sidecar script:\n{Script}", script);
 
-        // Start sidecar container
-        var sidecar = await client.Containers.CreateContainerAsync(new CreateContainerParameters
-        {
-            Image = SidecarImage,
-            Cmd = ["sh", "-c", script],
-            HostConfig = new HostConfig
-            {
-                Binds = ["/var/run/docker.sock:/var/run/docker.sock"],
-                AutoRemove = true
-            }
-        }, cancellationToken);
-
-        await client.Containers.StartContainerAsync(sidecar.ID, new ContainerStartParameters(), cancellationToken);
-        _logger.LogInformation("Sidecar container started: {Id}", sidecar.ID);
+        await _dockerService.RunContainer(new RunContainerRequest(
+            SidecarImage,
+            ["sh", "-c", script],
+            ["/var/run/docker.sock:/var/run/docker.sock"],
+            AutoRemove: true));
     }
 
-    private static ContainerConfig ExtractConfig(ContainerInspectResponse container)
+    public string BuildScript(ContainerInspection inspection)
     {
-        var portBindings = new List<PortBindingConfig>();
-        if (container.HostConfig.PortBindings != null)
+        var flags = new List<string>();
+
+        foreach (var port in inspection.PortBindings)
         {
-            foreach (var (containerPort, bindings) in container.HostConfig.PortBindings)
-            {
-                foreach (var binding in bindings)
-                    portBindings.Add(new PortBindingConfig(containerPort, binding.HostPort, binding.HostIP));
-            }
+            var hostPart = string.IsNullOrEmpty(port.HostIp) ? port.HostPort : $"{port.HostIp}:{port.HostPort}";
+            flags.Add($"-p {hostPart}:{port.ContainerPort}");
         }
 
-        var binds = container.HostConfig.Binds?.ToImmutableArray() ?? [];
-        var env = container.Config.Env?.ToImmutableArray() ?? [];
+        foreach (var bind in inspection.Binds)
+            flags.Add($"-v {bind}");
 
-        string? restartPolicy = null;
-        if (container.HostConfig.RestartPolicy?.Name is { } rp && rp != RestartPolicyKind.Undefined && rp != RestartPolicyKind.No)
-        {
-            restartPolicy = rp.ToString().ToLowerInvariant().Replace("_", "-");
-            if (container.HostConfig.RestartPolicy.MaximumRetryCount > 0)
-                restartPolicy += $":{container.HostConfig.RestartPolicy.MaximumRetryCount}";
-        }
+        foreach (var env in inspection.Env)
+            flags.Add($"-e '{env}'");
 
-        return new ContainerConfig(
-            [..portBindings],
-            binds,
-            env,
-            restartPolicy,
-            container.HostConfig.NetworkMode);
-    }
+        if (inspection.RestartPolicy is { } restart && restart != "" && restart != "no")
+            flags.Add($"--restart {restart}");
 
-    private async Task PullImage(DockerClient client, string image, CancellationToken cancellationToken)
-    {
-        var parts = image.Split(':');
-        var repo = parts[0];
-        var tag = parts.Length > 1 ? parts[1] : "latest";
+        if (inspection.NetworkMode is { } network && network != "" && network != "default" && network != "bridge")
+            flags.Add($"--network {network}");
 
-        _logger.LogInformation("Pulling image {Image}...", image);
-        await client.Images.CreateImageAsync(
-            new ImagesCreateParameters { FromImage = repo, Tag = tag },
-            null,
-            new Progress<JSONMessage>(m =>
-            {
-                if (!string.IsNullOrEmpty(m.Status))
-                    _logger.LogDebug("Pull {Image}: {Status}", image, m.Status);
-            }),
-            cancellationToken);
+        var runFlags = string.Join(" ", flags);
+
+        return $"""
+               set -e
+               echo "Stopping container {inspection.ContainerName}..."
+               docker stop {inspection.ContainerName}
+               echo "Removing container {inspection.ContainerName}..."
+               docker rm {inspection.ContainerName}
+               echo "Starting new container {inspection.ContainerName}..."
+               docker run -d --name {inspection.ContainerName} {runFlags} {inspection.Image.FullReference}
+               echo "Update complete."
+               """;
     }
 }

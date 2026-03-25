@@ -5,35 +5,36 @@ namespace MoneySpot6.WebApp.Features.Core.SelfUpdate;
 [SingletonService]
 public class SelfUpdateFacade
 {
-    private readonly DockerEnvironmentDetector _dockerEnvironmentDetector;
+    private readonly IDockerService _dockerService;
     private readonly UpdateChecker _updateChecker;
     private readonly UpdateExecutor _updateExecutor;
 
-    public SelfUpdateFacade(DockerEnvironmentDetector dockerEnvironmentDetector, UpdateChecker updateChecker, UpdateExecutor updateExecutor)
+    public SelfUpdateFacade(IDockerService dockerService, UpdateChecker updateChecker, UpdateExecutor updateExecutor)
     {
-        _dockerEnvironmentDetector = dockerEnvironmentDetector;
+        _dockerService = dockerService;
         _updateChecker = updateChecker;
         _updateExecutor = updateExecutor;
     }
 
     public SelfUpdateStatus GetStatus()
     {
+        var result = _updateChecker.LastResult;
         return new SelfUpdateStatus(
-            _dockerEnvironmentDetector.IsDockerWithSocket,
-            _updateChecker.IsUpdateAvailable,
-            _updateChecker.CurrentDigest,
-            _updateChecker.LatestDigest,
-            _updateChecker.LastCheck);
+            _dockerService.IsRunningInContainer && _dockerService.IsDockerSocketAvailable,
+            result?.IsUpdateAvailable ?? false,
+            result?.CurrentDigest,
+            result?.LatestDigest,
+            result?.CheckedAt);
     }
 
-    public async Task CheckNow(CancellationToken cancellationToken)
+    public async Task CheckNow()
     {
-        await _updateChecker.CheckForUpdate(cancellationToken);
+        await _updateChecker.CheckForUpdate();
     }
 
-    public async Task ApplyUpdate(CancellationToken cancellationToken)
+    public async Task ApplyUpdate()
     {
-        await _updateExecutor.Execute(cancellationToken);
+        await _updateExecutor.Execute();
     }
 }
 

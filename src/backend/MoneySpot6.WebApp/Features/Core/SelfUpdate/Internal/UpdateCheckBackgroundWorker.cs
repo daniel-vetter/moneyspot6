@@ -5,18 +5,18 @@ public class UpdateCheckBackgroundWorker : BackgroundService
 {
     private readonly ILogger<UpdateCheckBackgroundWorker> _logger;
     private readonly UpdateChecker _updateChecker;
-    private readonly DockerEnvironmentDetector _dockerEnvironmentDetector;
+    private readonly IDockerService _dockerService;
 
-    public UpdateCheckBackgroundWorker(ILogger<UpdateCheckBackgroundWorker> logger, UpdateChecker updateChecker, DockerEnvironmentDetector detector)
+    public UpdateCheckBackgroundWorker(ILogger<UpdateCheckBackgroundWorker> logger, UpdateChecker updateChecker, IDockerService dockerService)
     {
         _logger = logger;
         _updateChecker = updateChecker;
-        _dockerEnvironmentDetector = detector;
+        _dockerService = dockerService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!_dockerEnvironmentDetector.IsDockerWithSocket)
+        if (!_dockerService.IsRunningInContainer || !_dockerService.IsDockerSocketAvailable)
         {
             _logger.LogInformation("Self-update disabled: not running in Docker with socket mounted.");
             return;
@@ -27,7 +27,7 @@ public class UpdateCheckBackgroundWorker : BackgroundService
             try
             {
                 using var activity = AppActivitySource.Start("UpdateCheck");
-                await _updateChecker.CheckForUpdate(stoppingToken);
+                await _updateChecker.CheckForUpdate();
             }
             catch (TaskCanceledException)
             {

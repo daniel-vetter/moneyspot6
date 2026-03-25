@@ -21,14 +21,14 @@ public class UpdateController : Controller
     }
 
     [HttpPost("CheckNow")]
-    public async Task CheckNow(CancellationToken cancellationToken)
+    public async Task CheckNow()
     {
-        await _selfUpdateFacade.CheckNow(cancellationToken);
+        await _selfUpdateFacade.CheckNow();
     }
 
     [HttpPost("ApplyUpdate")]
-    public async Task ApplyUpdate(CancellationToken cancellationToken)
+    public async Task ApplyUpdate()
     {
-        await _selfUpdateFacade.ApplyUpdate(cancellationToken);
+        await _selfUpdateFacade.ApplyUpdate();
     }
 }
