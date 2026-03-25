@@ -64,7 +64,7 @@ public class FakeDockerService : IDockerService
 
     public Task<string?> GetRemoteDigest(ImageInfo imageInfo)
     {
-        return Task.FromResult(RemoteDigest ?? $"{imageInfo.ImageWithoutTag}@sha256:remotedigest");
+        return Task.FromResult<string?>(RemoteDigest ?? $"{imageInfo.ImageWithoutTag}@sha256:remotedigest");
     }
 
     public Task PullImage(string image)
