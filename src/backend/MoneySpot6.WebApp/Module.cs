@@ -18,6 +18,7 @@ public static class Module
             x.DefaultRequestHeaders.Host = "query1.finance.yahoo.com";
             x.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
         });
+        services.AddHttpClient("ghcr");
         services.Configure<MailIntegrationOptions>(configuration.GetSection("MailIntegration"));
         services.Configure<InflationImportOptions>(configuration.GetSection("InflationImport"));
         services.Configure<HbciAdapterOptions>(configuration.GetSection("HbciAdapter"));

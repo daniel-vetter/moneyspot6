@@ -11,7 +11,7 @@ public class BankingConnectionUiTests : UiTest
     public async Task Can_create_bank_connection()
     {
         // Navigate to bank connections page
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Click "Neue Verbindung" button
@@ -43,7 +43,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection(name: "Connection To Delete");
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await Expect(row).ToBeVisibleAsync();
@@ -57,7 +57,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection(name: "Connection To Keep");
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await row.GetByTestId("delete-bank-connection-button").ClickAsync();
@@ -68,7 +68,7 @@ public class BankingConnectionUiTests : UiTest
     [Test]
     public async Task Name_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.GetByTestId("create-bank-connection-button").ClickAsync();
         await Page.GetByTestId("bank-connection-name").FillAsync("");
         await Page.GetByTestId("bank-connection-submit-button").ClickAsync();
@@ -78,7 +78,7 @@ public class BankingConnectionUiTests : UiTest
     [Test]
     public async Task HbciVersion_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.GetByTestId("create-bank-connection-button").ClickAsync();
         await Page.GetByTestId("bank-connection-hbci-version").FillAsync("");
         await Page.GetByTestId("bank-connection-submit-button").ClickAsync();
@@ -88,7 +88,7 @@ public class BankingConnectionUiTests : UiTest
     [Test]
     public async Task BankCode_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.GetByTestId("create-bank-connection-button").ClickAsync();
         await Page.GetByTestId("bank-connection-bank-code").FillAsync("");
         await Page.GetByTestId("bank-connection-submit-button").ClickAsync();
@@ -98,7 +98,7 @@ public class BankingConnectionUiTests : UiTest
     [Test]
     public async Task CustomerId_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.GetByTestId("create-bank-connection-button").ClickAsync();
         await Page.GetByTestId("bank-connection-customer-id").FillAsync("");
         await Page.GetByTestId("bank-connection-submit-button").ClickAsync();
@@ -108,7 +108,7 @@ public class BankingConnectionUiTests : UiTest
     [Test]
     public async Task UserId_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.GetByTestId("create-bank-connection-button").ClickAsync();
         await Page.GetByTestId("bank-connection-user-id").FillAsync("");
         await Page.GetByTestId("bank-connection-submit-button").ClickAsync();
@@ -118,7 +118,7 @@ public class BankingConnectionUiTests : UiTest
     [Test]
     public async Task Pin_field_is_required()
     {
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.GetByTestId("create-bank-connection-button").ClickAsync();
         await Page.GetByTestId("bank-connection-pin").Locator("input").FillAsync("");
         await Page.GetByTestId("bank-connection-submit-button").ClickAsync();
@@ -130,7 +130,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection(name: "Original Name");
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await row.GetByTestId("edit-bank-connection-button").ClickAsync();
@@ -145,7 +145,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection();
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await row.GetByTestId("edit-bank-connection-button").ClickAsync();
@@ -162,7 +162,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection();
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await row.GetByTestId("edit-bank-connection-button").ClickAsync();
@@ -176,7 +176,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection(customerId: "old-customer");
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await row.GetByTestId("edit-bank-connection-button").ClickAsync();
@@ -192,7 +192,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection(userId: "old-user");
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await row.GetByTestId("edit-bank-connection-button").ClickAsync();
@@ -207,7 +207,7 @@ public class BankingConnectionUiTests : UiTest
     {
         var connection = await CreateBankConnection();
 
-        await Page.GotoAsync("http://localhost:4200/settings/bank-connections");
+        await Page.GotoAsync("/settings/bank-connections");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         var row = Page.GetByTestId($"bank-connection-row-{connection.Id}");
         await row.GetByTestId("edit-bank-connection-button").ClickAsync();

@@ -25,7 +25,7 @@ export class MenuComponent implements OnInit {
     private appEvents = inject(AppEvents);
     newTransactionCount: number = 0;
     currentMonthQueryParam = DateRange.currentMonth().toString();
-    currentYearQueryParam = DateRange.currentYear().toString();
+    last12MonthsQueryParam = DateRange.lastMonths(12).toString();
 
     constructor() {
         this.appEvents.events

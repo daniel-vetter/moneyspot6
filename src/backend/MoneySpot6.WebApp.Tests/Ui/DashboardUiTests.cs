@@ -7,7 +7,7 @@ public class DashboardUiTests : UiTest
     [Test]
     public async Task Show_show_zero_total_balance_if_nothing_is_configured()
     {
-        await Page.GotoAsync("http://localhost:4200");
+        await Page.GotoAsync("/");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Check if the "Gesamt" panel is visible

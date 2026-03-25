@@ -1,21 +1,30 @@
 using Aspire.Hosting.Testing;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Networks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using MoneySpot6.WebApp.Database;
+using Testcontainers.PostgreSql;
 
 namespace MoneySpot6.WebApp.Tests.Ui;
 
 public abstract class UiTest : PageTest
 {
+    public override BrowserNewContextOptions ContextOptions() => new()
+    {
+        BaseURL = UiTestEnvironment.BaseUrl
+    };
+
     protected Db _db = null!;
 
     [SetUp]
     public async Task SetUp()
     {
-        var app = AspireSetup.App ?? throw new Exception("Aspire setup not initialized");
-        var conStr = await app.GetConnectionStringAsync("db");
+        var conStr = UiTestEnvironment.DbConnectionString;
 
         _db = Environment.GetEnvironmentVariable("DB_PROVIDER") switch
         {
@@ -45,14 +54,60 @@ public abstract class UiTest : PageTest
 }
 
 [SetUpFixture]
-public class AspireSetup
+public class UiTestEnvironment
 {
-    protected static DistributedApplication? _app;
+    private static DistributedApplication? _aspireApp;
+    private static IContainer? _appContainer;
+    private static PostgreSqlContainer? _postgres;
+    private static INetwork? _network;
 
-    public static DistributedApplication App => _app ?? throw new Exception("App was not initialized yet.");
+    public static string BaseUrl { get; private set; } = null!;
+    public static string DbConnectionString { get; private set; } = null!;
 
     [OneTimeSetUp]
     public async Task GlobalSetup()
+    {
+        var dockerImage = Environment.GetEnvironmentVariable("TEST_DOCKER_IMAGE");
+
+        if (dockerImage is not null)
+            await SetupWithDocker(dockerImage);
+        else
+            await SetupWithAspire();
+    }
+
+    private async Task SetupWithDocker(string dockerImage)
+    {
+        const string dbPassword = "test_password";
+        const string dbName = "moneyspot";
+
+        _network = new NetworkBuilder().Build();
+        await _network.CreateAsync();
+
+        _postgres = new PostgreSqlBuilder()
+            .WithNetwork(_network)
+            .WithNetworkAliases("db")
+            .WithDatabase(dbName)
+            .WithPassword(dbPassword)
+            .Build();
+        await _postgres.StartAsync();
+
+        var appDbConnectionString = $"Host=db;Port=5432;Database={dbName};Username=postgres;Password={dbPassword}";
+
+        _appContainer = new ContainerBuilder()
+            .WithImage(dockerImage)
+            .WithNetwork(_network)
+            .WithPortBinding(80, true)
+            .WithEnvironment("ConnectionStrings__Db", appDbConnectionString)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Testing")
+            .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r.ForPort(80)))
+            .Build();
+        await _appContainer.StartAsync();
+
+        BaseUrl = $"http://localhost:{_appContainer.GetMappedPublicPort(80)}";
+        DbConnectionString = _postgres.GetConnectionString();
+    }
+
+    private async Task SetupWithAspire()
     {
         var args = new[] {
             "DcpPublisher:RandomizePorts=false",
@@ -63,7 +118,6 @@ public class AspireSetup
         appHost.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Debug);
-            // Override the logging filters from the app's configuration
             logging.AddFilter(appHost.Environment.ApplicationName, LogLevel.Debug);
             logging.AddFilter("Aspire.", LogLevel.Debug);
         });
@@ -74,16 +128,26 @@ public class AspireSetup
             context.EnvironmentVariables["ASPNETCORE_ENVIRONMENT"] = "Testing";
         }));
 
-        _app = await appHost.BuildAsync();
-        await _app.StartAsync();
-        await _app.ResourceNotifications.WaitForResourceHealthyAsync("Backend");
-        await _app.ResourceNotifications.WaitForResourceHealthyAsync("Frontend");
+        _aspireApp = await appHost.BuildAsync();
+
+        await _aspireApp.StartAsync();
+        await _aspireApp.ResourceNotifications.WaitForResourceHealthyAsync("Backend");
+        await _aspireApp.ResourceNotifications.WaitForResourceHealthyAsync("Frontend");
+
+        BaseUrl = "http://localhost:4200";
+        DbConnectionString = await _aspireApp.GetConnectionStringAsync("db") ?? throw new Exception("Could not get connection string from Aspire");
     }
 
     [OneTimeTearDown]
-    public async Task OneTimeTearDown()
+    public async Task GlobalTearDown()
     {
-        //if (_app != null)
-            //await _app.DisposeAsync();
+        if (_aspireApp is not null) await _aspireApp.DisposeAsync();
+        if (_appContainer is not null) await _appContainer.DisposeAsync();
+        if (_postgres is not null) await _postgres.DisposeAsync();
+        if (_network is not null)
+        {
+            await _network.DeleteAsync();
+            await _network.DisposeAsync();
+        }
     }
 }

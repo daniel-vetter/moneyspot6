@@ -15,7 +15,7 @@ public class TransactionUiTests : UiTest
         var transaction = await CreateTransaction(bankAccount);
 
         // Act: Navigate to transactions page
-        await Page.GotoAsync("http://localhost:4200/transactions");
+        await Page.GotoAsync("/transactions");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Open the transaction dialog
@@ -60,7 +60,7 @@ public class TransactionUiTests : UiTest
         var transaction = await CreateTransaction(bankAccount, withProcessedData: true);
 
         // Act: Navigate to transactions page
-        await Page.GotoAsync("http://localhost:4200/transactions");
+        await Page.GotoAsync("/transactions");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Open the transaction dialog
@@ -105,7 +105,7 @@ public class TransactionUiTests : UiTest
         var transaction = await CreateTransaction(bankAccount, withOverriddenData: true);
 
         // Act: Navigate to transactions page
-        await Page.GotoAsync("http://localhost:4200/transactions");
+        await Page.GotoAsync("/transactions");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Open the transaction dialog

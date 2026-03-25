@@ -2655,6 +2655,154 @@ export class DebugClient {
 }
 
 @Injectable({providedIn: 'root'})
+export class UpdateClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getStatus(): Observable<SelfUpdateStatus> {
+        let url_ = this.baseUrl + "/api/Update/GetStatus";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetStatus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetStatus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SelfUpdateStatus>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SelfUpdateStatus>;
+        }));
+    }
+
+    protected processGetStatus(response: HttpResponseBase): Observable<SelfUpdateStatus> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SelfUpdateStatus.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    checkNow(): Observable<void> {
+        let url_ = this.baseUrl + "/api/Update/CheckNow";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCheckNow(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCheckNow(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCheckNow(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    applyUpdate(): Observable<void> {
+        let url_ = this.baseUrl + "/api/Update/ApplyUpdate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processApplyUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processApplyUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processApplyUpdate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({providedIn: 'root'})
 export class BankConnectionClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -7164,6 +7312,58 @@ export interface IAppDetails {
     dotNetVersion?: string;
     osDescription?: string;
     databaseType?: string;
+}
+
+export class SelfUpdateStatus implements ISelfUpdateStatus {
+    isUpdateFeatureAvailable?: boolean;
+    isUpdateAvailable?: boolean;
+    currentDigest?: string | undefined;
+    latestDigest?: string | undefined;
+    lastCheck?: Date | undefined;
+
+    constructor(data?: ISelfUpdateStatus) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isUpdateFeatureAvailable = _data["isUpdateFeatureAvailable"];
+            this.isUpdateAvailable = _data["isUpdateAvailable"];
+            this.currentDigest = _data["currentDigest"];
+            this.latestDigest = _data["latestDigest"];
+            this.lastCheck = _data["lastCheck"] ? new Date(_data["lastCheck"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): SelfUpdateStatus {
+        data = typeof data === 'object' ? data : {};
+        let result = new SelfUpdateStatus();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isUpdateFeatureAvailable"] = this.isUpdateFeatureAvailable;
+        data["isUpdateAvailable"] = this.isUpdateAvailable;
+        data["currentDigest"] = this.currentDigest;
+        data["latestDigest"] = this.latestDigest;
+        data["lastCheck"] = this.lastCheck ? this.lastCheck.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ISelfUpdateStatus {
+    isUpdateFeatureAvailable?: boolean;
+    isUpdateAvailable?: boolean;
+    currentDigest?: string | undefined;
+    latestDigest?: string | undefined;
+    lastCheck?: Date | undefined;
 }
 
 export class BankConnectionListResponse implements IBankConnectionListResponse {
