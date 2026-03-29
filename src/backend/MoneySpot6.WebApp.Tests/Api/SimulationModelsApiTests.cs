@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class SimulationModelsApiTests : ApiTest
+public class SimulationModelsApiTests(string dbProvider) : ApiTest(dbProvider)
 {
     private async Task<DbSimulationModel> CreateTestModel(string name = "Test Simulation", string code = "// test")
     {

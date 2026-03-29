@@ -26,7 +26,8 @@ public abstract class UiTest : PageTest
     {
         var conStr = UiTestEnvironment.DbConnectionString;
 
-        _db = Environment.GetEnvironmentVariable("DB_PROVIDER") switch
+        var dbProvider = Environment.GetEnvironmentVariable("DB_PROVIDER") ?? "postgres";
+        _db = dbProvider switch
         {
             "postgres" => new PostgreSqlDbContext(new DbContextOptionsBuilder<PostgreSqlDbContext>()
                 .UseNpgsql(conStr)
@@ -34,7 +35,7 @@ public abstract class UiTest : PageTest
             "sqlite" => new SqliteDbContext(new DbContextOptionsBuilder<SqliteDbContext>()
                 .UseSqlite(conStr)
                 .Options),
-            _ => throw new ArgumentOutOfRangeException("DB_PROVIDER", Environment.GetEnvironmentVariable("DB_PROVIDER"), $"Invalid DB_PROVIDER: '{Environment.GetEnvironmentVariable("DB_PROVIDER")}'")
+            _ => throw new ArgumentOutOfRangeException("DB_PROVIDER", dbProvider, $"Invalid DB_PROVIDER: '{dbProvider}'")
         };
 
         await _db.Set<DbBankAccountTransaction>().ExecuteDeleteAsync();

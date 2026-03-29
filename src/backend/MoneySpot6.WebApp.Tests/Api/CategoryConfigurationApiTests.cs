@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class CategoryConfigurationApiTests : ApiTest
+public class CategoryConfigurationApiTests(string dbProvider) : ApiTest(dbProvider)
 {
     [Test]
     public async Task GetCategoryTree_EmptyDatabase_ReturnsEmptyArray()

@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class StockApiTests : ApiTest
+public class StockApiTests(string dbProvider) : ApiTest(dbProvider)
 {
     [Test]
     public async Task GetAll_EmptyDatabase_ReturnsEmptyArray()

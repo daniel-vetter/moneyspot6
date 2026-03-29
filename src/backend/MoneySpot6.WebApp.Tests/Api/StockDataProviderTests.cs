@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class StockDataProviderTests : ApiTest
+public class StockDataProviderTests(string dbProvider) : ApiTest(dbProvider)
 {
     private async Task<(DbStock stockA, DbStock stockB)> SetupTwoStocks()
     {
