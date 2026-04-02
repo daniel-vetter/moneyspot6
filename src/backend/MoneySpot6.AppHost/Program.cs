@@ -7,7 +7,7 @@ var postgres = builder
     .WithLifetime(ContainerLifetime.Persistent);
 
 var db = postgres.AddDatabase("db", "moneyspot");
-    
+
 var hbciAdapter = builder
     .AddDockerfile("HBCI-Adapter", "../../hbci-adapter", "../backend/MoneySpot6.AppHost/hbci-adapter.dockerfile")
     .WithLifetime(ContainerLifetime.Persistent)
@@ -19,10 +19,17 @@ var backend = builder
     .WaitFor(hbciAdapter)
     .WaitFor(postgres);
 
-builder
+var frontend = builder
     .AddNpmApp("Frontend", "../../frontend")
-    .WithEndpoint(4200, scheme: "http", isProxied: false)
+    .WithHttpEndpoint(name: "http", port: 4200)
     .WithHttpHealthCheck("/")
     .WaitFor(backend);
+
+frontend.WithArgs(context =>
+ {
+     context.Args.Add("--");
+     context.Args.Add("--port");
+     context.Args.Add(frontend.GetEndpoint("http").Property(EndpointProperty.TargetPort));
+ });
 
 builder.Build().Run();
