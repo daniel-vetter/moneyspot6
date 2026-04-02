@@ -110,12 +110,9 @@ public class UiTestEnvironment
 
     private async Task SetupWithAspire()
     {
-        var args = new[] {
-            "DcpPublisher:RandomizePorts=false",
-            "DB_PROVIDER=" + Environment.GetEnvironmentVariable("DB_PROVIDER")
-        };
+        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MoneySpot6_AppHost>(
+            args: ["DB_PROVIDER=" + Environment.GetEnvironmentVariable("DB_PROVIDER")]);
 
-        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MoneySpot6_AppHost>(args: args);
         appHost.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Debug);
@@ -135,7 +132,7 @@ public class UiTestEnvironment
         await _aspireApp.ResourceNotifications.WaitForResourceHealthyAsync("Backend");
         await _aspireApp.ResourceNotifications.WaitForResourceHealthyAsync("Frontend");
 
-        BaseUrl = "http://localhost:4200";
+        BaseUrl = _aspireApp.GetEndpoint("Frontend", "http").ToString();
         DbConnectionString = await _aspireApp.GetConnectionStringAsync("db") ?? throw new Exception("Could not get connection string from Aspire");
     }
 

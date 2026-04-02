@@ -11,11 +11,18 @@ var backend = builder
     .AddProject<Projects.MoneySpot6_WebApp>("Backend")
     .WaitFor(hbciAdapter);
 
-builder
+var frontend = builder
     .AddNpmApp("Frontend", "../../frontend")
-    .WithEndpoint(4200, scheme: "http", isProxied: false)
+    .WithHttpEndpoint(name: "http", port: 4200)
     .WithHttpHealthCheck("/")
     .WaitFor(backend);
+
+frontend.WithArgs(context =>
+ {
+     context.Args.Add("--");
+     context.Args.Add("--port");
+     context.Args.Add(frontend.GetEndpoint("http").Property(EndpointProperty.TargetPort));
+ });
 
 var dbProvider = builder.Configuration.GetSection("DB_PROVIDER").Get<string>();
 if (dbProvider == "postgres")
