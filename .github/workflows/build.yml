@@ -64,7 +64,15 @@ jobs:
         run: pwsh MoneySpot6.WebApp.Tests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
 
       - name: Test
-        run: dotnet test --no-build
+        run: dotnet test --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: Test Results
+          path: src/backend/TestResults/**/*.trx
+          reporter: dotnet-trx
 
   frontend:
     name: Frontend (Angular)
