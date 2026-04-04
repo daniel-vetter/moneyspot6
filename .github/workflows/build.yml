@@ -9,8 +9,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  backend:
-    name: Backend (.NET)
+  backend-build:
+    name: Backend Build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -23,23 +23,37 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build -c Release --no-restore
-
-      - name: Test
-        run: dotnet test -c Release --no-build --filter "FullyQualifiedName!~Ui"
-
-      - name: Publish
-        run: dotnet publish MoneySpot6.WebApp/MoneySpot6.WebApp.csproj -c Release --no-build -o publish
+      - name: Publish (Release)
+        run: dotnet publish MoneySpot6.WebApp/MoneySpot6.WebApp.csproj -c Release -o publish
 
       - name: Cache build output
         uses: actions/cache/save@v5
         with:
           path: src/backend/publish
           key: backend-${{ github.sha }}
+
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build (Debug)
+        run: dotnet build
+
+      - name: Install Playwright browsers
+        run: pwsh MoneySpot6.WebApp.Tests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Test
+        run: dotnet test --no-build
 
   frontend:
     name: Frontend (Angular)
@@ -100,7 +114,7 @@ jobs:
 
   docker:
     name: Docker Image
-    needs: [backend, frontend, hbci-adapter]
+    needs: [backend-build, backend-test, frontend, hbci-adapter]
     runs-on: ubuntu-latest
     steps:
       - name: Restore backend
@@ -146,47 +160,9 @@ jobs:
           path: /tmp/docker-image.tar
           key: docker-image-${{ github.sha }}
 
-  ui-tests:
-    name: UI Tests
-    needs: [docker]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/backend
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: '10.0.x'
-
-      - name: Restore Docker image
-        uses: actions/cache/restore@v5
-        with:
-          path: /tmp/docker-image.tar
-          key: docker-image-${{ github.sha }}
-
-      - name: Load Docker image
-        run: docker load -i /tmp/docker-image.tar
-
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build -c Release --no-restore
-
-      - name: Install Playwright browsers
-        run: pwsh MoneySpot6.WebApp.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
-
-      - name: Run UI tests
-        run: dotnet test -c Release --no-build --filter "FullyQualifiedName~Ui"
-        env:
-          TEST_DOCKER_IMAGE: moneyspot6:${{ github.sha }}
-
   push:
     name: Push Docker Image
-    needs: [ui-tests]
+    needs: [docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:

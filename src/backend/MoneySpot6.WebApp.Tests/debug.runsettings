@@ -6,12 +6,4 @@
 			<Headless>false</Headless>
 		</LaunchOptions>
 	</Playwright>
-
-
-	<RunConfiguration>
-		<EnvironmentVariables>
-			<DEBUG>pw:api</DEBUG>
-			<DB_PROVIDER>sqlite</DB_PROVIDER>
-		</EnvironmentVariables>
-	</RunConfiguration>
 </RunSettings>

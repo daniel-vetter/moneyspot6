@@ -4,7 +4,7 @@ using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Tests.Ui;
 
-public class TransactionUiTests : UiTest
+public class TransactionUiTests(DbProvider dbProvider) : UiTest(dbProvider)
 {
     [Test]
     public async Task Shows_values_from_parsed_data()

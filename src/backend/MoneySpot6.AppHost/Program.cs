@@ -25,27 +25,33 @@ frontend.WithArgs(context =>
      context.Args.Add(frontend.GetEndpoint("http").Property(EndpointProperty.TargetPort));
  });
 
-var dbProvider = builder.Configuration.GetSection("DB_PROVIDER").Get<string>();
-if (dbProvider == "postgres")
+switch (builder.Configuration.GetSection("DB_PROVIDER").Get<string>())
 {
-    var postgresPassword = builder.AddParameter("postgres-password", true);
-    var postgres = builder
-        .AddPostgres("Postgres", password: postgresPassword)
-        .WithLifetime(ContainerLifetime.Persistent);
+    case "postgres":
+        {
+            var postgresPassword = builder.AddParameter("postgres-password", true);
+            var postgres = builder
+                .AddPostgres("Postgres", password: postgresPassword)
+                .WithLifetime(ContainerLifetime.Persistent);
 
-    var db = postgres.AddDatabase("db", "moneyspot");
+            var db = postgres.AddDatabase("db", "moneyspot");
 
-    backend
-        .WithReference(db, "db")
-        .WaitFor(postgres);
+            backend
+                .WithReference(db, "db")
+                .WaitFor(db);
+            break;
+        }
+
+    case "sqlite":
+        {
+            var db = builder.AddConnectionString("db", x => x.AppendLiteral($"Data Source={Path.Combine(AppContext.BaseDirectory, "data", "data.db")}"));
+            backend
+                .WithReference(db, "db");
+            break;
+        }
+
+    default:
+        throw new Exception("Unknown DB_PROVIDER: Please use 'sqlite' or 'postgres'");
 }
-else if (dbProvider == "sqlite")
-{
-    var db = builder.AddConnectionString("db", x => x.AppendLiteral($"Data Source={Path.Combine(AppContext.BaseDirectory, "data", "data.db")}"));
-    backend
-        .WithReference(db, "db");
-}
-else
-    throw new Exception("Unknown DB_PROVIDER: " + dbProvider);
 
 builder.Build().Run();

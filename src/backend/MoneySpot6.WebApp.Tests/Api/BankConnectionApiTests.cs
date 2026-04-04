@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class BankConnectionApiTests(string dbProvider) : ApiTest(dbProvider)
+public class BankConnectionApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
 {
     private static CreateFinTsBankConnectionRequest ValidRequest => new()
     {

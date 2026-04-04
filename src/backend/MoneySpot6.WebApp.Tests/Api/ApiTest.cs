@@ -1,4 +1,3 @@
-using System.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -9,19 +8,10 @@ using Testcontainers.PostgreSql;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class DbProviderSource : IEnumerable
-{
-    public IEnumerator GetEnumerator()
-    {
-        yield return "sqlite";
-        yield return "postgres";
-    }
-}
-
 [TestFixtureSource(typeof(DbProviderSource))]
 public abstract class ApiTest
 {
-    private readonly string _dbProvider;
+    private readonly DbProvider _dbProvider;
     private ServiceProvider _serviceProvider = null!;
     private IServiceScope _scope = null!;
     private SqliteConnection? _keeperConnection;
@@ -31,7 +21,7 @@ public abstract class ApiTest
 
     protected IServiceProvider Services => _scope.ServiceProvider;
 
-    protected ApiTest(string dbProvider)
+    protected ApiTest(DbProvider dbProvider)
     {
         _dbProvider = dbProvider;
     }
@@ -63,7 +53,7 @@ public abstract class ApiTest
         var services = new ServiceCollection();
         var configData = new Dictionary<string, string?>();
 
-        if (_dbProvider == "postgres")
+        if (_dbProvider == DbProvider.Postgres)
         {
             configData["ConnectionStrings:db"] = await GetPostgresConnectionString();
         }

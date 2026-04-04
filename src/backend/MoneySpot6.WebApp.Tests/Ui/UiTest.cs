@@ -1,22 +1,27 @@
+using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
-using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Containers;
-using DotNet.Testcontainers.Networks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using MoneySpot6.WebApp.Database;
-using Testcontainers.PostgreSql;
 
 namespace MoneySpot6.WebApp.Tests.Ui;
 
+[TestFixtureSource(typeof(DbProviderSource))]
 public abstract class UiTest : PageTest
 {
+    private readonly DbProvider _dbProvider;
+
+    protected UiTest(DbProvider dbProvider)
+    {
+        _dbProvider = dbProvider;
+    }
+
     public override BrowserNewContextOptions ContextOptions() => new()
     {
-        BaseURL = UiTestEnvironment.BaseUrl
+        BaseURL = UiTestEnvironment.GetBaseUrl(_dbProvider)
     };
 
     protected Db _db = null!;
@@ -24,18 +29,17 @@ public abstract class UiTest : PageTest
     [SetUp]
     public async Task SetUp()
     {
-        var conStr = UiTestEnvironment.DbConnectionString;
+        var conStr = UiTestEnvironment.GetDbConnectionString(_dbProvider);
 
-        var dbProvider = Environment.GetEnvironmentVariable("DB_PROVIDER") ?? "postgres";
-        _db = dbProvider switch
+        _db = _dbProvider switch
         {
-            "postgres" => new PostgreSqlDbContext(new DbContextOptionsBuilder<PostgreSqlDbContext>()
+            DbProvider.Postgres => new PostgreSqlDbContext(new DbContextOptionsBuilder<PostgreSqlDbContext>()
                 .UseNpgsql(conStr)
                 .Options),
-            "sqlite" => new SqliteDbContext(new DbContextOptionsBuilder<SqliteDbContext>()
+            DbProvider.Sqlite => new SqliteDbContext(new DbContextOptionsBuilder<SqliteDbContext>()
                 .UseSqlite(conStr)
                 .Options),
-            _ => throw new ArgumentOutOfRangeException("DB_PROVIDER", dbProvider, $"Invalid DB_PROVIDER: '{dbProvider}'")
+            _ => throw new ArgumentOutOfRangeException(nameof(_dbProvider), _dbProvider, null)
         };
 
         await _db.Set<DbBankAccountTransaction>().ExecuteDeleteAsync();
@@ -57,61 +61,31 @@ public abstract class UiTest : PageTest
 [SetUpFixture]
 public class UiTestEnvironment
 {
-    private static DistributedApplication? _aspireApp;
-    private static IContainer? _appContainer;
-    private static PostgreSqlContainer? _postgres;
-    private static INetwork? _network;
+    private record AspireEnvironment(DistributedApplication App, string BaseUrl, string DbConnectionString);
 
-    public static string BaseUrl { get; private set; } = null!;
-    public static string DbConnectionString { get; private set; } = null!;
+    private static readonly Dictionary<DbProvider, AspireEnvironment> _environments = new();
+
+    public static string GetBaseUrl(DbProvider dbProvider) => _environments[dbProvider].BaseUrl;
+    public static string GetDbConnectionString(DbProvider dbProvider) => _environments[dbProvider].DbConnectionString;
 
     [OneTimeSetUp]
     public async Task GlobalSetup()
     {
-        var dockerImage = Environment.GetEnvironmentVariable("TEST_DOCKER_IMAGE");
+        var tasks = Enum
+            .GetValues<DbProvider>()
+            .ToDictionary(p => p, StartAspireHost);
 
-        if (dockerImage is not null)
-            await SetupWithDocker(dockerImage);
-        else
-            await SetupWithAspire();
+        foreach (var (provider, task) in tasks)
+            _environments[provider] = await task;
     }
 
-    private async Task SetupWithDocker(string dockerImage)
+    private static async Task<AspireEnvironment> StartAspireHost(DbProvider dbProvider)
     {
-        const string dbPassword = "test_password";
-        const string dbName = "moneyspot";
+        var dbProviderName = dbProvider.ToString().ToLowerInvariant();
 
-        _network = new NetworkBuilder().Build();
-        await _network.CreateAsync();
-
-        _postgres = new PostgreSqlBuilder()
-            .WithNetwork(_network)
-            .WithNetworkAliases("db")
-            .WithDatabase(dbName)
-            .WithPassword(dbPassword)
-            .Build();
-        await _postgres.StartAsync();
-
-        var appDbConnectionString = $"Host=db;Port=5432;Database={dbName};Username=postgres;Password={dbPassword}";
-
-        _appContainer = new ContainerBuilder()
-            .WithImage(dockerImage)
-            .WithNetwork(_network)
-            .WithPortBinding(80, true)
-            .WithEnvironment("ConnectionStrings__Db", appDbConnectionString)
-            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Testing")
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r.ForPort(80)))
-            .Build();
-        await _appContainer.StartAsync();
-
-        BaseUrl = $"http://localhost:{_appContainer.GetMappedPublicPort(80)}";
-        DbConnectionString = _postgres.GetConnectionString();
-    }
-
-    private async Task SetupWithAspire()
-    {
-        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MoneySpot6_AppHost>(
-            args: ["DB_PROVIDER=" + Environment.GetEnvironmentVariable("DB_PROVIDER")]);
+        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MoneySpot6_AppHost>(args: [
+            $"DB_PROVIDER={dbProviderName}"
+        ]);
 
         appHost.Services.AddLogging(logging =>
         {
@@ -126,26 +100,22 @@ public class UiTestEnvironment
             context.EnvironmentVariables["ASPNETCORE_ENVIRONMENT"] = "Testing";
         }));
 
-        _aspireApp = await appHost.BuildAsync();
+        var app = await appHost.BuildAsync();
 
-        await _aspireApp.StartAsync();
-        await _aspireApp.ResourceNotifications.WaitForResourceHealthyAsync("Backend");
-        await _aspireApp.ResourceNotifications.WaitForResourceHealthyAsync("Frontend");
+        await app.StartAsync();
+        await app.ResourceNotifications.WaitForResourceHealthyAsync("Backend");
+        await app.ResourceNotifications.WaitForResourceHealthyAsync("Frontend");
 
-        BaseUrl = _aspireApp.GetEndpoint("Frontend", "http").ToString();
-        DbConnectionString = await _aspireApp.GetConnectionStringAsync("db") ?? throw new Exception("Could not get connection string from Aspire");
+        var baseUrl = app.GetEndpoint("Frontend", "http").ToString();
+        var dbConnectionString = await app.GetConnectionStringAsync("db") ?? throw new Exception($"Could not get connection string from Aspire ({dbProviderName})");
+
+        return new AspireEnvironment(app, baseUrl, dbConnectionString);
     }
 
     [OneTimeTearDown]
     public async Task GlobalTearDown()
     {
-        if (_aspireApp is not null) await _aspireApp.DisposeAsync();
-        if (_appContainer is not null) await _appContainer.DisposeAsync();
-        if (_postgres is not null) await _postgres.DisposeAsync();
-        if (_network is not null)
-        {
-            await _network.DeleteAsync();
-            await _network.DisposeAsync();
-        }
+        foreach (var env in _environments.Values)
+            await env.App.DisposeAsync();
     }
 }

@@ -5,7 +5,7 @@ using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Tests.Ui;
 
-public class BankingConnectionUiTests : UiTest
+public class BankingConnectionUiTests(DbProvider dbProvider) : UiTest(dbProvider)
 {
     [Test]
     public async Task Can_create_bank_connection()

@@ -3,7 +3,7 @@ using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Tests.Ui;
 
-public class CategoryUiTests : UiTest
+public class CategoryUiTests(DbProvider dbProvider) : UiTest(dbProvider)
 {
     [Test]
     public async Task Shows_empty_state_when_no_categories()
