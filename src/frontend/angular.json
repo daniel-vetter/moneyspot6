@@ -72,7 +72,7 @@
                         },
                         "development": {
                             "buildTarget": "MoneySpot6.Client:build:development",
-                            "proxyConfig": "src/proxy.conf.json"
+                            "proxyConfig": "src/proxy.conf.js"
                         }
                     },
                     "defaultConfiguration": "development"
