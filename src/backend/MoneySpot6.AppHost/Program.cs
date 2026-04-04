@@ -15,6 +15,7 @@ var frontend = builder
     .AddNpmApp("Frontend", "../../frontend")
     .WithHttpEndpoint(name: "http", port: 4200)
     .WithHttpHealthCheck("/")
+    .WithReference(backend)
     .WaitFor(backend);
 
 frontend.WithArgs(context =>
