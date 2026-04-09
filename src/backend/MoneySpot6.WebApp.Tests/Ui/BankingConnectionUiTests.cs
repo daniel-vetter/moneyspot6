@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using MoneySpot6.WebApp.Database;
 

@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Microsoft.Extensions.Logging.Abstractions;
 using MoneySpot6.WebApp.Features.Core.SelfUpdate.Internal;
 using Shouldly;
