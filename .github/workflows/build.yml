@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   backend-build:
-    name: Backend Build
+    name: Build Backend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,7 +33,7 @@ jobs:
           key: backend-${{ github.sha }}
 
   backend-test:
-    name: Backend Tests
+    name: Test Backend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -75,7 +75,7 @@ jobs:
           reporter: dotnet-trx
 
   frontend:
-    name: Frontend (Angular)
+    name: Build Frontend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -103,7 +103,7 @@ jobs:
           key: frontend-${{ github.sha }}
 
   hbci-adapter:
-    name: HBCI Adapter (Java/Kotlin)
+    name: Build HBCI Adapter
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -132,7 +132,7 @@ jobs:
           key: hbci-adapter-${{ github.sha }}
 
   docker:
-    name: Docker Image
+    name: Package Docker Image
     needs: [backend-build, backend-test, frontend, hbci-adapter]
     runs-on: ubuntu-latest
     steps:
@@ -180,7 +180,7 @@ jobs:
           key: docker-image-${{ github.sha }}
 
   push-dev:
-    name: 'Push: dev'
+    name: Push Docker Image (dev)
     needs: [docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
@@ -211,7 +211,7 @@ jobs:
           docker push $IMAGE:dev
 
   push-latest:
-    name: 'Push: latest'
+    name: Push Docker Image (latest)
     needs: [docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
