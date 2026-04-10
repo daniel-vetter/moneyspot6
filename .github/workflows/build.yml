@@ -33,8 +33,11 @@ jobs:
           key: backend-${{ github.sha }}
 
   backend-test:
-    name: Test Backend
+    name: Test Backend (${{ matrix.db }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        db: [Sqlite, Postgres]
     defaults:
       run:
         working-directory: src/backend
@@ -64,13 +67,13 @@ jobs:
         run: pwsh MoneySpot6.WebApp.Tests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
 
       - name: Test
-        run: dotnet test --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+        run: dotnet test --no-build --filter "FullyQualifiedName~(${{ matrix.db }})" --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
 
       - name: Publish test results
         uses: dorny/test-reporter@v2
         if: always()
         with:
-          name: Test Results
+          name: Test Results (${{ matrix.db }})
           path: src/backend/TestResults/**/*.trx
           reporter: dotnet-trx
 
