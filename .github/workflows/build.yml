@@ -207,11 +207,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Tag and push
         run: |
-          IMAGE="ghcr.io/${{ github.repository }}"
-          docker tag moneyspot6:${{ github.sha }} $IMAGE:dev
-          docker push $IMAGE:dev
+          GHCR="ghcr.io/${{ github.repository }}"
+          DH="dvetter/moneyspot6"
+          docker tag moneyspot6:${{ github.sha }} $GHCR:dev
+          docker tag moneyspot6:${{ github.sha }} $DH:dev
+          docker push $GHCR:dev
+          docker push $DH:dev
 
   push-latest:
     name: Push Docker Image (latest)
@@ -238,8 +247,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Tag and push
         run: |
-          IMAGE="ghcr.io/${{ github.repository }}"
-          docker tag moneyspot6:${{ github.sha }} $IMAGE:latest
-          docker push $IMAGE:latest
+          GHCR="ghcr.io/${{ github.repository }}"
+          DH="dvetter/moneyspot6"
+          docker tag moneyspot6:${{ github.sha }} $GHCR:latest
+          docker tag moneyspot6:${{ github.sha }} $DH:latest
+          docker push $GHCR:latest
+          docker push $DH:latest
