@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-using Microsoft.Extensions.DependencyInjection;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.Shared;
 using MoneySpot6.WebApp.Features.Ui.SummaryPage;
@@ -7,7 +5,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class StockDataProviderTests : ApiTest
+public class StockDataProviderTests(DbProvider dbProvider) : ApiTest(dbProvider)
 {
     private async Task<(DbStock stockA, DbStock stockB)> SetupTwoStocks()
     {

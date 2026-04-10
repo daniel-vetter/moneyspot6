@@ -17,7 +17,11 @@
       "Bash(cat:*)",
       "Bash(find:*)",
       "WebSearch",
-      "Bash(gh issue view:*)"
+      "Bash(gh issue view:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []

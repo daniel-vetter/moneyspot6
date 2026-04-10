@@ -25,7 +25,6 @@ public class Program
                 .Build()));
         });
 
-        builder.AddNpgsqlDbContext<Db>("db");
         builder.AddServiceDefaults();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument(x =>
@@ -106,7 +105,7 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
-            await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize();
+            await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize(app.Configuration.GetValue<bool>("DemoMode"));
         }
 
         await app.RunAsync();

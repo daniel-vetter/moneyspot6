@@ -1,3 +1,11 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS test
+COPY src /source
+COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
+WORKDIR /source/backend/MoneySpot6.WebApp.Tests
+RUN dotnet restore
+RUN dotnet build -c debug
+ENTRYPOINT ["dotnet", "test", "-c", "debug", "--no-build", "--no-restore"]
+
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build_backend
 WORKDIR /source
 COPY src/backend .

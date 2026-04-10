@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class CategoryConfigurationApiTests : ApiTest
+public class CategoryConfigurationApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
 {
     [Test]
     public async Task GetCategoryTree_EmptyDatabase_ReturnsEmptyArray()
@@ -125,3 +125,5 @@ public class CategoryConfigurationApiTests : ApiTest
         Get<Db>().Categories.Single().Name.ShouldBe("Lebensmittel");
     }
 }
+
+

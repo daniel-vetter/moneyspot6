@@ -1,12 +1,6 @@
+using Microsoft.Extensions.Configuration;
+
 var builder = DistributedApplication.CreateBuilder(args);
-
-var parameter = builder.AddParameter("postgres-password", true);
-
-var postgres = builder
-    .AddPostgres("Postgres", port: 5432, password: parameter)
-    .WithLifetime(ContainerLifetime.Persistent);
-
-var db = postgres.AddDatabase("db", "moneyspot");
 
 var hbciAdapter = builder
     .AddDockerfile("HBCI-Adapter", "../../hbci-adapter", "../backend/MoneySpot6.AppHost/hbci-adapter.dockerfile")
@@ -15,9 +9,7 @@ var hbciAdapter = builder
 
 var backend = builder
     .AddProject<Projects.MoneySpot6_WebApp>("Backend")
-    .WithReference(db)
-    .WaitFor(hbciAdapter)
-    .WaitFor(postgres);
+    .WaitFor(hbciAdapter);
 
 var frontend = builder
     .AddNpmApp("Frontend", "../../frontend")
@@ -32,5 +24,34 @@ frontend.WithArgs(context =>
      context.Args.Add("--port");
      context.Args.Add(frontend.GetEndpoint("http").Property(EndpointProperty.TargetPort));
  });
+
+switch (builder.Configuration.GetSection("DB_PROVIDER").Get<string>())
+{
+    case "postgres":
+        {
+            var postgresPassword = builder.AddParameter("postgres-password", true);
+            var postgres = builder
+                .AddPostgres("Postgres", password: postgresPassword)
+                .WithLifetime(ContainerLifetime.Persistent);
+
+            var db = postgres.AddDatabase("db", "moneyspot");
+
+            backend
+                .WithReference(db, "db")
+                .WaitFor(db);
+            break;
+        }
+
+    case "sqlite":
+        {
+            var db = builder.AddConnectionString("db", x => x.AppendLiteral($"Data Source={Path.Combine(AppContext.BaseDirectory, "data", "data.db")}"));
+            backend
+                .WithReference(db, "db");
+            break;
+        }
+
+    default:
+        throw new Exception("Unknown DB_PROVIDER: Please use 'sqlite' or 'postgres'");
+}
 
 builder.Build().Run();

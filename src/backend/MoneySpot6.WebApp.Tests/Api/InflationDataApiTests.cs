@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class InflationDataApiTests : ApiTest
+public class InflationDataApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
 {
     [Test]
     public async Task UpdateDefaultRate_SetsRate()
@@ -32,3 +32,5 @@ public class InflationDataApiTests : ApiTest
         data.DefaultRate.ShouldBe(2.0m);
     }
 }
+
+

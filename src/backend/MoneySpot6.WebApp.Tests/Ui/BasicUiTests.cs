@@ -2,7 +2,7 @@ using Microsoft.Playwright;
 
 namespace MoneySpot6.WebApp.Tests.Ui;
 
-public class BasicUiTests : UiTest
+public class BasicUiTests(DbProvider dbProvider) : UiTest(dbProvider)
 {
     [Test]
     public async Task Web_app_starts_successfully()
