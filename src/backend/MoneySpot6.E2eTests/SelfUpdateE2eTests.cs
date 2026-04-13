@@ -70,7 +70,9 @@ public class SelfUpdateE2eTests : PageTest
         await _client.Containers.StartContainerAsync(created.ID, new ContainerStartParameters());
 
         var inspection = await _client.Containers.InspectContainerAsync(created.ID);
-        _appPort = int.Parse(inspection.NetworkSettings.Ports["80/tcp"][0].HostPort);
+        var portBinding = inspection.NetworkSettings.Ports.First(p => p.Value?.Count > 0);
+        _appPort = int.Parse(portBinding.Value[0].HostPort);
+        Console.WriteLine($"Container port {portBinding.Key} mapped to host port {_appPort}");
 
         Console.WriteLine($"App starting on port {_appPort}, waiting...");
         await WaitForApp();
