@@ -35,14 +35,21 @@ public class SelfUpdateE2eTests : PageTest
         await StartRegistry();
         Console.WriteLine($"Registry running on port {_registryPort}");
 
-        _imageRef = $"host.docker.internal:{_registryPort}/moneyspot6:dev";
-        var pushRef = $"localhost:{_registryPort}/moneyspot6:dev";
+        _imageRef = $"localhost:{_registryPort}/moneyspot6:dev";
 
-        Console.WriteLine("Building v1...");
-        await DockerBuild(pushRef, buildVersion: "v1");
+        var prebuiltImage = Environment.GetEnvironmentVariable("E2E_PREBUILT_IMAGE");
+        if (prebuiltImage != null)
+        {
+            Console.WriteLine($"Using pre-built image: {prebuiltImage}");
+            await TagImage(prebuiltImage, _imageRef);
+        }
+        else
+        {
+            Console.WriteLine("Building v1...");
+            await DockerBuild(_imageRef, buildVersion: "v1");
+        }
         Console.WriteLine("Pushing v1...");
-        await DockerPush(pushRef);
-        await TagImage(pushRef, _imageRef);
+        await DockerPush(_imageRef);
 
         var created = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
         {
@@ -88,11 +95,9 @@ public class SelfUpdateE2eTests : PageTest
         var v1ImageId = v1Inspection.Image;
 
         Console.WriteLine("Building v2...");
-        var pushRef = $"localhost:{_registryPort}/moneyspot6:dev";
-        await DockerBuild(pushRef, buildVersion: "v2");
+        await DockerBuild(_imageRef, buildVersion: "v2");
         Console.WriteLine("Pushing v2...");
-        await DockerPush(pushRef);
-        await TagImage(pushRef, _imageRef);
+        await DockerPush(_imageRef);
         Console.WriteLine("v2 pushed.");
 
         // Navigate to system settings

@@ -9,28 +9,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  backend-build:
-    name: Build Backend
+  build:
+    name: Build Docker Image
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/backend
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: '10.0.x'
+      - name: Build Docker image
+        run: docker build -t moneyspot6:${{ github.sha }} --build-arg BUILD_VERSION=${{ github.sha }} .
 
-      - name: Publish (Release)
-        run: dotnet publish MoneySpot6.WebApp/MoneySpot6.WebApp.csproj -c Release -o publish
+      - name: Save Docker image
+        run: docker save moneyspot6:${{ github.sha }} -o /tmp/docker-image.tar
 
-      - name: Cache build output
+      - name: Cache Docker image
         uses: actions/cache/save@v5
         with:
-          path: src/backend/publish
-          key: backend-${{ github.sha }}
+          path: /tmp/docker-image.tar
+          key: docker-image-${{ github.sha }}
 
   backend-test:
     name: Test Backend (${{ matrix.db }})
@@ -61,13 +56,13 @@ jobs:
         working-directory: src/frontend
 
       - name: Build (Debug)
-        run: dotnet build
+        run: dotnet build MoneySpot6.WebApp.Tests/MoneySpot6.WebApp.Tests.csproj
 
       - name: Install Playwright browsers
         run: pwsh MoneySpot6.WebApp.Tests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
 
       - name: Test
-        run: dotnet test --no-build --filter "FullyQualifiedName~${{ matrix.db }}" --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+        run: dotnet test MoneySpot6.WebApp.Tests/MoneySpot6.WebApp.Tests.csproj --no-build --filter "FullyQualifiedName~${{ matrix.db }}" --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
 
       - name: Publish test results
         uses: dorny/test-reporter@v2
@@ -77,14 +72,20 @@ jobs:
           path: src/backend/TestResults/**/*.trx
           reporter: dotnet-trx
 
-  frontend:
-    name: Build Frontend
+  e2e-test:
+    name: E2E Tests
+    needs: [build]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: src/frontend
+        working-directory: src/backend
     steps:
       - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -93,98 +94,41 @@ jobs:
           cache: npm
           cache-dependency-path: src/frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: npm ci
+        working-directory: src/frontend
 
-      - name: Build
-        run: npm run build
-
-      - name: Cache build output
-        uses: actions/cache/save@v5
-        with:
-          path: src/frontend/dist/money-spot6.client/browser
-          key: frontend-${{ github.sha }}
-
-  hbci-adapter:
-    name: Build HBCI Adapter
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/hbci-adapter
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: corretto
-          java-version: '21'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          add-job-summary: never
-
-      - name: Build
-        run: chmod +x ./gradlew && ./gradlew jar
-
-      - name: Cache build output
-        uses: actions/cache/save@v5
-        with:
-          path: src/hbci-adapter/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar
-          key: hbci-adapter-${{ github.sha }}
-
-  docker:
-    name: Package Docker Image
-    needs: [backend-build, backend-test, frontend, hbci-adapter]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore backend
+      - name: Restore Docker image
         uses: actions/cache/restore@v5
-        with:
-          path: src/backend/publish
-          key: backend-${{ github.sha }}
-
-      - name: Restore frontend
-        uses: actions/cache/restore@v5
-        with:
-          path: src/frontend/dist/money-spot6.client/browser
-          key: frontend-${{ github.sha }}
-
-      - name: Restore HBCI adapter
-        uses: actions/cache/restore@v5
-        with:
-          path: src/hbci-adapter/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar
-          key: hbci-adapter-${{ github.sha }}
-
-      - name: Create Dockerfile
-        run: |
-          cat <<'EOF' > Dockerfile
-          FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.22
-          WORKDIR /app
-          RUN apk update && apk add openjdk21
-          COPY src/backend/publish /app
-          COPY src/frontend/dist/money-spot6.client/browser /app/wwwroot
-          COPY src/hbci-adapter/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar /app/hbci-adapter/HbciAdapter6.jar
-          ENV ASPNETCORE_URLS="http://0.0.0.0:80"
-          ENTRYPOINT [ "dotnet", "MoneySpot6.WebApp.dll" ]
-          EOF
-
-      - name: Build Docker image
-        run: docker build -t moneyspot6:${{ github.sha }} .
-
-      - name: Save Docker image
-        run: docker save moneyspot6:${{ github.sha }} -o /tmp/docker-image.tar
-
-      - name: Cache Docker image
-        uses: actions/cache/save@v5
         with:
           path: /tmp/docker-image.tar
           key: docker-image-${{ github.sha }}
 
+      - name: Load Docker image
+        run: docker load -i /tmp/docker-image.tar
+
+      - name: Build E2E tests
+        run: dotnet build MoneySpot6.E2eTests/MoneySpot6.E2eTests.csproj
+
+      - name: Install Playwright browsers
+        run: pwsh MoneySpot6.E2eTests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Run E2E tests
+        run: dotnet test MoneySpot6.E2eTests/MoneySpot6.E2eTests.csproj --no-build --logger "trx;LogFileName=e2e-results.trx" --results-directory TestResults
+        env:
+          E2E_PREBUILT_IMAGE: moneyspot6:${{ github.sha }}
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: E2E Test Results
+          path: src/backend/TestResults/**/*.trx
+          reporter: dotnet-trx
+
   push:
     name: Push Docker Image
-    needs: [docker]
+    needs: [build, backend-test, e2e-test]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     permissions:
