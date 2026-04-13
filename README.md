@@ -19,9 +19,7 @@ A self-hosted personal finance management application with German bank integrati
 ### SQLite
 
 ```bash
-docker run -d --restart unless-stopped -p 80:80 \
-  -v moneyspot6-data:/app/data \
-  dvetter/moneyspot6
+docker run -d --restart unless-stopped -p 80:80 -v moneyspot6-data:/app/data dvetter/moneyspot6
 ```
 
 Data is stored in a SQLite database in `/app/data`.
@@ -29,9 +27,7 @@ Data is stored in a SQLite database in `/app/data`.
 ### PostgreSQL
 
 ```bash
-docker run -d --restart unless-stopped -p 80:80 \
-  -e ConnectionStrings__db="Host=myserver;Database=moneyspot;Username=postgres;Password=secret" \
-  dvetter/moneyspot6
+docker run -d --restart unless-stopped -p 80:80 -e ConnectionStrings__db="Host=myserver;Database=moneyspot;Username=postgres;Password=secret" dvetter/moneyspot6
 ```
 
 ### Image Tags
