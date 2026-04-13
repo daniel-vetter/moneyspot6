@@ -16,16 +16,20 @@ A self-hosted personal finance management application with German bank integrati
 
 ## How to Run
 
+### SQLite
+
 ```bash
-docker run -d -p 80:80 -v moneyspot6-data:/app/data dvetter/moneyspot6
+docker run -d --restart unless-stopped -p 80:80 \
+  -v moneyspot6-data:/app/data \
+  dvetter/moneyspot6
 ```
 
-The application will be available at `http://localhost`.
+Data is stored in a SQLite database in `/app/data`.
 
-By default, the application uses SQLite and stores data in `/app/data`. To use PostgreSQL instead, set the `ConnectionStrings__db` environment variable:
+### PostgreSQL
 
 ```bash
-docker run -d -p 80:80 \
+docker run -d --restart unless-stopped -p 80:80 \
   -e ConnectionStrings__db="Host=myserver;Database=moneyspot;Username=postgres;Password=secret" \
   dvetter/moneyspot6
 ```
