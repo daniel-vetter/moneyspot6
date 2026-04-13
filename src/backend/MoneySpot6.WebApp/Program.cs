@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -41,6 +42,9 @@ public class Program
             options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
         });
+
+        builder.Services.AddDataProtection()
+            .PersistKeysToDbContext<Db>();
 
         if (builder.Configuration.GetValue<bool>("Auth:Disable"))
         {

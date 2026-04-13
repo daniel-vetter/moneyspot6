@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -39,8 +40,9 @@ public class SqliteDbContext : Db
     }
 }
 
-public class Db : DbContext
+public class Db : DbContext, IDataProtectionKeyContext
 {
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; init; }
     public DbSet<DbBankConnection> BankConnections { get; init; }
     public DbSet<DbBankAccount> BankAccounts { get; init; }
     public DbSet<DbBankAccountTransaction> BankAccountTransactions{ get; init; }
