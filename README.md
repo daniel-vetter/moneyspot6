@@ -14,18 +14,39 @@ A self-hosted personal finance management application with German bank integrati
 - **Inflation Data** - Track purchasing power with VPI/CPI data (German Federal Statistics Office)
 - **Email Monitoring** - Detect transactions from email notifications (Gmail)
 
-## Tech Stack
+## How to Run
+
+```bash
+docker run -d -p 80:80 -v moneyspot6-data:/app/data dvetter/moneyspot6
+```
+
+The application will be available at `http://localhost`.
+
+By default, the application uses SQLite and stores data in `/app/data`. To use PostgreSQL instead, set the `ConnectionStrings__db` environment variable:
+
+```bash
+docker run -d -p 80:80 \
+  -e ConnectionStrings__db="Host=myserver;Database=moneyspot;Username=postgres;Password=secret" \
+  dvetter/moneyspot6
+```
+
+### Image Tags
+
+- `dev` — latest build from the develop branch
+- `latest` — latest stable release from master
+
+## Development
+
+### Tech Stack
 
 | Component | Technology |
 |---|---|
 | Backend | .NET 10, ASP.NET Core, Entity Framework Core |
 | Frontend | Angular 20, PrimeNG, Highcharts |
 | Bank Adapter | Kotlin/Java 21, HBCI4J |
-| Database | PostgreSQL |
+| Database | SQLite or PostgreSQL |
 | Auth | OpenID Connect |
 | Local Dev | .NET Aspire |
-
-## Getting Started
 
 ### Prerequisites
 
