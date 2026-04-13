@@ -7317,8 +7317,6 @@ export interface IAppDetails {
 export class SelfUpdateStatus implements ISelfUpdateStatus {
     isUpdateFeatureAvailable?: boolean;
     isUpdateAvailable?: boolean;
-    currentDigest?: string | undefined;
-    latestDigest?: string | undefined;
     lastCheck?: Date | undefined;
 
     constructor(data?: ISelfUpdateStatus) {
@@ -7334,8 +7332,6 @@ export class SelfUpdateStatus implements ISelfUpdateStatus {
         if (_data) {
             this.isUpdateFeatureAvailable = _data["isUpdateFeatureAvailable"];
             this.isUpdateAvailable = _data["isUpdateAvailable"];
-            this.currentDigest = _data["currentDigest"];
-            this.latestDigest = _data["latestDigest"];
             this.lastCheck = _data["lastCheck"] ? new Date(_data["lastCheck"].toString()) : undefined as any;
         }
     }
@@ -7351,8 +7347,6 @@ export class SelfUpdateStatus implements ISelfUpdateStatus {
         data = typeof data === 'object' ? data : {};
         data["isUpdateFeatureAvailable"] = this.isUpdateFeatureAvailable;
         data["isUpdateAvailable"] = this.isUpdateAvailable;
-        data["currentDigest"] = this.currentDigest;
-        data["latestDigest"] = this.latestDigest;
         data["lastCheck"] = this.lastCheck ? this.lastCheck.toISOString() : undefined as any;
         return data;
     }
@@ -7361,8 +7355,6 @@ export class SelfUpdateStatus implements ISelfUpdateStatus {
 export interface ISelfUpdateStatus {
     isUpdateFeatureAvailable?: boolean;
     isUpdateAvailable?: boolean;
-    currentDigest?: string | undefined;
-    latestDigest?: string | undefined;
     lastCheck?: Date | undefined;
 }
 

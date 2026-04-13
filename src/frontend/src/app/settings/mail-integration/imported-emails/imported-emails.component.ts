@@ -7,6 +7,7 @@ import {lastValueFrom} from "rxjs";
 import {DatePipe} from "@angular/common";
 import {DialogService} from "primeng/dynamicdialog";
 import {EmailDetailsDialogComponent} from "./email-details-dialog/email-details-dialog.component";
+import {UpdateState} from "../../../common/update-state";
 
 @Component({
     selector: 'app-imported-emails',
@@ -18,6 +19,7 @@ import {EmailDetailsDialogComponent} from "./email-details-dialog/email-details-
 export class ImportedEmailsComponent implements OnInit, OnDestroy {
     mailIntegrationClient = inject(MailIntegrationClient);
     dialogService = inject(DialogService);
+    private updateState = inject(UpdateState);
 
     emails = signal<ImportedEmailResponse[] | undefined>(undefined);
     totalRecords = signal<number>(0);
@@ -31,6 +33,7 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
         await this.loadProcessingStatus();
 
         this.statusPollingInterval = window.setInterval(() => {
+            if (this.updateState.updateInProgress) return;
             this.loadProcessingStatus();
         }, 5000);
     }

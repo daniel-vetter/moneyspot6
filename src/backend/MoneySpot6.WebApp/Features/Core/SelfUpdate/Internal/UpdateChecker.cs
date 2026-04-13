@@ -1,8 +1,8 @@
 namespace MoneySpot6.WebApp.Features.Core.SelfUpdate.Internal;
 
-public record UpdateCheckResult(string? CurrentDigest, string? LatestDigest, DateTimeOffset CheckedAt)
+public record UpdateCheckResult(string CurrentImageId, string LatestImageId, DateTimeOffset CheckedAt)
 {
-    public bool IsUpdateAvailable => CurrentDigest != null && LatestDigest != null && CurrentDigest != LatestDigest;
+    public bool IsUpdateAvailable => CurrentImageId != LatestImageId;
 }
 
 [SingletonService]
@@ -30,14 +30,22 @@ public class UpdateChecker
         var containerId = Environment.MachineName;
         var inspection = await _dockerService.InspectContainer(containerId);
 
-        var currentDigest = await _dockerService.GetImageDigest(inspection.ImageId);
-        var latestDigest = await _dockerService.GetRemoteDigest(inspection.Image);
+        try
+        {
+            await _dockerService.PullImage(inspection.ImageReference);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to pull {Image}, comparing with local image", inspection.ImageReference);
+        }
 
-        LastResult = new UpdateCheckResult(currentDigest, latestDigest, DateTimeOffset.UtcNow);
+        var latestImageId = await _dockerService.GetImageId(inspection.ImageReference);
+
+        LastResult = new UpdateCheckResult(inspection.ImageId, latestImageId, DateTimeOffset.UtcNow);
 
         if (LastResult.IsUpdateAvailable)
-            _logger.LogInformation("Update available: current={Current}, latest={Latest}", currentDigest, latestDigest);
+            _logger.LogInformation("Update available: current={Current}, latest={Latest}", inspection.ImageId, latestImageId);
         else
-            _logger.LogInformation("No update available. Current digest: {Current}", currentDigest);
+            _logger.LogInformation("No update available. Current image: {Current}", inspection.ImageId);
     }
 }

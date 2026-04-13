@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { lastValueFrom } from 'rxjs';
 import { PanelModule} from "primeng/panel";
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { UpdateState } from '../../common/update-state';
 
 @Component({
     selector: 'app-system',
@@ -15,6 +16,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 export class SystemComponent implements OnDestroy, OnInit {
     private debugClient = inject(DebugClient);
     private updateClient = inject(UpdateClient);
+    private updateState = inject(UpdateState);
 
     runningProcesses: RunningProcessResponse[] = [];
     interval?: any;
@@ -40,6 +42,9 @@ export class SystemComponent implements OnDestroy, OnInit {
         try {
             await lastValueFrom(this.updateClient.checkNow());
             this.updateStatus = await lastValueFrom(this.updateClient.getStatus());
+        } catch {
+            // Check may fail if pull fails - status still reflects local comparison
+            this.updateStatus = await lastValueFrom(this.updateClient.getStatus());
         } finally {
             this.isChecking = false;
         }
@@ -47,11 +52,13 @@ export class SystemComponent implements OnDestroy, OnInit {
 
     async onApplyUpdateClicked() {
         this.isUpdating = true;
+        this.updateState.updateInProgress = true;
         try {
             await lastValueFrom(this.updateClient.applyUpdate());
             this.pollUntilRestarted();
         } catch {
             this.isUpdating = false;
+            this.updateState.updateInProgress = false;
         }
     }
 
@@ -71,6 +78,7 @@ export class SystemComponent implements OnDestroy, OnInit {
         this.appDetails = await lastValueFrom(this.debugClient.getAppDetails())
         this.updateStatus = await lastValueFrom(this.updateClient.getStatus());
         this.interval = setInterval(async () => {
+            if (this.updateState.updateInProgress) return;
             this.runningProcesses = await lastValueFrom(this.debugClient.getRunningAdapters());
         }, 1000);
     }

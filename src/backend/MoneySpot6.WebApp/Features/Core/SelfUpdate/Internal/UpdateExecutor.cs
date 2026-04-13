@@ -26,10 +26,9 @@ public class UpdateExecutor
         var inspection = await _dockerService.InspectContainer(containerId);
 
         _logger.LogInformation("Starting update for container {Name} ({Id}) using image {Image}",
-            inspection.ContainerName, containerId, inspection.Image.FullReference);
+            inspection.ContainerName, containerId, inspection.ImageReference);
 
         await _dockerService.PullImage(SidecarImage);
-        await _dockerService.PullImage(inspection.Image.FullReference);
 
         var script = BuildScript(inspection);
 
@@ -73,8 +72,8 @@ public class UpdateExecutor
                echo "Removing container {inspection.ContainerName}..."
                docker rm {inspection.ContainerName}
                echo "Starting new container {inspection.ContainerName}..."
-               docker run -d --name {inspection.ContainerName} {runFlags} {inspection.Image.FullReference}
+               docker run -d --name {inspection.ContainerName} {runFlags} {inspection.ImageReference}
                echo "Update complete."
-               """;
+               """.ReplaceLineEndings("\n");
     }
 }

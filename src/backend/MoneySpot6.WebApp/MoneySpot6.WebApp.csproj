@@ -42,6 +42,7 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="MoneySpot6.WebApp.Tests" />
+		<InternalsVisibleTo Include="MoneySpot6.E2eTests" />
 	</ItemGroup>
 
 	<ItemGroup>

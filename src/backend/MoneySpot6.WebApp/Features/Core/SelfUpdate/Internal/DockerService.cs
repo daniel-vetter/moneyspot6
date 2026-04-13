@@ -1,8 +1,6 @@
 using System.Collections.Immutable;
-using System.Net.Http.Headers;
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using JetBrains.Annotations;
 
 namespace MoneySpot6.WebApp.Features.Core.SelfUpdate.Internal;
 
@@ -11,8 +9,7 @@ public interface IDockerService
     bool IsRunningInContainer { get; }
     bool IsDockerSocketAvailable { get; }
     Task<ContainerInspection> InspectContainer(string containerId);
-    Task<string?> GetImageDigest(string imageId);
-    Task<string?> GetRemoteDigest(ImageInfo imageInfo);
+    Task<string> GetImageId(string imageReference);
     Task PullImage(string image);
     Task<string> RunContainer(RunContainerRequest request);
 }
@@ -28,7 +25,7 @@ public record PortBindingConfig(string ContainerPort, string HostPort, string? H
 public record ContainerInspection(
     string ContainerId,
     string ContainerName,
-    ImageInfo Image,
+    string ImageReference,
     string ImageId,
     ImmutableArray<PortBindingConfig> PortBindings,
     ImmutableArray<string> Binds,
@@ -39,15 +36,13 @@ public record ContainerInspection(
 [SingletonService<IDockerService>]
 public class DockerService : IDockerService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<DockerService> _logger;
 
     public bool IsRunningInContainer { get; } = File.Exists("/.dockerenv");
     public bool IsDockerSocketAvailable { get; } = File.Exists("/var/run/docker.sock");
 
-    public DockerService(IHttpClientFactory httpClientFactory, ILogger<DockerService> logger)
+    public DockerService(ILogger<DockerService> logger)
     {
-        _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
@@ -77,7 +72,7 @@ public class DockerService : IDockerService
         return new ContainerInspection(
             containerId,
             container.Name.TrimStart('/'),
-            ImageInfo.Parse(container.Config.Image),
+            container.Config.Image,
             container.Image,
             portBindings.ToImmutable(),
             container.HostConfig.Binds?.ToImmutableArray() ?? [],
@@ -86,89 +81,12 @@ public class DockerService : IDockerService
             container.HostConfig.NetworkMode);
     }
 
-    public async Task<string?> GetImageDigest(string imageId)
+    public async Task<string> GetImageId(string imageReference)
     {
         using var client = CreateClient();
-        var images = await client.Images.ListImagesAsync(new ImagesListParameters { All = true });
-        var image = images.FirstOrDefault(i => i.ID == imageId);
-
-        if (image?.RepoDigests?.Count > 0)
-            return image.RepoDigests.First();
-
-        return imageId;
+        var image = await client.Images.InspectImageAsync(imageReference);
+        return image.ID;
     }
-
-    public async Task<string?> GetRemoteDigest(ImageInfo imageInfo)
-    {
-        var registryBase = $"https://{imageInfo.RegistryHost}";
-        var manifestUrl = $"{registryBase}/v2/{imageInfo.ImagePath}/manifests/{imageInfo.Tag}";
-
-        var httpClient = _httpClientFactory.CreateClient();
-
-        // Discover the token endpoint by making an unauthenticated request
-        var challengeRequest = new HttpRequestMessage(HttpMethod.Head, manifestUrl);
-        challengeRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.docker.distribution.manifest.v2+json"));
-        challengeRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.oci.image.index.v1+json"));
-
-        var challengeResponse = await httpClient.SendAsync(challengeRequest);
-
-        string? token = null;
-        if (challengeResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized
-            && challengeResponse.Headers.WwwAuthenticate.FirstOrDefault() is { } authHeader)
-        {
-            var tokenUrl = ParseTokenUrl(authHeader.ToString(), imageInfo.ImagePath);
-            if (tokenUrl != null)
-            {
-                var tokenResponse = await httpClient.GetAsync(tokenUrl);
-                tokenResponse.EnsureSuccessStatusCode();
-                var tokenJson = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
-                token = tokenJson?.Token;
-            }
-        }
-
-        // Fetch manifest with token (or without if registry doesn't require auth)
-        var request = new HttpRequestMessage(HttpMethod.Head, manifestUrl);
-        if (token != null)
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.docker.distribution.manifest.v2+json"));
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.oci.image.index.v1+json"));
-
-        var response = await httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        var digest = response.Headers.TryGetValues("Docker-Content-Digest", out var values)
-            ? values.FirstOrDefault()
-            : null;
-
-        return digest != null ? $"{imageInfo.ImageWithoutTag}@{digest}" : null;
-    }
-
-    internal static string? ParseTokenUrl(string wwwAuthenticate, string repository)
-    {
-        var parameters = new Dictionary<string, string>();
-        var parts = wwwAuthenticate.Split(' ', 2);
-        if (parts.Length < 2 || !parts[0].Equals("Bearer", StringComparison.OrdinalIgnoreCase))
-            return null;
-
-        foreach (var pair in parts[1].Split(','))
-        {
-            var kv = pair.Split('=', 2);
-            if (kv.Length == 2)
-                parameters[kv[0].Trim()] = kv[1].Trim('"');
-        }
-
-        if (!parameters.TryGetValue("realm", out var realm))
-            return null;
-
-        var query = $"scope=repository:{repository}:pull";
-        if (parameters.TryGetValue("service", out var service))
-            query = $"service={service}&{query}";
-
-        return $"{realm}?{query}";
-    }
-
-    [UsedImplicitly]
-    private record TokenResponse(string Token);
 
     public async Task PullImage(string image)
     {

@@ -22,8 +22,6 @@ public class SelfUpdateFacade
         return new SelfUpdateStatus(
             _dockerService.IsRunningInContainer && _dockerService.IsDockerSocketAvailable,
             result?.IsUpdateAvailable ?? false,
-            result?.CurrentDigest,
-            result?.LatestDigest,
             result?.CheckedAt);
     }
 
@@ -41,6 +39,4 @@ public class SelfUpdateFacade
 public record SelfUpdateStatus(
     bool IsUpdateFeatureAvailable,
     bool IsUpdateAvailable,
-    string? CurrentDigest,
-    string? LatestDigest,
     DateTimeOffset? LastCheck);

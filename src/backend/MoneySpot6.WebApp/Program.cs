@@ -42,7 +42,7 @@ public class Program
             options.KnownProxies.Clear();
         });
 
-        if (builder.Environment.EnvironmentName == "Testing")
+        if (builder.Configuration.GetValue<bool>("Auth:Disable"))
         {
             builder.Services.AddAuthentication(DevelopmentAuthenticationHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, DevelopmentAuthenticationHandler>(DevelopmentAuthenticationHandler.SchemeName, null);
