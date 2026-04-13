@@ -7,7 +7,7 @@ namespace MoneySpot6.WebApp.Tests.Features.SelfUpdate;
 public class UpdateExecutorTests
 {
     [Test]
-    public async Task Pulls_sidecar_and_app_image()
+    public async Task Pulls_sidecar_image()
     {
         var fake = new FakeDockerService("ghcr.io/daniel-vetter/moneyspot6:latest");
         var sut = CreateExecutor(fake);
@@ -15,7 +15,6 @@ public class UpdateExecutorTests
         await sut.Execute();
 
         fake.PulledImages.ShouldContain("docker:cli");
-        fake.PulledImages.ShouldContain("ghcr.io/daniel-vetter/moneyspot6:latest");
     }
 
     [Test]
@@ -140,7 +139,6 @@ public class UpdateExecutorTests
         var fake = new FakeDockerService("my.private.registry:5000/team/app:stable");
         var script = await ExecuteAndGetScript(fake);
 
-        fake.PulledImages.ShouldContain("my.private.registry:5000/team/app:stable");
         script.ShouldContain("my.private.registry:5000/team/app:stable");
     }
 

@@ -16,8 +16,7 @@ public class FakeDockerService : IDockerService
 
     public bool IsRunningInContainer { get; set; } = true;
     public bool IsDockerSocketAvailable { get; set; } = true;
-    public string? CurrentDigest { get; set; }
-    public string? RemoteDigest { get; set; }
+    public string LatestImageId { get; set; } = "sha256:latest456";
     public List<string> PulledImages { get; } = [];
     public RunContainerRequest? LastRunContainerRequest { get; private set; }
 
@@ -25,7 +24,6 @@ public class FakeDockerService : IDockerService
         string imageReference,
         string containerName = "test-container",
         string imageId = "sha256:abc123",
-        string? currentDigest = null,
         ImmutableArray<PortBindingConfig>? ports = null,
         ImmutableArray<string>? binds = null,
         ImmutableArray<string>? env = null,
@@ -35,7 +33,6 @@ public class FakeDockerService : IDockerService
         _imageReference = imageReference;
         _containerName = containerName;
         _imageId = imageId;
-        CurrentDigest = currentDigest;
         _ports = ports ?? [];
         _binds = binds ?? [];
         _env = env ?? [];
@@ -48,7 +45,7 @@ public class FakeDockerService : IDockerService
         return Task.FromResult(new ContainerInspection(
             containerId,
             _containerName,
-            ImageInfo.Parse(_imageReference),
+            _imageReference,
             _imageId,
             _ports,
             _binds,
@@ -57,14 +54,9 @@ public class FakeDockerService : IDockerService
             _networkMode));
     }
 
-    public Task<string?> GetImageDigest(string imageId)
+    public Task<string> GetImageId(string imageReference)
     {
-        return Task.FromResult<string?>(CurrentDigest ?? $"{_imageReference.Split(':')[0]}@sha256:currentdigest");
-    }
-
-    public Task<string?> GetRemoteDigest(ImageInfo imageInfo)
-    {
-        return Task.FromResult<string?>(RemoteDigest ?? $"{imageInfo.ImageWithoutTag}@sha256:remotedigest");
+        return Task.FromResult(LatestImageId);
     }
 
     public Task PullImage(string image)

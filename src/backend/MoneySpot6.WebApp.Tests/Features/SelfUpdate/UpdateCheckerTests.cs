@@ -7,12 +7,11 @@ namespace MoneySpot6.WebApp.Tests.Features.SelfUpdate;
 public class UpdateCheckerTests
 {
     [Test]
-    public async Task Detects_update_when_digests_differ()
+    public async Task Detects_update_when_image_ids_differ()
     {
-        var fake = new FakeDockerService("ghcr.io/daniel-vetter/moneyspot6:latest")
+        var fake = new FakeDockerService("ghcr.io/daniel-vetter/moneyspot6:latest", imageId: "sha256:old")
         {
-            CurrentDigest = "ghcr.io/daniel-vetter/moneyspot6@sha256:olddigest",
-            RemoteDigest = "ghcr.io/daniel-vetter/moneyspot6@sha256:newdigest"
+            LatestImageId = "sha256:new"
         };
         var sut = CreateChecker(fake);
 
@@ -20,17 +19,16 @@ public class UpdateCheckerTests
 
         sut.LastResult.ShouldNotBeNull();
         sut.LastResult.IsUpdateAvailable.ShouldBeTrue();
-        sut.LastResult.CurrentDigest.ShouldBe("ghcr.io/daniel-vetter/moneyspot6@sha256:olddigest");
-        sut.LastResult.LatestDigest.ShouldBe("ghcr.io/daniel-vetter/moneyspot6@sha256:newdigest");
+        sut.LastResult.CurrentImageId.ShouldBe("sha256:old");
+        sut.LastResult.LatestImageId.ShouldBe("sha256:new");
     }
 
     [Test]
-    public async Task No_update_when_digests_match()
+    public async Task No_update_when_image_ids_match()
     {
-        var fake = new FakeDockerService("ghcr.io/daniel-vetter/moneyspot6:latest")
+        var fake = new FakeDockerService("ghcr.io/daniel-vetter/moneyspot6:latest", imageId: "sha256:same")
         {
-            CurrentDigest = "ghcr.io/daniel-vetter/moneyspot6@sha256:samedigest",
-            RemoteDigest = "ghcr.io/daniel-vetter/moneyspot6@sha256:samedigest"
+            LatestImageId = "sha256:same"
         };
         var sut = CreateChecker(fake);
 

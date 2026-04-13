@@ -50,25 +50,20 @@ public class SelfUpdateIntegrationTests
         {
             await _client.Containers.StartContainerAsync(created.ID, new ContainerStartParameters());
 
-            var dockerService = new DockerService(
-                new DefaultHttpClientFactory(),
-                NullLogger<DockerService>.Instance);
+            var dockerService = new DockerService(NullLogger<DockerService>.Instance);
 
             // 1. InspectContainer should return correct data
             var inspection = await dockerService.InspectContainer(created.ID);
 
             inspection.ContainerName.ShouldBe(containerName);
-            inspection.Image.FullReference.ShouldBe("alpine:3.20");
-            inspection.Image.RegistryHost.ShouldBe("registry-1.docker.io");
-            inspection.Image.ImagePath.ShouldBe("library/alpine");
-            inspection.Image.Tag.ShouldBe("3.20");
+            inspection.ImageReference.ShouldBe("alpine:3.20");
             inspection.Env.ShouldContain("TEST_VAR=hello");
             inspection.Binds.ShouldContain("/tmp/selfupdate-test:/data:ro");
             inspection.PortBindings.ShouldContain(p => p.ContainerPort == "8080/tcp");
 
-            // 2. GetImageDigest should return a digest
-            var digest = await dockerService.GetImageDigest(inspection.ImageId);
-            digest.ShouldNotBeNullOrEmpty();
+            // 2. GetImageId should return an ID for the image reference
+            var imageId = await dockerService.GetImageId("alpine:3.20");
+            imageId.ShouldStartWith("sha256:");
 
             // 3. BuildScript should produce a valid script from the inspection
             var executor = new UpdateExecutor(
@@ -92,34 +87,6 @@ public class SelfUpdateIntegrationTests
         }
     }
 
-    [Test]
-    public async Task GetRemoteDigest_from_ghcr()
-    {
-        var dockerService = new DockerService(
-            new DefaultHttpClientFactory(),
-            NullLogger<DockerService>.Instance);
-
-        var imageInfo = ImageInfo.Parse("ghcr.io/aquasecurity/trivy:latest");
-        var digest = await dockerService.GetRemoteDigest(imageInfo);
-
-        digest.ShouldNotBeNull();
-        digest.ShouldStartWith("ghcr.io/aquasecurity/trivy@sha256:");
-    }
-
-    [Test]
-    public async Task GetRemoteDigest_from_docker_hub()
-    {
-        var dockerService = new DockerService(
-            new DefaultHttpClientFactory(),
-            NullLogger<DockerService>.Instance);
-
-        var imageInfo = ImageInfo.Parse("alpine:3.20");
-        var digest = await dockerService.GetRemoteDigest(imageInfo);
-
-        digest.ShouldNotBeNull();
-        digest.ShouldStartWith("alpine@sha256:");
-    }
-
     private async Task PullImage(string image)
     {
         var parts = image.Split(':');
@@ -128,9 +95,4 @@ public class SelfUpdateIntegrationTests
             null,
             new Progress<JSONMessage>());
     }
-}
-
-file class DefaultHttpClientFactory : IHttpClientFactory
-{
-    public HttpClient CreateClient(string name) => new();
 }
