@@ -21,8 +21,11 @@ RUN apk update && apk add openjdk21
 COPY --from=backend /publish /app
 COPY --from=frontend /src/dist/money-spot6.client/browser /app/wwwroot
 COPY --from=hbci /src/build/libs/HbciAdapter6-1.0-SNAPSHOT.jar /app/hbci-adapter/HbciAdapter6.jar
-ARG BUILD_VERSION=unknown
+ARG BUILD_VERSION
+ARG BUILD_TIME
 LABEL build.version=$BUILD_VERSION
 ENV ASPNETCORE_HTTP_PORTS=80
+ENV BUILD_COMMIT=$BUILD_VERSION
+ENV BUILD_TIME=$BUILD_TIME
 EXPOSE 80
 ENTRYPOINT [ "dotnet", "MoneySpot6.WebApp.dll" ]
