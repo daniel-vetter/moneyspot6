@@ -8,3 +8,4 @@
 * Kein Co-Authored-By oder sonstiges AI-Branding in Commits
 * Wenn ein Service mit zugehörigem Interface erstellt wird (z.B. IDockerService + DockerService), beides in die gleiche Datei schreiben, benannt nach der Implementierung (z.B. DockerService.cs, ohne "I"-Prefix)
 * Keine statischen Methoden auf Services aufrufen — immer über DI injizieren und Instanzmethoden verwenden
+* Nach Änderungen immer `dotnet build --no-incremental` verwenden um Warnings zu prüfen (inkrementelle Builds verschlucken Warnings)
