@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace MoneySpot6.WebApp.Features.Core.SelfUpdate.Internal;
 
 [SingletonService]
@@ -38,7 +40,7 @@ public class UpdateExecutor
             SidecarImage,
             ["sh", "-c", script],
             ["/var/run/docker.sock:/var/run/docker.sock"],
-            AutoRemove: true));
+            Labels: new Dictionary<string, string> { ["moneyspot6.sidecar"] = "update" }.ToImmutableDictionary()));
     }
 
     public string BuildScript(ContainerInspection inspection)

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -84,6 +85,45 @@ public class SelfUpdateIntegrationTests
             catch { /* ignore */ }
             try { await _client.Containers.RemoveContainerAsync(containerName, new ContainerRemoveParameters { Force = true }); }
             catch { /* ignore */ }
+        }
+    }
+
+    [Test]
+    public async Task Run_container_with_label_and_find_by_label()
+    {
+        var dockerService = new DockerService(NullLogger<DockerService>.Instance);
+        var testId = Guid.NewGuid().ToString("N")[..8];
+        var labelValue = $"integration-test-{testId}";
+
+        await PullImage("alpine:3.20");
+
+        var containerId = await dockerService.RunContainer(new RunContainerRequest(
+            "alpine:3.20",
+            ["echo", "hello from sidecar"],
+            [],
+            Labels: new Dictionary<string, string> { ["moneyspot6.sidecar"] = labelValue }.ToImmutableDictionary()));
+
+        try
+        {
+            // Wait for container to finish
+            await Task.Delay(2000);
+
+            var found = await dockerService.FindContainerByLabel("moneyspot6.sidecar", labelValue);
+            found.ShouldNotBeNull();
+            found.ShouldBe(containerId);
+
+            var logs = await dockerService.GetContainerLogs(containerId);
+            logs.ShouldContain("hello from sidecar");
+
+            await dockerService.RemoveContainer(containerId);
+
+            var afterRemove = await dockerService.FindContainerByLabel("moneyspot6.sidecar", labelValue);
+            afterRemove.ShouldBeNull();
+        }
+        finally
+        {
+            try { await _client.Containers.RemoveContainerAsync(containerId, new ContainerRemoveParameters { Force = true }); }
+            catch { /* already removed */ }
         }
     }
 

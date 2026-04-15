@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Playwright;
@@ -51,6 +53,8 @@ public class SelfUpdateE2eTests : PageTest
         Console.WriteLine("Pushing v1...");
         await DockerPush(_imageRef);
 
+        _appPort = GetFreePort();
+
         var created = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
         {
             Image = _imageRef,
@@ -60,7 +64,7 @@ public class SelfUpdateE2eTests : PageTest
             {
                 PortBindings = new Dictionary<string, IList<PortBinding>>
                 {
-                    ["80/tcp"] = [new PortBinding { HostPort = "0" }]
+                    ["80/tcp"] = [new PortBinding { HostPort = _appPort.ToString() }]
                 },
                 Binds = ["/var/run/docker.sock:/var/run/docker.sock"]
             }
@@ -68,11 +72,7 @@ public class SelfUpdateE2eTests : PageTest
         ContainersToCleanup.Add(_appContainerName);
 
         await _client.Containers.StartContainerAsync(created.ID, new ContainerStartParameters());
-
-        var inspection = await _client.Containers.InspectContainerAsync(created.ID);
-        var portBinding = inspection.NetworkSettings.Ports.First(p => p.Value?.Count > 0);
-        _appPort = int.Parse(portBinding.Value[0].HostPort);
-        Console.WriteLine($"Container port {portBinding.Key} mapped to host port {_appPort}");
+        Console.WriteLine($"Container 80/tcp mapped to host port {_appPort}");
 
         Console.WriteLine($"App starting on port {_appPort}, waiting...");
         await WaitForApp();
@@ -142,6 +142,32 @@ public class SelfUpdateE2eTests : PageTest
 
         v2ImageId.ShouldNotBeNull("Container should have been restarted with a new image within 120s");
         v2ImageId.ShouldNotBe(v1ImageId, "Container should be running a different image after update");
+
+        // Wait for the new app to be ready (it will clean up the sidecar on startup)
+        await WaitForApp();
+
+        // Wait for the background worker to clean up the sidecar container
+        var sidecarDeadline = DateTime.UtcNow.AddSeconds(30);
+        while (DateTime.UtcNow < sidecarDeadline)
+        {
+            var sidecarContainers = await _client.Containers.ListContainersAsync(new ContainersListParameters
+            {
+                All = true,
+                Filters = new Dictionary<string, IDictionary<string, bool>>
+                {
+                    ["label"] = new Dictionary<string, bool> { ["moneyspot6.sidecar=update"] = true }
+                }
+            });
+            if (sidecarContainers.Count == 0) break;
+            await Task.Delay(1000);
+        }
+
+        // Verify the update log was persisted by checking the UI
+        await Page.GotoAsync("/settings/system");
+        var logsButton = Page.GetByRole(AriaRole.Button, new() { Name = "Update-Logs anzeigen" });
+        await Expect(logsButton).ToBeVisibleAsync(new() { Timeout = 30_000 });
+        await logsButton.ClickAsync();
+        await Expect(Page.GetByText("Update complete")).ToBeVisibleAsync(new() { Timeout = 10_000 });
     }
 
     private static async Task StartRegistry()
@@ -257,6 +283,15 @@ public class SelfUpdateE2eTests : PageTest
             dir = Directory.GetParent(dir)?.FullName;
         }
         throw new Exception("Could not find project root (no Dockerfile found)");
+    }
+
+    private static int GetFreePort()
+    {
+        var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
+        return port;
     }
 
     private record ProcessResult(int ExitCode, string Output);

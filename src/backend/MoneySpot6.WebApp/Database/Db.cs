@@ -62,6 +62,7 @@ public class Db : DbContext, IDataProtectionKeyContext
     public DbSet<DbSimulationLog> SimulationLogs { get; init; }
     public DbSet<DbSimulationTransaction> SimulationTransactions { get; init; }
     public DbSet<DbSimulationDaySummary> SimulationDaySummaries { get; init; }
+    public DbSet<DbUpdateLog> UpdateLogs { get; init; }
 
     public Db(DbContextOptions options) : base(options)
     {
@@ -549,4 +550,12 @@ public class DbSimulationDaySummary
     public required decimal Balance { get; set; }
     public required decimal Amount { get; set; }
     public required decimal TotalStockValue { get; set; }
+}
+
+[Table("UpdateLogs")]
+public class DbUpdateLog
+{
+    public int Id { get; set; }
+    public required DateTimeOffset CreatedAt { get; set; }
+    public required string Log { get; set; }
 }

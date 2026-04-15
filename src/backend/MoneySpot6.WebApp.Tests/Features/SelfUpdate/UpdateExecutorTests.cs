@@ -18,7 +18,7 @@ public class UpdateExecutorTests
     }
 
     [Test]
-    public async Task Container_request_has_auto_remove_and_docker_socket()
+    public async Task Container_request_has_no_auto_remove_and_docker_socket()
     {
         var fake = new FakeDockerService("ghcr.io/daniel-vetter/moneyspot6:latest");
         var sut = CreateExecutor(fake);
@@ -26,9 +26,21 @@ public class UpdateExecutorTests
         await sut.Execute();
 
         fake.LastRunContainerRequest.ShouldNotBeNull();
-        fake.LastRunContainerRequest.AutoRemove.ShouldBeTrue();
+        fake.LastRunContainerRequest.AutoRemove.ShouldBeFalse();
         fake.LastRunContainerRequest.Binds.ShouldContain("/var/run/docker.sock:/var/run/docker.sock");
         fake.LastRunContainerRequest.Image.ShouldBe("docker:cli");
+    }
+
+    [Test]
+    public async Task Container_request_has_sidecar_label()
+    {
+        var fake = new FakeDockerService("ghcr.io/daniel-vetter/moneyspot6:latest");
+        var sut = CreateExecutor(fake);
+
+        await sut.Execute();
+
+        fake.LastRunContainerRequest.ShouldNotBeNull();
+        fake.LastRunContainerRequest.Labels.ShouldContainKeyAndValue("moneyspot6.sidecar", "update");
     }
 
     [Test]

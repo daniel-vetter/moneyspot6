@@ -1,15 +1,16 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import {AppDetails, DebugClient, RunningProcessResponse, UpdateClient, SelfUpdateStatus} from '../../server';
+import {AppDetails, DebugClient, RunningProcessResponse, UpdateClient, SelfUpdateStatus, UpdateLogEntry} from '../../server';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom } from 'rxjs';
 import { PanelModule} from "primeng/panel";
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DialogModule } from 'primeng/dialog';
 import { UpdateState } from '../../common/update-state';
 
 @Component({
     selector: 'app-system',
-    imports: [ButtonModule, PanelModule, ProgressSpinnerModule, DatePipe],
+    imports: [ButtonModule, PanelModule, ProgressSpinnerModule, DialogModule, DatePipe],
     templateUrl: './system.component.html',
     styleUrl: './system.component.scss'
 })
@@ -24,6 +25,8 @@ export class SystemComponent implements OnDestroy, OnInit {
     updateStatus?: SelfUpdateStatus;
     isChecking = false;
     isUpdating = false;
+    showUpdateLogs = false;
+    updateLogs: UpdateLogEntry[] = [];
 
     async OnReprocessTransactionpParsingClicked() {
         await lastValueFrom(this.debugClient.reprocessTransactionParsing());
@@ -48,6 +51,11 @@ export class SystemComponent implements OnDestroy, OnInit {
         } finally {
             this.isChecking = false;
         }
+    }
+
+    async onShowUpdateLogsClicked() {
+        this.updateLogs = await lastValueFrom(this.updateClient.getLogs());
+        this.showUpdateLogs = true;
     }
 
     async onApplyUpdateClicked() {

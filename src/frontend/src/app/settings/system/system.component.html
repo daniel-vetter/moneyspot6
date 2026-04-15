@@ -48,8 +48,22 @@
             <p style="margin-top: 8px; color: gray; font-size: 0.9em">Letzte Prüfung: {{ updateStatus!.lastCheck | date:'medium' }}</p>
         }
     }
+    <p-button (onClick)="onShowUpdateLogsClicked()" severity="secondary" [text]="true">Update-Logs anzeigen</p-button>
     <br><br>
 }
+
+<p-dialog header="Update-Logs" [(visible)]="showUpdateLogs" [modal]="true" [style]="{ width: '700px' }">
+    @if (updateLogs.length === 0) {
+        <p>Keine Update-Logs vorhanden.</p>
+    } @else {
+        @for (log of updateLogs; track log.id) {
+            <div style="margin-bottom: 16px">
+                <p style="margin: 0 0 4px 0; color: gray; font-size: 0.9em">{{ log.createdAt | date:'medium' }}</p>
+                <pre style="background: var(--surface-ground); padding: 12px; border-radius: 6px; white-space: pre-wrap; margin: 0; font-size: 0.85em">{{ log.log }}</pre>
+            </div>
+        }
+    }
+</p-dialog>
 
 <p-button (onClick)="OnReprocessTransactionpParsingClicked()">Reprocess transaction parsing</p-button><br><br>
 <p-button (onClick)="OnReimportStockDataLast30DaysClicked()">Reimport stock data (last 30 days)</p-button><br><br>

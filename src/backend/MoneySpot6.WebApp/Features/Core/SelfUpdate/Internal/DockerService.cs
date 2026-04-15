@@ -12,13 +12,17 @@ public interface IDockerService
     Task<string> GetImageId(string imageReference);
     Task PullImage(string image);
     Task<string> RunContainer(RunContainerRequest request);
+    Task<string?> FindContainerByLabel(string label, string value);
+    Task<string> GetContainerLogs(string containerId);
+    Task RemoveContainer(string containerId);
 }
 
 public record RunContainerRequest(
     string Image,
     ImmutableArray<string> Cmd,
     ImmutableArray<string> Binds,
-    bool AutoRemove = false);
+    bool AutoRemove = false,
+    ImmutableDictionary<string, string>? Labels = null);
 
 public record PortBindingConfig(string ContainerPort, string HostPort, string? HostIp);
 
@@ -110,7 +114,7 @@ public class DockerService : IDockerService
     {
         using var client = CreateClient();
 
-        var container = await client.Containers.CreateContainerAsync(new CreateContainerParameters
+        var createParams = new CreateContainerParameters
         {
             Image = request.Image,
             Cmd = [..request.Cmd],
@@ -119,12 +123,54 @@ public class DockerService : IDockerService
                 Binds = [..request.Binds],
                 AutoRemove = request.AutoRemove
             }
-        });
+        };
+
+        if (request.Labels is { Count: > 0 })
+            createParams.Labels = new Dictionary<string, string>(request.Labels);
+
+        var container = await client.Containers.CreateContainerAsync(createParams);
 
         await client.Containers.StartContainerAsync(container.ID, new ContainerStartParameters());
         _logger.LogInformation("Container started: {Id}", container.ID);
 
         return container.ID;
+    }
+
+    public async Task<string?> FindContainerByLabel(string label, string value)
+    {
+        using var client = CreateClient();
+
+        var containers = await client.Containers.ListContainersAsync(new ContainersListParameters
+        {
+            All = true,
+            Filters = new Dictionary<string, IDictionary<string, bool>>
+            {
+                ["label"] = new Dictionary<string, bool> { [$"{label}={value}"] = true }
+            }
+        });
+
+        return containers.FirstOrDefault()?.ID;
+    }
+
+    public async Task<string> GetContainerLogs(string containerId)
+    {
+        using var client = CreateClient();
+
+        var stream = await client.Containers.GetContainerLogsAsync(containerId, new ContainerLogsParameters
+        {
+            ShowStdout = true,
+            ShowStderr = true
+        });
+
+        var (stdout, stderr) = await stream.ReadOutputToEndAsync(default);
+        return stdout + stderr;
+    }
+
+    public async Task RemoveContainer(string containerId)
+    {
+        using var client = CreateClient();
+        await client.Containers.RemoveContainerAsync(containerId, new ContainerRemoveParameters { Force = true });
+        _logger.LogInformation("Container removed: {Id}", containerId);
     }
 
     private static DockerClient CreateClient()

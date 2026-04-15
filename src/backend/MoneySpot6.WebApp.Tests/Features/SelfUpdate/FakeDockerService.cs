@@ -19,6 +19,9 @@ public class FakeDockerService : IDockerService
     public string LatestImageId { get; set; } = "sha256:latest456";
     public List<string> PulledImages { get; } = [];
     public RunContainerRequest? LastRunContainerRequest { get; private set; }
+    public List<string> RemovedContainers { get; } = [];
+    public Dictionary<string, string> ContainerLogs { get; } = new();
+    public Dictionary<string, (string Label, string Value)> LabeledContainers { get; } = new();
 
     public FakeDockerService(
         string imageReference,
@@ -68,6 +71,34 @@ public class FakeDockerService : IDockerService
     public Task<string> RunContainer(RunContainerRequest request)
     {
         LastRunContainerRequest = request;
-        return Task.FromResult("container-id");
+        var containerId = "container-id";
+        if (request.Labels.Count > 0)
+        {
+            foreach (var (label, value) in request.Labels)
+                LabeledContainers[containerId] = (label, value);
+        }
+        return Task.FromResult(containerId);
+    }
+
+    public Task<string?> FindContainerByLabel(string label, string value)
+    {
+        foreach (var (id, (l, v)) in LabeledContainers)
+        {
+            if (l == label && v == value)
+                return Task.FromResult<string?>(id);
+        }
+        return Task.FromResult<string?>(null);
+    }
+
+    public Task<string> GetContainerLogs(string containerId)
+    {
+        return Task.FromResult(ContainerLogs.GetValueOrDefault(containerId, ""));
+    }
+
+    public Task RemoveContainer(string containerId)
+    {
+        RemovedContainers.Add(containerId);
+        LabeledContainers.Remove(containerId);
+        return Task.CompletedTask;
     }
 }

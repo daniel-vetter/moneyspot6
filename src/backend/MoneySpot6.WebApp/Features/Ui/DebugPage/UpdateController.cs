@@ -1,4 +1,7 @@
+using System.Collections.Immutable;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.SelfUpdate;
 
 namespace MoneySpot6.WebApp.Features.Ui.DebugPage;
@@ -8,10 +11,12 @@ namespace MoneySpot6.WebApp.Features.Ui.DebugPage;
 public class UpdateController : Controller
 {
     private readonly SelfUpdateFacade _selfUpdateFacade;
+    private readonly Db _db;
 
-    public UpdateController(SelfUpdateFacade selfUpdateFacade)
+    public UpdateController(SelfUpdateFacade selfUpdateFacade, Db db)
     {
         _selfUpdateFacade = selfUpdateFacade;
+        _db = db;
     }
 
     [HttpGet("GetStatus")]
@@ -31,4 +36,15 @@ public class UpdateController : Controller
     {
         await _selfUpdateFacade.ApplyUpdate();
     }
+
+    [HttpGet("GetLogs")]
+    public async Task<ImmutableArray<UpdateLogEntry>> GetLogs()
+    {
+        return [..await _db.UpdateLogs
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new UpdateLogEntry(x.Id, x.CreatedAt, x.Log))
+            .ToListAsync()];
+    }
 }
+
+public record UpdateLogEntry(int Id, DateTimeOffset CreatedAt, string Log);

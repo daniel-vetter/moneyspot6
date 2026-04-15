@@ -975,6 +975,26 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                     b.ToTable("StockTransactions");
                 });
 
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbUpdateLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Log")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UpdateLogs");
+                });
+
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbBankAccount", b =>
                 {
                     b.HasOne("MoneySpot6.WebApp.Database.DbBankConnection", "BankConnection")
