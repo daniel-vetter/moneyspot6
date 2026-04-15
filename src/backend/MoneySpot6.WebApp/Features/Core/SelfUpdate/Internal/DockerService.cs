@@ -68,8 +68,14 @@ public class DockerService : IDockerService
         string? restartPolicy = null;
         if (container.HostConfig.RestartPolicy?.Name is { } rp && rp != RestartPolicyKind.Undefined && rp != RestartPolicyKind.No)
         {
-            restartPolicy = rp.ToString().ToLowerInvariant().Replace("_", "-");
-            if (container.HostConfig.RestartPolicy.MaximumRetryCount > 0)
+            restartPolicy = rp switch
+            {
+                RestartPolicyKind.Always => "always",
+                RestartPolicyKind.UnlessStopped => "unless-stopped",
+                RestartPolicyKind.OnFailure => "on-failure",
+                _ => null
+            };
+            if (restartPolicy != null && container.HostConfig.RestartPolicy.MaximumRetryCount > 0)
                 restartPolicy += $":{container.HostConfig.RestartPolicy.MaximumRetryCount}";
         }
 
