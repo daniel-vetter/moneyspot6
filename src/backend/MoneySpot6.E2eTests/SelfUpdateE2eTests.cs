@@ -66,7 +66,8 @@ public class SelfUpdateE2eTests : PageTest
                 {
                     ["80/tcp"] = [new PortBinding { HostPort = _appPort.ToString() }]
                 },
-                Binds = ["/var/run/docker.sock:/var/run/docker.sock"]
+                Binds = ["/var/run/docker.sock:/var/run/docker.sock"],
+                RestartPolicy = new RestartPolicy { Name = RestartPolicyKind.UnlessStopped }
             }
         });
         ContainersToCleanup.Add(_appContainerName);

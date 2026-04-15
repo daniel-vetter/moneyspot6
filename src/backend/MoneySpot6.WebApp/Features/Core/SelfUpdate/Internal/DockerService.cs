@@ -26,6 +26,8 @@ public record RunContainerRequest(
 
 public record PortBindingConfig(string ContainerPort, string HostPort, string? HostIp);
 
+public enum ContainerRestartPolicy { None, Always, UnlessStopped, OnFailure }
+
 public record ContainerInspection(
     string ContainerId,
     string ContainerName,
@@ -34,7 +36,8 @@ public record ContainerInspection(
     ImmutableArray<PortBindingConfig> PortBindings,
     ImmutableArray<string> Binds,
     ImmutableArray<string> Env,
-    string? RestartPolicy,
+    ContainerRestartPolicy RestartPolicy,
+    int RestartPolicyMaxRetries,
     string? NetworkMode);
 
 [SingletonService<IDockerService>]
@@ -65,19 +68,13 @@ public class DockerService : IDockerService
             }
         }
 
-        string? restartPolicy = null;
-        if (container.HostConfig.RestartPolicy?.Name is { } rp && rp != RestartPolicyKind.Undefined && rp != RestartPolicyKind.No)
+        var restartPolicy = container.HostConfig.RestartPolicy?.Name switch
         {
-            restartPolicy = rp switch
-            {
-                RestartPolicyKind.Always => "always",
-                RestartPolicyKind.UnlessStopped => "unless-stopped",
-                RestartPolicyKind.OnFailure => "on-failure",
-                _ => null
-            };
-            if (restartPolicy != null && container.HostConfig.RestartPolicy.MaximumRetryCount > 0)
-                restartPolicy += $":{container.HostConfig.RestartPolicy.MaximumRetryCount}";
-        }
+            RestartPolicyKind.Always => ContainerRestartPolicy.Always,
+            RestartPolicyKind.UnlessStopped => ContainerRestartPolicy.UnlessStopped,
+            RestartPolicyKind.OnFailure => ContainerRestartPolicy.OnFailure,
+            _ => ContainerRestartPolicy.None
+        };
 
         return new ContainerInspection(
             containerId,
@@ -88,6 +85,7 @@ public class DockerService : IDockerService
             container.HostConfig.Binds?.ToImmutableArray() ?? [],
             container.Config.Env?.ToImmutableArray() ?? [],
             restartPolicy,
+            (int)(container.HostConfig.RestartPolicy?.MaximumRetryCount ?? 0),
             container.HostConfig.NetworkMode);
     }
 

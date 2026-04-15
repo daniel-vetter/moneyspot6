@@ -59,8 +59,19 @@ public class UpdateExecutor
         foreach (var env in inspection.Env)
             flags.Add($"-e '{env}'");
 
-        if (inspection.RestartPolicy is { } restart && restart != "" && restart != "no")
-            flags.Add($"--restart {restart}");
+        var restartFlag = inspection.RestartPolicy switch
+        {
+            ContainerRestartPolicy.Always => "always",
+            ContainerRestartPolicy.UnlessStopped => "unless-stopped",
+            ContainerRestartPolicy.OnFailure => "on-failure",
+            _ => null
+        };
+        if (restartFlag != null)
+        {
+            if (inspection.RestartPolicy == ContainerRestartPolicy.OnFailure && inspection.RestartPolicyMaxRetries > 0)
+                restartFlag += $":{inspection.RestartPolicyMaxRetries}";
+            flags.Add($"--restart {restartFlag}");
+        }
 
         if (inspection.NetworkMode is { } network && network != "" && network != "default" && network != "bridge")
             flags.Add($"--network {network}");

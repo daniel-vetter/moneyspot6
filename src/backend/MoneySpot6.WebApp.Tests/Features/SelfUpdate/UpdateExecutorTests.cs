@@ -100,19 +100,30 @@ public class UpdateExecutorTests
         script.ShouldContain("-e 'DB_CONNECTION=host=localhost;port=5432'");
     }
 
-    [Test]
-    public async Task Script_includes_restart_policy()
+    [TestCase(ContainerRestartPolicy.UnlessStopped, "--restart unless-stopped")]
+    [TestCase(ContainerRestartPolicy.Always, "--restart always")]
+    [TestCase(ContainerRestartPolicy.OnFailure, "--restart on-failure")]
+    public async Task Script_includes_restart_policy(ContainerRestartPolicy policy, string expected)
     {
-        var fake = new FakeDockerService("app:latest", restartPolicy: "unless-stopped");
+        var fake = new FakeDockerService("app:latest", restartPolicy: policy);
         var script = await ExecuteAndGetScript(fake);
 
-        script.ShouldContain("--restart unless-stopped");
+        script.ShouldContain(expected);
+    }
+
+    [Test]
+    public async Task Script_includes_on_failure_max_retries()
+    {
+        var fake = new FakeDockerService("app:latest", restartPolicy: ContainerRestartPolicy.OnFailure, restartPolicyMaxRetries: 5);
+        var script = await ExecuteAndGetScript(fake);
+
+        script.ShouldContain("--restart on-failure:5");
     }
 
     [Test]
     public async Task Script_excludes_no_restart_policy()
     {
-        var fake = new FakeDockerService("app:latest", restartPolicy: "no");
+        var fake = new FakeDockerService("app:latest", restartPolicy: ContainerRestartPolicy.None);
         var script = await ExecuteAndGetScript(fake);
 
         script.ShouldNotContain("--restart");
@@ -161,7 +172,7 @@ public class UpdateExecutorTests
             ports: [new PortBindingConfig("8080/tcp", "80", null)],
             binds: ["/data:/app/data"],
             env: ["ASPNETCORE_ENVIRONMENT=Production"],
-            restartPolicy: "always",
+            restartPolicy: ContainerRestartPolicy.Always,
             networkMode: "traefik");
         var script = await ExecuteAndGetScript(fake);
 

@@ -11,7 +11,8 @@ public class FakeDockerService : IDockerService
     private readonly ImmutableArray<PortBindingConfig> _ports;
     private readonly ImmutableArray<string> _binds;
     private readonly ImmutableArray<string> _env;
-    private readonly string? _restartPolicy;
+    private readonly ContainerRestartPolicy _restartPolicy;
+    private readonly int _restartPolicyMaxRetries;
     private readonly string? _networkMode;
 
     public bool IsRunningInContainer { get; set; } = true;
@@ -30,7 +31,8 @@ public class FakeDockerService : IDockerService
         ImmutableArray<PortBindingConfig>? ports = null,
         ImmutableArray<string>? binds = null,
         ImmutableArray<string>? env = null,
-        string? restartPolicy = null,
+        ContainerRestartPolicy restartPolicy = ContainerRestartPolicy.None,
+        int restartPolicyMaxRetries = 0,
         string? networkMode = null)
     {
         _imageReference = imageReference;
@@ -40,6 +42,7 @@ public class FakeDockerService : IDockerService
         _binds = binds ?? [];
         _env = env ?? [];
         _restartPolicy = restartPolicy;
+        _restartPolicyMaxRetries = restartPolicyMaxRetries;
         _networkMode = networkMode;
     }
 
@@ -54,6 +57,7 @@ public class FakeDockerService : IDockerService
             _binds,
             _env,
             _restartPolicy,
+            _restartPolicyMaxRetries,
             _networkMode));
     }
 
