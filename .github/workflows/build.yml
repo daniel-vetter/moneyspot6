@@ -72,6 +72,45 @@ jobs:
           path: src/backend/TestResults/**/*.trx
           reporter: dotnet-trx
 
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src/frontend
+
+      - name: Build (Debug)
+        run: dotnet build MoneySpot6.WebApp.Tests/MoneySpot6.WebApp.Tests.csproj
+
+      - name: Test
+        run: dotnet test MoneySpot6.WebApp.Tests/MoneySpot6.WebApp.Tests.csproj --no-build --filter "FullyQualifiedName!~Sqlite&FullyQualifiedName!~Postgres" --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: Unit Test Results
+          path: src/backend/TestResults/**/*.trx
+          reporter: dotnet-trx
+
   e2e-test:
     name: E2E Tests
     needs: [build]
@@ -128,7 +167,7 @@ jobs:
 
   push:
     name: Push Docker Image
-    needs: [build, backend-test, e2e-test]
+    needs: [build, unit-test, backend-test, e2e-test]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     permissions:
