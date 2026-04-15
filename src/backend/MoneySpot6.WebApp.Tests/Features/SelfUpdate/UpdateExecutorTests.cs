@@ -40,7 +40,7 @@ public class UpdateExecutorTests
         await sut.Execute();
 
         fake.LastRunContainerRequest.ShouldNotBeNull();
-        fake.LastRunContainerRequest.Labels.ShouldContainKeyAndValue("moneyspot6.sidecar", "update");
+        fake.LastRunContainerRequest.Labels!.ShouldContainKeyAndValue("moneyspot6.sidecar", "update");
     }
 
     [Test]

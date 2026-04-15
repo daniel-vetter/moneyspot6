@@ -72,7 +72,7 @@ public class FakeDockerService : IDockerService
     {
         LastRunContainerRequest = request;
         var containerId = "container-id";
-        if (request.Labels.Count > 0)
+        if (request.Labels is { Count: > 0 })
         {
             foreach (var (label, value) in request.Labels)
                 LabeledContainers[containerId] = (label, value);
