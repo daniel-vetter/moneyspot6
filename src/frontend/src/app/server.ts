@@ -2506,61 +2506,6 @@ export class DebugClient {
         return _observableOf(null as any);
     }
 
-    getRunningAdapters(): Observable<RunningProcessResponse[]> {
-        let url_ = this.baseUrl + "/api/Debug/GetRunningAdapters";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetRunningAdapters(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetRunningAdapters(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<RunningProcessResponse[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<RunningProcessResponse[]>;
-        }));
-    }
-
-    protected processGetRunningAdapters(response: HttpResponseBase): Observable<RunningProcessResponse[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(RunningProcessResponse.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
     getAppDetails(): Observable<AppDetails> {
         let url_ = this.baseUrl + "/api/Debug/GetAppDetails";
         url_ = url_.replace(/[?&]$/, "");
@@ -7271,50 +7216,6 @@ export interface IAccountHistoryBalanceResponse {
     balance: number;
     stockValue: number;
     stockInvested: number;
-}
-
-export class RunningProcessResponse implements IRunningProcessResponse {
-    processId?: number;
-    startTime?: Date | undefined;
-    error?: string | undefined;
-
-    constructor(data?: IRunningProcessResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.processId = _data["processId"];
-            this.startTime = _data["startTime"] ? new Date(_data["startTime"].toString()) : undefined as any;
-            this.error = _data["error"];
-        }
-    }
-
-    static fromJS(data: any): RunningProcessResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new RunningProcessResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["processId"] = this.processId;
-        data["startTime"] = this.startTime ? this.startTime.toISOString() : undefined as any;
-        data["error"] = this.error;
-        return data;
-    }
-}
-
-export interface IRunningProcessResponse {
-    processId?: number;
-    startTime?: Date | undefined;
-    error?: string | undefined;
 }
 
 export class AppDetails implements IAppDetails {

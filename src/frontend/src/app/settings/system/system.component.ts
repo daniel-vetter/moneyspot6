@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import {AppDetails, DebugClient, RunningProcessResponse, UpdateClient, SelfUpdateStatus, UpdateLogEntry} from '../../server';
+import {AppDetails, DebugClient, UpdateClient, SelfUpdateStatus, UpdateLogEntry} from '../../server';
 import { ButtonModule } from 'primeng/button';
 import { lastValueFrom } from 'rxjs';
 import { PanelModule} from "primeng/panel";
@@ -14,13 +14,11 @@ import { UpdateState } from '../../common/update-state';
     templateUrl: './system.component.html',
     styleUrl: './system.component.scss'
 })
-export class SystemComponent implements OnDestroy, OnInit {
+export class SystemComponent implements OnInit {
     private debugClient = inject(DebugClient);
     private updateClient = inject(UpdateClient);
     private updateState = inject(UpdateState);
 
-    runningProcesses: RunningProcessResponse[] = [];
-    interval?: any;
     appDetails?: AppDetails;
     updateStatus?: SelfUpdateStatus;
     isChecking = false;
@@ -85,15 +83,5 @@ export class SystemComponent implements OnDestroy, OnInit {
     async ngOnInit(): Promise<void> {
         this.appDetails = await lastValueFrom(this.debugClient.getAppDetails())
         this.updateStatus = await lastValueFrom(this.updateClient.getStatus());
-        this.interval = setInterval(async () => {
-            if (this.updateState.updateInProgress) return;
-            this.runningProcesses = await lastValueFrom(this.debugClient.getRunningAdapters());
-        }, 1000);
-    }
-
-    ngOnDestroy(): void {
-        if (this.interval !== undefined) {
-            clearInterval(this.interval);
-        }
     }
 }

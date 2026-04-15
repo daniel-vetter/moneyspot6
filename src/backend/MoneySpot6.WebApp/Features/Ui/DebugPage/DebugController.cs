@@ -1,10 +1,8 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
-using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 using MoneySpot6.WebApp.Infrastructure;
 
@@ -16,15 +14,13 @@ public class DebugController : Controller
 {
     private readonly Db _db;
     private readonly TransactionProcessingFacade _transactionProcessingFacade;
-    private readonly ExternalProcessMonitor _externalProcessMonitor;
     private readonly ILogger<DebugController> _logger;
     private readonly DatabaseInitializer _databaseInitializer;
 
-    public DebugController(Db db, TransactionProcessingFacade transactionProcessingFacade, ExternalProcessMonitor externalProcessMonitor, ILogger<DebugController> logger, DatabaseInitializer databaseInitializer)
+    public DebugController(Db db, TransactionProcessingFacade transactionProcessingFacade, ILogger<DebugController> logger, DatabaseInitializer databaseInitializer)
     {
         _db = db;
         _transactionProcessingFacade = transactionProcessingFacade;
-        _externalProcessMonitor = externalProcessMonitor;
         _logger = logger;
         _databaseInitializer = databaseInitializer;
     }
@@ -46,17 +42,7 @@ public class DebugController : Controller
         return Task.CompletedTask;
     }
 
-    [HttpGet("GetRunningAdapters")]
-    public ImmutableArray<RunningProcessResponse> GetRunningAdapters()
-    {
-        return [
-            .._externalProcessMonitor
-                .GetRunningAdapters()
-                .Select(x => new RunningProcessResponse(x.Id, x.StartTime, x.Error))
-        ];
-    }
-
-    [HttpGet("GetAppDetails")]
+[HttpGet("GetAppDetails")]
     public AppDetails GetAppDetails()
     {
         var databaseType = _db switch
@@ -100,6 +86,3 @@ public class DebugController : Controller
 
 [PublicAPI]
 public record AppDetails(string BuildTime, string BuildCommit, string DotNetVersion, string OSDescription, string DatabaseType);
-
-[PublicAPI]
-public record RunningProcessResponse(int ProcessId, DateTime? StartTime, string? Error);
