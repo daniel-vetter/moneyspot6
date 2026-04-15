@@ -30,6 +30,18 @@ Data is stored in a SQLite database in `/app/data`.
 docker run -d --restart unless-stopped -p 80:80 -e ConnectionStrings__db="Host=myserver;Database=moneyspot;Username=postgres;Password=secret" dvetter/moneyspot6
 ```
 
+### Self-Update
+
+MoneySpot6 can update itself from the UI (Settings > System). To enable this, mount the Docker socket:
+
+```bash
+docker run -d --restart unless-stopped -p 80:80 -v /var/run/docker.sock:/var/run/docker.sock -v moneyspot6-data:/app/data dvetter/moneyspot6
+```
+
+The app checks for new images periodically and lets you apply updates with one click. Update logs are persisted and viewable in the UI.
+
+> **Security note:** Mounting the Docker socket gives the container full control over the Docker daemon on the host. Only do this if you trust the application and run it in a private network. Without the socket mounted, the app works fine but the update feature will be disabled.
+
 ### Image Tags
 
 - `dev` — latest build from the develop branch
