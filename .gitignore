@@ -8,3 +8,4 @@ src/**/obj
 *.db-shm
 *.db-wal
 .claude/settings.local.json
+.playwright-mcp/
