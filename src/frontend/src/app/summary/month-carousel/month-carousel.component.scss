@@ -63,3 +63,21 @@
 .key-value > div:first-child {
     flex: 1;
 }
+
+.tile-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--p-content-border-color);
+    margin-bottom: 0;
+    h3 {
+        margin: 0;
+    }
+}
+
+.category-item > div:first-child::before {
+    content: '•';
+    margin-right: 0.35rem;
+    color: var(--p-text-muted-color);
+}
