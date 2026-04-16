@@ -5,7 +5,7 @@ a {
     padding: 2rem 1rem;
     width: 100%;
     color: var(--p-text-color);
-    background-color: var(--p-surface-200);
+    background-color: var(--p-content-background);
     margin: 2rem 1rem;
     font-size: 1.5rem;
     border-radius: 8px;
@@ -16,7 +16,7 @@ a {
 }
 
 a:hover {
-    background-color: var(--p-surface-300);
+    background-color: var(--p-navigation-item-focus-background);
 }
 
 .total {

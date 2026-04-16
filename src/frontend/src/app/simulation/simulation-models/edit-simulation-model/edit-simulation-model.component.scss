@@ -49,7 +49,7 @@
     display: flex;
     flex-direction: column;
     border: 1px solid var(--p-panel-border-color);
-    background: var(--p-surface-50);
+    background: var(--p-content-background);
     overflow: hidden;
 
     ::ng-deep {
@@ -90,15 +90,15 @@
 
 .log-entry {
     padding: 0.25rem 0.5rem;
-    border-bottom: 1px solid var(--p-surface-200);
+    border-bottom: 1px solid var(--p-surface-700);
 
     &:last-child {
         border-bottom: none;
     }
 
     &.log-error {
-        color: var(--p-red-500);
-        background-color: var(--p-red-50);
+        color: var(--p-red-400);
+        background-color: rgba(239, 68, 68, 0.1);
         font-weight: 600;
     }
 }
@@ -127,7 +127,7 @@
         z-index: 100;
         opacity: 0.7;
         transition: opacity 0.2s;
-        background: var(--p-surface-0) !important;
+        background: var(--p-surface-800) !important;
         border-radius: 50%;
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }

@@ -1,4 +1,4 @@
-<div class="horizontal" style="gap: 0.5rem; font-weight: bold; font-size: 1.5rem; padding: 2rem 0 2rem 1rem;">
+<div class="horizontal" style="gap: 0.5rem; font-weight: 600; font-size: 1.3rem; padding: 1.5rem 0 1.5rem 1rem; color: var(--t-logo-text)">
     <img ngSrc="favicon.svg" width="40" height="40"  alt="Logo"/><span>MoneySpot 6</span>
 </div>
 
@@ -22,5 +22,12 @@
     <li><a pRipple [routerLink]="['/simulation']" routerLinkActive="active"><i class="pi pi-calculator"></i> Simulation</a></li>
     <li><a pRipple [routerLink]="['/settings']" routerLinkActive="active"><i class="pi pi-cog"></i> Einstellungen</a></li>
     <div class="spacer"></div>
+    <div class="theme-switcher">
+        @for (theme of themeService.allThemes; track theme.id) {
+            <button class="theme-btn" [class.active-theme]="themeService.current === theme.id" (click)="themeService.setTheme(theme.id)" [title]="theme.label">
+                <i [class]="theme.icon"></i>
+            </button>
+        }
+    </div>
     <li><a pRipple href="/api/Auth/Logout"><i class="pi pi-sign-out"></i> Abmelden</a></li>
 </ul>

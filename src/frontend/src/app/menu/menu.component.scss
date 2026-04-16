@@ -3,16 +3,18 @@
     display: flex;
     flex-direction: column;
     min-width: 230px;
+    background: var(--p-content-background);
+    border-right: 1px solid var(--p-content-border-color);
 }
 
 ul {
     list-style: none;
-    padding: 1rem;
+    padding: 0.75rem;
     margin: 0;
     display: flex;
     flex-direction: column;
     flex: 1;
-    gap: 0.5rem;
+    gap: 0.25rem;
 }
 
 a {
@@ -23,20 +25,60 @@ a {
     width: 100%;
     color: var(--p-text-color);
     border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.15s ease;
 }
 
 .active {
-    color: var(--p-navigation-item-active-color) !important;
-    background: var(--p-navigation-item-active-background) !important;
+    color: var(--t-sidebar-active-text) !important;
+    background: var(--t-sidebar-active-bg) !important;
 }
 
 a:hover {
-    color: var(--p-navigation-item-focus-color);
+    color: var(--p-primary-color);
     background: var(--p-navigation-item-focus-background);
 }
 
 i {
-    margin-right: 0.5rem;
+    margin-right: 0.75rem;
     width: 16px;
     text-align: center;
+}
+
+.theme-switcher {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.theme-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+    border-radius: 6px;
+    border: 1px solid var(--p-content-border-color);
+    background: transparent;
+    color: var(--p-text-muted-color);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.85rem;
+    line-height: 1;
+
+    i {
+        margin: 0;
+        width: auto;
+    }
+
+    &:hover {
+        color: var(--p-text-color);
+        background: var(--p-navigation-item-focus-background);
+    }
+
+    &.active-theme {
+        color: var(--t-sidebar-active-text);
+        background: var(--t-sidebar-active-bg);
+        border-color: var(--t-sidebar-active-text);
+    }
 }
