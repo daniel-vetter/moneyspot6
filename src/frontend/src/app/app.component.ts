@@ -12,11 +12,12 @@ import { ConfirmationService } from 'primeng/api';
 import { AuthClient } from './server';
 import { lastValueFrom } from 'rxjs';
 import { ThemeService } from './common/theme.service';
+import { ParticlesBackgroundComponent } from './common/particles-background/particles-background.component';
 
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent, ConfirmDialogModule],
+    imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent, ConfirmDialogModule, ParticlesBackgroundComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
     providers: [ConfirmationService]
