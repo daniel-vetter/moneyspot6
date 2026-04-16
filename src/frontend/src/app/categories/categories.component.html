@@ -4,8 +4,9 @@
         <app-date-range-presets></app-date-range-presets>
     </div>
 
-    @for (chart of charts; track chart.index) {
-    <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; height: 1000px; display: block"></highcharts-chart>
-    }
-
+    <p-panel header="Kategorien">
+        @for (chart of charts; track chart.index) {
+        <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; height: 1000px; display: block"></highcharts-chart>
+        }
+    </p-panel>
 </div>
