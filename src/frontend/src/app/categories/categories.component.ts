@@ -10,10 +10,11 @@ import { FormsModule } from '@angular/forms';
 import { DateRange, DateRangePickerComponent } from "../common/date-range-picker/date-range-picker.component";
 import { DateRangePresetsComponent } from "../common/date-range-presets/date-range-presets.component";
 import { ActivatedRoute } from '@angular/router';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
     selector: 'app-categories',
-    imports: [HighchartsChartModule, DatePickerModule, FormsModule, DateRangePickerComponent, DateRangePresetsComponent],
+    imports: [HighchartsChartModule, DatePickerModule, FormsModule, DateRangePickerComponent, DateRangePresetsComponent, PanelModule],
     templateUrl: './categories.component.html',
     styleUrl: './categories.component.scss'
 })
@@ -57,7 +58,13 @@ export class CategoriesComponent implements OnInit {
                 keys: ['from', 'to', 'weight'],
                 nodes: r.nodes,
                 data: r.connections?.map(x => [x.from, x.to, x.amount]),
-            }]
+                dataLabels: {
+                    style: {
+                        fontSize: '14px',
+                    }
+                },
+                nodeWidth: 20,
+            } as any]
         });
     }
 }

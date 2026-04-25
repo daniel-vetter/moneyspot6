@@ -4,4 +4,8 @@ src/**/obj
 /build
 *.user
 **/.idea/*/.idea/dataSources.xml
+*.db
+*.db-shm
+*.db-wal
 .claude/settings.local.json
+.playwright-mcp/

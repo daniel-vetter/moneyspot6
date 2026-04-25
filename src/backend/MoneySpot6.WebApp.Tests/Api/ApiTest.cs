@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,20 +8,68 @@ using Testcontainers.PostgreSql;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
+[TestFixtureSource(typeof(DbProviderSource))]
 public abstract class ApiTest
 {
+    private readonly DbProvider _dbProvider;
     private ServiceProvider _serviceProvider = null!;
     private IServiceScope _scope = null!;
+    private SqliteConnection? _keeperConnection;
+
+    private static PostgreSqlContainer? _postgresContainer;
+    private static readonly SemaphoreSlim _postgresLock = new(1, 1);
 
     protected IServiceProvider Services => _scope.ServiceProvider;
+
+    protected ApiTest(DbProvider dbProvider)
+    {
+        _dbProvider = dbProvider;
+    }
+
+    private static async Task<string> GetPostgresConnectionString()
+    {
+        if (_postgresContainer != null)
+            return _postgresContainer.GetConnectionString();
+
+        await _postgresLock.WaitAsync();
+        try
+        {
+            if (_postgresContainer != null)
+                return _postgresContainer.GetConnectionString();
+
+            _postgresContainer = new PostgreSqlBuilder().Build();
+            await _postgresContainer.StartAsync();
+            return _postgresContainer.GetConnectionString();
+        }
+        finally
+        {
+            _postgresLock.Release();
+        }
+    }
 
     [SetUp]
     public async Task SetUp()
     {
         var services = new ServiceCollection();
-        var config = new ConfigurationBuilder().Build();
+        var configData = new Dictionary<string, string?>();
 
-        services.AddDbContext<Db>(options => options.UseNpgsql(PostgresDbFixture.ConnectionString));
+        if (_dbProvider == DbProvider.Postgres)
+        {
+            configData["ConnectionStrings:db"] = await GetPostgresConnectionString();
+        }
+        else
+        {
+            var dbId = Guid.NewGuid().ToString("N");
+            var connectionString = $"Data Source={dbId};Mode=Memory;Cache=Shared";
+            _keeperConnection = new SqliteConnection(connectionString);
+            await _keeperConnection.OpenAsync();
+            configData["ConnectionStrings:db"] = connectionString;
+        }
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(configData)
+            .Build();
+
         services.RegisterAppServices(config);
 
         _serviceProvider = services.BuildServiceProvider();
@@ -53,6 +102,8 @@ public abstract class ApiTest
     {
         _scope.Dispose();
         _serviceProvider.Dispose();
+        _keeperConnection?.Dispose();
+        _keeperConnection = null;
     }
 
     protected T Get<T>() where T : class
@@ -63,29 +114,3 @@ public abstract class ApiTest
         return Services.GetRequiredService<T>();
     }
 }
-
-
-[SetUpFixture]
-public class PostgresDbFixture
-{
-    private static PostgreSqlContainer _postgres = null!;
-
-    public static string ConnectionString => _postgres.GetConnectionString();
-
-    [OneTimeSetUp]
-    public async Task GlobalSetup()
-    {
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .Build();
-
-        await _postgres.StartAsync();
-    }
-
-    [OneTimeTearDown]
-    public async Task GlobalTeardown()
-    {
-        await _postgres.DisposeAsync();
-    }
-}
-

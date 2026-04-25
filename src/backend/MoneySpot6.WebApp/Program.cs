@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -25,7 +26,6 @@ public class Program
                 .Build()));
         });
 
-        builder.AddNpgsqlDbContext<Db>("db");
         builder.AddServiceDefaults();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument(x =>
@@ -43,7 +43,10 @@ public class Program
             options.KnownProxies.Clear();
         });
 
-        if (builder.Environment.EnvironmentName == "Testing")
+        builder.Services.AddDataProtection()
+            .PersistKeysToDbContext<Db>();
+
+        if (builder.Configuration.GetValue<bool>("Auth:Disable"))
         {
             builder.Services.AddAuthentication(DevelopmentAuthenticationHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, DevelopmentAuthenticationHandler>(DevelopmentAuthenticationHandler.SchemeName, null);
@@ -106,7 +109,7 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
-            await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize();
+            await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().Initialize(app.Configuration.GetValue<bool>("DemoMode"));
         }
 
         await app.RunAsync();

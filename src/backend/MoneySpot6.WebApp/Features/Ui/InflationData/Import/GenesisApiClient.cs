@@ -1,9 +1,10 @@
+using System.Collections.Immutable;
+using System.Globalization;
+using System.IO.Compression;
+using System.Text;
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
 using Microsoft.Extensions.Options;
-using System.Collections.Immutable;
-using System.IO.Compression;
-using System.Text;
 
 namespace MoneySpot6.WebApp.Features.Ui.InflationData.Import;
 
@@ -43,8 +44,10 @@ public class GenesisApiClient
 
         var entry = zip.Entries.Single();
         using var csv = entry.Open();
-        var culture = System.Globalization.CultureInfo.GetCultureInfo("de");
-        using var reader = new CsvHelper.CsvReader(new StreamReader(csv), new CsvConfiguration(culture)
+        var culture = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+        culture.NumberFormat.NumberDecimalSeparator = ",";
+        culture.NumberFormat.NumberGroupSeparator = ".";
+        using var reader = new CsvHelper.CsvReader(new StreamReader(csv), new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             Encoding = Encoding.UTF8,
             Delimiter = ";",

@@ -165,6 +165,8 @@ public class StockUpdater
             default:
                 throw new ArgumentException("Invalid interval");
         }
+
+        await _db.SaveChangesAsync();
     }
 
     private static DateTimeOffset RemoveTime(DateTimeOffset timestamp)

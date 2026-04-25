@@ -3,17 +3,19 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
 }
 
 .wrapper {
     flex: 1;
     height: 100%;
-    background: var(--p-surface-ground);
+    background: var(--t-page-bg);
     overflow-y: scroll;
 }
 
 .content {
     max-width: 1600px;
     margin: auto;
-    padding: 1.5rem;
+    padding: 1.5rem 2rem;
 }

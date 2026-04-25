@@ -41,7 +41,7 @@ jobs:
           docker pull gitea.dvetter.net/daniel/${{ env.NAME }}:${{ github.sha }}
           docker run -d --restart always -p 80:80 --name ${{ env.NAME }} \
             -e ASPNETCORE_ENVIRONMENT="Staging" \
-            -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.111:4318" \
+            -e OTEL_EXPORTER_OTLP_ENDPOINT="http://192.168.178.107:4318" \
             -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
             -e OTEL_SERVICE_NAME="${{ env.NAME }}-app-staging" \
             -e ConnectionStrings__Db="User ID=postgres;Password=${{ secrets.DB_PASSWORD }};Host=192.168.178.105;Port=5432;Database=${{ env.NAME }}-db-staging;ApplicationName=${{ env.NAME }}-staging" \

@@ -104,7 +104,7 @@ public class RuleProcessor
             .ToArrayAsync();
 
         foreach (var rule in rules)
-            rule.RuntimeError = CollectionExtensions.GetValueOrDefault(ruleErrors, rule.Id);
+            rule.RuntimeError = ruleErrors.GetValueOrDefault(rule.Id);
 
         await _db.SaveChangesAsync();
     }

@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class StockBalanceConsistencyTests : ApiTest
+public class StockBalanceConsistencyTests(DbProvider dbProvider) : ApiTest(dbProvider)
 {
     private static int DashboardMonth(int year, int month) => year * 12 + month - 1;
 

@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class RulesApiTests : ApiTest
+public class RulesApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
 {
     [Test]
     public async Task GetAll_EmptyDatabase_ReturnsEmptyArray()
@@ -135,3 +135,5 @@ public class RulesApiTests : ApiTest
         result.ShouldContain(x => x.Name == "Transport");
     }
 }
+
+

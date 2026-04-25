@@ -23,6 +23,7 @@
     "@codemirror/lang-javascript": "^6.2.4",
     "@microsoft/signalr": "^9.0.6",
     "@primeng/themes": "^20.1.1",
+    "@tsparticles/slim": "^3.9.1",
     "codemirror": "^6.0.2",
     "highcharts": "^12.2.0",
     "highcharts-angular": "^4.0.1",

@@ -1,0 +1,108 @@
+using System.Collections.Immutable;
+using MoneySpot6.WebApp.Features.Core.SelfUpdate.Internal;
+
+namespace MoneySpot6.WebApp.Tests.Features.SelfUpdate;
+
+public class FakeDockerService : IDockerService
+{
+    private readonly string _imageReference;
+    private readonly string _containerName;
+    private readonly string _imageId;
+    private readonly ImmutableArray<PortBindingConfig> _ports;
+    private readonly ImmutableArray<string> _binds;
+    private readonly ImmutableArray<string> _env;
+    private readonly ContainerRestartPolicy _restartPolicy;
+    private readonly int _restartPolicyMaxRetries;
+    private readonly string? _networkMode;
+
+    public bool IsRunningInContainer { get; set; } = true;
+    public bool IsDockerSocketAvailable { get; set; } = true;
+    public string LatestImageId { get; set; } = "sha256:latest456";
+    public List<string> PulledImages { get; } = [];
+    public RunContainerRequest? LastRunContainerRequest { get; private set; }
+    public List<string> RemovedContainers { get; } = [];
+    public Dictionary<string, string> ContainerLogs { get; } = new();
+    public Dictionary<string, (string Label, string Value)> LabeledContainers { get; } = new();
+
+    public FakeDockerService(
+        string imageReference,
+        string containerName = "test-container",
+        string imageId = "sha256:abc123",
+        ImmutableArray<PortBindingConfig>? ports = null,
+        ImmutableArray<string>? binds = null,
+        ImmutableArray<string>? env = null,
+        ContainerRestartPolicy restartPolicy = ContainerRestartPolicy.None,
+        int restartPolicyMaxRetries = 0,
+        string? networkMode = null)
+    {
+        _imageReference = imageReference;
+        _containerName = containerName;
+        _imageId = imageId;
+        _ports = ports ?? [];
+        _binds = binds ?? [];
+        _env = env ?? [];
+        _restartPolicy = restartPolicy;
+        _restartPolicyMaxRetries = restartPolicyMaxRetries;
+        _networkMode = networkMode;
+    }
+
+    public Task<ContainerInspection> InspectContainer(string containerId)
+    {
+        return Task.FromResult(new ContainerInspection(
+            containerId,
+            _containerName,
+            _imageReference,
+            _imageId,
+            _ports,
+            _binds,
+            _env,
+            _restartPolicy,
+            _restartPolicyMaxRetries,
+            _networkMode));
+    }
+
+    public Task<string> GetImageId(string imageReference)
+    {
+        return Task.FromResult(LatestImageId);
+    }
+
+    public Task PullImage(string image)
+    {
+        PulledImages.Add(image);
+        return Task.CompletedTask;
+    }
+
+    public Task<string> RunContainer(RunContainerRequest request)
+    {
+        LastRunContainerRequest = request;
+        var containerId = "container-id";
+        if (request.Labels is { Count: > 0 })
+        {
+            foreach (var (label, value) in request.Labels)
+                LabeledContainers[containerId] = (label, value);
+        }
+        return Task.FromResult(containerId);
+    }
+
+    public Task<string?> FindContainerByLabel(string label, string value)
+    {
+        foreach (var (id, (l, v)) in LabeledContainers)
+        {
+            if (l == label && v == value)
+                return Task.FromResult<string?>(id);
+        }
+        return Task.FromResult<string?>(null);
+    }
+
+    public Task<string> GetContainerLogs(string containerId)
+    {
+        return Task.FromResult(ContainerLogs.GetValueOrDefault(containerId, ""));
+    }
+
+    public Task RemoveContainer(string containerId)
+    {
+        RemovedContainers.Add(containerId);
+        LabeledContainers.Remove(containerId);
+        return Task.CompletedTask;
+    }
+}

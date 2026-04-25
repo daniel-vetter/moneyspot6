@@ -20,7 +20,7 @@ public class VpiUpdateBackgroundWorker : BackgroundService
             {
                 using var activity = AppActivitySource.Start("VpiUpdate");
                 await using var scope = _serviceProvider.CreateAsyncScope();
-                var updater = scope.ServiceProvider.GetRequiredService<VpiUpdater>().Run(stoppingToken);
+                await scope.ServiceProvider.GetRequiredService<VpiUpdater>().Run(stoppingToken);
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken).ContinueWith(_ => { });
             }
             catch (TaskCanceledException)

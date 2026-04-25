@@ -1,10 +1,48 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MoneySpot6.WebApp.Database;
 
-public class Db : DbContext
+public class PostgreSqlDbContext : Db
 {
+    public PostgreSqlDbContext(DbContextOptions options) : base(options)
+    {
+    }
+}
+
+public class SqliteDbContext : Db
+{
+    public SqliteDbContext(DbContextOptions options) : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (entityType.IsOwned())
+                continue;
+
+            var properties = entityType.ClrType.GetProperties().Where(p => p.PropertyType == typeof(DateTimeOffset)
+                                                                           || p.PropertyType == typeof(DateTimeOffset?));
+            foreach (var property in properties)
+            {
+                modelBuilder
+                    .Entity(entityType.Name)
+                    .Property(property.Name)
+                    .HasConversion(new DateTimeOffsetToBinaryConverter());
+            }
+        }
+    }
+}
+
+public class Db : DbContext, IDataProtectionKeyContext
+{
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; init; }
     public DbSet<DbBankConnection> BankConnections { get; init; }
     public DbSet<DbBankAccount> BankAccounts { get; init; }
     public DbSet<DbBankAccountTransaction> BankAccountTransactions{ get; init; }
@@ -24,8 +62,9 @@ public class Db : DbContext
     public DbSet<DbSimulationLog> SimulationLogs { get; init; }
     public DbSet<DbSimulationTransaction> SimulationTransactions { get; init; }
     public DbSet<DbSimulationDaySummary> SimulationDaySummaries { get; init; }
+    public DbSet<DbUpdateLog> UpdateLogs { get; init; }
 
-    public Db(DbContextOptions<Db> options) : base(options)
+    public Db(DbContextOptions options) : base(options)
     {
     }
 
@@ -511,4 +550,12 @@ public class DbSimulationDaySummary
     public required decimal Balance { get; set; }
     public required decimal Amount { get; set; }
     public required decimal TotalStockValue { get; set; }
+}
+
+[Table("UpdateLogs")]
+public class DbUpdateLog
+{
+    public int Id { get; set; }
+    public required DateTimeOffset CreatedAt { get; set; }
+    public required string Log { get; set; }
 }

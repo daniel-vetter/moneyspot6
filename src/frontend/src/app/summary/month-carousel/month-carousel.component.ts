@@ -8,10 +8,11 @@ import { ValueComponent } from '../../common/value/value.component';
 import { AppEvents } from '../../app-events';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {BreakpointObserver, LayoutModule} from "@angular/cdk/layout";
+import { ScrollFadeDirective } from '../../common/scroll-fade.directive';
 
 @Component({
     selector: 'app-month-carousel',
-    imports: [CarouselModule, PanelModule, ValueComponent, ScrollPanelModule, LayoutModule],
+    imports: [CarouselModule, PanelModule, ValueComponent, ScrollPanelModule, LayoutModule, ScrollFadeDirective],
     templateUrl: './month-carousel.component.html',
     styleUrl: './month-carousel.component.scss'
 })
