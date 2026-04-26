@@ -34,7 +34,7 @@
                     <div>{{ details.processedAt | date:'dd.MM.yyyy, HH:mm:ss' }}</div>
                 } @else if (details.processingError) {
                     <div style="font-weight: 500;">Fehler:</div>
-                    <div style="color: red;">{{ details.processingError }}</div>
+                    <div class="error-text">{{ details.processingError }}</div>
                 } @else {
                     <div style="font-weight: 500;">Status:</div>
                     <div>Wird verarbeitet (Versuch {{ details.processingAttempts }}/3)</div>
@@ -98,11 +98,11 @@
                         <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Artikel</h4>
                         <div style="display: grid; gap: 0.5rem;">
                             @for (item of data.items; track $index) {
-                                <div style="display: grid; grid-template-columns: 1fr auto; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; gap: 0.5rem;">
+                                <div class="item-row">
                                     <div>
                                         <div style="font-weight: 500;">{{ item.fullName || 'Unbekannt' }}</div>
                                         @if (item.shortName) {
-                                            <div style="font-size: 0.9em; color: #666;">{{ item.shortName }}</div>
+                                            <div class="item-short-name">{{ item.shortName }}</div>
                                         }
                                     </div>
                                     @if (item.subTotal !== undefined && item.subTotal !== null) {

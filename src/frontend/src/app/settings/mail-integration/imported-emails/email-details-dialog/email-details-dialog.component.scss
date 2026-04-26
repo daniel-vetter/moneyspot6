@@ -4,3 +4,22 @@
     align-items: center;
     min-height: 200px;
 }
+
+.item-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding: 0.5rem;
+    background: var(--p-content-hover-background);
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 4px;
+    gap: 0.5rem;
+}
+
+.item-short-name {
+    font-size: 0.9em;
+    color: var(--p-text-muted-color);
+}
+
+.error-text {
+    color: var(--p-red-500);
+}
