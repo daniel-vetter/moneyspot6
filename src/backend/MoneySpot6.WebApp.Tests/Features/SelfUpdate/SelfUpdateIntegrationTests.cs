@@ -14,7 +14,7 @@ public class SelfUpdateIntegrationTests
     [SetUp]
     public void SetUp()
     {
-        _client = new DockerClientConfiguration().CreateClient();
+        _client = new DockerClientBuilder().Build();
     }
 
     [TearDown]

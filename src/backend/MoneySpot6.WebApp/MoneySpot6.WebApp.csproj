@@ -8,37 +8,37 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.2" />
-		<PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
-		<PackageReference Include="Jint" Version="4.4.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+		<PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.4" />
+		<PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+		<PackageReference Include="Jint" Version="4.8.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
-		<PackageReference Include="NJsonSchema" Version="11.5.2" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-		<PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.0" />
-		<PackageReference Include="NSwag.AspNetCore" Version="14.6.3" />
-		<PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.6.3" />
-		<PackageReference Include="NSwag.MSBuild" Version="14.6.3">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
+		<PackageReference Include="NJsonSchema" Version="11.6.1" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+		<PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.2" />
+		<PackageReference Include="NSwag.AspNetCore" Version="14.7.1" />
+		<PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.7.1" />
+		<PackageReference Include="NSwag.MSBuild" Version="14.7.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="OpenAI" Version="2.7.0" />
-		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
+		<PackageReference Include="OpenAI" Version="2.10.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
 		<PackageReference Include="OpenTelemetry.Exporter.InfluxDB" Version="1.0.0-alpha.4" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
 		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.9.0-beta.2" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.9.0-beta.1" />
-		<PackageReference Include="Google.Apis.Gmail.v1" Version="1.72.0.3966" />
-		<PackageReference Include="Docker.DotNet.Enhanced" Version="3.130.0" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.2" />
+		<PackageReference Include="Google.Apis.Gmail.v1" Version="1.73.0.4029" />
+		<PackageReference Include="Docker.DotNet.Enhanced" Version="4.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
