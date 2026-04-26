@@ -708,6 +708,28 @@ public class DatabaseInitializer(Db db)
             }
             """);
 
+        // === AKTIEN ===
+        var stock = new DbStock
+        {
+            Name = "iShares Core MSCI World UCITS ETF",
+            Symbol = "EUNL.DE"
+        };
+        db.Stocks.Add(stock);
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        DateOnly BuyDate(int monthsAgo)
+        {
+            var d = today.AddMonths(-monthsAgo);
+            return new DateOnly(d.Year, d.Month, 20);
+        }
+
+        db.StockTransactions.AddRange(
+            new DbStockTransaction { Stock = stock, Date = BuyDate(4), Amount = 4.85m, Price = 103.10m },
+            new DbStockTransaction { Stock = stock, Date = BuyDate(3), Amount = 4.71m, Price = 106.20m },
+            new DbStockTransaction { Stock = stock, Date = BuyDate(2), Amount = 4.61m, Price = 108.40m },
+            new DbStockTransaction { Stock = stock, Date = BuyDate(1), Amount = 4.51m, Price = 110.80m }
+        );
+
         await db.SaveChangesAsync();
         return;
 
