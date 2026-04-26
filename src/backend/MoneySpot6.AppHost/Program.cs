@@ -13,6 +13,7 @@ var backend = builder
 
 var frontend = builder
     .AddNpmApp("Frontend", "../../frontend")
+    .WithNpmPackageInstallation()
     .WithHttpEndpoint(name: "http", port: 4200)
     .WithHttpHealthCheck("/")
     .WithReference(backend)
