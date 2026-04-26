@@ -2347,12 +2347,8 @@ export class AccountHistoryClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    get(startDate: string | null | undefined, endDate: string | null | undefined): Observable<AccountHistoryBalanceResponse[]> {
-        let url_ = this.baseUrl + "/api/AccountHistory?";
-        if (startDate !== undefined && startDate !== null)
-            url_ += "startDate=" + encodeURIComponent("" + startDate) + "&";
-        if (endDate !== undefined && endDate !== null)
-            url_ += "endDate=" + encodeURIComponent("" + endDate) + "&";
+    get(): Observable<AccountHistoryBalanceResponse[]> {
+        let url_ = this.baseUrl + "/api/AccountHistory";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

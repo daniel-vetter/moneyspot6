@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.Shared;
-using NJsonSchema;
-using NJsonSchema.Annotations;
 
 namespace MoneySpot6.WebApp.Features.Ui.HistoryPage;
 
@@ -26,25 +24,15 @@ public class AccountHistoryController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult<ImmutableArray<AccountHistoryBalanceResponse>>> Get(
-        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? startDate,
-        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? endDate)
+    public async Task<ActionResult<ImmutableArray<AccountHistoryBalanceResponse>>> Get()
     {
-        if (startDate is null)
-        {
-            var minDate1 = await _db.BankAccountTransactions.Select(x => x.Final.Date).MinAsync();
-            var minDate2 = await _db.StockTransactions.Select(x => x.Date).MinAsync();
-            startDate = minDate1 < minDate2 ? minDate1 : minDate2;
-        }
+        var minTransactionDate = await _db.BankAccountTransactions.Select(x => x.Final.Date).MinAsync();
+        var minStockDate = await _db.StockTransactions.Select(x => x.Date).MinAsync();
+        var startDate = minTransactionDate < minStockDate ? minTransactionDate : minStockDate;
+        var endDate = DateOnly.FromDateTime(DateTime.Now);
 
-        endDate ??= DateOnly.FromDateTime(DateTime.Now);
-        
-        var max = DateOnly.FromDateTime(DateTime.Now).AddDays(1);
-        if (startDate > max) startDate = max;
-        if (endDate > max) endDate = max;
-
-        var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate.Value, endDate.Value);
-        var stockHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate.Value, endDate.Value);
+        var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate, endDate);
+        var stockHistory = await _stockDataProvider.GetDailyOwnedStockValue(startDate, endDate);
 
         if (balanceHistory.Start != stockHistory.Start || balanceHistory.End != stockHistory.End)
             throw new Exception("Length does not match.");
