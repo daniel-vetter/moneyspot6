@@ -28,7 +28,7 @@
                 </span>
                 <p-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" (click)="toggleMaximizeChart(maximizedChart)" pTooltip="Schließen"></p-button>
             </div>
-            <highcharts-chart [Highcharts]="Highcharts" [options]="maximizedChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+            <app-echart class="maximized-chart" [options]="maximizedChartOptions"/>
         </div>
     }
     <div style="position: relative;" [style.display]="maximizedChart ? 'none' : 'block'">
@@ -64,19 +64,19 @@
                                                 @if (totalChartOptions) {
                                                     <div class="chart-wrapper">
                                                         <p-button icon="pi pi-window-maximize" [text]="true" [rounded]="true" size="small" class="chart-maximize-btn" (click)="toggleMaximizeChart('total')" pTooltip="Maximieren"></p-button>
-                                                        <highcharts-chart [Highcharts]="Highcharts" [options]="totalChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                        <app-echart class="chart" [options]="totalChartOptions"/>
                                                     </div>
                                                 }
                                                 @if (chartOptions) {
                                                     <div class="chart-wrapper">
                                                         <p-button icon="pi pi-window-maximize" [text]="true" [rounded]="true" size="small" class="chart-maximize-btn" (click)="toggleMaximizeChart('balance')" pTooltip="Maximieren"></p-button>
-                                                        <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                        <app-echart class="chart" [options]="chartOptions"/>
                                                     </div>
                                                 }
                                                 @if (stockChartOptions) {
                                                     <div class="chart-wrapper">
                                                         <p-button icon="pi pi-window-maximize" [text]="true" [rounded]="true" size="small" class="chart-maximize-btn" (click)="toggleMaximizeChart('stock')" pTooltip="Maximieren"></p-button>
-                                                        <highcharts-chart [Highcharts]="Highcharts" [options]="stockChartOptions" style="width: 100%; display: block;"></highcharts-chart>
+                                                        <app-echart class="chart" [options]="stockChartOptions"/>
                                                     </div>
                                                 }
                                             } @else {
