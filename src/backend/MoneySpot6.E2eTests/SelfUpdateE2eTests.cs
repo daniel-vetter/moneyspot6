@@ -27,7 +27,7 @@ public class SelfUpdateE2eTests : PageTest
     [OneTimeSetUp]
     public static async Task Setup()
     {
-        _client = new DockerClientBuilder().Build();
+        _client = new DockerClientConfiguration().CreateClient();
         _projectRoot = FindProjectRoot();
 
         var testId = Guid.NewGuid().ToString("N")[..8];

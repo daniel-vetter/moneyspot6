@@ -181,6 +181,6 @@ public class DockerService : IDockerService
 
     private static DockerClient CreateClient()
     {
-        return new DockerClientBuilder().Build();
+        return new DockerClientConfiguration().CreateClient();
     }
 }
