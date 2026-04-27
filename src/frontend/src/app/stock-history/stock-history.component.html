@@ -11,7 +11,7 @@
             <h1>Verlauf</h1>
         </p-header>
 
-        @if (options() !== null) {
+        @if (options() !== undefined) {
             <div class="range-buttons">
                 <p-button label="1d" size="small" [outlined]="activePreset() !== '1d'" (onClick)="setRange('1d')"/>
                 <p-button label="7d" size="small" [outlined]="activePreset() !== '7d'" (onClick)="setRange('7d')"/>

@@ -29,7 +29,7 @@ export class CategoriesComponent implements OnInit {
     private activatedRoute = inject(ActivatedRoute);
     private dateRange: DateRange | undefined;
 
-    protected readonly options = signal<EChartsOption | null>(null);
+    protected readonly options = signal<EChartsOption | undefined>(undefined);
 
     async ngOnInit(): Promise<void> {
         this.activatedRoute.queryParams.subscribe(async (x) => {

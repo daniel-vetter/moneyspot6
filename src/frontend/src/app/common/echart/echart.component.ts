@@ -18,7 +18,7 @@ const colorsByTheme: Record<string, string[]> = {
     `]
 })
 export class EchartComponent implements AfterViewInit, OnDestroy {
-    readonly options = input<EChartsOption | null>(null);
+    readonly options = input<EChartsOption | undefined>(undefined);
     private readonly hostEl = viewChild.required<ElementRef<HTMLDivElement>>('host');
 
     private themeService = inject(ThemeService);

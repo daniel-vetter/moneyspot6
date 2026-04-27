@@ -34,7 +34,7 @@ export class StockHistoryComponent implements OnInit {
     possibleIntervals = ['Täglich', '5 Minuten'];
     selectedInterval = '5 Minuten';
 
-    protected readonly options = signal<EChartsOption | null>(null);
+    protected readonly options = signal<EChartsOption | undefined>(undefined);
     protected readonly loading = signal(false);
     protected readonly activePreset = signal<RangePreset>('7d');
 
@@ -48,7 +48,7 @@ export class StockHistoryComponent implements OnInit {
 
     async update(): Promise<void> {
         this.loading.set(true);
-        this.options.set(null);
+        this.options.set(undefined);
 
         this.possibleStocks = await lastValueFrom(this.stockChartPageClient.getStocks());
         if (this.possibleStocks.length > 0 && this.selectedStockId === undefined) {

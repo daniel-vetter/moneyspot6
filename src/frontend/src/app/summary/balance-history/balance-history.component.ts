@@ -22,7 +22,7 @@ interface TooltipParam {
 export class BalanceHistoryComponent implements OnInit {
     private summaryPageClient = inject(SummaryPageClient);
 
-    protected readonly options = signal<EChartsOption | null>(null);
+    protected readonly options = signal<EChartsOption | undefined>(undefined);
 
     async ngOnInit(): Promise<void> {
         const r = await lastValueFrom(this.summaryPageClient.getCurrentMonthBalanceHistory());
