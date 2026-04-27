@@ -83,6 +83,14 @@ export class EchartComponent implements AfterViewInit, OnDestroy {
                 borderColor: tooltipBorder,
                 textStyle: {color: tooltipText},
             },
+            sankey: {
+                label: {
+                    color: dark ? '#e2e8f0' : '#1e293b',
+                    textBorderWidth: 0,
+                    textBorderColor: 'transparent',
+                },
+                itemStyle: {borderWidth: 0, borderColor: 'transparent'},
+            },
         });
         EchartComponent.themeRegistered = true;
     }
