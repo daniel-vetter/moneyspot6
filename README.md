@@ -14,6 +14,15 @@ A self-hosted personal finance management application with German bank integrati
 - **Inflation Data** - Track purchasing power with VPI/CPI data (German Federal Statistics Office)
 - **Email Monitoring** - Detect transactions from email notifications (Gmail)
 
+## Screenshots
+
+| | | |
+|---|---|---|
+| **Dashboard** | **Verlauf** | **Transaktionen** |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Verlauf](docs/screenshots/history.png) | ![Transaktionen](docs/screenshots/transactions.png) |
+| **Cashflow** | **Kategorien (Sankey)** | **Kursentwicklung** |
+| ![Cashflow](docs/screenshots/cashflow.png) | ![Kategorien](docs/screenshots/categories.png) | ![Kursentwicklung](docs/screenshots/stock-history.png) |
+
 ## How to Run
 
 ### SQLite
