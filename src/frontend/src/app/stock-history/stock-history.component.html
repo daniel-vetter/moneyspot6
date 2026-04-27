@@ -1,7 +1,7 @@
 <div class="vertical">
     <div class="horizontal" style="gap: 1rem">
         Aktie:
-        <p-select [options]="possibleStocks" optionLabel="name" optionValue="id" [(ngModel)]="selectedStockId"></p-select>
+        <p-select [options]="possibleStocks" optionLabel="name" optionValue="id" [(ngModel)]="selectedStockId" (ngModelChange)="update()"></p-select>
         Interval:
         <p-select [options]="possibleIntervals" [(ngModel)]="selectedInterval" (ngModelChange)="update()"></p-select>
     </div>
@@ -10,8 +10,18 @@
         <p-header>
             <h1>Verlauf</h1>
         </p-header>
-        @if (chart !== undefined) {
-            <highcharts-chart [Highcharts]="Highcharts" constructorType="stockChart" [options]="chart" style="width: 100%; display: block"></highcharts-chart>
+
+        @if (options() !== null) {
+            <div class="range-buttons">
+                <p-button label="1d" size="small" [outlined]="activePreset() !== '1d'" (onClick)="setRange('1d')"/>
+                <p-button label="7d" size="small" [outlined]="activePreset() !== '7d'" (onClick)="setRange('7d')"/>
+                <p-button label="1m" size="small" [outlined]="activePreset() !== '1m'" (onClick)="setRange('1m')"/>
+                <p-button label="3m" size="small" [outlined]="activePreset() !== '3m'" (onClick)="setRange('3m')"/>
+                <p-button label="6m" size="small" [outlined]="activePreset() !== '6m'" (onClick)="setRange('6m')"/>
+                <p-button label="1y" size="small" [outlined]="activePreset() !== '1y'" (onClick)="setRange('1y')"/>
+                <p-button label="All" size="small" [outlined]="activePreset() !== 'all'" (onClick)="setRange('all')"/>
+            </div>
+            <app-echart class="chart" [options]="options()"/>
         } @else {
             <div style="display: flex; padding: 10rem">
                 <p-progress-spinner ariaLabel="loading"/>
