@@ -2,7 +2,5 @@
     <ng-template pTemplate="header">
         <h1>Depot</h1>
     </ng-template>
-    @if (chart) {
-    <highcharts-chart [Highcharts]="Highcharts" [options]="chart" style="width: 100%; height: 300px; display: block;"></highcharts-chart>
-    }
+    <app-echart class="chart" [options]="options()"/>
 </p-panel>

@@ -128,7 +128,7 @@ public class SelfUpdateE2eTests : PageTest
             try
             {
                 var info = await _client.Containers.InspectContainerAsync(_appContainerName);
-                if (info.State.Running && info.Image != v1ImageId)
+                if (info.State?.Running == true && info.Image != v1ImageId)
                 {
                     v2ImageId = info.Image;
                     Console.WriteLine($"Container restarted with new image: {v2ImageId}");
@@ -192,7 +192,8 @@ public class SelfUpdateE2eTests : PageTest
         await _client.Containers.StartContainerAsync(registry.ID, new ContainerStartParameters());
 
         var inspection = await _client.Containers.InspectContainerAsync(registry.ID);
-        _registryPort = int.Parse(inspection.NetworkSettings.Ports["5000/tcp"][0].HostPort);
+        var ports = inspection.NetworkSettings?.Ports ?? throw new InvalidOperationException("Registry container has no network settings");
+        _registryPort = int.Parse(ports["5000/tcp"][0].HostPort);
 
         using var http = new HttpClient();
         for (var i = 0; i < 30; i++)

@@ -41,11 +41,7 @@
             <p-tabpanels>
                 <p-tabpanel value="0">
                     <div style="margin-bottom: 2rem;">
-                        <highcharts-chart
-                            [Highcharts]="Highcharts"
-                            [options]="yearlyChartOptions"
-                            style="width: 100%; height: 400px; display: block;">
-                        </highcharts-chart>
+                        <app-echart [options]="yearlyChartOptions" style="width: 100%; height: 400px; display: block;"/>
                     </div>
                     <p-table [value]="yearlyEntries" [tableStyle]="{'min-width':'50rem'}" [paginator]="true" [rows]="50">
                         <ng-template pTemplate="header">
@@ -60,7 +56,7 @@
                                 <td>{{ entry.year }}</td>
                                 <td>{{ entry.indexValue | number:'1.2-2' }}</td>
                                 <td>
-                                    @if (entry.change !== null) {
+                                    @if (entry.change !== undefined) {
                                         {{ entry.change | number:'1.2-2' }}%
                                     } @else {
                                         <span style="opacity: 0.5">-</span>
@@ -72,11 +68,7 @@
                 </p-tabpanel>
                 <p-tabpanel value="1">
                     <div style="margin-bottom: 2rem;">
-                        <highcharts-chart
-                            [Highcharts]="Highcharts"
-                            [options]="chartOptions"
-                            style="width: 100%; height: 400px; display: block;">
-                        </highcharts-chart>
+                        <app-echart [options]="chartOptions" style="width: 100%; height: 400px; display: block;"/>
                     </div>
                     <p-table [value]="entries" [tableStyle]="{'min-width':'50rem'}" [paginator]="true" [rows]="50">
                         <ng-template pTemplate="header">
@@ -93,7 +85,7 @@
                                 <td>{{ getMonthName(entry.month!) }}</td>
                                 <td>{{ entry.indexValue | number:'1.2-2' }}</td>
                                 <td>
-                                    @if (entry.change !== null) {
+                                    @if (entry.change !== undefined) {
                                         {{ entry.change | number:'1.2-2' }}%
                                     } @else {
                                         <span style="opacity: 0.5">-</span>

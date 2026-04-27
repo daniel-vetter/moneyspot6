@@ -20,14 +20,10 @@
             </p-tablist>
             <p-tabpanels>
                 <p-tabpanel value="0">
-                    @if (charts.length > 0) {
-                    <highcharts-chart [Highcharts]="Highcharts" [options]="charts[0]" style="width: 100%; display: block"></highcharts-chart>
-                    }
+                    <app-total-history-chart class="chart" [data]="data()" [startFromZero]="startFromZero" [visibleRange]="dateRange()"/>
                 </p-tabpanel>
                 <p-tabpanel value="1">
-                    @if (charts.length > 1) {
-                    <highcharts-chart [Highcharts]="Highcharts" [options]="charts[1]" style="width: 100%; display: block"></highcharts-chart>
-                    }
+                    <app-profit-history-chart class="chart" [data]="data()" [visibleRange]="dateRange()"/>
                 </p-tabpanel>
             </p-tabpanels>
         </p-tabs>

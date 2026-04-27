@@ -37,7 +37,7 @@ public abstract class ApiTest
             if (_postgresContainer != null)
                 return _postgresContainer.GetConnectionString();
 
-            _postgresContainer = new PostgreSqlBuilder().Build();
+            _postgresContainer = new PostgreSqlBuilder("postgres:17-alpine").Build();
             await _postgresContainer.StartAsync();
             return _postgresContainer.GetConnectionString();
         }

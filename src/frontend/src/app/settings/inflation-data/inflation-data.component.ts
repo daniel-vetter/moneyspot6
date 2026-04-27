@@ -10,17 +10,24 @@ import { DecimalPipe } from '@angular/common';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DefaultRateDialogComponent } from './default-rate-dialog/default-rate-dialog.component';
 import { InflationCalculatorComponent } from './inflation-calculator/inflation-calculator.component';
-import { HighchartsChartModule } from 'highcharts-angular';
-import * as Highcharts from 'highcharts';
+import { EChartsOption } from 'echarts';
+import { EchartComponent } from '../../common/echart/echart.component';
 import {SelectModule} from "primeng/select";
 import {TabsModule} from "primeng/tabs";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
+
+interface InflationTooltipParam {
+    name: string;
+    color: string;
+    seriesName: string;
+    value: number | undefined;
+}
 
 interface DisplayEntry {
     year: number;
     month?: number;
     indexValue: number;
-    change: number | null;
+    change: number | undefined;
     isProjected: boolean;
 }
 
@@ -31,7 +38,7 @@ interface ProjectionOption {
 
 @Component({
     selector: 'app-inflation-data',
-    imports: [FormsModule, PanelModule, TableModule, DecimalPipe, ButtonModule, HighchartsChartModule, TooltipModule, SelectModule, TabsModule, ProgressSpinnerModule],
+    imports: [FormsModule, PanelModule, TableModule, DecimalPipe, ButtonModule, EchartComponent, TooltipModule, SelectModule, TabsModule, ProgressSpinnerModule],
     providers: [DialogService],
     templateUrl: './inflation-data.component.html',
     styleUrl: './inflation-data.component.scss'
@@ -49,10 +56,8 @@ export class InflationDataComponent implements OnInit {
     private rawEntries: InflationDataEntryWithProjectionResponse[] = [];
     private entryMap = new Map<string, InflationDataEntryWithProjectionResponse>();
 
-    // Highcharts
-    Highcharts: typeof Highcharts = Highcharts;
-    chartOptions: Highcharts.Options = {};
-    yearlyChartOptions: Highcharts.Options = {};
+    chartOptions: EChartsOption | undefined;
+    yearlyChartOptions: EChartsOption | undefined;
 
     // Projection settings
     projectionOptions: ProjectionOption[] = [
@@ -135,7 +140,7 @@ export class InflationDataComponent implements OnInit {
             const previousMonthEntry = this.entryMap.get(`${previousYear}-${previousMonth}`);
             const change = previousMonthEntry
                 ? ((entry.indexValue - previousMonthEntry.indexValue) / previousMonthEntry.indexValue) * 100
-                : null;
+                : undefined;
 
             return {
                 year: entry.year,
@@ -181,7 +186,7 @@ export class InflationDataComponent implements OnInit {
 
             const change = previousYearAverage
                 ? ((indexValue - previousYearAverage) / previousYearAverage) * 100
-                : null;
+                : undefined;
 
             return {
                 year,
@@ -204,165 +209,116 @@ export class InflationDataComponent implements OnInit {
     }
 
     private updateMonthlyChart() {
-        // Sort entries chronologically
         const sortedEntries = [...this.entries].sort((a, b) => {
             if (a.year !== b.year) return a.year - b.year;
             return (a.month || 0) - (b.month || 0);
         });
 
-        // Split into actual and projected
-        const actualEntries = sortedEntries.filter(e => !e.isProjected);
-        const projectedEntries = sortedEntries.filter(e => e.isProjected);
-
-        const allCategories = sortedEntries.map(e => `${this.getMonthName(e.month!)} ${e.year}`);
-
-        // Create data arrays with nulls for missing values
-        // To connect the lines, include the last actual value as the first projected value
-        const actualIndexData = sortedEntries.map((e, i) => {
-            if (e.isProjected) return null;
-            // If this is the last actual entry and there are projected entries, don't return the value
-            // as it will be included in the projected series
-            return e.indexValue;
-        });
-        const projectedIndexData = sortedEntries.map((e, i) => {
+        const categories = sortedEntries.map(e => `${this.getMonthName(e.month!)} ${e.year}`);
+        const actualData = sortedEntries.map(e => e.isProjected ? undefined : e.indexValue);
+        const projectedData = sortedEntries.map((e, i) => {
             if (!e.isProjected) {
-                // Include the last actual value as first point in projected series to connect the lines
                 const isLastActual = i < sortedEntries.length - 1 && sortedEntries[i + 1].isProjected;
-                return isLastActual ? e.indexValue : null;
+                return isLastActual ? e.indexValue : undefined;
             }
             return e.indexValue;
         });
         const changeData = sortedEntries.map(e => e.change);
 
-        this.chartOptions = {
-            chart: {
-                type: 'line'
-            },
-            title: {
-                text: 'Verbraucherpreisindex - Monatlich'
-            },
-            xAxis: {
-                categories: allCategories,
-                labels: {
-                    rotation: -45,
-                    step: Math.max(1, Math.floor(allCategories.length / 20))
-                }
-            },
-            yAxis: [{
-                title: {
-                    text: 'Index-Wert'
-                }
-            }, {
-                title: {
-                    text: 'Veränderung zum Vormonat (%)'
-                },
-                opposite: true
-            }],
-            series: [{
-                name: 'Index-Wert (Reale Daten)',
-                type: 'line',
-                data: actualIndexData,
-                yAxis: 0,
-                color: '#2196F3',
-                tooltip: {
-                    valueSuffix: ''
-                }
-            }, {
-                name: 'Index-Wert (Geschätzt)',
-                type: 'line',
-                data: projectedIndexData,
-                yAxis: 0,
-                color: '#FF9800',
-                dashStyle: 'Dash',
-                tooltip: {
-                    valueSuffix: ''
-                }
-            }, {
-                name: 'Veränderung zum Vormonat',
-                type: 'column',
-                data: changeData,
-                yAxis: 1,
-                tooltip: {
-                    valueSuffix: '%'
-                }
-            }],
-            credits: {
-                enabled: false
-            }
-        };
+        this.chartOptions = InflationDataComponent.buildChart(
+            categories,
+            actualData,
+            projectedData,
+            changeData,
+            'Veränderung zum Vormonat'
+        );
     }
 
     private updateYearlyChart() {
-        // Sort entries chronologically
         const sortedEntries = [...this.yearlyEntries].sort((a, b) => a.year - b.year);
 
         const categories = sortedEntries.map(e => e.year.toString());
-        // To connect the lines, include the last actual value as the first projected value
-        const actualIndexData = sortedEntries.map(e => e.isProjected ? null : e.indexValue);
-        const projectedIndexData = sortedEntries.map((e, i) => {
+        const actualData = sortedEntries.map(e => e.isProjected ? undefined : e.indexValue);
+        const projectedData = sortedEntries.map((e, i) => {
             if (!e.isProjected) {
-                // Include the last actual value as first point in projected series to connect the lines
                 const isLastActual = i < sortedEntries.length - 1 && sortedEntries[i + 1].isProjected;
-                return isLastActual ? e.indexValue : null;
+                return isLastActual ? e.indexValue : undefined;
             }
             return e.indexValue;
         });
         const changeData = sortedEntries.map(e => e.change);
 
-        this.yearlyChartOptions = {
-            chart: {
-                type: 'line'
-            },
-            title: {
-                text: 'Verbraucherpreisindex - Jährlich'
+        this.yearlyChartOptions = InflationDataComponent.buildChart(
+            categories,
+            actualData,
+            projectedData,
+            changeData,
+            'Veränderung zum Vorjahr'
+        );
+    }
+
+    private static buildChart(
+        categories: string[],
+        actual: (number | undefined)[],
+        projected: (number | undefined)[],
+        change: (number | undefined)[],
+        changeSeriesName: string
+    ): EChartsOption {
+        const labelInterval = Math.max(0, Math.floor(categories.length / 20) - 1);
+        return {
+            animation: false,
+            grid: { left: 10, right: 10, top: 50, bottom: 80, containLabel: true },
+            legend: { top: 0 },
+            tooltip: {
+                trigger: 'axis',
+                formatter: (params: unknown) => InflationDataComponent.tooltipFormatter(params as InflationTooltipParam[], changeSeriesName)
             },
             xAxis: {
-                categories: categories,
-                title: {
-                    text: 'Jahr'
-                }
+                type: 'category',
+                data: categories,
+                axisLabel: { rotate: -45, interval: labelInterval }
             },
-            yAxis: [{
-                title: {
-                    text: 'Index-Wert (Jahresdurchschnitt)'
-                }
-            }, {
-                title: {
-                    text: 'Veränderung zum Vorjahr (%)'
+            yAxis: [
+                { type: 'value', scale: true },
+                { type: 'value', position: 'right', axisLabel: { formatter: (v: number) => `${v.toFixed(1)}%` } }
+            ],
+            series: [
+                {
+                    name: 'Index-Wert (Reale Daten)',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    color: '#2196F3',
+                    showSymbol: false,
+                    data: actual
                 },
-                opposite: true
-            }],
-            series: [{
-                name: 'Index-Wert (Reale Daten)',
-                type: 'line',
-                data: actualIndexData,
-                yAxis: 0,
-                color: '#2196F3',
-                tooltip: {
-                    valueSuffix: ''
+                {
+                    name: 'Index-Wert (Geschätzt)',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    color: '#FF9800',
+                    lineStyle: { type: 'dashed' },
+                    showSymbol: false,
+                    data: projected
+                },
+                {
+                    name: changeSeriesName,
+                    type: 'bar',
+                    yAxisIndex: 1,
+                    data: change
                 }
-            }, {
-                name: 'Index-Wert (Geschätzt)',
-                type: 'line',
-                data: projectedIndexData,
-                yAxis: 0,
-                color: '#FF9800',
-                dashStyle: 'Dash',
-                tooltip: {
-                    valueSuffix: ''
-                }
-            }, {
-                name: 'Veränderung zum Vorjahr',
-                type: 'column',
-                data: changeData,
-                yAxis: 1,
-                tooltip: {
-                    valueSuffix: '%'
-                }
-            }],
-            credits: {
-                enabled: false
-            }
+            ]
         };
+    }
+
+    private static tooltipFormatter(params: InflationTooltipParam[], changeSeriesName: string): string {
+        if (params.length === 0) return '';
+        let html = `<b>${params[0].name}</b><br/>`;
+        for (const p of params) {
+            if (p.value === undefined) continue;
+            const isPercent = p.seriesName === changeSeriesName;
+            const formatted = isPercent ? `${p.value.toFixed(2)}%` : p.value.toFixed(2);
+            html += `<span style="color:${p.color}">●</span> ${p.seriesName}: <b>${formatted}</b><br/>`;
+        }
+        return html;
     }
 }

@@ -12,18 +12,25 @@ import {TabsModule} from 'primeng/tabs';
 import {SplitterModule} from 'primeng/splitter';
 import {TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
-import * as Highcharts from 'highcharts';
-import {HighchartsChartModule} from 'highcharts-angular';
+import {EChartsOption} from 'echarts';
+import {EchartComponent} from '../../../common/echart/echart.component';
+import {formatDateDe, formatEur} from '../../../common/echart/chart-format';
 import {DialogService} from 'primeng/dynamicdialog';
 import {SimulationModelNameDialogComponent} from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
 
+interface SimTooltipParam {
+    color: string;
+    seriesName: string;
+    value: [number, number];
+}
+
 
 @Component({
     selector: 'app-edit-simulation-model',
-    imports: [ButtonModule, MessageModule, CommonModule, ProgressSpinnerModule, PanelModule, TabsModule, SplitterModule, TableModule, TooltipModule, HighchartsChartModule],
+    imports: [ButtonModule, MessageModule, CommonModule, ProgressSpinnerModule, PanelModule, TabsModule, SplitterModule, TableModule, TooltipModule, EchartComponent],
     providers: [DialogService],
     templateUrl: './edit-simulation-model.component.html',
     styleUrl: './edit-simulation-model.component.scss'
@@ -50,10 +57,9 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     activeTab = '0';
     @ViewChild('logContent') logContent?: ElementRef<HTMLDivElement>;
     isRunning = false;
-    Highcharts: typeof Highcharts = Highcharts;
-    totalChartOptions: Highcharts.Options | undefined;
-    chartOptions: Highcharts.Options | undefined;
-    stockChartOptions: Highcharts.Options | undefined;
+    totalChartOptions: EChartsOption | undefined;
+    chartOptions: EChartsOption | undefined;
+    stockChartOptions: EChartsOption | undefined;
     maximizedChart: 'total' | 'balance' | 'stock' | null = null;
 
     get pageTitle(): string {
@@ -263,7 +269,7 @@ declare class DateOnly {
         }
     }
 
-    maximizedChartOptions: Highcharts.Options | undefined;
+    maximizedChartOptions: EChartsOption | undefined;
 
     toggleMaximizeChart(chart: 'total' | 'balance' | 'stock') {
         if (this.maximizedChart === chart) {
@@ -271,19 +277,9 @@ declare class DateOnly {
             this.maximizedChartOptions = undefined;
         } else {
             this.maximizedChart = chart;
-            const baseOptions = chart === 'total' ? this.totalChartOptions
+            this.maximizedChartOptions = chart === 'total' ? this.totalChartOptions
                 : chart === 'balance' ? this.chartOptions
                     : this.stockChartOptions;
-
-            if (baseOptions) {
-                this.maximizedChartOptions = {
-                    ...baseOptions,
-                    chart: {
-                        ...baseOptions.chart,
-                        height: 1000
-                    }
-                };
-            }
         }
     }
 
@@ -343,141 +339,55 @@ declare class DateOnly {
         this.logs = result.logs;
         this.transactions = result.transactions;
 
-        // Build total chart from day summaries (balance + stock value)
-        if (result.daySummaries.length > 0) {
-            const totalChartData = result.daySummaries.map(d => {
-                const date = new Date(d.date);
-                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance + d.totalStockValue];
-            });
+        if (result.daySummaries.length === 0) return;
 
-            // Combine actual balances and stock values by date
-            const actualTotalMap = new Map<number, number>();
-            for (const b of result.actualBalances) {
-                const date = new Date(b.date);
-                const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-                actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + b.balance);
-            }
-            for (const s of result.actualStockValues) {
-                const date = new Date(s.date);
-                const key = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-                actualTotalMap.set(key, (actualTotalMap.get(key) ?? 0) + s.value);
-            }
-            const actualTotalData = Array.from(actualTotalMap.entries())
-                .sort((a, b) => a[0] - b[0])
-                .map(([date, value]) => [date, value]);
+        const toUtc = (d: Date) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
 
-            this.totalChartOptions = {
-                chart: {
-                    type: 'line',
-                    height: 300
-                },
-                title: {
-                    text: undefined
-                },
-                xAxis: {
-                    type: 'datetime',
-                    title: {text: undefined}
-                },
-                yAxis: {
-                    title: {text: 'Total'}
-                },
-                legend: {
-                    enabled: true
-                },
-                series: [{
-                    type: 'line',
-                    name: 'Simuliert',
-                    data: totalChartData
-                }, {
-                    type: 'line',
-                    name: 'Echt',
-                    data: actualTotalData
-                }]
-            };
+        const totalSim = result.daySummaries.map(d => [toUtc(new Date(d.date)), d.balance + d.totalStockValue] as [number, number]);
+        const balanceSim = result.daySummaries.map(d => [toUtc(new Date(d.date)), d.balance] as [number, number]);
+        const stockSim = result.daySummaries.map(d => [toUtc(new Date(d.date)), d.totalStockValue] as [number, number]);
+
+        const balanceActual = result.actualBalances.map(b => [toUtc(new Date(b.date)), b.balance] as [number, number]);
+        const stockActual = result.actualStockValues.map(s => [toUtc(new Date(s.date)), s.value] as [number, number]);
+
+        const totalActualMap = new Map<number, number>();
+        for (const [k, v] of balanceActual) totalActualMap.set(k, (totalActualMap.get(k) ?? 0) + v);
+        for (const [k, v] of stockActual) totalActualMap.set(k, (totalActualMap.get(k) ?? 0) + v);
+        const totalActual = Array.from(totalActualMap.entries()).sort((a, b) => a[0] - b[0]) as [number, number][];
+
+        this.totalChartOptions = EditSimulationModelComponent.buildLineChart(totalSim, totalActual);
+        this.chartOptions = EditSimulationModelComponent.buildLineChart(balanceSim, balanceActual);
+        this.stockChartOptions = EditSimulationModelComponent.buildLineChart(stockSim, stockActual);
+    }
+
+    private static buildLineChart(simulated: [number, number][], actual: [number, number][]): EChartsOption {
+        return {
+            animation: false,
+            grid: {left: 10, right: 20, top: 30, bottom: 30, containLabel: true},
+            legend: {show: true, top: 0},
+            tooltip: {
+                trigger: 'axis',
+                formatter: (params: unknown) => EditSimulationModelComponent.tooltipFormatter(params as SimTooltipParam[])
+            },
+            xAxis: {type: 'time'},
+            yAxis: {
+                type: 'value',
+                scale: true,
+                axisLabel: {formatter: (v: number) => `${v.toLocaleString('de-DE')} €`}
+            },
+            series: [
+                {name: 'Simuliert', type: 'line', showSymbol: false, data: simulated},
+                {name: 'Echt', type: 'line', showSymbol: false, data: actual}
+            ]
+        };
+    }
+
+    private static tooltipFormatter(params: SimTooltipParam[]): string {
+        if (params.length === 0) return '';
+        let html = `<b>${formatDateDe(params[0].value[0])}</b><br/>`;
+        for (const p of params) {
+            html += `<span style="color:${p.color}">●</span> ${p.seriesName}: <b>${formatEur(p.value[1])}</b><br/>`;
         }
-
-        // Build chart from day summaries (balance only)
-        if (result.daySummaries.length > 0) {
-            const chartData = result.daySummaries.map(d => {
-                const date = new Date(d.date);
-                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.balance];
-            });
-
-            const actualBalanceData = result.actualBalances.map(b => {
-                const date = new Date(b.date);
-                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), b.balance];
-            });
-
-            this.chartOptions = {
-                chart: {
-                    type: 'line',
-                    height: 300
-                },
-                title: {
-                    text: undefined
-                },
-                xAxis: {
-                    type: 'datetime',
-                    title: {text: undefined}
-                },
-                yAxis: {
-                    title: {text: 'Balance'}
-                },
-                legend: {
-                    enabled: true
-                },
-                series: [{
-                    type: 'line',
-                    name: 'Simuliert',
-                    data: chartData
-                }, {
-                    type: 'line',
-                    name: 'Echt',
-                    data: actualBalanceData
-                }]
-            };
-        }
-
-        // Build stock chart from day summaries
-        if (result.daySummaries.length > 0) {
-            const stockChartData = result.daySummaries.map(d => {
-                const date = new Date(d.date);
-                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), d.totalStockValue];
-            });
-
-            const actualStockData = result.actualStockValues.map(s => {
-                const date = new Date(s.date);
-                return [Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), s.value];
-            });
-
-            this.stockChartOptions = {
-                chart: {
-                    type: 'line',
-                    height: 300
-                },
-                title: {
-                    text: undefined
-                },
-                xAxis: {
-                    type: 'datetime',
-                    title: {text: undefined}
-                },
-                yAxis: {
-                    title: {text: 'Stock Value'}
-                },
-                legend: {
-                    enabled: true
-                },
-                series: [{
-                    type: 'line',
-                    name: 'Simuliert',
-                    data: stockChartData
-                }, {
-                    type: 'line',
-                    name: 'Echt',
-                    data: actualStockData
-                }]
-            };
-        }
+        return html;
     }
 }

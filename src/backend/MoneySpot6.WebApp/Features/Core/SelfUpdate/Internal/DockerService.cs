@@ -57,18 +57,20 @@ public class DockerService : IDockerService
     {
         using var client = CreateClient();
         var container = await client.Containers.InspectContainerAsync(containerId);
+        var hostConfig = container.HostConfig ?? throw new InvalidOperationException($"Container {containerId} has no HostConfig");
+        var config = container.Config ?? throw new InvalidOperationException($"Container {containerId} has no Config");
 
         var portBindings = ImmutableArray.CreateBuilder<PortBindingConfig>();
-        if (container.HostConfig.PortBindings != null)
+        if (hostConfig.PortBindings != null)
         {
-            foreach (var (containerPort, bindings) in container.HostConfig.PortBindings)
+            foreach (var (containerPort, bindings) in hostConfig.PortBindings)
             {
                 foreach (var binding in bindings)
                     portBindings.Add(new PortBindingConfig(containerPort, binding.HostPort, binding.HostIP));
             }
         }
 
-        var restartPolicy = container.HostConfig.RestartPolicy?.Name switch
+        var restartPolicy = hostConfig.RestartPolicy?.Name switch
         {
             RestartPolicyKind.Always => ContainerRestartPolicy.Always,
             RestartPolicyKind.UnlessStopped => ContainerRestartPolicy.UnlessStopped,
@@ -79,14 +81,14 @@ public class DockerService : IDockerService
         return new ContainerInspection(
             containerId,
             container.Name.TrimStart('/'),
-            container.Config.Image,
+            config.Image,
             container.Image,
             portBindings.ToImmutable(),
-            container.HostConfig.Binds?.ToImmutableArray() ?? [],
-            container.Config.Env?.ToImmutableArray() ?? [],
+            hostConfig.Binds?.ToImmutableArray() ?? [],
+            config.Env?.ToImmutableArray() ?? [],
             restartPolicy,
-            (int)(container.HostConfig.RestartPolicy?.MaximumRetryCount ?? 0),
-            container.HostConfig.NetworkMode);
+            (int)(hostConfig.RestartPolicy?.MaximumRetryCount ?? 0),
+            hostConfig.NetworkMode);
     }
 
     public async Task<string> GetImageId(string imageReference)

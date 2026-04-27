@@ -54,7 +54,7 @@ The app checks for new images periodically and lets you apply updates with one c
 | Component | Technology |
 |---|---|
 | Backend | .NET 10, ASP.NET Core, Entity Framework Core |
-| Frontend | Angular 20, PrimeNG, Highcharts |
+| Frontend | Angular 20, PrimeNG, Apache ECharts |
 | Bank Adapter | Kotlin/Java 21, HBCI4J |
 | Database | SQLite or PostgreSQL |
 | Auth | OpenID Connect |

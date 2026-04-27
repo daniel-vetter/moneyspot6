@@ -9,3 +9,5 @@
 * Wenn ein Service mit zugehörigem Interface erstellt wird (z.B. IDockerService + DockerService), beides in die gleiche Datei schreiben, benannt nach der Implementierung (z.B. DockerService.cs, ohne "I"-Prefix)
 * Keine statischen Methoden auf Services aufrufen — immer über DI injizieren und Instanzmethoden verwenden
 * Nach Änderungen immer `dotnet build --no-incremental` verwenden um Warnings zu prüfen (inkrementelle Builds verschlucken Warnings)
+* TypeScript: kein `null` verwenden, immer `undefined` (z.B. `private foo: string | undefined;` oder `foo?: string`). `null` nur akzeptieren wo es von außen reinkommt (JSON-APIs, DOM) und am Boundary auf `undefined` mappen.
+* Niemals ohne explizite Ansage commiten oder pushen. "Fix das" ≠ Commit-Erlaubnis. "Einchecken"/"commit" ist das Signal zum Commiten, "pushen"/"push" ist das Signal zum Pushen — getrennt voneinander, und gilt nur für den aktuell anstehenden Commit/Push.
