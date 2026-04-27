@@ -723,12 +723,21 @@ public class DatabaseInitializer(Db db)
             return new DateOnly(d.Year, d.Month, 20);
         }
 
-        db.StockTransactions.AddRange(
-            new DbStockTransaction { Stock = stock, Date = BuyDate(4), Amount = 4.85m, Price = 103.10m },
-            new DbStockTransaction { Stock = stock, Date = BuyDate(3), Amount = 4.71m, Price = 106.20m },
-            new DbStockTransaction { Stock = stock, Date = BuyDate(2), Amount = 4.61m, Price = 108.40m },
-            new DbStockTransaction { Stock = stock, Date = BuyDate(1), Amount = 4.51m, Price = 110.80m }
-        );
+        const int monthsCount = 36;
+        const decimal startPrice = 65m;
+        const decimal endPrice = 110m;
+        const decimal monthlyInvestment = 500m;
+        var rng = new Random(42);
+
+        for (var monthsAgo = monthsCount; monthsAgo >= 1; monthsAgo--)
+        {
+            var progress = (decimal)(monthsCount - monthsAgo) / (monthsCount - 1);
+            var basePrice = startPrice + (endPrice - startPrice) * progress;
+            var noise = (decimal)(rng.NextDouble() * 0.08 - 0.04);
+            var price = Math.Round(basePrice * (1m + noise), 2);
+            var amount = Math.Round(monthlyInvestment / price, 4);
+            db.StockTransactions.Add(new DbStockTransaction { Stock = stock, Date = BuyDate(monthsAgo), Amount = amount, Price = price });
+        }
 
         await db.SaveChangesAsync();
         return;
