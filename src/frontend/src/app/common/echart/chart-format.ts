@@ -13,6 +13,5 @@ export function formatDateDe(timestamp: number): string {
 export function formatTimeAxisLabelDe(value: number): string {
     const d = new Date(value);
     if (d.getMonth() === 0 && d.getDate() === 1) return d.getFullYear().toString();
-    if (d.getDate() === 1) return monthsDe[d.getMonth()];
     return `${d.getDate()}. ${monthsDe[d.getMonth()]}`;
 }

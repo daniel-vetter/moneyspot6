@@ -1,96 +1,86 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
 import { SummaryPageClient } from '../../server';
 import { lastValueFrom } from 'rxjs';
-import { HighchartsChartModule } from 'highcharts-angular';
-import Highcharts from 'highcharts';
+import { EChartsOption } from 'echarts';
+import { EchartComponent } from '../../common/echart/echart.component';
+import { formatDateDe, formatEur, formatTimeAxisLabelDe } from '../../common/echart/chart-format';
+
+interface TooltipParam {
+    axisValue: string;
+    color: string;
+    seriesName: string;
+    value: number;
+}
 
 @Component({
     selector: 'app-balance-history',
-    imports: [PanelModule, HighchartsChartModule],
+    imports: [PanelModule, EchartComponent],
     templateUrl: './balance-history.component.html',
     styleUrl: './balance-history.component.scss'
 })
 export class BalanceHistoryComponent implements OnInit {
     private summaryPageClient = inject(SummaryPageClient);
 
-    Highcharts: typeof Highcharts = Highcharts;
-    chart?: Highcharts.Options = undefined;
+    protected readonly options = signal<EChartsOption | null>(null);
 
     async ngOnInit(): Promise<void> {
         const r = await lastValueFrom(this.summaryPageClient.getCurrentMonthBalanceHistory());
-        const monthStarts = this.getMonthStarts(62);
+        const dates = r.entries.map(x => x.date.valueOf());
+        const balances = r.entries.map(x => Math.round(x.balance * 100) / 100);
+        const labelEvery = Math.max(1, Math.round(dates.length / 8));
+        const monthBoundaries = dates.filter(d => new Date(d).getDate() === 1).map(String);
 
-        this.chart = {
-            title: {
-                text: undefined,
-            },
-            yAxis: {
-                title: undefined,
-                labels: {
-                    style: {
-                        fontSize: "1rem"
-                    }
-                }
+        this.options.set({
+            animation: false,
+            grid: { left: 10, right: 20, top: 20, bottom: 30, containLabel: true },
+            legend: { show: false },
+            tooltip: {
+                trigger: 'axis',
+                formatter: (params: unknown) => BalanceHistoryComponent.tooltipFormatter(params as TooltipParam[])
             },
             xAxis: {
-                type: 'datetime',
-                labels: {
-                    style: {
-                        fontSize: "1rem"
-                    }
-                },
-                plotLines: monthStarts.map(date => ({
-                    color: '#888888',
-                    width: 2,
-                    value: date,
-                    dashStyle: 'Dash' as Highcharts.DashStyleValue,
-                    zIndex: 5
-                }))
+                type: 'category',
+                data: dates.map(String),
+                axisTick: { alignWithLabel: true, interval: labelEvery - 1 },
+                axisLabel: {
+                    fontSize: 11,
+                    interval: labelEvery - 1,
+                    showMinLabel: false,
+                    formatter: (value: string) => formatTimeAxisLabelDe(Number(value))
+                }
             },
-            tooltip: {
-                shared: true,
-                style: {
-                    fontSize: "1rem"
+            yAxis: {
+                type: 'value',
+                scale: true,
+                axisLabel: {
+                    fontSize: 11,
+                    formatter: (value: number) => `${value.toLocaleString('de-DE')} €`
                 }
             },
             series: [
                 {
                     name: 'Kontostand',
                     type: 'line',
-                    data: r.entries.map((x) => [x.date.valueOf(), Math.round(x.balance * 100) / 100]),
-                    animation: {
-                        duration: 0
+                    showSymbol: false,
+                    data: balances,
+                    markLine: {
+                        silent: true,
+                        symbol: 'none',
+                        label: { show: false },
+                        lineStyle: { color: '#888', type: 'dashed' },
+                        data: monthBoundaries.map(v => ({ xAxis: v }))
                     }
                 }
-            ],
-            credits: {
-                enabled: false,
-            },
-            legend: {
-                enabled: false,
-            },
-            chart: {
-                animation: {
-                    duration: 0,
-                },
-                zooming: {
-                    type: 'x',
-                },
-            },
-        };
+            ]
+        });
     }
 
-    private getMonthStarts(daysBack: number): number[] {
-        const result: number[] = [];
-        const now = new Date();
-        const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
-
-        let current = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1);
-        while (current <= now) {
-            result.push(current.valueOf());
-            current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+    private static tooltipFormatter(params: TooltipParam[]): string {
+        let html = `<b>${formatDateDe(Number(params[0].axisValue))}</b><br/>`;
+        for (const p of params) {
+            html += `<span style="color:${p.color}">●</span> ${p.seriesName}: <b>${formatEur(p.value)}</b>`;
         }
-        return result;
+        return html;
     }
 }

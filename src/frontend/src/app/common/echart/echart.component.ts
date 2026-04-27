@@ -24,6 +24,7 @@ export class EchartComponent implements AfterViewInit, OnDestroy {
     private themeService = inject(ThemeService);
     private chart?: echarts.ECharts;
     private resizeObserver?: ResizeObserver;
+    private static themeRegistered = false;
 
     constructor() {
         effect(() => {
@@ -35,11 +36,9 @@ export class EchartComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
-        const dark = this.themeService.isDark;
-        const themeId = this.themeService.current;
+        EchartComponent.ensureThemeRegistered(this.themeService);
         const el = this.hostEl().nativeElement;
-        this.chart = echarts.init(el, dark ? 'dark' : undefined);
-        this.chart.setOption(EchartComponent.themeOptions(dark, themeId));
+        this.chart = echarts.init(el, 'moneyspot');
         this.resizeObserver = new ResizeObserver(() => this.chart?.resize());
         this.resizeObserver.observe(el);
         const opts = this.options();
@@ -53,36 +52,38 @@ export class EchartComponent implements AfterViewInit, OnDestroy {
         this.resizeObserver?.disconnect();
     }
 
-    private static themeOptions(dark: boolean, themeId: string): EChartsOption {
+    private static ensureThemeRegistered(themeService: ThemeService): void {
+        if (EchartComponent.themeRegistered) return;
+        const dark = themeService.isDark;
+        const themeId = themeService.current;
         const labelColor = dark ? '#94a3b8' : '#64748b';
-        const lineColor = dark ? '#334155' : '#cbd5e1';
         const splitLineColor = dark ? '#1e293b' : '#e2e8f0';
+        const axisLineColor = dark ? '#0f172a' : '#cbd5e1';
         const tooltipBg = dark ? '#1e293b' : '#ffffff';
+        const tooltipBorder = dark ? '#334155' : '#cbd5e1';
         const tooltipText = dark ? '#e2e8f0' : '#1e293b';
-        return {
+        const axis = {
+            axisLine: {lineStyle: {color: axisLineColor}},
+            axisTick: {lineStyle: {color: axisLineColor}},
+            splitLine: {lineStyle: {color: splitLineColor}},
+            axisLabel: {color: labelColor},
+        };
+        echarts.registerTheme('moneyspot', {
             backgroundColor: 'transparent',
             color: colorsByTheme[themeId] ?? colorsByTheme['emerald'],
             textStyle: {color: labelColor},
-            xAxis: {
-                axisLine: {lineStyle: {color: lineColor}},
-                axisTick: {lineStyle: {color: lineColor}},
-                splitLine: {lineStyle: {color: splitLineColor}},
-                axisLabel: {color: labelColor},
-            },
-            yAxis: {
-                axisLine: {lineStyle: {color: lineColor}},
-                axisTick: {lineStyle: {color: lineColor}},
-                splitLine: {lineStyle: {color: splitLineColor}},
-                axisLabel: {color: labelColor},
-            },
-            legend: {
-                textStyle: {color: labelColor},
-            },
+            title: {textStyle: {color: dark ? '#e2e8f0' : '#1e293b'}},
+            categoryAxis: axis,
+            valueAxis: axis,
+            timeAxis: axis,
+            logAxis: axis,
+            legend: {textStyle: {color: labelColor}},
             tooltip: {
                 backgroundColor: tooltipBg,
-                borderColor: lineColor,
+                borderColor: tooltipBorder,
                 textStyle: {color: tooltipText},
             },
-        };
+        });
+        EchartComponent.themeRegistered = true;
     }
 }
