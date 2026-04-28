@@ -10,7 +10,6 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
 import { SearchBarComponent } from '../common/search-bar/search-bar.component';
 import { ViewGrouping, GroupingBarComponent } from '../common/grouping-bar/grouping-bar.component';
-import { DialogService } from 'primeng/dynamicdialog';
 import { TransactionDetailsDialogComponent } from './transaction-details-dialog/transaction-details-dialog.component';
 import { InflationAdjustmentDialogComponent } from './inflation-adjustment-dialog/inflation-adjustment-dialog.component';
 import { TagModule } from 'primeng/tag';
@@ -19,17 +18,17 @@ import { AppEvents } from '../app-events';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { DateRangePickerComponent, DateRange } from "../common/date-range-picker/date-range-picker.component";
+import { ModalDialogService } from '../common/modal-dialog.service';
 
 @Component({
     selector: 'app-transactions',
     imports: [ValueComponent, PanelModule, CustomDatePipe, ButtonModule, ProgressSpinnerModule, RippleModule, SearchBarComponent, GroupingBarComponent, TagModule, TooltipModule, DatePickerModule, FormsModule, DateRangePickerComponent],
-    providers: [DialogService],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent implements OnInit {
     private transactionPageClient = inject(TransactionPageClient);
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
     private activatedRoute = inject(ActivatedRoute);
     private appEvents = inject(AppEvents);
 
@@ -166,7 +165,7 @@ export class TransactionsComponent implements OnInit {
 
     async openTransaction(transaction: TransactionEntryResponse) {
         console.log("Clicked");
-        const dlg = this.dialogService.open(TransactionDetailsDialogComponent, {
+        const dlg = this.modalDialogService.open(TransactionDetailsDialogComponent, {
             data: {
                 id: transaction.id,
             },
@@ -213,7 +212,7 @@ export class TransactionsComponent implements OnInit {
             await this.update();
         } else {
             // Dialog öffnen
-            const dlg = this.dialogService.open(InflationAdjustmentDialogComponent, {
+            const dlg = this.modalDialogService.open(InflationAdjustmentDialogComponent, {
                 focusOnShow: false
             });
 

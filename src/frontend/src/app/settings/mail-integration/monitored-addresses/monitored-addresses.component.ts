@@ -4,21 +4,20 @@ import { ButtonModule } from "primeng/button";
 import { TableModule } from "primeng/table";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { MailIntegrationClient, MonitoredAddressResponse } from "../../../server";
-import { DialogService } from "primeng/dynamicdialog";
 import { ConfirmationService } from "primeng/api";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 import { MailAddressDialogComponent } from "./mail-address-dialog/mail-address-dialog.component";
+import { ModalDialogService } from "../../../common/modal-dialog.service";
 
 @Component({
     selector: 'app-monitored-addresses',
     imports: [PanelModule, ButtonModule, TableModule, ProgressSpinnerModule],
-    providers: [DialogService],
     templateUrl: './monitored-addresses.component.html',
     styleUrl: './monitored-addresses.component.scss'
 })
 export class MonitoredAddressesComponent implements OnInit {
     mailIntegrationClient = inject(MailIntegrationClient);
-    dialogService = inject(DialogService);
+    modalDialogService = inject(ModalDialogService);
     confirmationService = inject(ConfirmationService);
 
     monitoredAddresses = signal<MonitoredAddressResponse[] | undefined>(undefined);
@@ -28,9 +27,7 @@ export class MonitoredAddressesComponent implements OnInit {
     }
 
     protected async onAddAddressClicked() {
-        const dlg = this.dialogService.open(MailAddressDialogComponent, {
-            modal: true
-        });
+        const dlg = this.modalDialogService.open(MailAddressDialogComponent);
         const success = await firstValueFrom(dlg.onClose);
         if (success) {
             this.monitoredAddresses.set(await lastValueFrom((this.mailIntegrationClient.getAllMonitoredAddresses())));
@@ -38,8 +35,7 @@ export class MonitoredAddressesComponent implements OnInit {
     }
 
     protected async onEditMonitoredAddress(monitoredAddress: MonitoredAddressResponse) {
-        const dlg = this.dialogService.open(MailAddressDialogComponent, {
-            modal: true,
+        const dlg = this.modalDialogService.open(MailAddressDialogComponent, {
             data: {
                 monitoredAddress: monitoredAddress
             }

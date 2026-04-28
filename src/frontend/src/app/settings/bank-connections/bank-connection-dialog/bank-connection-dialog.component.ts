@@ -7,12 +7,11 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BankConnectionClient, CreateFinTsBankConnectionRequest, UpdateFinTsBankConnectionRequest, BankConnectionValidationErrorResponse } from '../../../server';
 import { lastValueFrom } from 'rxjs';
 import { MessageModule } from 'primeng/message';
-import { CommonModule } from '@angular/common';
 import { PasswordModule } from 'primeng/password';
 
 @Component({
     selector: 'app-bank-connection-dialog',
-    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule, PasswordModule, ProgressSpinnerModule],
+    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, PasswordModule, ProgressSpinnerModule],
     templateUrl: './bank-connection-dialog.component.html',
     styleUrl: './bank-connection-dialog.component.scss',
     standalone: true

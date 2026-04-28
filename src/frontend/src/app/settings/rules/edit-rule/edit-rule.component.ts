@@ -8,7 +8,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { NewRuleRequest, RulesClient, RuleValidationErrorResponse, UpdateRuleRequest } from '../../../server';
 import { lastValueFrom } from 'rxjs';
-import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import './monaco-setup';
@@ -18,7 +17,7 @@ import * as monaco from 'monaco-editor';
 
 @Component({
     selector: 'app-edit-rule',
-    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, CommonModule, MessageModule, ProgressSpinnerModule],
+    imports: [FormsModule, ButtonModule, MessageModule, ReactiveFormsModule, InputTextModule, MessageModule, ProgressSpinnerModule],
     templateUrl: './edit-rule.component.html',
     styleUrl: './edit-rule.component.scss'
 })

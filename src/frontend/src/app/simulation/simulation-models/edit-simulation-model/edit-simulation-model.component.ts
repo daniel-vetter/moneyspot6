@@ -15,8 +15,8 @@ import {TooltipModule} from 'primeng/tooltip';
 import {EChartsOption} from 'echarts';
 import {EchartComponent} from '../../../common/echart/echart.component';
 import {formatDateDe, formatEur} from '../../../common/echart/chart-format';
-import {DialogService} from 'primeng/dynamicdialog';
 import {SimulationModelNameDialogComponent} from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
+import {ModalDialogService} from '../../../common/modal-dialog.service';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
@@ -31,7 +31,6 @@ interface SimTooltipParam {
 @Component({
     selector: 'app-edit-simulation-model',
     imports: [ButtonModule, MessageModule, CommonModule, ProgressSpinnerModule, PanelModule, TabsModule, SplitterModule, TableModule, TooltipModule, EchartComponent],
-    providers: [DialogService],
     templateUrl: './edit-simulation-model.component.html',
     styleUrl: './edit-simulation-model.component.scss'
 })
@@ -40,7 +39,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     private router = inject(Router);
     @ViewChild('container') container!: ElementRef;
     private simulationModelsClient = inject(SimulationModelsClient);
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
 
     id: undefined | number;
     currentRevisionId: undefined | number;
@@ -254,8 +253,7 @@ declare class DateOnly {
     }
 
     async openNameDialog() {
-        const dlg = this.dialogService.open(SimulationModelNameDialogComponent, {
-            modal: true,
+        const dlg = this.modalDialogService.open(SimulationModelNameDialogComponent, {
             focusOnShow: false,
             data: {
                 id: this.id,

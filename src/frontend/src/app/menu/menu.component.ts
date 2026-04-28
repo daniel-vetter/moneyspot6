@@ -1,4 +1,4 @@
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import { NgOptimizedImage } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
@@ -17,7 +17,7 @@ import { ThemeService } from '../common/theme.service';
 
 @Component({
     selector: 'app-menu',
-    imports: [MenuModule, BadgeModule, AvatarModule, CommonModule, RippleModule, ButtonModule, DialogModule, RouterLink, RouterLinkActive, MenuModule, OverlayBadgeModule, BadgeModule, NgOptimizedImage],
+    imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, ButtonModule, DialogModule, RouterLink, RouterLinkActive, MenuModule, OverlayBadgeModule, BadgeModule, NgOptimizedImage],
     templateUrl: './menu.component.html',
     styleUrl: './menu.component.scss'
 })

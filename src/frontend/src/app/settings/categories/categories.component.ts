@@ -3,21 +3,20 @@ import { ConfirmationService, TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { TreeTableModule } from 'primeng/treetable';
 import { NewCategoryDialogComponent } from './new-category-dialog/new-category-dialog.component';
-import { DialogService } from "primeng/dynamicdialog";
 import { CategoryConfigurationClient, CategoryResponse } from '../../server';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { PanelModule } from 'primeng/panel';
+import { ModalDialogService } from '../../common/modal-dialog.service';
 
 @Component({
     selector: 'app-categories',
     imports: [TreeTableModule, ButtonModule, ConfirmDialogModule, PanelModule],
-    providers: [DialogService],
     templateUrl: './categories.component.html',
     styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
     private categoryConfigurationClient = inject(CategoryConfigurationClient);
     private confirmationService = inject(ConfirmationService);
 
@@ -25,8 +24,7 @@ export class CategoriesComponent implements OnInit {
     entries: TreeNode[] = [];
 
     async onNewCategoryClicked(parentId: number | undefined) {
-        const dlg = this.dialogService.open(NewCategoryDialogComponent, {
-            modal: true,
+        const dlg = this.modalDialogService.open(NewCategoryDialogComponent, {
             focusOnShow: false,
             data: {
                 parentId: parentId
@@ -38,8 +36,7 @@ export class CategoriesComponent implements OnInit {
     }
 
     async onEditCategoryClicked(id: any) {
-        const dlg = this.dialogService.open(NewCategoryDialogComponent, {
-            modal: true,
+        const dlg = this.modalDialogService.open(NewCategoryDialogComponent, {
             focusOnShow: false,
             data: {
                 id: id

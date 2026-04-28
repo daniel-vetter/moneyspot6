@@ -2,21 +2,19 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
-import { CommonModule } from '@angular/common';
+
 import { SimulationModelListItemResponse, SimulationModelsClient } from '../../server';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
-import { DialogService } from 'primeng/dynamicdialog';
 import { SimulationModelNameDialogComponent } from './simulation-model-name-dialog/simulation-model-name-dialog.component';
-
+import { ModalDialogService } from '../../common/modal-dialog.service';
 
 @Component({
     selector: 'app-simulation-models',
-    imports: [PanelModule, ButtonModule, TableModule, CommonModule, TooltipModule, TagModule],
-    providers: [DialogService],
+    imports: [PanelModule, ButtonModule, TableModule, TooltipModule, TagModule],
     templateUrl: './simulation-models.component.html',
     styleUrl: './simulation-models.component.scss'
 })
@@ -24,7 +22,7 @@ export class SimulationModelsComponent implements OnInit {
     private simulationModelsClient = inject(SimulationModelsClient);
     private confirmationService = inject(ConfirmationService);
     private router = inject(Router);
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
 
     models = signal(<SimulationModelListItemResponse[]>[]);
 
@@ -32,12 +30,10 @@ export class SimulationModelsComponent implements OnInit {
         await this.update();
     }
 
-
     async onNewModelClicked() {
-        const dlg = this.dialogService.open(SimulationModelNameDialogComponent, {
-            modal: true,
+        const dlg = this.modalDialogService.open(SimulationModelNameDialogComponent, {
             focusOnShow: false,
-            data: {}
+            data: {},
         });
 
         const newId = await firstValueFrom(dlg.onClose);
@@ -59,7 +55,7 @@ export class SimulationModelsComponent implements OnInit {
             accept: async () => {
                 await lastValueFrom(this.simulationModelsClient.delete(model.id));
                 await this.update();
-            }
+            },
         });
     }
 

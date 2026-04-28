@@ -13,9 +13,13 @@
                     <input type="text" pInputText formControlName="name" name="name" autocomplete="off" style="width: 100%;" width="100%" autofocus data-testid="rule-name-input" />
                 </div>
                 <div>
-                    <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['required']">Ein Name muss angegeben werden.</p-message>
-                    <p-message variant="simple" size="small" severity="error" *ngIf="form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']">Es existiert bereits eine Regel mit
-                        diesem Name.</p-message>
+                    @if (form.dirty && form.get('name')?.errors?.['required']) {
+                        <p-message variant="simple" size="small" severity="error">Ein Name muss angegeben werden.</p-message>
+                    }
+                    @if (form.dirty && form.get('name')?.errors?.['nameAlreadyInUse']) {
+                        <p-message variant="simple" size="small" severity="error">Es existiert bereits eine Regel mit
+                            diesem Name.</p-message>
+                    }
                 </div>
             </div>
 

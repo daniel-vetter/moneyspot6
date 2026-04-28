@@ -5,20 +5,19 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {MailIntegrationClient, ImportedEmailResponse, PagedImportedEmailsResponse} from "../../../server";
 import {lastValueFrom} from "rxjs";
 import {DatePipe} from "@angular/common";
-import {DialogService} from "primeng/dynamicdialog";
 import {EmailDetailsDialogComponent} from "./email-details-dialog/email-details-dialog.component";
 import {UpdateState} from "../../../common/update-state";
+import {ModalDialogService} from "../../../common/modal-dialog.service";
 
 @Component({
     selector: 'app-imported-emails',
     imports: [PanelModule, TableModule, ProgressSpinnerModule, DatePipe],
     templateUrl: './imported-emails.component.html',
-    styleUrl: './imported-emails.component.scss',
-    providers: [DialogService]
+    styleUrl: './imported-emails.component.scss'
 })
 export class ImportedEmailsComponent implements OnInit, OnDestroy {
     mailIntegrationClient = inject(MailIntegrationClient);
-    dialogService = inject(DialogService);
+    modalDialogService = inject(ModalDialogService);
     private updateState = inject(UpdateState);
 
     emails = signal<ImportedEmailResponse[] | undefined>(undefined);
@@ -67,9 +66,8 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
     }
 
     protected onEmailClicked(email: ImportedEmailResponse): void {
-        this.dialogService.open(EmailDetailsDialogComponent, {
+        this.modalDialogService.open(EmailDetailsDialogComponent, {
             focusOnShow: false,
-            modal: true,
             data: {
                 emailId: email.id
             }
