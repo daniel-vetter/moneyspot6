@@ -58,9 +58,9 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
     }
 
     async ngAfterViewInit(): Promise<void> {
-        monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-            target: monaco.languages.typescript.ScriptTarget.ES2020,
-            module: monaco.languages.typescript.ModuleKind.ES2015,
+        monaco.typescript.typescriptDefaults.setCompilerOptions({
+            target: monaco.typescript.ScriptTarget.ES2020,
+            module: monaco.typescript.ModuleKind.ES2015,
             allowNonTsExtensions: true,
             lib: ["es2020"],
             sourceMap: true,
@@ -69,14 +69,14 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
             strict: true
         });
 
-        monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+        monaco.typescript.typescriptDefaults.setDiagnosticsOptions({
             noSemanticValidation: false,
             noSyntaxValidation: false,
         });
 
         var categoryKeys = await lastValueFrom(this.ruleClient.getCategoryKeys());
         var categoryKeysString = categoryKeys.map(x => `${x.name} = ${x.id}`).join('\n');
-        this.typeLib = monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        this.typeLib = monaco.typescript.typescriptDefaults.addExtraLib(
             `
                 declare interface Transaction {
                     readonly date: string;
@@ -211,7 +211,7 @@ export class EditRuleComponent implements AfterViewInit, OnDestroy {
     }
 
     async onSubmit() {
-        const worker = await monaco.languages.typescript.getTypeScriptWorker();
+        const worker = await monaco.typescript.getTypeScriptWorker();
         const svc = await worker(this.model!.uri);
         const emit = await svc.getEmitOutput(this.model!.uri.toString());
 

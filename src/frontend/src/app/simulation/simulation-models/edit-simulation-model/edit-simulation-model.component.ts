@@ -85,9 +85,9 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     async ngAfterViewInit(): Promise<void> {
         await Promise.resolve();
 
-        monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-            target: monaco.languages.typescript.ScriptTarget.ES2020,
-            module: monaco.languages.typescript.ModuleKind.ES2015,
+        monaco.typescript.typescriptDefaults.setCompilerOptions({
+            target: monaco.typescript.ScriptTarget.ES2020,
+            module: monaco.typescript.ModuleKind.ES2015,
             allowNonTsExtensions: true,
             lib: ["es2020"],
             sourceMap: true,
@@ -96,12 +96,12 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
             strict: true
         });
 
-        monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+        monaco.typescript.typescriptDefaults.setDiagnosticsOptions({
             noSemanticValidation: false,
             noSyntaxValidation: false,
         });
 
-        this.typeLib = monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        this.typeLib = monaco.typescript.typescriptDefaults.addExtraLib(
             `
 declare const today: DateOnly;
 declare const start: DateOnly;
@@ -282,7 +282,7 @@ declare class DateOnly {
     }
 
     private async saveModel() {
-        const worker = await monaco.languages.typescript.getTypeScriptWorker();
+        const worker = await monaco.typescript.getTypeScriptWorker();
         const svc = await worker(this.model!.uri);
         const emit = await svc.getEmitOutput(this.model!.uri.toString());
 
