@@ -2,6 +2,23 @@
 
 A self-hosted personal finance management application with German bank integration (FinTS/HBCI), stock tracking, smart categorization, and financial simulations.
 
+## Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [How to Run](#how-to-run)
+  - [SQLite](#sqlite)
+  - [PostgreSQL](#postgresql)
+  - [Authentication](#authentication)
+  - [Self-Update](#self-update)
+  - [Image Tags](#image-tags)
+- [Development](#development)
+  - [Tech Stack](#tech-stack)
+  - [Prerequisites](#prerequisites)
+  - [Local Development (Aspire)](#local-development-aspire)
+- [Project Structure](#project-structure)
+- [License](#license)
+
 ## Features
 
 - **Bank Sync** - Connect to German bank accounts via FinTS/HBCI protocol with TAN support
