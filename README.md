@@ -1,5 +1,10 @@
 # MoneySpot6
 
+[![Build](https://github.com/daniel-vetter/moneyspot6/actions/workflows/build.yml/badge.svg)](https://github.com/daniel-vetter/moneyspot6/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Docker Pulls](https://img.shields.io/docker/pulls/dvetter/moneyspot6)](https://hub.docker.com/r/dvetter/moneyspot6)
+[![Docker Image Size](https://img.shields.io/docker/image-size/dvetter/moneyspot6/latest)](https://hub.docker.com/r/dvetter/moneyspot6)
+
 A self-hosted personal finance management application with German bank integration (FinTS/HBCI), stock tracking, smart categorization, and financial simulations.
 
 ## Contents
