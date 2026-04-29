@@ -8,12 +8,13 @@ import { DialogModule } from 'primeng/dialog';
 import { MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { TransactionPageClient } from '../server';
+import { AuthMode, TransactionPageClient } from '../server';
 import { AppEvents } from '../app-events';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, lastValueFrom } from 'rxjs';
 import { DateRange } from '../common/date-range-picker/date-range-picker.component';
 import { ThemeService } from '../common/theme.service';
+import { CurrentUserService } from '../common/current-user.service';
 
 @Component({
     selector: 'app-menu',
@@ -25,9 +26,11 @@ export class MenuComponent implements OnInit {
     private transactionPageClient = inject(TransactionPageClient);
     private appEvents = inject(AppEvents);
     themeService = inject(ThemeService);
+    currentUserService = inject(CurrentUserService);
     newTransactionCount: number = 0;
     currentMonthQueryParam = DateRange.currentMonth().toString();
     last12MonthsQueryParam = DateRange.lastMonths(12).toString();
+    protected readonly AuthMode = AuthMode;
 
     constructor() {
         this.appEvents.events

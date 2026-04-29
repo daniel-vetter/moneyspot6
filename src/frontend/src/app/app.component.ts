@@ -7,9 +7,8 @@ import { ToastModule } from 'primeng/toast';
 import { TopBarComponent } from './top-bar/top-bar.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { AuthClient } from './server';
-import { lastValueFrom } from 'rxjs';
 import { ParticlesBackgroundComponent } from './common/particles-background/particles-background.component';
+import { CurrentUserService } from './common/current-user.service';
 
 
 @Component({
@@ -20,13 +19,12 @@ import { ParticlesBackgroundComponent } from './common/particles-background/part
     providers: [ConfirmationService]
 })
 export class AppComponent implements OnInit {
-    private authClient = inject(AuthClient);
+    private currentUserService = inject(CurrentUserService);
 
     isLoggedIn: boolean = false;
 
     async ngOnInit(): Promise<void> {
-        const currentUser = await lastValueFrom(this.authClient.getUserDetails());
-        if (currentUser === undefined || currentUser === null) {
+        if (!await this.currentUserService.init()) {
             window.location.href = '/api/Auth/Login';
             return;
         }

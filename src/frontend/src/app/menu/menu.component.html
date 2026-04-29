@@ -29,5 +29,7 @@
             </button>
         }
     </div>
-    <li><a pRipple href="/api/Auth/Logout"><i class="pi pi-sign-out"></i> Abmelden</a></li>
+    @if (currentUserService.details().mode !== AuthMode.None) {
+        <li><a pRipple href="/api/Auth/Logout"><i class="pi pi-sign-out"></i> Abmelden</a></li>
+    }
 </ul>
