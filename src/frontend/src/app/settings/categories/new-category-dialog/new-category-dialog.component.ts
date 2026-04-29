@@ -6,12 +6,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CategoryConfigurationClient, CreateCategoryRequest, CreateCategoryValidationErrorResponse, UpdateCategoryRequest, UpdateCategoryValidationErrorResponse } from '../../../server';
 import { lastValueFrom } from 'rxjs';
 import { MessageModule } from 'primeng/message';
-import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-new-category-dialog',
-    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, CommonModule, ProgressSpinnerModule],
+    imports: [ButtonModule, ReactiveFormsModule, InputTextModule, MessageModule, ProgressSpinnerModule],
     templateUrl: './new-category-dialog.component.html',
     styleUrl: './new-category-dialog.component.scss'
 })

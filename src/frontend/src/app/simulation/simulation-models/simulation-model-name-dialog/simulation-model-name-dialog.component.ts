@@ -5,13 +5,12 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
-import { CommonModule } from '@angular/common';
 import { NewSimulationModelRequest, RenameSimulationModelRequest, SimulationModelsClient, SimulationModelValidationErrorResponse } from '../../../server';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-simulation-model-name-dialog',
-    imports: [ButtonModule, CheckboxModule, FormsModule, InputTextModule, MessageModule, CommonModule],
+    imports: [ButtonModule, CheckboxModule, FormsModule, InputTextModule, MessageModule],
     templateUrl: './simulation-model-name-dialog.component.html',
     styleUrl: './simulation-model-name-dialog.component.scss'
 })

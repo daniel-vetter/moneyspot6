@@ -3,7 +3,6 @@ import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -11,18 +10,19 @@ import { BankConnectionClient, BankConnectionListResponse } from '../../server';
 import { firstValueFrom } from 'rxjs';
 import { BankConnectionDialogComponent } from './bank-connection-dialog/bank-connection-dialog.component';
 import { DatePipe } from '@angular/common';
+import { ModalDialogService } from '../../common/modal-dialog.service';
 
 @Component({
     selector: 'app-bank-connections',
     imports: [PanelModule, TableModule, ButtonModule, TooltipModule, ConfirmDialogModule, ToastModule, DatePipe],
-    providers: [DialogService, ConfirmationService, MessageService],
+    providers: [ConfirmationService, MessageService],
     templateUrl: './bank-connections.component.html',
     styleUrl: './bank-connections.component.scss',
     standalone: true
 })
 export class BankConnectionsComponent implements OnInit {
     private bankConnectionClient = inject(BankConnectionClient);
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
     private confirmationService = inject(ConfirmationService);
     private messageService = inject(MessageService);
 
@@ -44,7 +44,7 @@ export class BankConnectionsComponent implements OnInit {
     }
 
     openCreateDialog() {
-        const dialog = this.dialogService.open(BankConnectionDialogComponent, {
+        const dialog = this.modalDialogService.open(BankConnectionDialogComponent, {
             data: { id: null },
             focusOnShow: false
         });
@@ -62,7 +62,7 @@ export class BankConnectionsComponent implements OnInit {
     }
 
     openEditDialog(connection: BankConnectionListResponse) {
-        const dialog = this.dialogService.open(BankConnectionDialogComponent, {
+        const dialog = this.modalDialogService.open(BankConnectionDialogComponent, {
             data: { id: connection.id },
             focusOnShow: false
         });

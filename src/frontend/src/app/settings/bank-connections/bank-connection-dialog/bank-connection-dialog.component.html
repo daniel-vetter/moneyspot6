@@ -12,12 +12,16 @@
                 <input type="text" pInputText formControlName="name" autocomplete="off" style="width: 100%;" placeholder="z.B. Meine Sparkasse" data-testid="bank-connection-name" />
             </div>
             <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']" data-testid="bank-connection-name-required-error">
-                    Ein Name muss angegeben werden.
-                </p-message>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('name')?.errors?.['nameAlreadyExists']">
-                    Es existiert bereits eine Verbindung mit diesem Namen.
-                </p-message>
+                @if (form.get('name')?.touched && form.get('name')?.errors?.['required']) {
+                    <p-message variant="simple" size="small" severity="error" data-testid="bank-connection-name-required-error">
+                        Ein Name muss angegeben werden.
+                    </p-message>
+                }
+                @if (form.get('name')?.errors?.['nameAlreadyExists']) {
+                    <p-message variant="simple" size="small" severity="error">
+                        Es existiert bereits eine Verbindung mit diesem Namen.
+                    </p-message>
+                }
             </div>
         </div>
 
@@ -27,9 +31,11 @@
                 <input type="text" pInputText formControlName="hbciVersion" autocomplete="off" style="width: 100%;" placeholder="z.B. 300" data-testid="bank-connection-hbci-version" />
             </div>
             <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('hbciVersion')?.touched && form.get('hbciVersion')?.errors?.['required']" data-testid="bank-connection-hbci-version-required-error">
-                    Die HBCI-Version muss angegeben werden.
-                </p-message>
+                @if (form.get('hbciVersion')?.touched && form.get('hbciVersion')?.errors?.['required']) {
+                    <p-message variant="simple" size="small" severity="error" data-testid="bank-connection-hbci-version-required-error">
+                        Die HBCI-Version muss angegeben werden.
+                    </p-message>
+                }
             </div>
         </div>
 
@@ -39,9 +45,11 @@
                 <input type="text" pInputText formControlName="bankCode" autocomplete="off" style="width: 100%;" placeholder="8-stellige Bankleitzahl" data-testid="bank-connection-bank-code" />
             </div>
             <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('bankCode')?.touched && form.get('bankCode')?.errors?.['required']" data-testid="bank-connection-bank-code-required-error">
-                    Die Bankleitzahl muss angegeben werden.
-                </p-message>
+                @if (form.get('bankCode')?.touched && form.get('bankCode')?.errors?.['required']) {
+                    <p-message variant="simple" size="small" severity="error" data-testid="bank-connection-bank-code-required-error">
+                        Die Bankleitzahl muss angegeben werden.
+                    </p-message>
+                }
             </div>
         </div>
 
@@ -51,9 +59,11 @@
                 <input type="text" pInputText formControlName="customerId" autocomplete="off" style="width: 100%;" placeholder="Ihre Kunden-ID" data-testid="bank-connection-customer-id" />
             </div>
             <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('customerId')?.touched && form.get('customerId')?.errors?.['required']" data-testid="bank-connection-customer-id-required-error">
-                    Die Kunden-ID muss angegeben werden.
-                </p-message>
+                @if (form.get('customerId')?.touched && form.get('customerId')?.errors?.['required']) {
+                    <p-message variant="simple" size="small" severity="error" data-testid="bank-connection-customer-id-required-error">
+                        Die Kunden-ID muss angegeben werden.
+                    </p-message>
+                }
             </div>
         </div>
 
@@ -63,9 +73,11 @@
                 <input type="text" pInputText formControlName="userId" autocomplete="off" style="width: 100%;" placeholder="Ihre Benutzer-ID" data-testid="bank-connection-user-id" />
             </div>
             <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('userId')?.touched && form.get('userId')?.errors?.['required']" data-testid="bank-connection-user-id-required-error">
-                    Die Benutzer-ID muss angegeben werden.
-                </p-message>
+                @if (form.get('userId')?.touched && form.get('userId')?.errors?.['required']) {
+                    <p-message variant="simple" size="small" severity="error" data-testid="bank-connection-user-id-required-error">
+                        Die Benutzer-ID muss angegeben werden.
+                    </p-message>
+                }
             </div>
         </div>
 
@@ -75,9 +87,11 @@
                 <p-password formControlName="pin" [feedback]="false" [toggleMask]="true" styleClass="w-full" inputStyleClass="w-full" autocomplete="off" placeholder="Ihre PIN" data-testid="bank-connection-pin" />
             </div>
             <div>
-                <p-message variant="simple" size="small" severity="error" *ngIf="form.get('pin')?.touched && form.get('pin')?.errors?.['required']" data-testid="bank-connection-pin-required-error">
-                    Die PIN muss angegeben werden.
-                </p-message>
+                @if (form.get('pin')?.touched && form.get('pin')?.errors?.['required']) {
+                    <p-message variant="simple" size="small" severity="error" data-testid="bank-connection-pin-required-error">
+                        Die PIN muss angegeben werden.
+                    </p-message>
+                }
             </div>
         </div>
 

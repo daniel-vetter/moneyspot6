@@ -7,7 +7,8 @@ import { TooltipModule} from 'primeng/tooltip';
 import { InflationDataClient, InflationDataEntryWithProjectionResponse } from '../../server';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ModalDialogService } from '../../common/modal-dialog.service';
 import { DefaultRateDialogComponent } from './default-rate-dialog/default-rate-dialog.component';
 import { InflationCalculatorComponent } from './inflation-calculator/inflation-calculator.component';
 import { EChartsOption } from 'echarts';
@@ -39,13 +40,12 @@ interface ProjectionOption {
 @Component({
     selector: 'app-inflation-data',
     imports: [FormsModule, PanelModule, TableModule, DecimalPipe, ButtonModule, EchartComponent, TooltipModule, SelectModule, TabsModule, ProgressSpinnerModule],
-    providers: [DialogService],
     templateUrl: './inflation-data.component.html',
     styleUrl: './inflation-data.component.scss'
 })
 export class InflationDataComponent implements OnInit {
     private inflationDataClient = inject(InflationDataClient);
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
     private dialogRef: DynamicDialogRef | undefined;
 
     entries: DisplayEntry[] = [];
@@ -102,8 +102,7 @@ export class InflationDataComponent implements OnInit {
     }
 
     async onConfigureDefaultRateClicked() {
-        this.dialogRef = this.dialogService.open(DefaultRateDialogComponent, {
-            modal: true,
+        this.dialogRef = this.modalDialogService.open(DefaultRateDialogComponent, {
             header: "Standard-Inflation konfigurieren",
             width: "500px",
             data: {
@@ -118,8 +117,7 @@ export class InflationDataComponent implements OnInit {
     }
 
     onCalculatorClicked() {
-        this.dialogRef = this.dialogService.open(InflationCalculatorComponent, {
-            modal: true,
+        this.dialogRef = this.modalDialogService.open(InflationCalculatorComponent, {
             header: "Inflationsrechner",
             width: "500px",
             closable: true,

@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 import { provideHttpClient } from '@angular/common/http';
 import { GlobalErrorHandler } from './global-error-handler-dialog/global-error-handler';
 import { providePrimeNG } from 'primeng/config';
@@ -28,6 +29,7 @@ export const appConfig: ApplicationConfig = {
         {
             provide: MessageService,
         },
+        DialogService,
         providePrimeNG({
             ripple: true,
             theme: {

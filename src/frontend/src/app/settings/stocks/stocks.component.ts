@@ -3,25 +3,25 @@ import { StockClient, StockListResponse } from '../../server';
 import { firstValueFrom } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { DialogService } from 'primeng/dynamicdialog';
 import { StockDialogComponent } from './stock-dialog/stock-dialog.component';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import { PanelModule } from 'primeng/panel';
+import { ModalDialogService } from '../../common/modal-dialog.service';
 
 @Component({
     selector: 'app-stocks',
     imports: [TableModule, ButtonModule, ConfirmDialogModule, ToastModule, CommonModule, PanelModule],
-    providers: [DialogService, ConfirmationService, MessageService],
+    providers: [ConfirmationService, MessageService],
     templateUrl: './stocks.component.html',
     styleUrl: './stocks.component.scss',
     standalone: true
 })
 export class StocksComponent implements OnInit {
     private stockClient = inject(StockClient);
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
     private confirmationService = inject(ConfirmationService);
     private messageService = inject(MessageService);
 
@@ -37,7 +37,7 @@ export class StocksComponent implements OnInit {
     }
 
     async createStock() {
-        const dlg = this.dialogService.open(StockDialogComponent, {
+        const dlg = this.modalDialogService.open(StockDialogComponent, {
             focusOnShow: false
         });
 

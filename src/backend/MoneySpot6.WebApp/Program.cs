@@ -46,10 +46,11 @@ public class Program
         builder.Services.AddDataProtection()
             .PersistKeysToDbContext<Db>();
 
-        if (builder.Configuration.GetValue<bool>("Auth:Disable"))
+        var authType = builder.Configuration.GetValue<string>("Auth:Type");
+        if (string.IsNullOrEmpty(authType) || authType.Equals("none", StringComparison.OrdinalIgnoreCase))
         {
-            builder.Services.AddAuthentication(DevelopmentAuthenticationHandler.SchemeName)
-                .AddScheme<AuthenticationSchemeOptions, DevelopmentAuthenticationHandler>(DevelopmentAuthenticationHandler.SchemeName, null);
+            builder.Services.AddAuthentication(NoAuthAuthenticationHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, NoAuthAuthenticationHandler>(NoAuthAuthenticationHandler.SchemeName, null);
         }
         else
         {

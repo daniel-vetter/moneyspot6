@@ -6,12 +6,12 @@ import { ValueComponent } from "../common/value/value.component";
 import { PortfolioStockResponse, StockTransactionResponse, StockTransactionsPageClient } from "../server";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 import { ButtonModule } from "primeng/button";
-import { DialogService } from "primeng/dynamicdialog";
 import { StockTransactionEditDialogComponent } from "./stock-transaction-edit-dialog/stock-transaction-edit-dialog.component";
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { CustomDatePipe } from "../common/custom-date.pipe";
 import { TabsModule } from 'primeng/tabs';
 import { RouterLink, RouterModule } from '@angular/router';
+import { ModalDialogService } from "../common/modal-dialog.service";
 
 @Component({
     selector: 'app-stock-transactions',
@@ -26,13 +26,12 @@ import { RouterLink, RouterModule } from '@angular/router';
         TabsModule,
         RouterModule
     ],
-    providers: [DialogService],
     templateUrl: './stock-transactions.component.html',
     styleUrl: './stock-transactions.component.scss'
 })
 export class StockTransactionsComponent implements OnInit {
     private stockTransactionsPageClient = inject(StockTransactionsPageClient);
-    private dialogService = inject(DialogService);
+    private modalDialogService = inject(ModalDialogService);
 
     transactions = signal<StockTransactionResponse[] | undefined>(undefined);
     portfolio = signal<PortfolioStockResponse[] | undefined>(undefined);
@@ -42,11 +41,10 @@ export class StockTransactionsComponent implements OnInit {
     }
 
     async onNewClicked() {
-        const dlg = this.dialogService.open(StockTransactionEditDialogComponent, {
+        const dlg = this.modalDialogService.open(StockTransactionEditDialogComponent, {
             data: {
                 id: undefined
-            },
-            modal: true
+            }
         });
 
         await firstValueFrom(dlg.onClose);
@@ -58,11 +56,10 @@ export class StockTransactionsComponent implements OnInit {
     }
 
     async onTransactionClicked(transaction: StockTransactionResponse) {
-        const dlg = this.dialogService.open(StockTransactionEditDialogComponent, {
+        const dlg = this.modalDialogService.open(StockTransactionEditDialogComponent, {
             data: {
                 id: transaction.id
-            },
-            modal: true
+            }
         });
 
         await firstValueFrom(dlg.onClose);

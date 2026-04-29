@@ -5,11 +5,14 @@ using Microsoft.Extensions.Options;
 
 namespace MoneySpot6.WebApp.Features.Ui.Auth;
 
-public class DevelopmentAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class NoAuthAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-    public const string SchemeName = "Development";
+    public const string SchemeName = "NoAuth";
+    public const string SingletonUserId = "default";
+    public const string SingletonUserName = "User";
+    public const string AdminRole = "admin";
 
-    public DevelopmentAuthenticationHandler(
+    public NoAuthAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder) : base(options, logger, encoder)
@@ -20,9 +23,9 @@ public class DevelopmentAuthenticationHandler : AuthenticationHandler<Authentica
     {
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, "development-user"),
-            new Claim(ClaimTypes.NameIdentifier, "dev-id"),
-            new Claim("name", "development-user")
+            new Claim(ClaimTypes.NameIdentifier, SingletonUserId),
+            new Claim(ClaimTypes.Name, SingletonUserName),
+            new Claim(ClaimTypes.Role, AdminRole),
         };
 
         var identity = new ClaimsIdentity(claims, SchemeName);

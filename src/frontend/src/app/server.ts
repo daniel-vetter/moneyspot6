@@ -8488,6 +8488,7 @@ export enum IncomeExpenseGrouping {
 
 export class UserDetails implements IUserDetails {
     userName?: string;
+    mode?: AuthMode;
 
     constructor(data?: IUserDetails) {
         if (data) {
@@ -8501,6 +8502,7 @@ export class UserDetails implements IUserDetails {
     init(_data?: any) {
         if (_data) {
             this.userName = _data["userName"];
+            this.mode = _data["mode"];
         }
     }
 
@@ -8514,12 +8516,19 @@ export class UserDetails implements IUserDetails {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["userName"] = this.userName;
+        data["mode"] = this.mode;
         return data;
     }
 }
 
 export interface IUserDetails {
     userName?: string;
+    mode?: AuthMode;
+}
+
+export enum AuthMode {
+    None = 0,
+    Oidc = 1,
 }
 
 function formatDate(d: Date) {
