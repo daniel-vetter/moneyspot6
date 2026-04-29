@@ -9,27 +9,22 @@ public class NoAuthAuthenticationHandler : AuthenticationHandler<AuthenticationS
 {
     public const string SchemeName = "NoAuth";
     public const string SingletonUserId = "default";
+    public const string SingletonUserName = "User";
     public const string AdminRole = "admin";
-
-    private readonly IConfiguration _configuration;
 
     public NoAuthAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
-        UrlEncoder encoder,
-        IConfiguration configuration) : base(options, logger, encoder)
+        UrlEncoder encoder) : base(options, logger, encoder)
     {
-        _configuration = configuration;
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var displayName = _configuration.GetValue<string>("Auth:NoAuthDisplayName") ?? "User";
-
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, SingletonUserId),
-            new Claim(ClaimTypes.Name, displayName),
+            new Claim(ClaimTypes.Name, SingletonUserName),
             new Claim(ClaimTypes.Role, AdminRole),
         };
 

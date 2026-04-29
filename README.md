@@ -39,6 +39,32 @@ Data is stored in a SQLite database in `/app/data`.
 docker run -d --restart unless-stopped -p 80:80 -e ConnectionStrings__db="Host=myserver;Database=moneyspot;Username=postgres;Password=secret" dvetter/moneyspot6
 ```
 
+### Authentication
+
+By default the app runs without authentication. Every request is treated as a single admin user — the model intended for self-hosting in a trusted network (LAN, VPN).
+
+> **Security note:** Do not expose a no-auth deployment to the public internet without a reverse proxy that adds authentication. Anyone reaching the app gets full access.
+
+To enable OpenID Connect (Authentik, Keycloak, Auth0, etc.):
+
+| Variable | Description |
+|---|---|
+| `Auth__Type` | `oidc` to enable, `none` (or unset) for no auth |
+| `Auth__Authority` | OIDC issuer URL |
+| `Auth__ClientId` | OIDC client ID |
+| `Auth__ClientSecret` | OIDC client secret |
+| `Domain` | Public URL of this app, used to build the OIDC redirect URI |
+
+```bash
+docker run -d --restart unless-stopped -p 80:80 \
+  -e Auth__Type=oidc \
+  -e Auth__Authority=https://auth.example.com/application/o/moneyspot/ \
+  -e Auth__ClientId=YOUR_CLIENT_ID \
+  -e Auth__ClientSecret=YOUR_CLIENT_SECRET \
+  -e Domain=https://moneyspot.example.com \
+  -v moneyspot6-data:/app/data dvetter/moneyspot6
+```
+
 ### Self-Update
 
 MoneySpot6 can update itself from the UI (Settings > System). To enable this, mount the Docker socket:
