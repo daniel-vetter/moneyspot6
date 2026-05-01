@@ -59,7 +59,6 @@ public class SelfUpdateE2eTests : PageTest
         {
             Image = _imageRef,
             Name = _appContainerName,
-            Env = ["Auth__Disable=true"],
             HostConfig = new HostConfig
             {
                 PortBindings = new Dictionary<string, IList<PortBinding>>
