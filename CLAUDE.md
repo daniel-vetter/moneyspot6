@@ -10,4 +10,7 @@
 * Keine statischen Methoden auf Services aufrufen — immer über DI injizieren und Instanzmethoden verwenden
 * Nach Änderungen immer `dotnet build --no-incremental` verwenden um Warnings zu prüfen (inkrementelle Builds verschlucken Warnings)
 * TypeScript: kein `null` verwenden, immer `undefined` (z.B. `private foo: string | undefined;` oder `foo?: string`). `null` nur akzeptieren wo es von außen reinkommt (JSON-APIs, DOM) und am Boundary auf `undefined` mappen.
+* Globaler Crash-Dialog ("Serverfehler / Seite neu laden") ist fail-fast by design — Bugs müssen upstream gefixt werden (unguarded Code-Path verhindern, Backend-Fehler vermeiden), nicht durch Aufweichen des Handlers (kein Dismiss-Button, kein Auto-Resume, kein on-error-resume-next).
+* Playwright-Screenshots immer mit `filename: ".playwright-mcp/<name>.png"` ablegen — das Verzeichnis ist gitignored, sonst landen die PNGs im Repo-Root.
 * Niemals ohne explizite Ansage commiten oder pushen. "Fix das" ≠ Commit-Erlaubnis. "Einchecken"/"commit" ist das Signal zum Commiten, "pushen"/"push" ist das Signal zum Pushen — getrennt voneinander, und gilt nur für den aktuell anstehenden Commit/Push.
+* Wenn ein Commit explizit angefordert wird, nur die genannten Änderungen committen — keine unrelated WIP-Drift mitnehmen, auch wenn sie wie ein "natürlicher Separat-Commit" aussieht. Im Zweifel nachfragen ("nur X, oder auch die Y-Sachen?").

@@ -29,7 +29,20 @@
       "mcp__playwright__browser_console_messages",
       "mcp__playwright__browser_evaluate",
       "mcp__playwright__browser_close",
-      "Bash(tasklist)"
+      "Bash(tasklist)",
+      "Bash(gh run *)",
+      "Bash(gh issue *)",
+      "mcp__playwright__browser_resize",
+      "Bash(python -c ' *)",
+      "mcp__playwright__browser_wait_for",
+      "Bash(gh api *)",
+      "Bash(git diff *)",
+      "Bash(git mv *)",
+      "mcp__aspire__list_apphosts",
+      "mcp__aspire__list_resources",
+      "mcp__aspire__list_traces",
+      "mcp__aspire__list_trace_structured_logs",
+      "mcp__aspire__execute_resource_command"
     ],
     "deny": [],
     "ask": []
