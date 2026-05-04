@@ -26,9 +26,19 @@ public class AccountHistoryController : Controller
     [HttpGet]
     public async Task<ActionResult<ImmutableArray<AccountHistoryBalanceResponse>>> Get()
     {
-        var minTransactionDate = await _db.BankAccountTransactions.Select(x => x.Final.Date).MinAsync();
-        var minStockDate = await _db.StockTransactions.Select(x => x.Date).MinAsync();
-        var startDate = minTransactionDate < minStockDate ? minTransactionDate : minStockDate;
+        var minTransactionDate = await _db.BankAccountTransactions.Select(x => (DateOnly?)x.Final.Date).MinAsync();
+        var minStockDate = await _db.StockTransactions.Select(x => (DateOnly?)x.Date).MinAsync();
+
+        DateOnly startDate;
+        if (minTransactionDate.HasValue && minStockDate.HasValue)
+            startDate = minTransactionDate.Value < minStockDate.Value ? minTransactionDate.Value : minStockDate.Value;
+        else if (minTransactionDate.HasValue)
+            startDate = minTransactionDate.Value;
+        else if (minStockDate.HasValue)
+            startDate = minStockDate.Value;
+        else
+            return ImmutableArray<AccountHistoryBalanceResponse>.Empty;
+
         var endDate = DateOnly.FromDateTime(DateTime.Now);
 
         var balanceHistory = await _balanceProvider.GetBalanceHistory(startDate, endDate);

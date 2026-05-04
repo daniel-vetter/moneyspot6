@@ -1,11 +1,9 @@
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using Shouldly;
+using static MoneySpot6.E2eTests.DockerImageHelpers;
 
 namespace MoneySpot6.E2eTests;
 
@@ -16,7 +14,6 @@ public class SelfUpdateE2eTests : PageTest
     private static int _appPort;
     private static string _appContainerName = null!;
     private static string _imageRef = null!;
-    private static string _projectRoot = null!;
     private static readonly List<string> ContainersToCleanup = [];
 
     public override BrowserNewContextOptions ContextOptions() => new()
@@ -28,7 +25,6 @@ public class SelfUpdateE2eTests : PageTest
     public static async Task Setup()
     {
         _client = new DockerClientConfiguration().CreateClient();
-        _projectRoot = FindProjectRoot();
 
         var testId = Guid.NewGuid().ToString("N")[..8];
         _appContainerName = $"e2e-app-{testId}";
@@ -39,17 +35,8 @@ public class SelfUpdateE2eTests : PageTest
 
         _imageRef = $"localhost:{_registryPort}/moneyspot6:dev";
 
-        var prebuiltImage = Environment.GetEnvironmentVariable("E2E_PREBUILT_IMAGE");
-        if (prebuiltImage != null)
-        {
-            Console.WriteLine($"Using pre-built image: {prebuiltImage}");
-            await TagImage(prebuiltImage, _imageRef);
-        }
-        else
-        {
-            Console.WriteLine("Building v1...");
-            await DockerBuild(_imageRef, buildVersion: "v1");
-        }
+        Console.WriteLine("Acquiring v1...");
+        await EnsureImage(_imageRef, buildVersion: "v1");
         Console.WriteLine("Pushing v1...");
         await DockerPush(_imageRef);
 
@@ -59,7 +46,6 @@ public class SelfUpdateE2eTests : PageTest
         {
             Image = _imageRef,
             Name = _appContainerName,
-            Env = ["Auth__Disable=true"],
             HostConfig = new HostConfig
             {
                 PortBindings = new Dictionary<string, IList<PortBinding>>
@@ -98,7 +84,7 @@ public class SelfUpdateE2eTests : PageTest
         var v1ImageId = v1Inspection.Image;
 
         Console.WriteLine("Building v2...");
-        await DockerBuild(_imageRef, buildVersion: "v2");
+        await BuildImage(_imageRef, buildVersion: "v2");
         Console.WriteLine("Pushing v2...");
         await DockerPush(_imageRef);
         Console.WriteLine("v2 pushed.");
@@ -225,24 +211,9 @@ public class SelfUpdateE2eTests : PageTest
         throw new Exception("App did not become ready");
     }
 
-    private static async Task DockerBuild(string tag, string buildVersion)
-    {
-        var result = await RunProcess("docker",
-            $"build -t {tag} --build-arg BUILD_VERSION={buildVersion} .",
-            _projectRoot);
-        result.ExitCode.ShouldBe(0, $"docker build failed:\n{result.Output}");
-    }
-
     private static async Task DockerPush(string tag)
     {
-        var result = await RunProcess("docker", $"push {tag}");
-        result.ExitCode.ShouldBe(0, $"docker push failed:\n{result.Output}");
-    }
-
-    private static async Task TagImage(string source, string target)
-    {
-        var result = await RunProcess("docker", $"tag {source} {target}");
-        result.ExitCode.ShouldBe(0, $"docker tag failed:\n{result.Output}");
+        await RunDocker($"push {tag}", expectedExitCode: 0);
     }
 
     private static async Task PullImage(string image)
@@ -254,47 +225,4 @@ public class SelfUpdateE2eTests : PageTest
             new Progress<JSONMessage>());
     }
 
-    private static async Task<ProcessResult> RunProcess(string fileName, string arguments, string? workingDirectory = null)
-    {
-        var psi = new ProcessStartInfo
-        {
-            FileName = fileName,
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false
-        };
-        if (workingDirectory != null)
-            psi.WorkingDirectory = workingDirectory;
-
-        using var process = Process.Start(psi)!;
-        var stdoutTask = process.StandardOutput.ReadToEndAsync();
-        var stderrTask = process.StandardError.ReadToEndAsync();
-        await process.WaitForExitAsync();
-
-        return new ProcessResult(process.ExitCode, $"{await stdoutTask}\n{await stderrTask}");
-    }
-
-    private static string FindProjectRoot()
-    {
-        var dir = AppContext.BaseDirectory;
-        while (dir != null)
-        {
-            if (File.Exists(Path.Combine(dir, "Dockerfile")))
-                return dir;
-            dir = Directory.GetParent(dir)?.FullName;
-        }
-        throw new Exception("Could not find project root (no Dockerfile found)");
-    }
-
-    private static int GetFreePort()
-    {
-        var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
-    }
-
-    private record ProcessResult(int ExitCode, string Output);
 }
