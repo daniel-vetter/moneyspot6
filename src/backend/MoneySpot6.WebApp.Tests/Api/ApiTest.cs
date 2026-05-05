@@ -86,7 +86,6 @@ public abstract class ApiTest
         await db.Set<DbMonitoredEmailAddress>().ExecuteDeleteAsync();
         await db.Set<DbGMailIntegration>().ExecuteDeleteAsync();
         await db.Set<DbInflationData>().ExecuteDeleteAsync();
-        await db.Set<DbInflationSettings>().ExecuteDeleteAsync();
         await db.Set<DbBankAccountTransaction>().ExecuteDeleteAsync();
         await db.Set<DbBankAccount>().ExecuteDeleteAsync();
         await db.Set<DbStockTransaction>().ExecuteDeleteAsync();

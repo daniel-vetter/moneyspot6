@@ -695,22 +695,6 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                     b.ToTable("InflationData");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbInflationSettings", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("DefaultRate")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InflationSettings");
-                });
-
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbMonitoredEmailAddress", b =>
                 {
                     b.Property<int>("Id")

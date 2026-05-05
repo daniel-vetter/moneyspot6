@@ -56,7 +56,6 @@ public class Db : DbContext, IDataProtectionKeyContext
     public DbSet<DbEmailSyncStatus> EmailSyncStatuses { get; init; }
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
     public DbSet<DbInflationData> InflationData { get; init; }
-    public DbSet<DbInflationSettings> InflationSettings { get; init; }
     public DbSet<DbSimulationModel> SimulationModels { get; init; }
     public DbSet<DbSimulationModelRevision> SimulationModelRevisions { get; init; }
     public DbSet<DbSimulationLog> SimulationLogs { get; init; }
@@ -499,13 +498,6 @@ public class DbInflationData
     public required int Month { get; set; }
     public required decimal IndexValue { get; set; }
     public DateTimeOffset? ImportedAt { get; set; }
-}
-
-[Table("InflationSettings")]
-public class DbInflationSettings
-{
-    public int Id { get; set; }
-    public required decimal DefaultRate { get; set; }
 }
 
 [Table("SimulationModels")]

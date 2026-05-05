@@ -759,17 +759,6 @@ public class DatabaseInitializer(Db db)
 
     private async Task InitializeInflationData()
     {
-        var settings = await db.InflationSettings.FirstOrDefaultAsync();
-        if (settings == null)
-        {
-            settings = new DbInflationSettings
-            {
-                DefaultRate = 1.9m
-            };
-            db.InflationSettings.Add(settings);
-            await db.SaveChangesAsync();
-        }
-
         var hasAnyData = await db.InflationData.AnyAsync();
         if (!hasAnyData)
         {

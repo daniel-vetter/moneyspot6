@@ -1,18 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.Config;
 
 namespace MoneySpot6.WebApp.Features.Core.Inflation;
 
 [ScopedService]
 public class InflationCalculator
 {
+    public const string DefaultRateConfigKey = "Inflation.DefaultRate";
+    public const decimal DefaultRateFallback = 1.9m;
+
     private readonly Db _db;
+    private readonly IConfigService _config;
     private double _monthlyRate;
     private Dictionary<YearMonth, decimal>? _indexValues;
 
-    public InflationCalculator(Db db)
+    public InflationCalculator(Db db, IConfigService config)
     {
         _db = db;
+        _config = config;
     }
 
     public async Task EnsureConfigIsLoaded()
@@ -24,15 +30,10 @@ public class InflationCalculator
             .AsNoTracking()
             .ToDictionaryAsync(x => new YearMonth(x.Year, x.Month), x => x.IndexValue);
 
-        var settings = await _db.InflationSettings
-            .AsNoTracking()
-            .FirstOrDefaultAsync();
-
-        if (settings == null)
-            throw new InvalidOperationException("No default inflation rate configured. Database may not be initialized.");
+        var defaultRate = await _config.Get(DefaultRateConfigKey, DefaultRateFallback);
 
         // Convert annual inflation rate to monthly rate: monthly_rate = (1 + annual_rate)^(1/12) - 1
-        _monthlyRate = Math.Pow(1 + (double)((double)settings.DefaultRate / 100.0), 1.0 / 12.0) - 1;
+        _monthlyRate = Math.Pow(1 + (double)((double)defaultRate / 100.0), 1.0 / 12.0) - 1;
     }
 
     /// <summary>

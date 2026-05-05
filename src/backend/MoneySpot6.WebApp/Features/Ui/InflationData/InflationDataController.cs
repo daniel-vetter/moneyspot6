@@ -1,7 +1,6 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.Config;
 using MoneySpot6.WebApp.Features.Core.Inflation;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
@@ -12,36 +11,19 @@ namespace MoneySpot6.WebApp.Features.Ui.InflationData;
 [Route("api/[controller]")]
 public class InflationDataController : Controller
 {
-    private readonly Db _db;
-    private readonly ILogger<InflationDataController> _logger;
     private readonly InflationCalculator _inflationCalculator;
+    private readonly IConfigService _config;
 
-    public InflationDataController(Db db, ILogger<InflationDataController> logger, InflationCalculator inflationCalculator)
+    public InflationDataController(InflationCalculator inflationCalculator, IConfigService config)
     {
-        _db = db;
-        _logger = logger;
         _inflationCalculator = inflationCalculator;
+        _config = config;
     }
 
     [HttpPost("UpdateDefaultRate")]
     public async Task<IActionResult> UpdateDefaultRate(UpdateDefaultRateRequest request)
     {
-        var settings = await _db.InflationSettings.FirstOrDefaultAsync();
-
-        if (settings == null)
-        {
-            settings = new DbInflationSettings
-            {
-                DefaultRate = request.DefaultRate
-            };
-            _db.InflationSettings.Add(settings);
-        }
-        else
-        {
-            settings.DefaultRate = request.DefaultRate;
-        }
-
-        await _db.SaveChangesAsync();
+        await _config.Set(InflationCalculator.DefaultRateConfigKey, request.DefaultRate);
         return Ok();
     }
 
@@ -70,12 +52,12 @@ public class InflationDataController : Controller
             });
         }
 
-        var settings = await _db.InflationSettings.FirstOrDefaultAsync();
+        var defaultRate = await _config.Get(InflationCalculator.DefaultRateConfigKey, InflationCalculator.DefaultRateFallback);
 
         return Ok(new InflationDataResponse
         {
             Entries = builder.ToImmutable(),
-            DefaultRate = settings?.DefaultRate ?? 0m
+            DefaultRate = defaultRate
         });
     }
 
