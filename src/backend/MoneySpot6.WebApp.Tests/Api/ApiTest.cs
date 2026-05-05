@@ -95,6 +95,7 @@ public abstract class ApiTest
         await db.Set<DbBankConnection>().ExecuteDeleteAsync();
         await db.Set<DbCategory>().ExecuteDeleteAsync();
         await db.Set<DbRule>().ExecuteDeleteAsync();
+        await db.Set<DbConfigEntry>().ExecuteDeleteAsync();
     }
 
     [TearDown]

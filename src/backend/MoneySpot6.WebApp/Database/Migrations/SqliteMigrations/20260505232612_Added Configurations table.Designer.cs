@@ -3,39 +3,35 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
+namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
 {
-    [DbContext(typeof(PostgreSqlDbContext))]
-    partial class DbModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SqliteDbContext))]
+    [Migration("20260505232612_Added Configurations table")]
+    partial class AddedConfigurationstable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("FriendlyName")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Xml")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -46,58 +42,56 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AccountNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("AccountType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Balance")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("BankCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("BankConnectionId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Bic")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Currency")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CustomerId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Iban")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name2")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -110,23 +104,21 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("BankAccountId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsNew")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Note")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Source")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Final", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Final#DbBankAccountTransactionFinalData", b1 =>
                         {
@@ -134,70 +126,70 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
 
                             b1.Property<string>("AccountNumber")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateInitiator")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateReceiver")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("BankCode")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Bic")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("CategoryId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("CreditorIdentifier")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("CustomerReference")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("EndToEndReference")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Iban")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("MandateReference")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("OriginatorIdentifier")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int>("PaymentProcessor")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Purpose")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int>("TransactionType")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
                         });
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Overridden", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Overridden#DbBankAccountTransactionOverrideData", b1 =>
@@ -205,58 +197,58 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                             b1.IsRequired();
 
                             b1.Property<string>("AccountNumber")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateInitiator")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateReceiver")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal?>("Amount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("BankCode")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Bic")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("CategoryId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("CreditorIdentifier")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("CustomerReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<DateOnly?>("Date")
-                                .HasColumnType("date");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("EndToEndReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Iban")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("MandateReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Name")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("OriginatorIdentifier")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("PaymentProcessor")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Purpose")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("TransactionType")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
                         });
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Parsed", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Parsed#DbBankAccountTransactionParsedData", b1 =>
@@ -265,70 +257,70 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
 
                             b1.Property<string>("AccountNumber")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateInitiator")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateReceiver")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("BankCode")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Bic")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("CategoryId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("CreditorIdentifier")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("CustomerReference")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("EndToEndReference")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Iban")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("MandateReference")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("OriginatorIdentifier")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int>("PaymentProcessor")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Purpose")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int>("TransactionType")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
                         });
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Processed", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Processed#DbBankAccountTransactionProcessedData", b1 =>
@@ -336,58 +328,58 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                             b1.IsRequired();
 
                             b1.Property<string>("AccountNumber")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateInitiator")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("AlternateReceiver")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal?>("Amount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("BankCode")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Bic")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("CategoryId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("CreditorIdentifier")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("CustomerReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<DateOnly?>("Date")
-                                .HasColumnType("date");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("EndToEndReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Iban")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("MandateReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Name")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("OriginatorIdentifier")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("PaymentProcessor")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Purpose")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("TransactionType")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
                         });
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Raw", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Raw#DbBankAccountTransactionRawData", b1 =>
@@ -395,86 +387,86 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                             b1.IsRequired();
 
                             b1.Property<string>("AddKey")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Additional")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal?>("ChargeAmount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Code")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("CustomerReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("EndToEndId")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("InstituteReference")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<bool>("IsCamt")
-                                .HasColumnType("boolean");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<bool>("IsCancelation")
-                                .HasColumnType("boolean");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<bool>("IsSepa")
-                                .HasColumnType("boolean");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("MandateId")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal>("NewBalance")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal?>("OriginalAmount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Primanota")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Purpose")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("PurposeCode")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Text")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.ComplexProperty(typeof(Dictionary<string, object>), "Counterparty", "MoneySpot6.WebApp.Database.DbBankAccountTransaction.Raw#DbBankAccountTransactionRawData.Counterparty#CounterpartyAccount", b2 =>
                                 {
                                     b2.IsRequired();
 
                                     b2.Property<string>("BankCode")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<string>("Bic")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<string>("Country")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<string>("Iban")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<string>("Name")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<string>("Name2")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<string>("Number")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
                                 });
                         });
 
@@ -489,23 +481,21 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset?>("LastSuccessfulSync")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long?>("LastSuccessfulSync")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Settings")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -516,16 +506,14 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -538,21 +526,19 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Key")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -566,18 +552,16 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("GMailAccountId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("LastSyncTimestamp")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long>("LastSyncTimestamp")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("MonitoredAddressId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -592,24 +576,22 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AccessToken")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long>("ExpiresAt")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -620,46 +602,44 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Body")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("FromAddress")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("GMailAccountId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("ImportedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long>("ImportedAt")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("InternalDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long>("InternalDate")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("MessageId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("MonitoredAddressId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("ProcessedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long?>("ProcessedAt")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ProcessingAttempts")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ProcessingError")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Subject")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -674,21 +654,19 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset?>("ImportedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long?>("ImportedAt")
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("IndexValue")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Month")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Year")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -699,12 +677,10 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("DefaultRate")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -715,13 +691,11 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -732,34 +706,32 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CompiledCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("HasSyntaxIssues")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("OriginalCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RuntimeError")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("SortIndex")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("SourceMap")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -770,24 +742,22 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Balance")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("RevisionId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("TotalStockValue")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -800,19 +770,17 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsError")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("RevisionId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -825,13 +793,11 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -842,30 +808,28 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CompiledCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("LastRunAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long?>("LastRunAt")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("OriginalCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("SimulationModelId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("SourceMap")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -878,25 +842,23 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Balance")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("RevisionId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -909,28 +871,26 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<long?>("LastImport5Min")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("LastImport5Min")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("LastImportDaily")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long?>("LastImportDaily")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("LastImportError5Min")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LastImportErrorDaily")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Symbol")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -941,33 +901,31 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Close")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("High")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Interval")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Low")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Open")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("StockId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Volume")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -980,21 +938,19 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("StockId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -1007,16 +963,14 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Log")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -1088,34 +1042,34 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                     b.OwnsOne("MoneySpot6.WebApp.Database.DbExtractedEmailData", "ProcessedData", b1 =>
                         {
                             b1.Property<int>("DbImportedEmailId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("AccountNumber")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("Merchant")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("OrderNumber")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("PaymentMethod")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("RecipientName")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal?>("Tax")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<decimal?>("TotalAmount")
-                                .HasColumnType("numeric");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("TransactionCode")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<DateTimeOffset?>("TransactionTimestamp")
-                                .HasColumnType("timestamp with time zone");
+                                .HasColumnType("TEXT");
 
                             b1.HasKey("DbImportedEmailId");
 
@@ -1127,22 +1081,20 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                             b1.OwnsMany("MoneySpot6.WebApp.Database.DbExtractedEmailItem", "Items", b2 =>
                                 {
                                     b2.Property<int>("DbExtractedEmailDataDbImportedEmailId")
-                                        .HasColumnType("integer");
+                                        .HasColumnType("INTEGER");
 
                                     b2.Property<int>("Id")
                                         .ValueGeneratedOnAdd()
-                                        .HasColumnType("integer");
-
-                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+                                        .HasColumnType("INTEGER");
 
                                     b2.Property<string>("FullName")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<string>("ShortName")
-                                        .HasColumnType("text");
+                                        .HasColumnType("TEXT");
 
                                     b2.Property<decimal?>("SubTotal")
-                                        .HasColumnType("numeric");
+                                        .HasColumnType("TEXT");
 
                                     b2.HasKey("DbExtractedEmailDataDbImportedEmailId", "Id");
 

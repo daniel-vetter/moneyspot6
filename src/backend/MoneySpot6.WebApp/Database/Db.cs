@@ -63,6 +63,7 @@ public class Db : DbContext, IDataProtectionKeyContext
     public DbSet<DbSimulationTransaction> SimulationTransactions { get; init; }
     public DbSet<DbSimulationDaySummary> SimulationDaySummaries { get; init; }
     public DbSet<DbUpdateLog> UpdateLogs { get; init; }
+    public DbSet<DbConfigEntry> ConfigEntries { get; init; }
 
     public Db(DbContextOptions options) : base(options)
     {
@@ -82,6 +83,11 @@ public class Db : DbContext, IDataProtectionKeyContext
             {
                 builder.OwnsMany(x => x.Items);
             });
+
+        modelBuilder
+            .Entity<DbConfigEntry>()
+            .HasIndex(x => x.Key)
+            .IsUnique();
 
         base.OnModelCreating(modelBuilder);
     }
@@ -558,4 +564,13 @@ public class DbUpdateLog
     public int Id { get; set; }
     public required DateTimeOffset CreatedAt { get; set; }
     public required string Log { get; set; }
+}
+
+[Table("ConfigEntries")]
+public class DbConfigEntry
+{
+    public int Id { get; set; }
+    public required string Key { get; set; }
+    public required string Value { get; set; }
+    public required string Type { get; set; }
 }
