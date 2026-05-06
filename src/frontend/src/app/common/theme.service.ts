@@ -87,7 +87,7 @@ const STORAGE_KEY = 'theme';
 export class ThemeService {
 
     get current(): ThemeId {
-        return (localStorage.getItem(STORAGE_KEY) as ThemeId) || 'emerald';
+        return (localStorage.getItem(STORAGE_KEY) as ThemeId) || 'light';
     }
 
     get currentConfig(): ThemeConfig {
