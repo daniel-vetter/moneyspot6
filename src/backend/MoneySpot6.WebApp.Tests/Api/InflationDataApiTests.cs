@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.Config;
+using MoneySpot6.WebApp.Features.Core.Inflation;
 using MoneySpot6.WebApp.Features.Ui.InflationData;
 using Shouldly;
 
@@ -16,14 +17,13 @@ public class InflationDataApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
         });
 
         result.ShouldBeOfType<OkResult>();
-        Get<Db>().InflationSettings.Single().DefaultRate.ShouldBe(2.5m);
+        (await Get<KeyValueConfiguration>().Get<decimal>(InflationCalculator.DefaultRateConfigKey)).ShouldBe(2.5m);
     }
 
     [Test]
     public async Task GetAll_WithDefaultRate_ReturnsData()
     {
-        Get<Db>().InflationSettings.Add(new DbInflationSettings { DefaultRate = 2.0m });
-        await Get<Db>().SaveChangesAsync();
+        await Get<KeyValueConfiguration>().Set(InflationCalculator.DefaultRateConfigKey, 2.0m);
 
         var result = await Get<InflationDataController>().GetAll(projectionYears: 1);
 
@@ -32,5 +32,3 @@ public class InflationDataApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
         data.DefaultRate.ShouldBe(2.0m);
     }
 }
-
-

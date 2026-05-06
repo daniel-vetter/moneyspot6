@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneySpot6.WebApp.Database;
 
@@ -11,9 +12,11 @@ using MoneySpot6.WebApp.Database;
 namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
 {
     [DbContext(typeof(SqliteDbContext))]
-    partial class SqliteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260505232612_Added Configurations table")]
+    partial class AddedConfigurationstable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -668,6 +671,20 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
                     b.HasKey("Id");
 
                     b.ToTable("InflationData");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbInflationSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("DefaultRate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InflationSettings");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbMonitoredEmailAddress", b =>

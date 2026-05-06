@@ -18,7 +18,7 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -534,6 +534,34 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbConfigEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("ConfigEntries");
+                });
+
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbEmailSyncStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -665,22 +693,6 @@ namespace MoneySpot6.WebApp.Database.Migrations.PostgresMigrations
                     b.HasKey("Id");
 
                     b.ToTable("InflationData");
-                });
-
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbInflationSettings", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("DefaultRate")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InflationSettings");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbMonitoredEmailAddress", b =>

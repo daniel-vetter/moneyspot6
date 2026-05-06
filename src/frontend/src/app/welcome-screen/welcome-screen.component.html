@@ -1,0 +1,35 @@
+<div class="welcome-screen">
+    <div class="card">
+        <h1>Willkommen bei MoneySpot 6</h1>
+
+        <p class="lead">Mit Demo-Daten starten?</p>
+
+        <p>
+            Optional lassen sich Beispieldaten anlegen, um die Anwendung direkt
+            mit gefüllter Oberfläche zu erkunden:
+        </p>
+
+        <ul>
+            <li>Eine Demo-Bankverbindung mit realistischen Beispiel-Transaktionen seit 2024</li>
+            <li>Sinnvolle Kategorien und Auto-Sortier-Regeln</li>
+            <li>Ein Beispiel-Wertpapier (iShares Core MSCI World UCITS ETF) inkl. historischer Kursdaten</li>
+        </ul>
+
+        <p class="hint">
+            Beides ist später unter <em>Einstellungen → Bankverbindungen</em>
+            bzw. <em>Aktien-Trades</em> wieder entfernbar.
+        </p>
+
+        <div class="actions">
+            @if (busy) {
+                <div class="busy">
+                    <p-progressSpinner styleClass="busy-spinner" strokeWidth="3"></p-progressSpinner>
+                    <span>Demo-Daten werden erstellt...</span>
+                </div>
+            } @else {
+                <p-button label="Nein, leer starten" severity="secondary" [outlined]="true" (onClick)="startEmpty()" size="large"></p-button>
+                <p-button label="Ja, mit Demo-Daten starten" (onClick)="startWithDemo()" size="large"></p-button>
+            }
+        </div>
+    </div>
+</div>

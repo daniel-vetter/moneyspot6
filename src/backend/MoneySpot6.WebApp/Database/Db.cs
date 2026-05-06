@@ -56,13 +56,13 @@ public class Db : DbContext, IDataProtectionKeyContext
     public DbSet<DbEmailSyncStatus> EmailSyncStatuses { get; init; }
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
     public DbSet<DbInflationData> InflationData { get; init; }
-    public DbSet<DbInflationSettings> InflationSettings { get; init; }
     public DbSet<DbSimulationModel> SimulationModels { get; init; }
     public DbSet<DbSimulationModelRevision> SimulationModelRevisions { get; init; }
     public DbSet<DbSimulationLog> SimulationLogs { get; init; }
     public DbSet<DbSimulationTransaction> SimulationTransactions { get; init; }
     public DbSet<DbSimulationDaySummary> SimulationDaySummaries { get; init; }
     public DbSet<DbUpdateLog> UpdateLogs { get; init; }
+    public DbSet<DbConfigEntry> ConfigEntries { get; init; }
 
     public Db(DbContextOptions options) : base(options)
     {
@@ -82,6 +82,11 @@ public class Db : DbContext, IDataProtectionKeyContext
             {
                 builder.OwnsMany(x => x.Items);
             });
+
+        modelBuilder
+            .Entity<DbConfigEntry>()
+            .HasIndex(x => x.Key)
+            .IsUnique();
 
         base.OnModelCreating(modelBuilder);
     }
@@ -495,13 +500,6 @@ public class DbInflationData
     public DateTimeOffset? ImportedAt { get; set; }
 }
 
-[Table("InflationSettings")]
-public class DbInflationSettings
-{
-    public int Id { get; set; }
-    public required decimal DefaultRate { get; set; }
-}
-
 [Table("SimulationModels")]
 public class DbSimulationModel
 {
@@ -558,4 +556,13 @@ public class DbUpdateLog
     public int Id { get; set; }
     public required DateTimeOffset CreatedAt { get; set; }
     public required string Log { get; set; }
+}
+
+[Table("ConfigEntries")]
+public class DbConfigEntry
+{
+    public int Id { get; set; }
+    public required string Key { get; set; }
+    public required string Value { get; set; }
+    public required string Type { get; set; }
 }

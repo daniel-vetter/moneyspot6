@@ -4,21 +4,25 @@
 
 .name {
     flex: 1;
+    min-width: 0;
     max-width: 20%;
 }
 
 .purpose {
     flex: 1;
+    min-width: 0;
 }
 
 
 .category {
     flex: 1;
+    min-width: 0;
     max-width: 10%;
 }
 
 .value {
     flex: 1;
+    min-width: 0;
     max-width: 8%;
     text-align: right;
 }
