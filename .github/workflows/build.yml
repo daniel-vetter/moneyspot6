@@ -3,6 +3,8 @@ name: Build & Test
 on:
   push:
     branches: ['**']
+  schedule:
+    - cron: '15 18 * * 2'
 
 concurrency:
   group: ${{ github.ref }}
@@ -15,6 +17,7 @@ permissions:
 jobs:
   build:
     name: Build Docker Image
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -33,6 +36,7 @@ jobs:
 
   backend-test:
     name: Test Backend (${{ matrix.db }})
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -78,6 +82,7 @@ jobs:
 
   unit-test:
     name: Unit Tests
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -117,6 +122,7 @@ jobs:
 
   e2e-test:
     name: E2E Tests
+    if: github.event_name == 'push'
     needs: [build]
     runs-on: ubuntu-latest
     defaults:
@@ -219,3 +225,37 @@ jobs:
           docker push $GHCR:$TAG
           docker push $DH:$TAG
           echo "### Pushed \`$DH:$TAG\` and \`$GHCR:$TAG\`" >> $GITHUB_STEP_SUMMARY
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: csharp
+            build-mode: none
+          - language: java-kotlin
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
