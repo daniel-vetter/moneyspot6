@@ -5,19 +5,12 @@ using MoneySpot6.WebApp.Database;
 
 namespace MoneySpot6.WebApp.Features.Core.Config;
 
-public interface IConfigService
-{
-    Task<T> Get<T>(string key);
-    Task<T> Get<T>(string key, T defaultValue);
-    Task Set<T>(string key, T value);
-}
-
-[ScopedService<IConfigService>]
-public class ConfigService : IConfigService
+[ScopedService]
+public class KeyValueConfiguration
 {
     private readonly Db _db;
 
-    public ConfigService(Db db)
+    public KeyValueConfiguration(Db db)
     {
         _db = db;
     }

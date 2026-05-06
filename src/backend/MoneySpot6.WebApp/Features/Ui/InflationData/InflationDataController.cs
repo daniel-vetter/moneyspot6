@@ -12,9 +12,9 @@ namespace MoneySpot6.WebApp.Features.Ui.InflationData;
 public class InflationDataController : Controller
 {
     private readonly InflationCalculator _inflationCalculator;
-    private readonly IConfigService _config;
+    private readonly KeyValueConfiguration _config;
 
-    public InflationDataController(InflationCalculator inflationCalculator, IConfigService config)
+    public InflationDataController(InflationCalculator inflationCalculator, KeyValueConfiguration config)
     {
         _inflationCalculator = inflationCalculator;
         _config = config;

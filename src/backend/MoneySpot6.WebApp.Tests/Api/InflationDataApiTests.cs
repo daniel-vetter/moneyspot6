@@ -17,13 +17,13 @@ public class InflationDataApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
         });
 
         result.ShouldBeOfType<OkResult>();
-        (await Get<IConfigService>().Get<decimal>(InflationCalculator.DefaultRateConfigKey)).ShouldBe(2.5m);
+        (await Get<KeyValueConfiguration>().Get<decimal>(InflationCalculator.DefaultRateConfigKey)).ShouldBe(2.5m);
     }
 
     [Test]
     public async Task GetAll_WithDefaultRate_ReturnsData()
     {
-        await Get<IConfigService>().Set(InflationCalculator.DefaultRateConfigKey, 2.0m);
+        await Get<KeyValueConfiguration>().Set(InflationCalculator.DefaultRateConfigKey, 2.0m);
 
         var result = await Get<InflationDataController>().GetAll(projectionYears: 1);
 

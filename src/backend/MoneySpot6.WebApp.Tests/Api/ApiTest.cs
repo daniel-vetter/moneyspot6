@@ -70,6 +70,7 @@ public abstract class ApiTest
             .AddInMemoryCollection(configData)
             .Build();
 
+        services.AddSingleton<IConfiguration>(config);
         services.RegisterAppServices(config);
 
         _serviceProvider = services.BuildServiceProvider();

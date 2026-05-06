@@ -4365,6 +4365,114 @@ export class AuthClient {
     }
 }
 
+@Injectable({providedIn: 'root'})
+export class AppStateClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    get(): Observable<AppState> {
+        let url_ = this.baseUrl + "/api/AppState/Get";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppState>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppState>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<AppState> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppState.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    completeFirstSetup(request: CompleteFirstSetupRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/AppState/CompleteFirstSetup";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCompleteFirstSetup(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCompleteFirstSetup(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCompleteFirstSetup(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export class TransactionResponse implements ITransactionResponse {
     entries!: TransactionEntryResponse[];
 
@@ -8529,6 +8637,78 @@ export interface IUserDetails {
 export enum AuthMode {
     None = 0,
     Oidc = 1,
+}
+
+export class AppState implements IAppState {
+    isFirstSetupDone!: boolean;
+
+    constructor(data?: IAppState) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isFirstSetupDone = _data["isFirstSetupDone"];
+        }
+    }
+
+    static fromJS(data: any): AppState {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppState();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isFirstSetupDone"] = this.isFirstSetupDone;
+        return data;
+    }
+}
+
+export interface IAppState {
+    isFirstSetupDone: boolean;
+}
+
+export class CompleteFirstSetupRequest implements ICompleteFirstSetupRequest {
+    addSampleData!: boolean;
+
+    constructor(data?: ICompleteFirstSetupRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.addSampleData = _data["addSampleData"];
+        }
+    }
+
+    static fromJS(data: any): CompleteFirstSetupRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompleteFirstSetupRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["addSampleData"] = this.addSampleData;
+        return data;
+    }
+}
+
+export interface ICompleteFirstSetupRequest {
+    addSampleData: boolean;
 }
 
 function formatDate(d: Date) {

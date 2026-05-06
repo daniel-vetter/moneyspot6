@@ -11,11 +11,11 @@ public class InflationCalculator
     public const decimal DefaultRateFallback = 1.9m;
 
     private readonly Db _db;
-    private readonly IConfigService _config;
+    private readonly KeyValueConfiguration _config;
     private double _monthlyRate;
     private Dictionary<YearMonth, decimal>? _indexValues;
 
-    public InflationCalculator(Db db, IConfigService config)
+    public InflationCalculator(Db db, KeyValueConfiguration config)
     {
         _db = db;
         _config = config;

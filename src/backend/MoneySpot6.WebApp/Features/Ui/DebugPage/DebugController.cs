@@ -77,10 +77,7 @@ public class DebugController : Controller
         }
         
         await _db.Database.MigrateAsync();
-        await _databaseInitializer.Initialize(true);
-
-
-
+        await _databaseInitializer.Initialize();
     }
 }
 
