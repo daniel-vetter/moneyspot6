@@ -1,3 +1,4 @@
+using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using static MoneySpot6.E2eTests.DockerImageHelpers;
 
@@ -93,7 +94,13 @@ public class ReadmeDockerSmokeTests : PageTest
         await WaitForHttpReady(port, containerName);
 
         await Page.GotoAsync($"http://localhost:{port}/");
-        await Expect(Page).ToHaveTitleAsync("MoneySpot - Übersicht", new() { Timeout = 30_000 });
+
+        // Fresh container shows the welcome screen first; pick the empty-start path.
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Nein, leer starten" })
+            .ClickAsync(new() { Timeout = 30_000 });
+
+        // Dashboard rendered when the total amount shows 0,00 €.
+        await Expect(Page.GetByTestId("total")).ToContainTextAsync("0,00", new() { Timeout = 30_000 });
     }
 
     private static async Task WaitForHttpReady(int port, string containerName)
