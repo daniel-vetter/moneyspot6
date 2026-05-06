@@ -243,17 +243,29 @@ jobs:
           - language: csharp
             build-mode: none
           - language: java-kotlin
-            build-mode: none
+            build-mode: manual
           - language: javascript-typescript
             build-mode: none
     steps:
       - uses: actions/checkout@v6
+
+      - name: Set up JDK
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v5
+        with:
+          distribution: corretto
+          java-version: 21
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+
+      - name: Build hbci-adapter
+        if: matrix.language == 'java-kotlin'
+        working-directory: src/hbci-adapter
+        run: ./gradlew --no-daemon build -x test
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
