@@ -13,6 +13,7 @@ public class SelfUpdateE2eTests : PageTest
     private static int _registryPort;
     private static int _appPort;
     private static string _appContainerName = null!;
+    private static string _appDataVolume = null!;
     private static string _imageRef = null!;
     private static readonly List<string> ContainersToCleanup = [];
 
@@ -28,6 +29,7 @@ public class SelfUpdateE2eTests : PageTest
 
         var testId = Guid.NewGuid().ToString("N")[..8];
         _appContainerName = $"e2e-app-{testId}";
+        _appDataVolume = $"e2e-app-data-{testId}";
 
         Console.WriteLine("Starting registry...");
         await StartRegistry();
@@ -52,7 +54,11 @@ public class SelfUpdateE2eTests : PageTest
                 {
                     ["80/tcp"] = [new PortBinding { HostPort = _appPort.ToString() }]
                 },
-                Binds = ["/var/run/docker.sock:/var/run/docker.sock"],
+                Binds =
+                [
+                    "/var/run/docker.sock:/var/run/docker.sock",
+                    $"{_appDataVolume}:/app/data"
+                ],
                 RestartPolicy = new RestartPolicy { Name = RestartPolicyKind.UnlessStopped }
             }
         });
@@ -74,12 +80,17 @@ public class SelfUpdateE2eTests : PageTest
             try { await _client.Containers.StopContainerAsync(name, new ContainerStopParameters { WaitBeforeKillSeconds = 1 }); } catch { }
             try { await _client.Containers.RemoveContainerAsync(name, new ContainerRemoveParameters { Force = true }); } catch { }
         }
+        try { await _client.Volumes.RemoveAsync(_appDataVolume, force: true); } catch { }
         _client.Dispose();
     }
 
     [Test]
     public async Task Self_update_detects_and_applies_update_via_ui()
     {
+        // Fresh container shows the welcome screen first; pick the empty-start path.
+        await Page.GotoAsync("/");
+        await Page.GetByTestId("welcome-empty-button").ClickAsync(new() { Timeout = 30_000 });
+
         var v1Inspection = await _client.Containers.InspectContainerAsync(_appContainerName);
         var v1ImageId = v1Inspection.Image;
 

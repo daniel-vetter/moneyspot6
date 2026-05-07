@@ -27,8 +27,8 @@
                     <span>Demo-Daten werden erstellt...</span>
                 </div>
             } @else {
-                <p-button label="Nein, leer starten" severity="secondary" [outlined]="true" (onClick)="startEmpty()" size="large"></p-button>
-                <p-button label="Ja, mit Demo-Daten starten" (onClick)="startWithDemo()" size="large"></p-button>
+                <p-button label="Nein, leer starten" severity="secondary" [outlined]="true" (onClick)="startEmpty()" size="large" data-testid="welcome-empty-button"></p-button>
+                <p-button label="Ja, mit Demo-Daten starten" (onClick)="startWithDemo()" size="large" data-testid="welcome-demo-button"></p-button>
             }
         </div>
     </div>
