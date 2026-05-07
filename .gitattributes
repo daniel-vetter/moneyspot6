@@ -1,0 +1,7 @@
+# Default: store all text files with LF line endings in the repo.
+# Working-tree line endings on Windows depend on the editor; modern editors handle LF fine.
+* text=auto eol=lf
+
+# Windows-only scripts must keep CRLF or cmd.exe chokes.
+*.cmd text eol=crlf
+*.bat text eol=crlf
