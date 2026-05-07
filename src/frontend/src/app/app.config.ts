@@ -13,8 +13,8 @@ import { themes, ThemeId } from './common/theme.service';
 
 registerLocaleData(localeDe)
 
-const savedTheme = (localStorage.getItem('theme') as ThemeId) || 'emerald';
-const themeConfig = themes.find(t => t.id === savedTheme) || themes.find(t => t.id === 'emerald')!;
+const savedTheme = (localStorage.getItem('theme') as ThemeId) || 'light';
+const themeConfig = themes.find(t => t.id === savedTheme) || themes.find(t => t.id === 'light')!;
 
 export const appConfig: ApplicationConfig = {
     providers: [
