@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Ui.AppState;
 
 namespace MoneySpot6.WebApp.Tests.Ui;
 
@@ -48,6 +49,14 @@ public abstract class UiTest : PageTest
         await _db.Set<DbBankConnection>().ExecuteDeleteAsync();
         await _db.Set<DbCategory>().ExecuteDeleteAsync();
         await _db.Set<DbRule>().ExecuteDeleteAsync();
+        await _db.Set<DbConfigEntry>().ExecuteDeleteAsync();
+        _db.Set<DbConfigEntry>().Add(new DbConfigEntry
+        {
+            Key = AppStateController.IsFirstSetupDoneConfigKey,
+            Value = "True",
+            Type = "bool"
+        });
+        await _db.SaveChangesAsync();
     }
 
     [TearDown]
