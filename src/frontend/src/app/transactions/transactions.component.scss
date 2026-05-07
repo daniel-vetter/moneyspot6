@@ -1,3 +1,10 @@
+// PrimeNG v21 renders .p-panel-content-container as a CSS grid; the default
+// min-width: auto on the wrapper grid item lets the track grow to the table's
+// max-content width, pushing the row past the panel's right edge.
+::ng-deep .p-panel-content-wrapper {
+    min-width: 0;
+}
+
 .date {
     min-width: 7rem;
 }
