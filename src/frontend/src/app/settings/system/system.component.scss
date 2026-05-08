@@ -94,14 +94,3 @@
     }
 }
 
-.update-busy {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-
-    ::ng-deep .update-spinner {
-        width: 1.5rem;
-        height: 1.5rem;
-    }
-}
-

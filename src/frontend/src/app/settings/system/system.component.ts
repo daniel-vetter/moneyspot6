@@ -5,16 +5,16 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
 import { PanelModule } from 'primeng/panel';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
 import { UpdateState } from '../../common/update-state';
 import { ModalDialogService } from '../../common/modal-dialog.service';
 import { UpdateLogsDialogComponent } from './update-logs-dialog/update-logs-dialog.component';
+import { UpdateInProgressDialogComponent } from './update-in-progress-dialog/update-in-progress-dialog.component';
 import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-system',
-    imports: [ButtonModule, PanelModule, ProgressSpinnerModule, TooltipModule, ToggleSwitchModule, FormsModule, DatePipe],
+    imports: [ButtonModule, PanelModule, TooltipModule, ToggleSwitchModule, FormsModule, DatePipe],
     templateUrl: './system.component.html',
     styleUrl: './system.component.scss'
 })
@@ -26,7 +26,6 @@ export class SystemComponent implements OnInit {
     appDetails?: AppDetails;
     updateStatus?: SelfUpdateStatus;
     isChecking = false;
-    isUpdating = false;
 
     async onCheckForUpdateClicked() {
         this.isChecking = true;
@@ -55,13 +54,20 @@ export class SystemComponent implements OnInit {
     }
 
     async onApplyUpdateClicked() {
-        this.isUpdating = true;
         this.updateState.updateInProgress = true;
+        const dialogRef = this.modalDialogService.open(UpdateInProgressDialogComponent, {
+            closable: false,
+            closeOnEscape: false,
+            dismissableMask: false,
+            showHeader: false,
+            width: '500px',
+            contentStyle: { padding: '1.5rem' }
+        });
         try {
             await lastValueFrom(this.systemClient.applyUpdate());
             this.pollUntilRestarted();
         } catch {
-            this.isUpdating = false;
+            dialogRef.close();
             this.updateState.updateInProgress = false;
         }
     }
