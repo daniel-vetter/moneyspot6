@@ -1,69 +1,73 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import {AppDetails, DebugClient, UpdateClient, SelfUpdateStatus, UpdateLogEntry} from '../../server';
+import { AppDetails, SystemClient, SelfUpdateStatus, SetAutoUpdateRequest } from '../../server';
 import { ButtonModule } from 'primeng/button';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { FormsModule } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
-import { PanelModule} from "primeng/panel";
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { DialogModule } from 'primeng/dialog';
+import { PanelModule } from 'primeng/panel';
+import { TooltipModule } from 'primeng/tooltip';
 import { UpdateState } from '../../common/update-state';
+import { ModalDialogService } from '../../common/modal-dialog.service';
+import { UpdateLogsDialogComponent } from './update-logs-dialog/update-logs-dialog.component';
+import { UpdateInProgressDialogComponent } from './update-in-progress-dialog/update-in-progress-dialog.component';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-system',
-    imports: [ButtonModule, PanelModule, ProgressSpinnerModule, DialogModule, DatePipe],
+    imports: [ButtonModule, PanelModule, TooltipModule, ToggleSwitchModule, FormsModule, DatePipe],
     templateUrl: './system.component.html',
     styleUrl: './system.component.scss'
 })
 export class SystemComponent implements OnInit {
-    private debugClient = inject(DebugClient);
-    private updateClient = inject(UpdateClient);
+    private systemClient = inject(SystemClient);
     private updateState = inject(UpdateState);
+    private modalDialogService = inject(ModalDialogService);
 
     appDetails?: AppDetails;
     updateStatus?: SelfUpdateStatus;
     isChecking = false;
-    isUpdating = false;
-    showUpdateLogs = false;
-    updateLogs: UpdateLogEntry[] = [];
-
-    async OnReprocessTransactionpParsingClicked() {
-        await lastValueFrom(this.debugClient.reprocessTransactionParsing());
-    }
-
-    async OnReimportStockDataLast30DaysClicked() {
-        await lastValueFrom(this.debugClient.reimportLast30DayStocks());
-    }
-
-    async OnReseedDatabaseClicked() {
-        await lastValueFrom(this.debugClient.reseedDatabase());
-    }
 
     async onCheckForUpdateClicked() {
         this.isChecking = true;
         try {
-            await lastValueFrom(this.updateClient.checkNow());
-            this.updateStatus = await lastValueFrom(this.updateClient.getStatus());
+            await lastValueFrom(this.systemClient.checkForUpdate());
+            this.updateStatus = await lastValueFrom(this.systemClient.getUpdateStatus());
         } catch {
             // Check may fail if pull fails - status still reflects local comparison
-            this.updateStatus = await lastValueFrom(this.updateClient.getStatus());
+            this.updateStatus = await lastValueFrom(this.systemClient.getUpdateStatus());
         } finally {
             this.isChecking = false;
         }
     }
 
-    async onShowUpdateLogsClicked() {
-        this.updateLogs = await lastValueFrom(this.updateClient.getLogs());
-        this.showUpdateLogs = true;
+    onShowUpdateLogsClicked() {
+        this.modalDialogService.open(UpdateLogsDialogComponent, {
+            header: 'Update-Logs',
+            width: '700px',
+            closable: true,
+            closeOnEscape: true
+        });
+    }
+
+    async onAutoUpdateChanged(enabled: boolean) {
+        await lastValueFrom(this.systemClient.setAutoUpdate(new SetAutoUpdateRequest({ enabled })));
     }
 
     async onApplyUpdateClicked() {
-        this.isUpdating = true;
         this.updateState.updateInProgress = true;
+        const dialogRef = this.modalDialogService.open(UpdateInProgressDialogComponent, {
+            closable: false,
+            closeOnEscape: false,
+            dismissableMask: false,
+            showHeader: false,
+            width: '500px',
+            contentStyle: { padding: '1.5rem' }
+        });
         try {
-            await lastValueFrom(this.updateClient.applyUpdate());
+            await lastValueFrom(this.systemClient.applyUpdate());
             this.pollUntilRestarted();
         } catch {
-            this.isUpdating = false;
+            dialogRef.close();
             this.updateState.updateInProgress = false;
         }
     }
@@ -71,7 +75,7 @@ export class SystemComponent implements OnInit {
     private pollUntilRestarted() {
         const poll = setInterval(async () => {
             try {
-                await lastValueFrom(this.updateClient.getStatus());
+                await lastValueFrom(this.systemClient.getUpdateStatus());
                 clearInterval(poll);
                 window.location.reload();
             } catch {
@@ -81,7 +85,7 @@ export class SystemComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<void> {
-        this.appDetails = await lastValueFrom(this.debugClient.getAppDetails())
-        this.updateStatus = await lastValueFrom(this.updateClient.getStatus());
+        this.appDetails = await lastValueFrom(this.systemClient.getAppDetails());
+        this.updateStatus = await lastValueFrom(this.systemClient.getUpdateStatus());
     }
 }
