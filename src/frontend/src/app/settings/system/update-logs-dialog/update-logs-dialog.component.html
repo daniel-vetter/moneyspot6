@@ -1,0 +1,14 @@
+@if (logs === undefined) {
+    <div class="logs-loading">
+        <p-progressSpinner strokeWidth="4" styleClass="logs-spinner" />
+    </div>
+} @else if (logs.length === 0) {
+    <p>Keine Update-Logs vorhanden.</p>
+} @else {
+    @for (log of logs; track log.id) {
+        <div class="log-entry">
+            <p class="log-timestamp">{{ log.createdAt | date:'medium' }}</p>
+            <pre>{{ log.log }}</pre>
+        </div>
+    }
+}

@@ -1,72 +1,81 @@
-<p-panel>
-    <ng-template pTemplate="header">
-        <div class="horizontal" style="width: 100%">
-            <h1>System</h1>
-        </div>
-    </ng-template>
+<div class="vertical">
+    <p-panel>
+        <ng-template pTemplate="header">
+            <div class="panel-header">
+                <h1>System</h1>
+                @if (updateStatus?.isUpdateFeatureAvailable) {
+                    <p-button
+                        (onClick)="onShowUpdateLogsClicked()"
+                        icon="pi pi-receipt"
+                        severity="secondary"
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Update-Logs anzeigen"
+                        tooltipPosition="left" />
+                }
+            </div>
+        </ng-template>
 
+        @if (appDetails) {
+            <dl class="info-grid">
+                <dt>Build-Zeit</dt>
+                <dd>{{ appDetails.buildTime }}</dd>
 
-@if(appDetails !==  undefined) {
-    <table>
-        <tr>
-            <td><b>Build Time: </b></td>
-            <td>{{ appDetails.buildTime }}</td>
-        </tr>
-        <tr>
-            <td><b>Build Commit: </b></td>
-            <td>{{ appDetails.buildCommit }}</td>
-        </tr>
-        <tr>
-            <td><b>Dotnet Version: </b></td>
-            <td>{{ appDetails.dotNetVersion }}</td>
-        </tr>
-        <tr>
-            <td><b>Os Description: </b></td>
-            <td>{{ appDetails.osDescription }}</td>
-        </tr>
-        <tr>
-            <td><b>Database Type: </b></td>
-            <td>{{ appDetails.databaseType }}</td>
-        </tr>
-    </table><br><br>
-}
+                <dt>Build-Commit</dt>
+                <dd>{{ appDetails.buildCommit }}</dd>
 
-@if (updateStatus !== undefined && updateStatus.isUpdateFeatureAvailable) {
-    <h2>Update</h2>
-    @if (isUpdating) {
-        <p>Update wird installiert... Die Seite wird automatisch neu geladen.</p>
-        <p-progressSpinner strokeWidth="4" />
-    } @else {
-        @if (updateStatus!.isUpdateAvailable) {
-            <p>Ein Update ist verfügbar.</p>
-            <p-button (onClick)="onApplyUpdateClicked()" severity="success">Update installieren</p-button>&nbsp;
-        } @else {
-            <p>Kein Update verfügbar.</p>
+                <dt>.NET-Version</dt>
+                <dd>{{ appDetails.dotNetVersion }}</dd>
+
+                <dt>Betriebssystem</dt>
+                <dd>{{ appDetails.osDescription }}</dd>
+
+                <dt>Datenbank</dt>
+                <dd>{{ appDetails.databaseType }}</dd>
+            </dl>
         }
-        <p-button (onClick)="onCheckForUpdateClicked()" [loading]="isChecking" severity="secondary">Jetzt prüfen</p-button>
-        @if (updateStatus!.lastCheck) {
-            <p style="margin-top: 8px; color: gray; font-size: 0.9em">Letzte Prüfung: {{ updateStatus!.lastCheck | date:'medium' }}</p>
-        }
-    }
-    <p-button (onClick)="onShowUpdateLogsClicked()" severity="secondary" [text]="true">Update-Logs anzeigen</p-button>
-    <br><br>
-}
 
-<p-dialog header="Update-Logs" [(visible)]="showUpdateLogs" [modal]="true" [style]="{ width: '700px' }">
-    @if (updateLogs.length === 0) {
-        <p>Keine Update-Logs vorhanden.</p>
-    } @else {
-        @for (log of updateLogs; track log.id) {
-            <div style="margin-bottom: 16px">
-                <p style="margin: 0 0 4px 0; color: gray; font-size: 0.9em">{{ log.createdAt | date:'medium' }}</p>
-                <pre style="background: var(--surface-ground); padding: 12px; border-radius: 6px; white-space: pre-wrap; margin: 0; font-size: 0.85em">{{ log.log }}</pre>
+        @if (updateStatus?.isUpdateFeatureAvailable) {
+            <div class="update-section" [class.with-divider]="appDetails">
+                <p class="update-intro">
+                    MoneySpot prüft regelmäßig auf neue Versionen. Bei einem Update wird die Anwendung
+                    kurz neu gestartet, deine Daten bleiben erhalten.
+                </p>
+
+                @if (isUpdating) {
+                    <div class="update-busy">
+                        <p-progressSpinner strokeWidth="4" styleClass="update-spinner" />
+                        <span>Update wird installiert. Die Seite wird automatisch neu geladen...</span>
+                    </div>
+                } @else {
+                    <div class="update-card" [class.available]="updateStatus!.isUpdateAvailable" [class.unavailable]="!updateStatus!.isUpdateAvailable">
+                        <div class="update-card-text">
+                            <span class="title">
+                                @if (updateStatus!.isUpdateAvailable) { Ein Update ist verfügbar }
+                                @else { Kein Update verfügbar }
+                            </span>
+                            @if (!updateStatus!.isUpdateAvailable && updateStatus!.lastCheck) {
+                                <span class="hint">Letzte Prüfung: {{ updateStatus!.lastCheck | date:'medium' }}</span>
+                            }
+                        </div>
+                        @if (updateStatus!.isUpdateAvailable) {
+                            <p-button (onClick)="onApplyUpdateClicked()" severity="success" label="Jetzt installieren" />
+                        } @else {
+                            <p-button (onClick)="onCheckForUpdateClicked()" [loading]="isChecking" label="Jetzt prüfen" />
+                        }
+                    </div>
+
+                    <div class="update-auto">
+                        <p-toggleswitch
+                            inputId="auto-update"
+                            [(ngModel)]="updateStatus!.autoUpdate"
+                            (ngModelChange)="onAutoUpdateChanged($event)" />
+                        <div class="update-auto-text">
+                            <label for="auto-update">Updates automatisch installieren</label>
+                        </div>
+                    </div>
+                }
             </div>
         }
-    }
-</p-dialog>
-
-<p-button (onClick)="OnReprocessTransactionpParsingClicked()">Reprocess transaction parsing</p-button><br><br>
-<p-button (onClick)="OnReimportStockDataLast30DaysClicked()">Reimport stock data (last 30 days)</p-button><br><br>
-<p-button (onClick)="OnReseedDatabaseClicked()">Reseed Database</p-button><br><br>
-
-</p-panel>
+    </p-panel>
+</div>
