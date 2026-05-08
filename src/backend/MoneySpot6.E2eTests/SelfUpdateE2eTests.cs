@@ -111,7 +111,7 @@ public class SelfUpdateE2eTests : PageTest
         await Expect(Page.GetByText("Ein Update ist verfügbar.")).ToBeVisibleAsync(new() { Timeout = 30_000 });
 
         // Click "Install update"
-        await Page.GetByRole(AriaRole.Button, new() { Name = "Update installieren" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Jetzt installieren" }).ClickAsync();
         Console.WriteLine("Update triggered, waiting for container restart...");
 
         // Wait for the sidecar to replace the container.
