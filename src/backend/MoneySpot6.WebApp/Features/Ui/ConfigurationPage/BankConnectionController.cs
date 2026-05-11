@@ -37,6 +37,7 @@ public class BankConnectionController : Controller
                 {
                     Id = x.Id,
                     Name = x.Name,
+                    Type = x.Type,
                     BankCode = "DEMO",
                     UserId = "DEMO",
                     LastSuccessfulSync = x.LastSuccessfulSync
@@ -57,6 +58,7 @@ public class BankConnectionController : Controller
         {
             Id = x.Id,
             Name = x.Name,
+            Type = x.Type,
             BankCode = settings.BankCode,
             UserId = settings.UserId,
             LastSuccessfulSync = x.LastSuccessfulSync
@@ -231,6 +233,7 @@ public record BankConnectionListResponse
 {
     [Required] public required int Id { get; init; }
     [Required] public required string Name { get; init; }
+    [Required] public required BankConnectionType Type { get; init; }
     [Required] public required string BankCode { get; init; }
     [Required] public required string UserId { get; init; }
     public DateTimeOffset? LastSuccessfulSync { get; init; }

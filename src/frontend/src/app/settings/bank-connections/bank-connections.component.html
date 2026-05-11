@@ -49,15 +49,17 @@
                     </td>
                     <td>
                         <div class="horizontal" style="gap: 0.5rem;">
-                            <p-button
-                                icon="pi pi-pencil"
-                                [outlined]="true"
-                                size="small"
-                                (onClick)="openEditDialog(connection)"
-                                pTooltip="Bearbeiten"
-                                tooltipPosition="top"
-                                data-testid="edit-bank-connection-button">
-                            </p-button>
+                            @if (connection.type === BankConnectionType.FinTS) {
+                                <p-button
+                                    icon="pi pi-pencil"
+                                    [outlined]="true"
+                                    size="small"
+                                    (onClick)="openEditDialog(connection)"
+                                    pTooltip="Bearbeiten"
+                                    tooltipPosition="top"
+                                    data-testid="edit-bank-connection-button">
+                                </p-button>
+                            }
                             <p-button
                                 icon="pi pi-trash"
                                 [outlined]="true"

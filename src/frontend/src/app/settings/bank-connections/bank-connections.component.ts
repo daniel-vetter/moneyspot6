@@ -6,7 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { BankConnectionClient, BankConnectionListResponse } from '../../server';
+import { BankConnectionClient, BankConnectionListResponse, BankConnectionType } from '../../server';
 import { firstValueFrom } from 'rxjs';
 import { BankConnectionDialogComponent } from './bank-connection-dialog/bank-connection-dialog.component';
 import { DatePipe } from '@angular/common';
@@ -28,6 +28,7 @@ export class BankConnectionsComponent implements OnInit {
 
     connections: BankConnectionListResponse[] = [];
     loading: boolean = false;
+    protected readonly BankConnectionType = BankConnectionType;
 
     async ngOnInit() {
         await this.loadConnections();
