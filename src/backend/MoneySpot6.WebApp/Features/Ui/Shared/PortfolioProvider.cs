@@ -18,22 +18,22 @@ public class PortfolioProvider
 
     public async Task<ImmutableArray<PortfolioStock>> GetPortfolio()
     {
+        var dbStocks = await _db.Stocks.AsNoTracking().ToArrayAsync();
         var dbTransactions = await _db.StockTransactions
             .AsNoTracking()
             .Include(x => x.Stock)
             .ToArrayAsync();
 
-        var groupedByStock= dbTransactions
-            .GroupBy(x => new
+        var transactionsByStockId = dbTransactions
+            .GroupBy(x => x.Stock.Id)
+            .ToDictionary(x => x.Key, x => x.OrderBy(y => y.Date).ThenBy(z => z.Id).ToImmutableArray());
+
+        var groupedByStock = dbStocks
+            .Select(s => new
             {
-                StockId = x.Stock.Id,
-                StockName = x.Stock.Name
-            })
-            .Select(x => new
-            {
-                x.Key.StockId,
-                x.Key.StockName,
-                Transactions = x.OrderBy(y => y.Date).ThenBy(z => z.Id).ToImmutableArray()
+                StockId = s.Id,
+                StockName = s.Name,
+                Transactions = transactionsByStockId.TryGetValue(s.Id, out var txs) ? txs : ImmutableArray<DbStockTransaction>.Empty
             });
 
         var stockPrices = await _stockDataProvider.GetStockPrices();

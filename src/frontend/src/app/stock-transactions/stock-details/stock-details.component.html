@@ -6,6 +6,9 @@
             </div>
         </ng-template>
 
+        @if ((stock()?.purchases?.length ?? 0) === 0) {
+            <p class="empty-state">Keine Käufe für diese Aktie vorhanden.</p>
+        } @else {
         <div class="table2">
             <div class="horizontal double-header">
                 <div class="w3">Gekauft</div>
@@ -64,5 +67,6 @@
                 </a>
             }
         </div>
+        }
     </p-panel>
 </div>
