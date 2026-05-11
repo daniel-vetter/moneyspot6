@@ -44,6 +44,7 @@ public abstract class UiTest : PageTest
 
         await _db.Set<DbBankAccountTransaction>().ExecuteDeleteAsync();
         await _db.Set<DbBankAccount>().ExecuteDeleteAsync();
+        await _db.Set<DbStockTransaction>().ExecuteDeleteAsync();
         await _db.Set<DbStock>().ExecuteDeleteAsync();
         await _db.Set<DbStockPrice>().ExecuteDeleteAsync();
         await _db.Set<DbBankConnection>().ExecuteDeleteAsync();

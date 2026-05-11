@@ -2,7 +2,7 @@ import { ApplicationConfig, ErrorHandler, provideZoneChangeDetection } from '@an
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { provideHttpClient } from '@angular/common/http';
 import { GlobalErrorHandler } from './global-error-handler-dialog/global-error-handler';
@@ -29,6 +29,7 @@ export const appConfig: ApplicationConfig = {
         {
             provide: MessageService,
         },
+        ConfirmationService,
         DialogService,
         providePrimeNG({
             ripple: true,
