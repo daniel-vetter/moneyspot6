@@ -9,14 +9,14 @@ import {DatePickerModule} from 'primeng/datepicker';
 import {DateRange, DateRangePickerComponent} from "../common/date-range-picker/date-range-picker.component";
 import {DateRangePresetsComponent} from "../common/date-range-presets/date-range-presets.component";
 import {ActivatedRoute} from "@angular/router";
-import {ToggleButtonModule} from "primeng/togglebutton";
+import {ToggleSwitchModule} from "primeng/toggleswitch";
 import {TabsModule} from "primeng/tabs";
 import {TotalHistoryChartComponent} from "./total-history-chart/total-history-chart.component";
 import {ProfitHistoryChartComponent} from "./profit-history-chart/profit-history-chart.component";
 
 @Component({
     selector: 'app-history',
-    imports: [DatePickerModule, SplitButtonModule, FormsModule, ButtonGroupModule, PanelModule, DateRangePickerComponent, DateRangePresetsComponent, ToggleButtonModule, TabsModule, TotalHistoryChartComponent, ProfitHistoryChartComponent],
+    imports: [DatePickerModule, SplitButtonModule, FormsModule, ButtonGroupModule, PanelModule, DateRangePickerComponent, DateRangePresetsComponent, ToggleSwitchModule, TabsModule, TotalHistoryChartComponent, ProfitHistoryChartComponent],
     templateUrl: './history.component.html',
     styleUrl: './history.component.scss'
 })
@@ -24,11 +24,15 @@ export class HistoryComponent implements OnInit {
     private accountHistoryClient = inject(AccountHistoryClient);
     private activatedRoute = inject(ActivatedRoute);
 
+    private static readonly startFromZeroStorageKey = 'history.startFromZero';
+
     protected readonly dateRange = signal<DateRange | undefined>(undefined);
     protected startFromZero = false;
     protected readonly data = signal<AccountHistoryBalanceResponse[]>([]);
 
     async ngOnInit(): Promise<void> {
+        this.startFromZero = localStorage.getItem(HistoryComponent.startFromZeroStorageKey) === 'true';
+
         const result = await lastValueFrom(this.accountHistoryClient.get());
         this.data.set(result);
 
@@ -38,6 +42,6 @@ export class HistoryComponent implements OnInit {
     }
 
     protected onStartFromZeroChanged() {
-        // Triggers re-computation in TotalHistoryChartComponent via input change
+        localStorage.setItem(HistoryComponent.startFromZeroStorageKey, String(this.startFromZero));
     }
 }
