@@ -17,23 +17,23 @@
 
         <div class="horizontal key-value">
             <div>Anzahl:</div>
-            <input type="number" pInputText formControlName="amount" name="amount" autocomplete="off" />
+            <input type="number" pInputText formControlName="amount" name="amount" autocomplete="off" data-testid="stock-transaction-amount-input" />
         </div>
 
         <div class="horizontal key-value">
             <div>Preis:</div>
-            <input type="number" pInputText formControlName="price" name="price" autocomplete="off" />
+            <input type="number" pInputText formControlName="price" name="price" autocomplete="off" data-testid="stock-transaction-price-input" />
         </div>
 
         <div class="spacer"></div>
 
         <div class="horizontal">
             @if (id !== undefined) {
-            <p-button icon="pi pi-trash" (onClick)="onDeleteClicked()" severity="danger" />
+            <p-button icon="pi pi-trash" (onClick)="onDeleteClicked()" severity="danger" data-testid="delete-stock-transaction-button" />
             }
             <div class="spacer"></div>
-            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen"></p-button>
-            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok"></p-button>
+            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" label="Abbrechen" data-testid="stock-transaction-cancel-button"></p-button>
+            <p-button type="submit" [style]="{ 'min-width': '100px' }" [disabled]="!form.valid" label="Ok" data-testid="stock-transaction-submit-button"></p-button>
         </div>
     </div>
 </form>

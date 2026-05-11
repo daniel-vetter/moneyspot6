@@ -72,7 +72,7 @@
             <div class="horizontal" style="width: 100%; gap: 2rem">
                 <h1>Käufe / Verkäufe</h1>
                 <div class="spacer"></div>
-                <p-button label="Neu" icon="pi pi-plus" [outlined]="true" (click)="onNewClicked()"></p-button>
+                <p-button label="Neu" icon="pi pi-plus" [outlined]="true" (click)="onNewClicked()" data-testid="new-stock-transaction-button"></p-button>
             </div>
         </ng-template>
         @if (transactions() !== undefined) {
@@ -89,7 +89,7 @@
                     </div>
 
                     @for (transaction of transactions(); track transaction.id) {
-                        <a pRipple class="horizontal clickable" (click)="onTransactionClicked(transaction)">
+                        <a pRipple class="horizontal clickable" (click)="onTransactionClicked(transaction)" [attr.data-testid]="'stock-transaction-row-' + transaction.id">
                             <div class="w1">{{ transaction.date! | customDate }}</div>
                             <div class="w4">{{ transaction.stockName }}</div>
                             <div class="w1 right">{{ transaction.amount | number: "" : "de-de" }}</div>

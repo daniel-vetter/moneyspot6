@@ -6,7 +6,6 @@ import { GlobalErrorHandlerDialogComponent } from './global-error-handler-dialog
 import { ToastModule } from 'primeng/toast';
 import { TopBarComponent } from './top-bar/top-bar.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
 import { ParticlesBackgroundComponent } from './common/particles-background/particles-background.component';
 import { AppStateService } from './common/app-state.service';
 import { CurrentUserService } from './common/current-user.service';
@@ -18,7 +17,6 @@ import { WelcomeScreenComponent } from './welcome-screen/welcome-screen.componen
     imports: [RouterOutlet, ButtonModule, MenuComponent, GlobalErrorHandlerDialogComponent, ToastModule, TopBarComponent, ConfirmDialogModule, ParticlesBackgroundComponent, WelcomeScreenComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
-    providers: [ConfirmationService]
 })
 export class AppComponent implements OnInit {
     private currentUserService = inject(CurrentUserService);
