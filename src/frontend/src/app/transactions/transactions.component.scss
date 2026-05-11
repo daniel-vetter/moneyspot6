@@ -53,5 +53,5 @@
 }
 
 .isNew {
-    background-color: var(--p-sky-50)
+    background-color: color-mix(in srgb, var(--p-primary-color) 15%, transparent);
 }

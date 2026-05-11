@@ -7409,6 +7409,7 @@ export interface IAccountHistoryBalanceResponse {
 export class BankConnectionListResponse implements IBankConnectionListResponse {
     id!: number;
     name!: string;
+    type!: BankConnectionType;
     bankCode!: string;
     userId!: string;
     lastSuccessfulSync?: Date | undefined;
@@ -7426,6 +7427,7 @@ export class BankConnectionListResponse implements IBankConnectionListResponse {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.type = _data["type"];
             this.bankCode = _data["bankCode"];
             this.userId = _data["userId"];
             this.lastSuccessfulSync = _data["lastSuccessfulSync"] ? new Date(_data["lastSuccessfulSync"].toString()) : undefined as any;
@@ -7443,6 +7445,7 @@ export class BankConnectionListResponse implements IBankConnectionListResponse {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["type"] = this.type;
         data["bankCode"] = this.bankCode;
         data["userId"] = this.userId;
         data["lastSuccessfulSync"] = this.lastSuccessfulSync ? this.lastSuccessfulSync.toISOString() : undefined as any;
@@ -7453,9 +7456,15 @@ export class BankConnectionListResponse implements IBankConnectionListResponse {
 export interface IBankConnectionListResponse {
     id: number;
     name: string;
+    type: BankConnectionType;
     bankCode: string;
     userId: string;
     lastSuccessfulSync?: Date | undefined;
+}
+
+export enum BankConnectionType {
+    FinTS = 0,
+    Demo = 1,
 }
 
 export class BankConnectionDetailsResponse implements IBankConnectionDetailsResponse {

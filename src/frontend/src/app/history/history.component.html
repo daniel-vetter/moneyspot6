@@ -3,8 +3,9 @@
         <app-date-range-picker [showClearButton]="false"></app-date-range-picker>
         <app-date-range-presets></app-date-range-presets>
         <div class="spacer"></div>
-        <div class="flex items-center">
-            <p-togglebutton inputId="startFromZero" name="startFromZero" onIcon="pi pi-expand" offIcon="pi pi-expand" onLabel="Auf 0 skalieren" offLabel="Auf 0 skalieren"   [(ngModel)]="startFromZero" (ngModelChange)="onStartFromZeroChanged()"></p-togglebutton>
+        <div class="zero-toggle">
+            <label for="startFromZero">Auf 0 skalieren</label>
+            <p-toggleswitch inputId="startFromZero" [(ngModel)]="startFromZero" (ngModelChange)="onStartFromZeroChanged()"></p-toggleswitch>
         </div>
 
     </div>
