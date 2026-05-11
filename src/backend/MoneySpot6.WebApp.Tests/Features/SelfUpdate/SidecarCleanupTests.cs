@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.Config;
 using MoneySpot6.WebApp.Features.Core.SelfUpdate.Internal;
 using Shouldly;
 
@@ -79,12 +80,17 @@ public class SidecarCleanupTests
     private UpdateCheckBackgroundWorker CreateWorker(FakeDockerService dockerService)
     {
         var services = new ServiceCollection();
+        services.AddLogging();
         services.AddScoped<Db>(_ => CreateDb());
+        services.AddScoped<KeyValueConfiguration>();
+        services.AddSingleton<IDockerService>(dockerService);
+        services.AddSingleton<UpdateChecker>();
+        services.AddSingleton<UpdateExecutor>();
+        services.AddScoped<SelfUpdateRunner>();
         var serviceProvider = services.BuildServiceProvider();
 
         return new UpdateCheckBackgroundWorker(
             NullLogger<UpdateCheckBackgroundWorker>.Instance,
-            new UpdateChecker(dockerService, NullLogger<UpdateChecker>.Instance),
             dockerService,
             serviceProvider.GetRequiredService<IServiceScopeFactory>());
     }
