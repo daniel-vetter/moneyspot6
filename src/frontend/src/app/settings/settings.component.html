@@ -43,7 +43,11 @@
 
     <a [routerLink]="['/settings/system']" class="menu-entry">
         <i class="pi pi-microchip"></i>
-        <b>System</b>
+        <b>System
+            @if (updateState.isUpdateAvailable()) {
+                <p-badge severity="warn" style="margin-left: 0.5rem; vertical-align: middle" />
+            }
+        </b>
         <div>Zeigt technische Informationen zur Anwendung sowie Werkzeuge für Diagnose und Fehlerbehebung. Nützlich zur Analyse von Problemen oder zur Unterstützung bei Supportanfragen.</div>
     </a>
 </p-panel>

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { AppDetails, SystemClient, SelfUpdateStatus, SetAutoUpdateRequest } from '../../server';
+import { AppDetails, SystemClient, SetAutoUpdateRequest } from '../../server';
 import { ButtonModule } from 'primeng/button';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
@@ -20,22 +20,20 @@ import { DatePipe } from '@angular/common';
 })
 export class SystemComponent implements OnInit {
     private systemClient = inject(SystemClient);
-    private updateState = inject(UpdateState);
+    protected updateState = inject(UpdateState);
     private modalDialogService = inject(ModalDialogService);
 
     appDetails?: AppDetails;
-    updateStatus?: SelfUpdateStatus;
     isChecking = false;
 
     async onCheckForUpdateClicked() {
         this.isChecking = true;
         try {
             await lastValueFrom(this.systemClient.checkForUpdate());
-            this.updateStatus = await lastValueFrom(this.systemClient.getUpdateStatus());
         } catch {
             // Check may fail if pull fails - status still reflects local comparison
-            this.updateStatus = await lastValueFrom(this.systemClient.getUpdateStatus());
         } finally {
+            await this.updateState.refresh();
             this.isChecking = false;
         }
     }
@@ -51,6 +49,7 @@ export class SystemComponent implements OnInit {
 
     async onAutoUpdateChanged(enabled: boolean) {
         await lastValueFrom(this.systemClient.setAutoUpdate(new SetAutoUpdateRequest({ enabled })));
+        await this.updateState.refresh();
     }
 
     async onApplyUpdateClicked() {
@@ -86,6 +85,6 @@ export class SystemComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         this.appDetails = await lastValueFrom(this.systemClient.getAppDetails());
-        this.updateStatus = await lastValueFrom(this.systemClient.getUpdateStatus());
+        await this.updateState.refresh();
     }
 }

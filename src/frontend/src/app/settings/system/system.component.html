@@ -3,7 +3,7 @@
         <ng-template pTemplate="header">
             <div class="panel-header">
                 <h1>System</h1>
-                @if (updateStatus?.isUpdateFeatureAvailable) {
+                @if (updateState.status()?.isUpdateFeatureAvailable) {
                     <p-button
                         (onClick)="onShowUpdateLogsClicked()"
                         icon="pi pi-receipt"
@@ -36,24 +36,25 @@
             </dl>
         }
 
-        @if (updateStatus?.isUpdateFeatureAvailable) {
+        @let status = updateState.status();
+        @if (status?.isUpdateFeatureAvailable) {
             <div class="update-section" [class.with-divider]="appDetails">
                 <p class="update-intro">
                     MoneySpot prüft regelmäßig auf neue Versionen. Bei einem Update wird die Anwendung
                     kurz neu gestartet, deine Daten bleiben erhalten.
                 </p>
 
-                <div class="update-card" [class.available]="updateStatus!.isUpdateAvailable" [class.unavailable]="!updateStatus!.isUpdateAvailable">
+                <div class="update-card" [class.available]="status!.isUpdateAvailable" [class.unavailable]="!status!.isUpdateAvailable">
                     <div class="update-card-text">
                         <span class="title">
-                            @if (updateStatus!.isUpdateAvailable) { Ein Update ist verfügbar }
+                            @if (status!.isUpdateAvailable) { Ein Update ist verfügbar }
                             @else { Kein Update verfügbar }
                         </span>
-                        @if (!updateStatus!.isUpdateAvailable && updateStatus!.lastCheck) {
-                            <span class="hint">Letzte Prüfung: {{ updateStatus!.lastCheck | date:'medium' }}</span>
+                        @if (!status!.isUpdateAvailable && status!.lastCheck) {
+                            <span class="hint">Letzte Prüfung: {{ status!.lastCheck | date:'medium' }}</span>
                         }
                     </div>
-                    @if (updateStatus!.isUpdateAvailable) {
+                    @if (status!.isUpdateAvailable) {
                         <p-button (onClick)="onApplyUpdateClicked()" severity="success" label="Jetzt installieren" />
                     } @else {
                         <p-button (onClick)="onCheckForUpdateClicked()" [loading]="isChecking" label="Jetzt prüfen" />
@@ -63,7 +64,7 @@
                 <div class="update-auto">
                     <p-toggleswitch
                         inputId="auto-update"
-                        [(ngModel)]="updateStatus!.autoUpdate"
+                        [ngModel]="status!.autoUpdate"
                         (ngModelChange)="onAutoUpdateChanged($event)" />
                     <div class="update-auto-text">
                         <label for="auto-update">Updates automatisch installieren</label>

@@ -9,6 +9,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ParticlesBackgroundComponent } from './common/particles-background/particles-background.component';
 import { AppStateService } from './common/app-state.service';
 import { CurrentUserService } from './common/current-user.service';
+import { UpdateState } from './common/update-state';
 import { WelcomeScreenComponent } from './welcome-screen/welcome-screen.component';
 
 
@@ -20,6 +21,7 @@ import { WelcomeScreenComponent } from './welcome-screen/welcome-screen.componen
 })
 export class AppComponent implements OnInit {
     private currentUserService = inject(CurrentUserService);
+    private updateState = inject(UpdateState);
     appStateService = inject(AppStateService);
 
     isLoggedIn: boolean = false;
@@ -30,6 +32,7 @@ export class AppComponent implements OnInit {
             return;
         }
         await this.appStateService.init();
+        await this.updateState.init();
         this.isLoggedIn = true;
     }
 }
