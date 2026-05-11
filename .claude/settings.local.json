@@ -54,7 +54,19 @@
       "Bash(aspire start *)",
       "Bash(aspire wait *)",
       "mcp__playwright__browser_network_requests",
-      "mcp__playwright__browser_network_request"
+      "mcp__playwright__browser_network_request",
+      "mcp__playwright__browser_hover",
+      "mcp__playwright__browser_run_code_unsafe",
+      "Bash(aspire resource *)",
+      "Bash(npm install *)",
+      "PowerShell(dotnet build *)",
+      "PowerShell(git *)",
+      "Bash(where chrome *)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\(x86\\)/Google/Chrome/Application/**)",
+      "Bash(npx ng *)",
+      "Bash(aspire describe *)",
+      "Bash(aspire ps *)"
     ],
     "deny": [],
     "ask": []
