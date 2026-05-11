@@ -3,9 +3,29 @@
         <ng-template pTemplate="header">
             <div class="horizontal" style="width: 100%; gap: 2rem">
                 <h1>Portfolio</h1>
+                <div class="spacer"></div>
+                <p-button
+                    [routerLink]="['/settings/stocks']"
+                    icon="pi pi-cog"
+                    severity="secondary"
+                    [text]="true"
+                    [rounded]="true"
+                    ariaLabel="Aktien verwalten"
+                    pTooltip="Aktien verwalten"
+                    tooltipPosition="left" />
             </div>
         </ng-template>
         @if (portfolio() !== undefined) {
+            @if (portfolio()?.length === 0) {
+                @if (!hasStocks()) {
+                    <div class="empty-state">
+                        <p>Es wurden noch keine Aktien angelegt.</p>
+                        <p>Sie können Aktien unter <a [routerLink]="['/settings/stocks']">Einstellungen / Aktien</a> anlegen.</p>
+                    </div>
+                } @else {
+                    <p class="empty-state">Noch keine Käufe oder Verkäufe erfasst.</p>
+                }
+            } @else {
             <div class="table2">
                 <div class="horizontal double-header">
                     <div class="w4">Gekauft</div>
@@ -60,10 +80,15 @@
                         <div class="w1 right">
                             <app-value [value]="stock.remainingTax" color="none"></app-value>
                         </div>
-                        <div class="w1 right">{{ (stock.remainingPrice / stock.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
+                        @if (stock.purchaseAmount > 0) {
+                            <div class="w1 right">{{ (stock.remainingPrice / stock.purchasePrice) * 100 - 100 | number: "1.1-1" }} %</div>
+                        } @else {
+                            <div class="w1 right">-</div>
+                        }
                     </a>
                 }
             </div>
+            }
         }
     </p-panel>
 
@@ -72,12 +97,15 @@
             <div class="horizontal" style="width: 100%; gap: 2rem">
                 <h1>Käufe / Verkäufe</h1>
                 <div class="spacer"></div>
-                <p-button label="Neu" icon="pi pi-plus" [outlined]="true" (click)="onNewClicked()" data-testid="new-stock-transaction-button"></p-button>
+                <p-button label="Neu" icon="pi pi-plus" [outlined]="true" (click)="onNewClicked()" data-testid="new-stock-transaction-button"
+                    [disabled]="!hasStocks()"
+                    [pTooltip]="hasStocks() ? '' : 'Bitte zuerst unter Einstellungen → Aktien eine Aktie anlegen'"
+                    tooltipPosition="left"></p-button>
             </div>
         </ng-template>
         @if (transactions() !== undefined) {
             @if (transactions()?.length === 0) {
-                <p>Keine Transaktionen gefunden.</p>
+                <p class="empty-state">Es wurden noch keine Trades angelegt.</p>
             } @else {
                 <div class="table2">
                     <div class="horizontal header">

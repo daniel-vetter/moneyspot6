@@ -5,7 +5,7 @@
 
 .error-message {
     padding: 1rem;
-    background-color: var(--p-surface-100);
+    background-color: color-mix(in srgb, var(--p-content-color) 5%, transparent);
     border-radius: 6px;
 }
 

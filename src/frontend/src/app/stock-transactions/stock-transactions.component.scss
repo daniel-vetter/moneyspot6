@@ -20,3 +20,27 @@
 .line {
     cursor: pointer;
 }
+
+.empty-state {
+    text-align: center;
+    color: var(--p-text-muted-color);
+    padding: 2rem 1rem;
+    margin: 0;
+
+    p {
+        margin: 0 0 1rem 0;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    a {
+        color: var(--p-primary-color);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

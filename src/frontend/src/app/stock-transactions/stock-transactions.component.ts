@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, inject } from '@angular/core';
 import { PanelModule } from "primeng/panel";
 import { PrimeTemplate } from "primeng/api";
 import { Ripple } from "primeng/ripple";
@@ -12,6 +12,7 @@ import { CustomDatePipe } from "../common/custom-date.pipe";
 import { TabsModule } from 'primeng/tabs';
 import { RouterLink, RouterModule } from '@angular/router';
 import { ModalDialogService } from "../common/modal-dialog.service";
+import { TooltipModule } from "primeng/tooltip";
 
 @Component({
     selector: 'app-stock-transactions',
@@ -24,7 +25,8 @@ import { ModalDialogService } from "../common/modal-dialog.service";
         DecimalPipe,
         CustomDatePipe,
         TabsModule,
-        RouterModule
+        RouterModule,
+        TooltipModule
     ],
     templateUrl: './stock-transactions.component.html',
     styleUrl: './stock-transactions.component.scss'
@@ -35,6 +37,8 @@ export class StockTransactionsComponent implements OnInit {
 
     transactions = signal<StockTransactionResponse[] | undefined>(undefined);
     portfolio = signal<PortfolioStockResponse[] | undefined>(undefined);
+    stockCount = signal<number | undefined>(undefined);
+    hasStocks = computed(() => (this.stockCount() ?? 0) > 0);
 
     async ngOnInit(): Promise<void> {
         await this.update();
@@ -53,6 +57,7 @@ export class StockTransactionsComponent implements OnInit {
     async update() {
         this.portfolio.set((await lastValueFrom(this.stockTransactionsPageClient.getPortfolio())).reverse());
         this.transactions.set((await lastValueFrom(this.stockTransactionsPageClient.getStockTransactions())).reverse());
+        this.stockCount.set((await lastValueFrom(this.stockTransactionsPageClient.getStocks())).length);
     }
 
     async onTransactionClicked(transaction: StockTransactionResponse) {
