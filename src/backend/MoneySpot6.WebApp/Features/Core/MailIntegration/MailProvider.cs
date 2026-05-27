@@ -13,8 +13,14 @@ using System.Net.Mail;
 
 namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 {
-    [ScopedService]
-    public class MailProvider
+    public interface IMailProvider
+    {
+        Task<ImmutableArray<GMailAccountInfo>> GetConfiguredAccounts();
+        IAsyncEnumerable<EmailData> GetMails(GMailAccountInfo account, string senderAddress, DateTimeOffset? startingTimestamp);
+    }
+
+    [ScopedService<IMailProvider>]
+    public class MailProvider : IMailProvider
     {
         private readonly Db _db;
         private readonly IOptions<MailIntegrationOptions> _configuration;

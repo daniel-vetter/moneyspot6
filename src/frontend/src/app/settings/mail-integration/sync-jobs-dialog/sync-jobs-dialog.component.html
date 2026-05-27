@@ -1,6 +1,6 @@
 @if (jobs(); as jobList) {
     @if (jobList.length > 0) {
-        <p-table [value]="jobList" [scrollable]="true" [tableStyle]="{'min-width':'40rem'}">
+        <p-table [value]="jobList" [scrollable]="true" [tableStyle]="{'min-width':'40rem'}" data-testid="sync-jobs-table">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Status</th>
@@ -11,7 +11,7 @@
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-job>
-                <tr [class.has-error]="job.errorMessage">
+                <tr [class.has-error]="job.errorMessage" [attr.data-testid]="'sync-job-row-' + job.id">
                     <td>
                         @if (job.errorMessage) {
                             <p-tag severity="warn" value="Fehler" />

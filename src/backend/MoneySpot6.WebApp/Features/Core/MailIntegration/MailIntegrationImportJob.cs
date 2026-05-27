@@ -8,11 +8,11 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
     internal class MailIntegrationImportJob
     {
         private readonly Db _db;
-        private readonly MailProvider _mailProvider;
+        private readonly IMailProvider _mailProvider;
         private readonly ILogger<MailIntegrationImportJob> _logger;
         private readonly WaitHelper _waitHelper;
 
-        public MailIntegrationImportJob(Db db, MailProvider mailProvider, ILogger<MailIntegrationImportJob> logger, WaitHelper waitHelper)
+        public MailIntegrationImportJob(Db db, IMailProvider mailProvider, ILogger<MailIntegrationImportJob> logger, WaitHelper waitHelper)
         {
             _db = db;
             _mailProvider = mailProvider;
@@ -22,8 +22,6 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
         internal async Task Update(CancellationToken stoppingToken)
         {
-            await PruneOldJobs();
-
             var allMonitoredAddresses = await _db.Set<DbMonitoredEmailAddress>()
                 .AsNoTracking()
                 .ToImmutableArrayAsync();
@@ -75,6 +73,8 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
                 await _db.SaveChangesAsync(stoppingToken);
             }
+
+            await PruneOldJobs();
         }
 
         private async Task PruneOldJobs()

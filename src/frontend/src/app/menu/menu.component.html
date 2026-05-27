@@ -22,7 +22,7 @@
     <li><a pRipple [routerLink]="['/simulation']" routerLinkActive="active"><i class="pi pi-calculator"></i> Simulation</a></li>
     <li><a pRipple [routerLink]="['/settings']" routerLinkActive="active"><i class="pi pi-cog"></i> Einstellungen
             @if (updateState.isUpdateAvailable() || emailSyncState.hasFailedSync()) {
-                <p-badge severity="warn" style="float: right; margin-top: 0.4rem" />
+                <p-badge severity="warn" style="float: right; margin-top: 0.4rem" data-testid="settings-menu-badge" />
             }
         </a>
     </li>
