@@ -10,6 +10,7 @@ using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core;
 using MoneySpot6.WebApp.Features.Core.MailIntegration;
 using MoneySpot6.WebApp.Infrastructure;
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
@@ -246,6 +247,41 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
             return Ok();
         }
 
+        [HttpGet("GetSyncStatus")]
+        [ProducesResponseType<EmailSyncStatusResponse>(200)]
+        public async Task<IActionResult> GetSyncStatus()
+        {
+            var hasFailedSync = await _db.Set<DbEmailSyncJob>()
+                .AsNoTracking()
+                .GroupBy(j => j.GMailAccount.Id)
+                .Select(g => g.OrderByDescending(j => j.StartedAt).First())
+                .AnyAsync(j => j.ErrorMessage != null);
+
+            return Ok(new EmailSyncStatusResponse { HasFailedSync = hasFailedSync });
+        }
+
+        [HttpGet("GetSyncJobs")]
+        [ProducesResponseType<ImmutableArray<SyncJobResponse>>(200)]
+        public async Task<IActionResult> GetSyncJobs()
+        {
+            var jobs = await _db.Set<DbEmailSyncJob>()
+                .Include(j => j.GMailAccount)
+                .AsNoTracking()
+                .OrderByDescending(j => j.StartedAt)
+                .Select(j => new SyncJobResponse
+                {
+                    Id = j.Id,
+                    AccountEmail = j.GMailAccount.Name,
+                    StartedAt = j.StartedAt,
+                    FinishedAt = j.FinishedAt,
+                    ImportedEmailCount = j.ImportedEmailCount,
+                    ErrorMessage = j.ErrorMessage
+                })
+                .ToImmutableArrayAsync();
+
+            return Ok(jobs);
+        }
+
         [HttpGet("GetProcessingStatus")]
         [ProducesResponseType<ProcessingStatusResponse>(200)]
         public async Task<IActionResult> GetProcessingStatus()
@@ -443,5 +479,20 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
         public string? FullName { get; init; }
         public string? ShortName { get; init; }
         public decimal? SubTotal { get; init; }
+    }
+
+    public class EmailSyncStatusResponse
+    {
+        [Required] public required bool HasFailedSync { get; init; }
+    }
+
+    public class SyncJobResponse
+    {
+        [Required] public required int Id { get; init; }
+        [Required] public required string AccountEmail { get; init; }
+        [Required] public required DateTimeOffset StartedAt { get; init; }
+        [Required] public required DateTimeOffset FinishedAt { get; init; }
+        [Required] public required int ImportedEmailCount { get; init; }
+        public string? ErrorMessage { get; init; }
     }
 }

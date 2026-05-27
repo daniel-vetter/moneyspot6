@@ -84,6 +84,7 @@ public abstract class ApiTest
         await db.Set<DbSimulationModel>().ExecuteDeleteAsync();
         await db.Set<DbImportedEmail>().ExecuteDeleteAsync();
         await db.Set<DbEmailSyncStatus>().ExecuteDeleteAsync();
+        await db.Set<DbEmailSyncJob>().ExecuteDeleteAsync();
         await db.Set<DbMonitoredEmailAddress>().ExecuteDeleteAsync();
         await db.Set<DbGMailIntegration>().ExecuteDeleteAsync();
         await db.Set<DbInflationData>().ExecuteDeleteAsync();

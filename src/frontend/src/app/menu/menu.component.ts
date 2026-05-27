@@ -15,6 +15,7 @@ import { DateRange } from '../common/date-range-picker/date-range-picker.compone
 import { ThemeService } from '../common/theme.service';
 import { CurrentUserService } from '../common/current-user.service';
 import { UpdateState } from '../common/update-state';
+import { EmailSyncState } from '../common/email-sync-state';
 
 @Component({
     selector: 'app-menu',
@@ -28,6 +29,7 @@ export class MenuComponent implements OnInit {
     themeService = inject(ThemeService);
     currentUserService = inject(CurrentUserService);
     updateState = inject(UpdateState);
+    emailSyncState = inject(EmailSyncState);
     newTransactionCount: number = 0;
     currentMonthQueryParam = DateRange.currentMonth().toString();
     last12MonthsQueryParam = DateRange.lastMonths(12).toString();

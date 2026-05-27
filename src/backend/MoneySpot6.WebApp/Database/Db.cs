@@ -54,6 +54,7 @@ public class Db : DbContext, IDataProtectionKeyContext
     public DbSet<DbGMailIntegration> GMailIntegrations { get; init; }
     public DbSet<DbMonitoredEmailAddress> MonitoredEmailAddresses { get; init; }
     public DbSet<DbEmailSyncStatus> EmailSyncStatuses { get; init; }
+    public DbSet<DbEmailSyncJob> EmailSyncJobs { get; init; }
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
     public DbSet<DbInflationData> InflationData { get; init; }
     public DbSet<DbSimulationModel> SimulationModels { get; init; }
@@ -442,6 +443,17 @@ public class DbEmailSyncStatus
     public required DbGMailIntegration GMailAccount { get; set; }
     public required DbMonitoredEmailAddress MonitoredAddress { get; set; }
     public DateTimeOffset LastSyncTimestamp { get; set; }
+}
+
+[Table("EmailSyncJobs")]
+public class DbEmailSyncJob
+{
+    public int Id { get; set; }
+    public required DbGMailIntegration GMailAccount { get; set; }
+    public required DateTimeOffset StartedAt { get; set; }
+    public required DateTimeOffset FinishedAt { get; set; }
+    public string? ErrorMessage { get; set; }
+    public required int ImportedEmailCount { get; set; }
 }
 
 [Table("ImportedEmails")]

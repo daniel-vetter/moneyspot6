@@ -4,6 +4,7 @@ import {PrimeTemplate} from "primeng/api";
 import {RouterLink} from "@angular/router";
 import { BadgeModule } from "primeng/badge";
 import { UpdateState } from '../common/update-state';
+import { EmailSyncState } from '../common/email-sync-state';
 
 @Component({
     selector: 'app-settings',
@@ -13,4 +14,5 @@ import { UpdateState } from '../common/update-state';
 })
 export class SettingsComponent {
     updateState = inject(UpdateState);
+    emailSyncState = inject(EmailSyncState);
 }
