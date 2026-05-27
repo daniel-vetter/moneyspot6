@@ -26,3 +26,10 @@ a.tile {
     justify-content: center;
     padding: 2rem;
 }
+
+.sync-warn-icon {
+    color: var(--p-yellow-600, #b88217);
+    font-size: 1.25rem;
+    margin-right: 0.6rem;
+    cursor: help;
+}

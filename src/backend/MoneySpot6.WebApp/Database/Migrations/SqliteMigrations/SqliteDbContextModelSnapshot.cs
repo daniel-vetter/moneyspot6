@@ -545,6 +545,34 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
                     b.ToTable("ConfigEntries");
                 });
 
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbEmailSyncJob", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FinishedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GMailAccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ImportedEmailCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("StartedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GMailAccountId");
+
+                    b.ToTable("EmailSyncJobs");
+                });
+
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbEmailSyncStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -987,6 +1015,17 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
                     b.HasOne("MoneySpot6.WebApp.Database.DbCategory", null)
                         .WithMany()
                         .HasForeignKey("ParentId");
+                });
+
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbEmailSyncJob", b =>
+                {
+                    b.HasOne("MoneySpot6.WebApp.Database.DbGMailIntegration", "GMailAccount")
+                        .WithMany()
+                        .HasForeignKey("GMailAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GMailAccount");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbEmailSyncStatus", b =>

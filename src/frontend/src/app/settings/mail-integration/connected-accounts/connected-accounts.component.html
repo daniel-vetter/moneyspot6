@@ -2,6 +2,16 @@
     <ng-template pTemplate="header">
         <div class="horizontal" style="width: 100%">
             <h1>Verbundene Konten</h1>
+            <div class="spacer"></div>
+            @if (emailSyncState.hasFailedSync()) {
+                <i class="pi pi-exclamation-triangle sync-warn-icon"
+                   pTooltip="Mindestens ein E-Mail-Sync ist fehlgeschlagen. Details im Sync-Verlauf."
+                   tooltipPosition="left"></i>
+            }
+            <p-button icon="pi pi-history" label="Sync-Verlauf"
+                      [outlined]="!emailSyncState.hasFailedSync()"
+                      [severity]="emailSyncState.hasFailedSync() ? 'warn' : undefined"
+                      (click)="onShowSyncJobsClicked()" />
         </div>
     </ng-template>
     @if (status) {

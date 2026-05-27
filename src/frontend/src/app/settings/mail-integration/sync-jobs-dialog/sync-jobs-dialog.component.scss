@@ -1,0 +1,27 @@
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+tr.has-error td {
+    border-bottom: none;
+}
+
+tr.error-row td {
+    padding-top: 0;
+    padding-bottom: 0.75rem;
+}
+
+.error-cell {
+    opacity: 0.8;
+    font-size: 0.85rem;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}

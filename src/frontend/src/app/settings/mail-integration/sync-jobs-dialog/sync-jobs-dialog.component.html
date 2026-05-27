@@ -1,0 +1,48 @@
+@if (jobs(); as jobList) {
+    @if (jobList.length > 0) {
+        <p-table [value]="jobList" [scrollable]="true" [tableStyle]="{'min-width':'40rem'}">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Status</th>
+                    <th>Konto</th>
+                    <th>Gestartet</th>
+                    <th style="text-align: right">Dauer</th>
+                    <th style="text-align: right">E-Mails</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-job>
+                <tr [class.has-error]="job.errorMessage">
+                    <td>
+                        @if (job.errorMessage) {
+                            <p-tag severity="warn" value="Fehler" />
+                        } @else {
+                            <p-tag severity="success" value="OK" />
+                        }
+                    </td>
+                    <td>{{ job.accountEmail }}</td>
+                    <td>{{ job.startedAt | date:'dd.MM.yyyy, HH:mm:ss' }}</td>
+                    <td style="text-align: right">{{ durationSeconds(job).toFixed(1) }}s</td>
+                    <td style="text-align: right">{{ job.importedEmailCount }}</td>
+                </tr>
+                @if (job.errorMessage) {
+                    <tr class="error-row">
+                        <td></td>
+                        <td colspan="4" class="error-cell">{{ job.errorMessage }}</td>
+                    </tr>
+                }
+            </ng-template>
+        </p-table>
+    } @else {
+        <div style="opacity: 0.6; padding: 1rem 0; font-style: italic">
+            Es wurden noch keine Sync-Läufe ausgeführt.
+        </div>
+    }
+} @else {
+    <div class="spinner-container">
+        <p-progress-spinner ariaLabel="loading" />
+    </div>
+}
+
+<div class="dialog-footer">
+    <p-button label="Schließen" (click)="onCloseClicked()" />
+</div>

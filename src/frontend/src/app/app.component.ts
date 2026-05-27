@@ -10,6 +10,7 @@ import { ParticlesBackgroundComponent } from './common/particles-background/part
 import { AppStateService } from './common/app-state.service';
 import { CurrentUserService } from './common/current-user.service';
 import { UpdateState } from './common/update-state';
+import { EmailSyncState } from './common/email-sync-state';
 import { WelcomeScreenComponent } from './welcome-screen/welcome-screen.component';
 
 
@@ -22,6 +23,7 @@ import { WelcomeScreenComponent } from './welcome-screen/welcome-screen.componen
 export class AppComponent implements OnInit {
     private currentUserService = inject(CurrentUserService);
     private updateState = inject(UpdateState);
+    private emailSyncState = inject(EmailSyncState);
     appStateService = inject(AppStateService);
 
     isLoggedIn: boolean = false;
@@ -33,6 +35,7 @@ export class AppComponent implements OnInit {
         }
         await this.appStateService.init();
         await this.updateState.init();
+        await this.emailSyncState.init();
         this.isLoggedIn = true;
     }
 }

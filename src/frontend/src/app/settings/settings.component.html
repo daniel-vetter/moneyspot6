@@ -37,7 +37,11 @@
 
     <a [routerLink]="['/settings/mail-integration']" class="menu-entry">
         <i class="pi pi-inbox"></i>
-        <b>E-Mail Integration</b>
+        <b>E-Mail Integration
+            @if (emailSyncState.hasFailedSync()) {
+                <p-badge severity="warn" style="margin-left: 0.5rem; vertical-align: middle" />
+            }
+        </b>
         <div>Verbinden Sie MoneySpot mit Ihrem E-Mail-Konto, um automatisch Details aus Bestellbestätigungen oder Rechnungen an Buchungen anzuhängen.</div>
     </a>
 

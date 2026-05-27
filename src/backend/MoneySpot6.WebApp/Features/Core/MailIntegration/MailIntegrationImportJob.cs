@@ -22,6 +22,8 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
         internal async Task Update(CancellationToken stoppingToken)
         {
+            await PruneOldJobs();
+
             var allMonitoredAddresses = await _db.Set<DbMonitoredEmailAddress>()
                 .AsNoTracking()
                 .ToImmutableArrayAsync();
@@ -31,21 +33,73 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
             foreach (var account in await _mailProvider.GetConfiguredAccounts())
             {
+                var accountStartedAt = DateTimeOffset.UtcNow;
+                int accountImportedCount = 0;
+                string? accountFirstError = null;
+
                 foreach (var monitoredAddress in allMonitoredAddresses)
                 {
                     try
                     {
-                        await ProcessMonitoredAddress(account, monitoredAddress, stoppingToken);
+                        accountImportedCount += await ProcessMonitoredAddress(account, monitoredAddress, stoppingToken);
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Failed: {Email} -> {MonitoredAddress}", account.EmailAddress, monitoredAddress.EmailAddress);
+                        if (accountFirstError == null)
+                        {
+                            var raw = $"[{monitoredAddress.EmailAddress}] {ex.Message}";
+                            accountFirstError = raw.Length > 2000 ? raw.Substring(0, 2000) : raw;
+                        }
                     }
                 }
+
+                var dbAccount = await _db.Set<DbGMailIntegration>()
+                    .AsTracking()
+                    .FirstOrDefaultAsync(x => x.Id == account.Id, stoppingToken);
+
+                if (dbAccount == null)
+                {
+                    _logger.LogError("Account {AccountId} not found in database when writing sync job", account.Id);
+                    continue;
+                }
+
+                _db.Add(new DbEmailSyncJob
+                {
+                    GMailAccount = dbAccount,
+                    StartedAt = accountStartedAt,
+                    FinishedAt = DateTimeOffset.UtcNow,
+                    ErrorMessage = accountFirstError,
+                    ImportedEmailCount = accountImportedCount
+                });
+
+                await _db.SaveChangesAsync(stoppingToken);
             }
         }
 
-        private async Task ProcessMonitoredAddress(GMailAccountInfo accountInfo, DbMonitoredEmailAddress monitoredAddress, CancellationToken stoppingToken)
+        private async Task PruneOldJobs()
+        {
+            var jobsMeta = await _db.Set<DbEmailSyncJob>()
+                .AsNoTracking()
+                .Select(j => new { j.Id, AccountId = j.GMailAccount.Id, j.StartedAt })
+                .ToListAsync();
+
+            var idsToKeep = jobsMeta
+                .GroupBy(j => j.AccountId)
+                .SelectMany(g => g.OrderByDescending(j => j.StartedAt).Take(10))
+                .Select(j => j.Id)
+                .ToHashSet();
+
+            if (idsToKeep.Count == jobsMeta.Count)
+                return;
+
+            var idsToDelete = jobsMeta.Where(j => !idsToKeep.Contains(j.Id)).Select(j => j.Id).ToArray();
+            await _db.Set<DbEmailSyncJob>()
+                .Where(j => idsToDelete.Contains(j.Id))
+                .ExecuteDeleteAsync();
+        }
+
+        private async Task<int> ProcessMonitoredAddress(GMailAccountInfo accountInfo, DbMonitoredEmailAddress monitoredAddress, CancellationToken stoppingToken)
         {
             // Load account for navigation property
             var dbAccount = await _db.Set<DbGMailIntegration>()
@@ -55,7 +109,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
             if (dbAccount == null)
             {
                 _logger.LogError("Account {AccountId} not found in database", accountInfo.Id);
-                return;
+                return 0;
             }
 
             // Load monitored address for navigation property
@@ -66,7 +120,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
             if (dbMonitoredAddress == null)
             {
                 _logger.LogError("Monitored address {MonitoredAddressId} not found in database", monitoredAddress.Id);
-                return;
+                return 0;
             }
 
             // Load or create sync status for this account + monitored address combination
@@ -136,6 +190,8 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
             await _db.SaveChangesAsync(stoppingToken);
 
             _logger.LogInformation("Completed: {Email} -> {MonitoredAddress} ({Count} emails)", accountInfo.EmailAddress, monitoredAddress.EmailAddress, importedCount);
+
+            return importedCount;
         }
     }
 }
