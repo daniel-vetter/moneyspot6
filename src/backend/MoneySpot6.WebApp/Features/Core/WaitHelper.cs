@@ -17,7 +17,7 @@ namespace MoneySpot6.WebApp.Features.Core
 
         public async Task Wait<T>(TimeSpan timespan, CancellationToken cancellationToken)
         {
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
             while (sw.Elapsed < timespan)
             {
                 lock (_triggered)
