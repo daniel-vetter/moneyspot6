@@ -8,4 +8,5 @@ src/**/obj
 *.db-shm
 *.db-wal
 .claude/scheduled_tasks.lock
+.claude/settings.local.json
 .playwright-mcp/
