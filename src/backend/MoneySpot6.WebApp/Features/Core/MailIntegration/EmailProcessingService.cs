@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 using MoneySpot6.WebApp.Infrastructure;
 using OpenAI.Chat;
 using System.ClientModel;
@@ -14,13 +15,15 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
         private readonly Db _db;
         private readonly IOptions<MailIntegrationOptions> _configuration;
         private readonly ILogger<EmailProcessingService> _logger;
+        private readonly TransactionProcessingFacade _transactionProcessingFacade;
         private const int MaxRetries = 3;
 
-        public EmailProcessingService(Db db, IOptions<MailIntegrationOptions> configuration, ILogger<EmailProcessingService> logger)
+        public EmailProcessingService(Db db, IOptions<MailIntegrationOptions> configuration, ILogger<EmailProcessingService> logger, TransactionProcessingFacade transactionProcessingFacade)
         {
             _db = db;
             _configuration = configuration;
             _logger = logger;
+            _transactionProcessingFacade = transactionProcessingFacade;
         }
 
         internal async Task ProcessEmails(CancellationToken stoppingToken)
@@ -37,6 +40,7 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
 
             _logger.LogInformation("Processing {Count} unprocessed emails", unprocessedEmails.Length);
 
+            int processedCount = 0;
             foreach (var email in unprocessedEmails)
             {
                 stoppingToken.ThrowIfCancellationRequested();
@@ -44,12 +48,19 @@ namespace MoneySpot6.WebApp.Features.Core.MailIntegration
                 try
                 {
                     await ProcessEmail(email, stoppingToken);
+                    if (email.ProcessedAt != null)
+                        processedCount++;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Failed to process email {EmailId}", email.Id);
                 }
             }
+
+            // Newly extracted email data can change what findMail returns inside rules,
+            // so re-run transaction processing when at least one email was processed.
+            if (processedCount > 0)
+                await _transactionProcessingFacade.UpdateTransactions();
         }
 
         private async Task ProcessEmail(DbImportedEmail email, CancellationToken stoppingToken)
