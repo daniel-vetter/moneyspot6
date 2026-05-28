@@ -17,6 +17,7 @@ import {EchartComponent} from '../../../common/echart/echart.component';
 import {formatDateDe, formatEur} from '../../../common/echart/chart-format';
 import {SimulationModelNameDialogComponent} from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
 import {ModalDialogService} from '../../../common/modal-dialog.service';
+import {ThemeService} from '../../../common/theme.service';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
@@ -40,6 +41,7 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     @ViewChild('container') container!: ElementRef;
     private simulationModelsClient = inject(SimulationModelsClient);
     private modalDialogService = inject(ModalDialogService);
+    private themeService = inject(ThemeService);
 
     id: undefined | number;
     currentRevisionId: undefined | number;
@@ -192,6 +194,7 @@ declare class DateOnly {
 
         this.editor = monaco.editor.create(this.container.nativeElement, {
             model: this.model,
+            theme: this.themeService.isDark ? 'vs-dark' : 'vs',
             scrollBeyondLastLine: false,
             quickSuggestions: {
                 other: true,
