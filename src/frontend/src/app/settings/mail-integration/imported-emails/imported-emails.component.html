@@ -4,10 +4,17 @@
             <h1>Importierte E-Mails</h1>
             <div class="spacer"></div>
             @if (unprocessedCount() > 0) {
-                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.8;">
+                <span class="header-status processing">
                     <i class="pi pi-spin pi-spinner"></i>
-                    <span>{{ unprocessedCount() }} E-Mail{{ unprocessedCount() === 1 ? '' : 's' }} werden verarbeitet</span>
-                </div>
+                    {{ unprocessedCount() }} werden verarbeitet
+                </span>
+            }
+            @if (failedCount() > 0) {
+                <i class="pi pi-exclamation-triangle sync-warn-icon"
+                   [pTooltip]="failedCount() + ' E-Mail(s) konnten nicht verarbeitet werden'"
+                   tooltipPosition="left"></i>
+                <p-button icon="pi pi-refresh" label="Erneut versuchen ({{ failedCount() }})" severity="warn"
+                          [loading]="retrying()" (click)="onRetryFailedClicked()" />
             }
         </div>
     </ng-template>
@@ -21,6 +28,7 @@
                      [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
                 <ng-template pTemplate="header">
                     <tr>
+                        <th style="width: 4rem; text-align: center">Status</th>
                         <th>Von</th>
                         <th>Betreff</th>
                         <th>Empfangen am</th>
@@ -28,6 +36,16 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-email>
                     <tr (click)="onEmailClicked(email)" style="cursor: pointer;">
+                        <td style="text-align: center">
+                            @if (email.processingError) {
+                                <i class="pi pi-exclamation-triangle status-icon failed"
+                                   [pTooltip]="email.processingError" tooltipPosition="right"></i>
+                            } @else if (email.processedAt) {
+                                <i class="pi pi-check-circle status-icon ok"></i>
+                            } @else {
+                                <i class="pi pi-spin pi-spinner status-icon pending"></i>
+                            }
+                        </td>
                         <td>{{ email.fromAddress }}</td>
                         <td>{{ email.subject }}</td>
                         <td>{{ email.receivedAt | date:'dd.MM.yyyy, HH:mm' }}</td>

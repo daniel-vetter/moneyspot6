@@ -2450,6 +2450,54 @@ export class MailIntegrationClient {
         return _observableOf(null as any);
     }
 
+    retryFailedEmails(): Observable<RetryFailedEmailsResponse> {
+        let url_ = this.baseUrl + "/api/MailIntegration/RetryFailedEmails";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRetryFailedEmails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRetryFailedEmails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RetryFailedEmailsResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RetryFailedEmailsResponse>;
+        }));
+    }
+
+    protected processRetryFailedEmails(response: HttpResponseBase): Observable<RetryFailedEmailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RetryFailedEmailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     getImportedEmailDetails(emailId: number | undefined): Observable<ImportedEmailDetailsResponse> {
         let url_ = this.baseUrl + "/api/MailIntegration/GetImportedEmailDetails?";
         if (emailId === null)
@@ -6925,6 +6973,7 @@ export interface ISyncJobResponse {
 
 export class ProcessingStatusResponse implements IProcessingStatusResponse {
     unprocessedEmailCount!: number;
+    failedEmailCount!: number;
 
     constructor(data?: IProcessingStatusResponse) {
         if (data) {
@@ -6938,6 +6987,7 @@ export class ProcessingStatusResponse implements IProcessingStatusResponse {
     init(_data?: any) {
         if (_data) {
             this.unprocessedEmailCount = _data["unprocessedEmailCount"];
+            this.failedEmailCount = _data["failedEmailCount"];
         }
     }
 
@@ -6951,12 +7001,50 @@ export class ProcessingStatusResponse implements IProcessingStatusResponse {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["unprocessedEmailCount"] = this.unprocessedEmailCount;
+        data["failedEmailCount"] = this.failedEmailCount;
         return data;
     }
 }
 
 export interface IProcessingStatusResponse {
     unprocessedEmailCount: number;
+    failedEmailCount: number;
+}
+
+export class RetryFailedEmailsResponse implements IRetryFailedEmailsResponse {
+    retriedCount!: number;
+
+    constructor(data?: IRetryFailedEmailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.retriedCount = _data["retriedCount"];
+        }
+    }
+
+    static fromJS(data: any): RetryFailedEmailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new RetryFailedEmailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["retriedCount"] = this.retriedCount;
+        return data;
+    }
+}
+
+export interface IRetryFailedEmailsResponse {
+    retriedCount: number;
 }
 
 export class ImportedEmailDetailsResponse implements IImportedEmailDetailsResponse {
@@ -7281,6 +7369,8 @@ export class ImportedEmailResponse implements IImportedEmailResponse {
     fromAddress!: string;
     subject!: string;
     receivedAt!: Date;
+    processedAt?: Date | undefined;
+    processingError?: string | undefined;
 
     constructor(data?: IImportedEmailResponse) {
         if (data) {
@@ -7299,6 +7389,8 @@ export class ImportedEmailResponse implements IImportedEmailResponse {
             this.fromAddress = _data["fromAddress"];
             this.subject = _data["subject"];
             this.receivedAt = _data["receivedAt"] ? new Date(_data["receivedAt"].toString()) : undefined as any;
+            this.processedAt = _data["processedAt"] ? new Date(_data["processedAt"].toString()) : undefined as any;
+            this.processingError = _data["processingError"];
         }
     }
 
@@ -7317,6 +7409,8 @@ export class ImportedEmailResponse implements IImportedEmailResponse {
         data["fromAddress"] = this.fromAddress;
         data["subject"] = this.subject;
         data["receivedAt"] = this.receivedAt ? this.receivedAt.toISOString() : undefined as any;
+        data["processedAt"] = this.processedAt ? this.processedAt.toISOString() : undefined as any;
+        data["processingError"] = this.processingError;
         return data;
     }
 }
@@ -7328,6 +7422,8 @@ export interface IImportedEmailResponse {
     fromAddress: string;
     subject: string;
     receivedAt: Date;
+    processedAt?: Date | undefined;
+    processingError?: string | undefined;
 }
 
 export class UpdateDefaultRateRequest implements IUpdateDefaultRateRequest {
