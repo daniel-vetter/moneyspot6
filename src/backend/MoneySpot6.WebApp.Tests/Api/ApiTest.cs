@@ -115,4 +115,15 @@ public abstract class ApiTest
 
         return Services.GetRequiredService<T>();
     }
+
+    /// <summary>
+    /// Disposes the current DI scope and opens a fresh one. Subsequent <see cref="Get{T}"/> calls
+    /// resolve from the new scope, so they get a new scoped <see cref="Db"/> with an empty change tracker.
+    /// Use this to simulate separate requests against the shared (in-memory / container) database.
+    /// </summary>
+    protected void SwitchToNewScope()
+    {
+        _scope.Dispose();
+        _scope = _serviceProvider.CreateScope();
+    }
 }
