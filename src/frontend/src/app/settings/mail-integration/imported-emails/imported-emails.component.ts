@@ -38,7 +38,7 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
 
         this.statusPollingInterval = window.setInterval(() => {
             if (this.updateState.updateInProgress) return;
-            this.loadProcessingStatus();
+            this.pollRefresh();
         }, 5000);
     }
 
@@ -48,9 +48,14 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    async loadEmails(event: TableLazyLoadEvent): Promise<void> {
+    private async pollRefresh(): Promise<void> {
+        await this.loadProcessingStatus();
+        await this.loadEmails(this.lastTableEvent, true);
+    }
+
+    async loadEmails(event: TableLazyLoadEvent, silent: boolean = false): Promise<void> {
         this.lastTableEvent = event;
-        this.loading.set(true);
+        if (!silent) this.loading.set(true);
         try {
             const page = Math.floor((event.first ?? 0) / (event.rows ?? 20));
             const pageSize = event.rows ?? 20;
@@ -62,7 +67,7 @@ export class ImportedEmailsComponent implements OnInit, OnDestroy {
             this.emails.set(response.items);
             this.totalRecords.set(response.totalCount);
         } finally {
-            this.loading.set(false);
+            if (!silent) this.loading.set(false);
         }
     }
 
