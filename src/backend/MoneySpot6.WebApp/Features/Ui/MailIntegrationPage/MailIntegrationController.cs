@@ -290,10 +290,30 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                 .Where(x => x.ProcessedAt == null && x.ProcessingError == null)
                 .CountAsync();
 
+            var failedCount = await _db.Set<DbImportedEmail>()
+                .Where(x => x.ProcessingError != null)
+                .CountAsync();
+
             return Ok(new ProcessingStatusResponse
             {
-                UnprocessedEmailCount = unprocessedCount
+                UnprocessedEmailCount = unprocessedCount,
+                FailedEmailCount = failedCount
             });
+        }
+
+        [HttpPost("RetryFailedEmails")]
+        [ProducesResponseType<RetryFailedEmailsResponse>(200)]
+        public async Task<IActionResult> RetryFailedEmails()
+        {
+            var retried = await _db.Set<DbImportedEmail>()
+                .Where(x => x.ProcessingError != null)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.ProcessingError, (string?)null)
+                    .SetProperty(x => x.ProcessingAttempts, 0));
+
+            _waitHelper.Trigger<EmailProcessingBackgroundWorker>();
+
+            return Ok(new RetryFailedEmailsResponse { RetriedCount = retried });
         }
 
         [HttpGet("GetImportedEmailDetails")]
@@ -347,7 +367,9 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
                     MonitoredAddress = x.MonitoredAddress.EmailAddress,
                     FromAddress = x.FromAddress,
                     Subject = x.Subject,
-                    ReceivedAt = x.InternalDate
+                    ReceivedAt = x.InternalDate,
+                    ProcessedAt = x.ProcessedAt,
+                    ProcessingError = x.ProcessingError
                 })
                 .ToArrayAsync();
 
@@ -432,6 +454,8 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
         [Required] public required string FromAddress { get; init; }
         [Required] public required string Subject { get; init; }
         [Required] public required DateTimeOffset ReceivedAt { get; init; }
+        public DateTimeOffset? ProcessedAt { get; init; }
+        public string? ProcessingError { get; init; }
     }
 
     public class PagedImportedEmailsResponse
@@ -443,6 +467,12 @@ namespace MoneySpot6.WebApp.Features.Ui.MailIntegrationPage
     public class ProcessingStatusResponse
     {
         [Required] public required int UnprocessedEmailCount { get; init; }
+        [Required] public required int FailedEmailCount { get; init; }
+    }
+
+    public class RetryFailedEmailsResponse
+    {
+        [Required] public required int RetriedCount { get; init; }
     }
 
     public class ImportedEmailDetailsResponse

@@ -1,0 +1,33 @@
+.header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    margin-right: 0.75rem;
+    opacity: 0.7;
+}
+
+.sync-warn-icon {
+    color: var(--p-yellow-600, #b88217);
+    font-size: 1.25rem;
+    margin-right: 0.6rem;
+    cursor: help;
+}
+
+.status-icon {
+    font-size: 1.1rem;
+
+    &.ok {
+        color: var(--p-green-500, #16a34a);
+    }
+
+    &.failed {
+        color: var(--p-yellow-600, #b88217);
+        cursor: help;
+    }
+
+    &.pending {
+        color: var(--p-text-muted-color, #6b7280);
+        opacity: 0.7;
+    }
+}
