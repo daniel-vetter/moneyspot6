@@ -49,7 +49,10 @@ public class TransactionPageController : Controller
             query = query.Where(x => x.Final.Date < endDate);
             
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(x => EF.Functions.ILike(x.Final.Purpose, "%" + search + "%") || EF.Functions.ILike(x.Final.Name, "%" + search + "%"));
+        {
+            var pattern = "%" + search.ToLower() + "%";
+            query = query.Where(x => EF.Functions.Like(x.Final.Purpose.ToLower(), pattern) || EF.Functions.Like(x.Final.Name.ToLower(), pattern));
+        }
 
         var entries = query.Select(x => new
         {
