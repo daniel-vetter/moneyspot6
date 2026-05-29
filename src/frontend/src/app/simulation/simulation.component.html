@@ -1,0 +1,17 @@
+<p-panel>
+    <ng-template #header>
+        <span class="panel-title">Simulation</span>
+    </ng-template>
+
+    @if (redirecting()) {
+        <div class="sim-landing">
+            <p-progress-spinner ariaLabel="loading" />
+        </div>
+    } @else {
+        <div class="sim-landing" data-testid="simulations-empty-state">
+            <span class="sim-landing-hint">Sie haben noch keine Simulation angelegt.</span>
+            <p-button label="Neue Simulation anlegen" icon="pi pi-plus" size="large"
+                      (onClick)="onNewSimulationClicked()" data-testid="create-simulation-button" />
+        </div>
+    }
+</p-panel>

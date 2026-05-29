@@ -2,16 +2,29 @@
     <ng-template #header>
         <div class="panel-header">
             <div class="panel-title-group">
-                <span class="panel-title">{{ pageTitle }}</span>
+                <span class="panel-title">Simulation:</span>
+                <p-select
+                    [options]="simulations"
+                    optionLabel="name"
+                    optionValue="id"
+                    [ngModel]="id"
+                    (onChange)="onSimulationSwitch($event.value)"
+                    placeholder="Simulation wählen"
+                    appendTo="body"
+                    data-testid="simulation-switcher"></p-select>
                 @if (id !== undefined) {
-                    <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small" (click)="openNameDialog()" pTooltip="Name bearbeiten"></p-button>
+                    <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small" (click)="openNameDialog()" pTooltip="Name bearbeiten" data-testid="simulation-rename-button"></p-button>
+                }
+                <p-button icon="pi pi-plus" [text]="true" [rounded]="true" size="small" (click)="onNewSimulationClicked()" pTooltip="Neue Simulation" data-testid="simulation-new-button"></p-button>
+                @if (id !== undefined) {
+                    <p-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small" severity="danger" (click)="onDeleteClicked()" pTooltip="Simulation löschen" data-testid="simulation-delete-button"></p-button>
                 }
             </div>
             <div class="panel-actions">
                 @if (id !== undefined) {
-                    <p-button severity="success" (click)="onRunClicked()" [disabled]="codeError !== undefined || codeErrorStillThinking === true || isRunning" [loading]="isRunning" icon="pi pi-play" label="Ausführen" data-testid="model-run-button"></p-button>
+                    <p-button severity="success" (click)="onRunClicked()" [disabled]="codeError !== undefined || codeErrorStillThinking === true || isRunning" [loading]="isRunning" icon="pi pi-play" label="Ausführen" data-testid="simulation-run-button"></p-button>
+                    <p-button icon="pi pi-save" [text]="true" pTooltip="Speichern" (click)="onSaveClicked()" [disabled]="codeError !== undefined || codeErrorStillThinking === true" data-testid="simulation-submit-button"></p-button>
                 }
-                <p-button icon="pi pi-times" [text]="true" pTooltip="Speichern und schließen" (click)="onSubmit()" [disabled]="codeError !== undefined || codeErrorStillThinking === true" data-testid="model-submit-button"></p-button>
             </div>
         </div>
     </ng-template>
@@ -41,7 +54,7 @@
                 <p-splitter class="split-view" [panelSizes]="[65, 35]" (onResizeEnd)="onSplitterResized()">
                     <ng-template #panel>
                         <div class="editor-panel">
-                            <div #container class="editor-container" data-testid="model-code-editor"></div>
+                            <div #container class="editor-container" data-testid="simulation-code-editor"></div>
                         </div>
                     </ng-template>
                     <ng-template #panel>

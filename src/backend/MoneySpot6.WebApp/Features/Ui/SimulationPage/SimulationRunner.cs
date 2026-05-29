@@ -18,8 +18,8 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
 
         public async Task Run(int revisionId)
         {
-            var revision = await _db.SimulationModelRevisions
-                .Include(x => x.SimulationModel)
+            var revision = await _db.SimulationRevisions
+                .Include(x => x.Simulation)
                 .FirstOrDefaultAsync(x => x.Id == revisionId);
 
             if (revision == null)
@@ -337,10 +337,10 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage
             }
 
             // Clear previous run results from all revisions of this model
-            var modelId = revision.SimulationModel.Id;
-            await _db.SimulationLogs.Where(l => l.Revision.SimulationModel.Id == modelId).ExecuteDeleteAsync();
-            await _db.SimulationTransactions.Where(t => t.Revision.SimulationModel.Id == modelId).ExecuteDeleteAsync();
-            await _db.SimulationDaySummaries.Where(d => d.Revision.SimulationModel.Id == modelId).ExecuteDeleteAsync();
+            var modelId = revision.Simulation.Id;
+            await _db.SimulationLogs.Where(l => l.Revision.Simulation.Id == modelId).ExecuteDeleteAsync();
+            await _db.SimulationTransactions.Where(t => t.Revision.Simulation.Id == modelId).ExecuteDeleteAsync();
+            await _db.SimulationDaySummaries.Where(d => d.Revision.Simulation.Id == modelId).ExecuteDeleteAsync();
 
             // Store new results
             revision.LastRunAt = DateTimeOffset.UtcNow;

@@ -80,8 +80,8 @@ public abstract class ApiTest
         await db.Set<DbSimulationLog>().ExecuteDeleteAsync();
         await db.Set<DbSimulationTransaction>().ExecuteDeleteAsync();
         await db.Set<DbSimulationDaySummary>().ExecuteDeleteAsync();
-        await db.Set<DbSimulationModelRevision>().ExecuteDeleteAsync();
-        await db.Set<DbSimulationModel>().ExecuteDeleteAsync();
+        await db.Set<DbSimulationRevision>().ExecuteDeleteAsync();
+        await db.Set<DbSimulation>().ExecuteDeleteAsync();
         await db.Set<DbImportedEmail>().ExecuteDeleteAsync();
         await db.Set<DbEmailSyncStatus>().ExecuteDeleteAsync();
         await db.Set<DbEmailSyncJob>().ExecuteDeleteAsync();
@@ -114,5 +114,16 @@ public abstract class ApiTest
             return ActivatorUtilities.CreateInstance<T>(Services);
 
         return Services.GetRequiredService<T>();
+    }
+
+    /// <summary>
+    /// Disposes the current DI scope and opens a fresh one. Subsequent <see cref="Get{T}"/> calls
+    /// resolve from the new scope, so they get a new scoped <see cref="Db"/> with an empty change tracker.
+    /// Use this to simulate separate requests against the shared (in-memory / container) database.
+    /// </summary>
+    protected void SwitchToNewScope()
+    {
+        _scope.Dispose();
+        _scope = _serviceProvider.CreateScope();
     }
 }

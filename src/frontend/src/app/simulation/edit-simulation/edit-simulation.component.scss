@@ -32,6 +32,23 @@
     border: none;
 }
 
+// The panel content is a CSS grid/flex item, which defaults to min-width: auto and
+// therefore refuses to shrink below its content size. Combined with the chart's
+// ResizeObserver (which sizes the canvas to the container) this creates a feedback
+// loop: dragging the splitter lets the chart push the panel — and the whole splitter —
+// far past the viewport. Allowing the content to shrink below its content size and
+// clipping any overflow breaks the loop.
+:host ::ng-deep {
+    .p-panel-content-wrapper,
+    .p-panel-content {
+        min-width: 0;
+    }
+
+    .p-panel-content {
+        overflow: hidden;
+    }
+}
+
 .editor-panel {
     height: 100%;
     width: 100%;

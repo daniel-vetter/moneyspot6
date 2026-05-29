@@ -9,8 +9,10 @@
 * Wenn ein Service mit zugehörigem Interface erstellt wird (z.B. IDockerService + DockerService), beides in die gleiche Datei schreiben, benannt nach der Implementierung (z.B. DockerService.cs, ohne "I"-Prefix)
 * Keine statischen Methoden auf Services aufrufen — immer über DI injizieren und Instanzmethoden verwenden
 * Nach Änderungen immer `dotnet build --no-incremental` verwenden um Warnings zu prüfen (inkrementelle Builds verschlucken Warnings)
+* Wenn ein Befehl Docker braucht (z.B. Tests mit Postgres-Testcontainers) und der Daemon nicht läuft: Docker Desktop selbst starten (`Docker Desktop.exe` launchen), dann `docker info` pollen bis bereit, und den Befehl erneut ausführen — nicht den User bitten
 * TypeScript: kein `null` verwenden, immer `undefined` (z.B. `private foo: string | undefined;` oder `foo?: string`). `null` nur akzeptieren wo es von außen reinkommt (JSON-APIs, DOM) und am Boundary auf `undefined` mappen.
 * Globaler Crash-Dialog ("Serverfehler / Seite neu laden") ist fail-fast by design — Bugs müssen upstream gefixt werden (unguarded Code-Path verhindern, Backend-Fehler vermeiden), nicht durch Aufweichen des Handlers (kein Dismiss-Button, kein Auto-Resume, kein on-error-resume-next).
 * Playwright-Screenshots immer mit `filename: ".playwright-mcp/<name>.png"` ablegen — das Verzeichnis ist gitignored, sonst landen die PNGs im Repo-Root.
+* Wenn ein Commit zu einem GitHub Issue gehört, die Issue-Nummer in die Commit-Message aufnehmen, damit GitHub verlinkt — bei erledigten Issues schließende Keywords nutzen (z.B. `Fixes #11` / `Closes #11`), sonst einfach `#11` referenzieren.
 * Niemals ohne explizite Ansage commiten oder pushen. "Fix das" ≠ Commit-Erlaubnis. "Einchecken"/"commit" ist das Signal zum Commiten, "pushen"/"push" ist das Signal zum Pushen — getrennt voneinander, und gilt nur für den aktuell anstehenden Commit/Push.
 * Wenn ein Commit explizit angefordert wird, nur die genannten Änderungen committen — keine unrelated WIP-Drift mitnehmen, auch wenn sie wie ein "natürlicher Separat-Commit" aussieht. Im Zweifel nachfragen ("nur X, oder auch die Y-Sachen?").

@@ -21,6 +21,7 @@ namespace MoneySpot6.WebApp.Features.Core.TransactionProcessing.Internal
         {
             var rules = await _db.Rules
                 .AsTracking()
+                .OrderBy(x => x.SortIndex)
                 .ToArrayAsync();
 
             var engine = await CreateBasicEngine(emailCache);

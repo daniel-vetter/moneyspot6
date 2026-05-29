@@ -1,22 +1,27 @@
 import {AfterViewInit, Component, inject, OnDestroy} from '@angular/core';
 import {ViewChild, ElementRef} from '@angular/core';
+import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
-import {SimulationModelsClient, UpdateSimulationModelRequest, SimulationTransactionResponse, SimulationLogResponse} from '../../../server';
-import {firstValueFrom, lastValueFrom} from 'rxjs';
+import {SelectModule} from 'primeng/select';
+import {SimulationsClient, UpdateSimulationRequest, SimulationTransactionResponse, SimulationLogResponse, SimulationListItemResponse} from '../../server';
+import {firstValueFrom, lastValueFrom, Subscription} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {ActivatedRoute, Router} from '@angular/router';
+import {ConfirmationService} from 'primeng/api';
 import {PanelModule} from 'primeng/panel';
 import {TabsModule} from 'primeng/tabs';
 import {SplitterModule} from 'primeng/splitter';
 import {TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 import {EChartsOption} from 'echarts';
-import {EchartComponent} from '../../../common/echart/echart.component';
-import {formatDateDe, formatEur} from '../../../common/echart/chart-format';
-import {SimulationModelNameDialogComponent} from '../simulation-model-name-dialog/simulation-model-name-dialog.component';
-import {ModalDialogService} from '../../../common/modal-dialog.service';
+import {EchartComponent} from '../../common/echart/echart.component';
+import {formatDateDe, formatEur} from '../../common/echart/chart-format';
+import {SimulationNameDialogComponent} from '../simulation-name-dialog/simulation-name-dialog.component';
+import {ModalDialogService} from '../../common/modal-dialog.service';
+import {ThemeService} from '../../common/theme.service';
+import {pickLatestSimulationId, rememberSimulationId} from '../last-simulation';
 
 import './monaco-setup';
 import * as monaco from 'monaco-editor';
@@ -29,21 +34,26 @@ interface SimTooltipParam {
 
 
 @Component({
-    selector: 'app-edit-simulation-model',
-    imports: [ButtonModule, MessageModule, CommonModule, ProgressSpinnerModule, PanelModule, TabsModule, SplitterModule, TableModule, TooltipModule, EchartComponent],
-    templateUrl: './edit-simulation-model.component.html',
-    styleUrl: './edit-simulation-model.component.scss'
+    selector: 'app-edit-simulation',
+    imports: [ButtonModule, MessageModule, CommonModule, FormsModule, ProgressSpinnerModule, PanelModule, SelectModule, TabsModule, SplitterModule, TableModule, TooltipModule, EchartComponent],
+    templateUrl: './edit-simulation.component.html',
+    styleUrl: './edit-simulation.component.scss'
 })
-export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
+export class EditSimulationComponent implements AfterViewInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     @ViewChild('container') container!: ElementRef;
-    private simulationModelsClient = inject(SimulationModelsClient);
+    private simulationsClient = inject(SimulationsClient);
     private modalDialogService = inject(ModalDialogService);
+    private themeService = inject(ThemeService);
+    private confirmationService = inject(ConfirmationService);
 
     id: undefined | number;
+    simulations: SimulationListItemResponse[] = [];
+    private routeSub: Subscription | undefined;
+    private modelUriCounter = 0;
     currentRevisionId: undefined | number;
-    modelName: string = '';
+    simulationName: string = '';
     typeLib: monaco.IDisposable | undefined;
     editor: monaco.editor.IStandaloneCodeEditor | undefined;
     model: monaco.editor.ITextModel | undefined;
@@ -61,18 +71,13 @@ export class EditSimulationModelComponent implements AfterViewInit, OnDestroy {
     stockChartOptions: EChartsOption | undefined;
     maximizedChart: 'total' | 'balance' | 'stock' | null = null;
 
-    get pageTitle(): string {
-        return this.id === undefined ? "Neue Simulation" : `Simulation: ${this.modelName}`;
-    }
-
-    constructor() {
-        const idParam = this.route.snapshot.paramMap.get('id');
-        this.id = idParam ? parseInt(idParam, 10) : undefined;
-    }
-
     ngOnDestroy(): void {
+        this.routeSub?.unsubscribe();
         if (this.typeLib) {
             this.typeLib.dispose();
+        }
+        if (this.editor) {
+            this.editor.dispose();
         }
         if (this.model) {
             this.model.dispose();
@@ -172,26 +177,16 @@ declare class DateOnly {
             'file:///types/simulation/index.d.ts'
         );
 
-        let code = 'export function onTick() {\n    \n}';
-        if (this.id !== undefined) {
-            const r = await lastValueFrom(this.simulationModelsClient.getById(this.id));
-            this.modelName = r.name;
-            this.currentRevisionId = r.latestRevisionId ?? undefined;
-            code = r.originalCode || "";
-
-            // Load last run result if available
-            if (this.currentRevisionId !== undefined) {
-                await this.loadRunResult(this.currentRevisionId);
-            }
-        }
-
-        this.model = monaco.editor.createModel(code, 'typescript', monaco.Uri.parse('file:///simulation-model.ts'));
+        // Create the editor once with an empty model. The actual model is swapped in by loadSimulation()
+        // whenever the route id changes, so switching simulations reuses the same editor instance.
+        this.model = this.createModel('export function onTick() {\n    \n}');
         this.makerChangeSubscription = monaco.editor.onDidChangeMarkers(() => {
             this.updateMarkerInfo();
         });
 
         this.editor = monaco.editor.create(this.container.nativeElement, {
             model: this.model,
+            theme: this.themeService.isDark ? 'vs-dark' : 'vs',
             scrollBeyondLastLine: false,
             quickSuggestions: {
                 other: true,
@@ -208,8 +203,98 @@ declare class DateOnly {
             this.onRunClicked();
         });
 
+        await this.refreshSimulations();
+
+        this.routeSub = this.route.paramMap.subscribe(params => {
+            const idParam = params.get('id');
+            void this.loadSimulation(idParam ? parseInt(idParam, 10) : undefined);
+        });
+    }
+
+    private createModel(code: string): monaco.editor.ITextModel {
+        // Unique uri per load so a freshly created model never collides with the one being replaced.
+        return monaco.editor.createModel(code, 'typescript', monaco.Uri.parse(`file:///simulation-model-${this.modelUriCounter++}.ts`));
+    }
+
+    private async refreshSimulations(): Promise<void> {
+        this.simulations = [...await lastValueFrom(this.simulationsClient.getAll())];
+    }
+
+    private async loadSimulation(id: number | undefined): Promise<void> {
+        this.id = id;
+
+        // Reset per-simulation state so the previous simulation's results don't leak into the new one.
+        this.logs = [];
+        this.transactions = [];
+        this.totalChartOptions = undefined;
+        this.chartOptions = undefined;
+        this.stockChartOptions = undefined;
+        this.maximizedChart = null;
+        this.maximizedChartOptions = undefined;
+        this.activeTab = '0';
+        this.currentRevisionId = undefined;
+        this.simulationName = '';
+
+        let code = 'export function onTick() {\n    \n}';
+        if (id !== undefined) {
+            const r = await lastValueFrom(this.simulationsClient.getById(id));
+            this.simulationName = r.name;
+            this.currentRevisionId = r.latestRevisionId ?? undefined;
+            code = r.originalCode || "";
+            rememberSimulationId(id);
+
+            if (this.currentRevisionId !== undefined) {
+                await this.loadRunResult(this.currentRevisionId);
+            }
+        }
+
+        const previous = this.model;
+        this.model = this.createModel(code);
+        this.editor?.setModel(this.model);
+        previous?.dispose();
+
         this.updateMarkerInfo();
         this.loading = false;
+    }
+
+    async onSimulationSwitch(id: number): Promise<void> {
+        if (id === this.id) {
+            return;
+        }
+        // Persist any edits to the current simulation before navigating away from it.
+        if (this.id !== undefined && this.currentRevisionId !== undefined) {
+            await this.saveSimulation();
+        }
+        await this.router.navigate(['/simulation', id]);
+    }
+
+    async onNewSimulationClicked(): Promise<void> {
+        const dlg = this.modalDialogService.open(SimulationNameDialogComponent, {
+            focusOnShow: false,
+            data: {},
+        });
+
+        const newId = await firstValueFrom(dlg.onClose);
+        if (newId === undefined) return;
+
+        await this.refreshSimulations();
+        await this.router.navigate(['/simulation', newId]);
+    }
+
+    onDeleteClicked(): void {
+        if (this.id === undefined) return;
+        const id = this.id;
+        this.confirmationService.confirm({
+            header: 'Simulation löschen',
+            message: 'Möchten Sie die Simulation "' + this.simulationName + '" wirklich löschen?',
+            acceptLabel: 'Ja',
+            rejectLabel: 'Nein',
+            accept: async () => {
+                await lastValueFrom(this.simulationsClient.delete(id));
+                // Back to /simulation, which redirects to the next available simulation or the empty state.
+                await this.router.navigate(['/simulation']);
+            },
+        });
     }
 
     private updateMarkerInfo() {
@@ -243,9 +328,8 @@ declare class DateOnly {
         return "Keine Fehler gefunden.";
     }
 
-    async onSubmit() {
-        await this.saveModel();
-        await this.router.navigate(['/simulation']);
+    async onSaveClicked() {
+        await this.saveSimulation();
     }
 
     onSplitterResized() {
@@ -253,17 +337,18 @@ declare class DateOnly {
     }
 
     async openNameDialog() {
-        const dlg = this.modalDialogService.open(SimulationModelNameDialogComponent, {
+        const dlg = this.modalDialogService.open(SimulationNameDialogComponent, {
             focusOnShow: false,
             data: {
                 id: this.id,
-                name: this.modelName
+                name: this.simulationName
             }
         });
 
         const newName = await firstValueFrom(dlg.onClose);
         if (newName) {
-            this.modelName = newName;
+            this.simulationName = newName;
+            await this.refreshSimulations();
         }
     }
 
@@ -281,7 +366,7 @@ declare class DateOnly {
         }
     }
 
-    private async saveModel() {
+    private async saveSimulation() {
         const worker = await monaco.typescript.getTypeScriptWorker();
         const svc = await worker(this.model!.uri);
         const emit = await svc.getEmitOutput(this.model!.uri.toString());
@@ -289,7 +374,7 @@ declare class DateOnly {
         const jsOutput = emit.outputFiles.filter(x => x.name.endsWith('.js'))[0];
         const mapOutput = emit.outputFiles.filter(x => x.name.endsWith('.js.map'))[0];
 
-        this.currentRevisionId = await lastValueFrom(this.simulationModelsClient.update(new UpdateSimulationModelRequest({
+        this.currentRevisionId = await lastValueFrom(this.simulationsClient.update(new UpdateSimulationRequest({
             id: this.id!,
             originalCode: this.editor?.getModel()?.getValue() || "",
             compiledCode: jsOutput.text,
@@ -310,10 +395,10 @@ declare class DateOnly {
             this.chartOptions = undefined;
             this.stockChartOptions = undefined;
 
-            await this.saveModel();
+            await this.saveSimulation();
 
             // Run the simulation
-            await lastValueFrom(this.simulationModelsClient.run(this.currentRevisionId!));
+            await lastValueFrom(this.simulationsClient.run(this.currentRevisionId!));
 
             // Load the result
             await this.loadRunResult(this.currentRevisionId!);
@@ -333,7 +418,7 @@ declare class DateOnly {
     }
 
     private async loadRunResult(revisionId: number) {
-        const result = await lastValueFrom(this.simulationModelsClient.getRunResult(revisionId));
+        const result = await lastValueFrom(this.simulationsClient.getRunResult(revisionId));
         this.logs = result.logs;
         this.transactions = result.transactions;
 
@@ -353,9 +438,9 @@ declare class DateOnly {
         for (const [k, v] of stockActual) totalActualMap.set(k, (totalActualMap.get(k) ?? 0) + v);
         const totalActual = Array.from(totalActualMap.entries()).sort((a, b) => a[0] - b[0]) as [number, number][];
 
-        this.totalChartOptions = EditSimulationModelComponent.buildLineChart(totalSim, totalActual);
-        this.chartOptions = EditSimulationModelComponent.buildLineChart(balanceSim, balanceActual);
-        this.stockChartOptions = EditSimulationModelComponent.buildLineChart(stockSim, stockActual);
+        this.totalChartOptions = EditSimulationComponent.buildLineChart(totalSim, totalActual);
+        this.chartOptions = EditSimulationComponent.buildLineChart(balanceSim, balanceActual);
+        this.stockChartOptions = EditSimulationComponent.buildLineChart(stockSim, stockActual);
     }
 
     private static buildLineChart(simulated: [number, number][], actual: [number, number][]): EChartsOption {
@@ -365,7 +450,7 @@ declare class DateOnly {
             legend: {show: true, top: 0},
             tooltip: {
                 trigger: 'axis',
-                formatter: (params: unknown) => EditSimulationModelComponent.tooltipFormatter(params as SimTooltipParam[])
+                formatter: (params: unknown) => EditSimulationComponent.tooltipFormatter(params as SimTooltipParam[])
             },
             xAxis: {type: 'time'},
             yAxis: {
