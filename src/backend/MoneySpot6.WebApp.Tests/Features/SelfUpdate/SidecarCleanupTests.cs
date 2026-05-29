@@ -68,6 +68,39 @@ public class SidecarCleanupTests
         fake.RemovedContainers.ShouldBeEmpty();
     }
 
+    [Test]
+    public async Task Removes_dangling_images_left_over_from_previous_updates()
+    {
+        var fake = new FakeDockerService("app:latest", imageId: "sha256:current");
+        fake.DanglingImageIds.Add("sha256:old1");
+        fake.DanglingImageIds.Add("sha256:old2");
+
+        var worker = CreateWorker(fake);
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        await worker.StartAsync(cts.Token);
+        await Task.Delay(1000);
+        await worker.StopAsync(default);
+
+        fake.RemovedImages.ShouldBe(new[] { "sha256:old1", "sha256:old2" }, ignoreOrder: true);
+    }
+
+    [Test]
+    public async Task Does_not_remove_the_currently_running_image()
+    {
+        var fake = new FakeDockerService("app:latest", imageId: "sha256:current");
+        fake.DanglingImageIds.Add("sha256:current");
+        fake.DanglingImageIds.Add("sha256:old1");
+
+        var worker = CreateWorker(fake);
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        await worker.StartAsync(cts.Token);
+        await Task.Delay(1000);
+        await worker.StopAsync(default);
+
+        fake.RemovedImages.ShouldContain("sha256:old1");
+        fake.RemovedImages.ShouldNotContain("sha256:current");
+    }
+
     private SqliteDbContext CreateDb()
     {
         var options = new DbContextOptionsBuilder<SqliteDbContext>()

@@ -15,6 +15,8 @@ public interface IDockerService
     Task<string?> FindContainerByLabel(string label, string value);
     Task<string> GetContainerLogs(string containerId);
     Task RemoveContainer(string containerId);
+    Task<ImmutableArray<string>> GetDanglingImageIds(string imageReference);
+    Task RemoveImage(string imageId);
 }
 
 public record RunContainerRequest(
@@ -177,6 +179,46 @@ public class DockerService : IDockerService
         using var client = CreateClient();
         await client.Containers.RemoveContainerAsync(containerId, new ContainerRemoveParameters { Force = true });
         _logger.LogInformation("Container removed: {Id}", containerId);
+    }
+
+    public async Task<ImmutableArray<string>> GetDanglingImageIds(string imageReference)
+    {
+        using var client = CreateClient();
+        var repository = GetRepository(imageReference);
+
+        var images = await client.Images.ListImagesAsync(new ImagesListParameters
+        {
+            Filters = new Dictionary<string, IDictionary<string, bool>>
+            {
+                ["dangling"] = new Dictionary<string, bool> { ["true"] = true },
+                ["reference"] = new Dictionary<string, bool> { [repository] = true }
+            }
+        });
+
+        return images.Select(i => i.ID).ToImmutableArray();
+    }
+
+    public async Task RemoveImage(string imageId)
+    {
+        using var client = CreateClient();
+        await client.Images.DeleteImageAsync(imageId, new ImageDeleteParameters { Force = true });
+        _logger.LogInformation("Image removed: {Id}", imageId);
+    }
+
+    /// <summary>Strips the tag and digest from an image reference, leaving just the repository.</summary>
+    private static string GetRepository(string imageReference)
+    {
+        var atIndex = imageReference.IndexOf('@');
+        if (atIndex >= 0)
+            imageReference = imageReference[..atIndex];
+
+        // A tag is a ':' after the last '/', so a registry host:port is not mistaken for a tag.
+        var lastSlash = imageReference.LastIndexOf('/');
+        var lastColon = imageReference.LastIndexOf(':');
+        if (lastColon > lastSlash)
+            imageReference = imageReference[..lastColon];
+
+        return imageReference;
     }
 
     private static DockerClient CreateClient()
