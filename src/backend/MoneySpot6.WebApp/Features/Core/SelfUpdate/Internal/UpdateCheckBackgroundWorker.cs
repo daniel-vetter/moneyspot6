@@ -27,7 +27,7 @@ public class UpdateCheckBackgroundWorker : BackgroundService
                 return;
             }
 
-            await RunInScope(r => r.CleanupSidecar());
+            await RunInScope(r => r.Cleanup());
 
             while (!stoppingToken.IsCancellationRequested)
             {

@@ -32,7 +32,13 @@ public class SelfUpdateRunner
         _config = config;
     }
 
-    public async Task CleanupSidecar()
+    public async Task Cleanup()
+    {
+        await CleanupSidecar();
+        await CleanupOldImages();
+    }
+
+    private async Task CleanupSidecar()
     {
         try
         {
@@ -58,6 +64,42 @@ public class SelfUpdateRunner
         catch (Exception e)
         {
             _logger.LogError(e, "Failed to clean up update sidecar container.");
+        }
+    }
+
+    /// <summary>
+    /// Removes dangling images left behind by previous self-updates. Pulling a new image moves the
+    /// tag off the old one, leaving it untagged and consuming disk forever. This runs on the same
+    /// trigger as the sidecar cleanup and is self-healing: it removes everything left over, no matter
+    /// how many earlier updates failed to clean up. Best-effort - never fails the update flow.
+    /// </summary>
+    private async Task CleanupOldImages()
+    {
+        try
+        {
+            var inspection = await _dockerService.InspectContainer(Environment.MachineName);
+            var danglingImageIds = await _dockerService.GetDanglingImageIds(inspection.ImageReference);
+
+            foreach (var imageId in danglingImageIds)
+            {
+                // Never touch the image the current container is actually running on.
+                if (imageId == inspection.ImageId)
+                    continue;
+
+                try
+                {
+                    _logger.LogInformation("Removing dangling image {ImageId} left over from a previous update...", imageId);
+                    await _dockerService.RemoveImage(imageId);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Failed to remove dangling image {ImageId}.", imageId);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to clean up old images.");
         }
     }
 

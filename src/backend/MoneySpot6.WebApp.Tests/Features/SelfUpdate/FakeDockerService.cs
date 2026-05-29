@@ -23,6 +23,8 @@ public class FakeDockerService : IDockerService
     public List<string> RemovedContainers { get; } = [];
     public Dictionary<string, string> ContainerLogs { get; } = new();
     public Dictionary<string, (string Label, string Value)> LabeledContainers { get; } = new();
+    public List<string> DanglingImageIds { get; } = [];
+    public List<string> RemovedImages { get; } = [];
 
     public FakeDockerService(
         string imageReference,
@@ -103,6 +105,18 @@ public class FakeDockerService : IDockerService
     {
         RemovedContainers.Add(containerId);
         LabeledContainers.Remove(containerId);
+        return Task.CompletedTask;
+    }
+
+    public Task<ImmutableArray<string>> GetDanglingImageIds(string imageReference)
+    {
+        return Task.FromResult(DanglingImageIds.ToImmutableArray());
+    }
+
+    public Task RemoveImage(string imageId)
+    {
+        RemovedImages.Add(imageId);
+        DanglingImageIds.Remove(imageId);
         return Task.CompletedTask;
     }
 }
