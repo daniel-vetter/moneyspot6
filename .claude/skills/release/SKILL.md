@@ -37,13 +37,14 @@ Run `git status` and `git diff`.
 
 - Find the run for the latest develop commit: `gh run list --branch develop --limit 1 --json databaseId,headSha,status,conclusion`. Confirm `headSha` matches `git rev-parse HEAD`.
 - If no run yet, retry every few seconds — push triggers may take a moment.
-- Once you have the run id, wait for completion. Use `gh run watch <id> --exit-status` (run in background, you get notified on exit).
+- Once you have the run id, wait for completion. You can use `gh run watch <id>` (run in background, you get notified on exit) to wait, but **do NOT trust its exit code** — `gh run watch --exit-status` has been observed to exit 0 even when the run actually failed.
 - Past runs on this repo take ~7-10 minutes — set a generous timeout (~15min).
 
 ### 4. Branch on outcome
 
-- **Build green** (exit 0 / `conclusion == "success"`): proceed to step 5.
-- **Build red / cancelled / timed out**: abort the release.
+- **Always re-read the authoritative result before deciding**, never the `gh run watch` exit code: `gh run view <id> --json status,conclusion --jq '{status,conclusion}'`. Only `status == "completed"` && `conclusion == "success"` counts as green. Anything else (`failure`, `cancelled`, `timed_out`, `startup_failure`, still `in_progress`) is NOT green.
+- **Green**: proceed to step 5.
+- **Not green**: abort the release.
   - Run `gh run view <id> --log-failed` (or `gh run view <id>` for a summary) and surface a concise failure summary to the user (which job, which step, top error lines).
   - Do **not** touch master. Do **not** retry without the user's say-so.
 

@@ -80,12 +80,8 @@ public class UiTestEnvironment
     [OneTimeSetUp]
     public async Task GlobalSetup()
     {
-        var tasks = Enum
-            .GetValues<DbProvider>()
-            .ToDictionary(p => p, StartAspireHost);
-
-        foreach (var (provider, task) in tasks)
-            _environments[provider] = await task;
+        foreach (var provider in Enum.GetValues<DbProvider>())
+            _environments[provider] = await StartAspireHost(provider);
     }
 
     private static async Task<AspireEnvironment> StartAspireHost(DbProvider dbProvider)
