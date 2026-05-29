@@ -749,6 +749,21 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
                     b.ToTable("Rules");
                 });
 
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Simulations");
+                });
+
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationDaySummary", b =>
                 {
                     b.Property<int>("Id")
@@ -800,22 +815,7 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
                     b.ToTable("SimulationLogs");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SimulationModels");
-                });
-
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModelRevision", b =>
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRevision", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -835,7 +835,7 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SimulationModelId")
+                    b.Property<int>("SimulationId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SourceMap")
@@ -844,9 +844,9 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SimulationModelId");
+                    b.HasIndex("SimulationId");
 
-                    b.ToTable("SimulationModelRevisions");
+                    b.ToTable("SimulationRevisions");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationTransaction", b =>
@@ -1138,7 +1138,7 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationDaySummary", b =>
                 {
-                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
+                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationRevision", "Revision")
                         .WithMany()
                         .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1149,7 +1149,7 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationLog", b =>
                 {
-                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
+                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationRevision", "Revision")
                         .WithMany()
                         .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1158,20 +1158,20 @@ namespace MoneySpot6.WebApp.Database.Migrations.SqliteMigrations
                     b.Navigation("Revision");
                 });
 
-            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationModelRevision", b =>
+            modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationRevision", b =>
                 {
-                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModel", "SimulationModel")
+                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulation", "Simulation")
                         .WithMany()
-                        .HasForeignKey("SimulationModelId")
+                        .HasForeignKey("SimulationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SimulationModel");
+                    b.Navigation("Simulation");
                 });
 
             modelBuilder.Entity("MoneySpot6.WebApp.Database.DbSimulationTransaction", b =>
                 {
-                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationModelRevision", "Revision")
+                    b.HasOne("MoneySpot6.WebApp.Database.DbSimulationRevision", "Revision")
                         .WithMany()
                         .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Cascade)

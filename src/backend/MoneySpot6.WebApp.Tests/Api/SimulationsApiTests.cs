@@ -5,23 +5,23 @@ using Shouldly;
 
 namespace MoneySpot6.WebApp.Tests.Api;
 
-public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
+public class SimulationsApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
 {
-    private async Task<DbSimulationModel> CreateTestModel(string name = "Test Simulation", string code = "// test")
+    private async Task<DbSimulation> CreateTestModel(string name = "Test Simulation", string code = "// test")
     {
-        var model = new DbSimulationModel { Name = name };
-        Get<Db>().SimulationModels.Add(model);
+        var model = new DbSimulation { Name = name };
+        Get<Db>().Simulations.Add(model);
         await Get<Db>().SaveChangesAsync();
 
-        var revision = new DbSimulationModelRevision
+        var revision = new DbSimulationRevision
         {
-            SimulationModel = model,
+            Simulation = model,
             CreatedAt = DateTimeOffset.UtcNow,
             OriginalCode = code,
             CompiledCode = "",
             SourceMap = ""
         };
-        Get<Db>().SimulationModelRevisions.Add(revision);
+        Get<Db>().SimulationRevisions.Add(revision);
         await Get<Db>().SaveChangesAsync();
 
         return model;
@@ -30,7 +30,7 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     [Test]
     public async Task GetAll_EmptyDatabase_ReturnsEmptyArray()
     {
-        var result = await Get<SimulationModelsController>().GetAll();
+        var result = await Get<SimulationsController>().GetAll();
 
         result.ShouldBeEmpty();
     }
@@ -41,7 +41,7 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
         await CreateTestModel("Model 1");
         await CreateTestModel("Model 2");
 
-        var result = await Get<SimulationModelsController>().GetAll();
+        var result = await Get<SimulationsController>().GetAll();
 
         result.Length.ShouldBe(2);
     }
@@ -49,7 +49,7 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     [Test]
     public async Task Create_ValidRequest_ReturnsNewModelId()
     {
-        var result = await Get<SimulationModelsController>().Create(new NewSimulationModelRequest
+        var result = await Get<SimulationsController>().Create(new NewSimulationRequest
         {
             Name = "Test Simulation",
             IncludeSampleCode = false
@@ -62,14 +62,14 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     [Test]
     public async Task Create_WithSampleCode_CreatesModelWithCode()
     {
-        var result = await Get<SimulationModelsController>().Create(new NewSimulationModelRequest
+        var result = await Get<SimulationsController>().Create(new NewSimulationRequest
         {
             Name = "Test Simulation",
             IncludeSampleCode = true
         });
 
         var modelId = result.ShouldBeOkObjectResult<int>();
-        var revision = Get<Db>().SimulationModelRevisions.Single(r => r.SimulationModel.Id == modelId);
+        var revision = Get<Db>().SimulationRevisions.Single(r => r.Simulation.Id == modelId);
         revision.OriginalCode.ShouldContain("onInit");
         revision.OriginalCode.ShouldContain("onTick");
     }
@@ -77,13 +77,13 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     [Test]
     public async Task Create_EmptyName_ReturnsBadRequest()
     {
-        var result = await Get<SimulationModelsController>().Create(new NewSimulationModelRequest
+        var result = await Get<SimulationsController>().Create(new NewSimulationRequest
         {
             Name = "",
             IncludeSampleCode = false
         });
 
-        var error = result.ShouldBeBadRequestObjectResult<SimulationModelValidationErrorResponse>();
+        var error = result.ShouldBeBadRequestObjectResult<SimulationValidationErrorResponse>();
         error.MissingName.ShouldBeTrue();
     }
 
@@ -92,13 +92,13 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     {
         await CreateTestModel("Test Simulation");
 
-        var result = await Get<SimulationModelsController>().Create(new NewSimulationModelRequest
+        var result = await Get<SimulationsController>().Create(new NewSimulationRequest
         {
             Name = "Test Simulation",
             IncludeSampleCode = false
         });
 
-        var error = result.ShouldBeBadRequestObjectResult<SimulationModelValidationErrorResponse>();
+        var error = result.ShouldBeBadRequestObjectResult<SimulationValidationErrorResponse>();
         error.NameAlreadyInUse.ShouldBeTrue();
     }
 
@@ -107,9 +107,9 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     {
         var model = await CreateTestModel("Test Simulation", "// my code");
 
-        var result = await Get<SimulationModelsController>().GetById(model.Id);
+        var result = await Get<SimulationsController>().GetById(model.Id);
 
-        var response = result.ShouldBeOkObjectResult<SimulationModelResponse>();
+        var response = result.ShouldBeOkObjectResult<SimulationResponse>();
         response.Name.ShouldBe("Test Simulation");
         response.OriginalCode.ShouldBe("// my code");
         response.LatestRevisionId.ShouldNotBeNull();
@@ -118,7 +118,7 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     [Test]
     public async Task GetById_NonExistingModel_ReturnsNotFound()
     {
-        var result = await Get<SimulationModelsController>().GetById(999);
+        var result = await Get<SimulationsController>().GetById(999);
 
         result.ShouldBeOfType<NotFoundResult>();
     }
@@ -128,7 +128,7 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     {
         var model = await CreateTestModel();
 
-        var result = await Get<SimulationModelsController>().Update(new UpdateSimulationModelRequest
+        var result = await Get<SimulationsController>().Update(new UpdateSimulationRequest
         {
             Id = model.Id,
             OriginalCode = "// updated code",
@@ -138,7 +138,7 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
 
         var revisionId = result.ShouldBeOkObjectResult<int>();
         revisionId.ShouldBeGreaterThan(0);
-        Get<Db>().SimulationModelRevisions.Count(r => r.SimulationModel.Id == model.Id).ShouldBe(2);
+        Get<Db>().SimulationRevisions.Count(r => r.Simulation.Id == model.Id).ShouldBe(2);
     }
 
     [Test]
@@ -146,14 +146,14 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     {
         var model = await CreateTestModel("Original Name");
 
-        var result = await Get<SimulationModelsController>().Rename(new RenameSimulationModelRequest
+        var result = await Get<SimulationsController>().Rename(new RenameSimulationRequest
         {
             Id = model.Id,
             Name = "New Name"
         });
 
         result.ShouldBeOfType<OkResult>();
-        Get<Db>().SimulationModels.Single().Name.ShouldBe("New Name");
+        Get<Db>().Simulations.Single().Name.ShouldBe("New Name");
     }
 
     [Test]
@@ -161,13 +161,13 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     {
         var model = await CreateTestModel();
 
-        var result = await Get<SimulationModelsController>().Rename(new RenameSimulationModelRequest
+        var result = await Get<SimulationsController>().Rename(new RenameSimulationRequest
         {
             Id = model.Id,
             Name = ""
         });
 
-        var error = result.ShouldBeBadRequestObjectResult<SimulationModelValidationErrorResponse>();
+        var error = result.ShouldBeBadRequestObjectResult<SimulationValidationErrorResponse>();
         error.MissingName.ShouldBeTrue();
     }
 
@@ -177,13 +177,13 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
         await CreateTestModel("Existing Name");
         var model = await CreateTestModel("To Rename");
 
-        var result = await Get<SimulationModelsController>().Rename(new RenameSimulationModelRequest
+        var result = await Get<SimulationsController>().Rename(new RenameSimulationRequest
         {
             Id = model.Id,
             Name = "Existing Name"
         });
 
-        var error = result.ShouldBeBadRequestObjectResult<SimulationModelValidationErrorResponse>();
+        var error = result.ShouldBeBadRequestObjectResult<SimulationValidationErrorResponse>();
         error.NameAlreadyInUse.ShouldBeTrue();
     }
 
@@ -192,16 +192,16 @@ public class SimulationModelsApiTests(DbProvider dbProvider) : ApiTest(dbProvide
     {
         var model = await CreateTestModel();
 
-        var result = await Get<SimulationModelsController>().Delete(model.Id);
+        var result = await Get<SimulationsController>().Delete(model.Id);
 
         result.ShouldBeOfType<OkResult>();
-        Get<Db>().SimulationModels.Count().ShouldBe(0);
+        Get<Db>().Simulations.Count().ShouldBe(0);
     }
 
     [Test]
     public async Task Delete_NonExistingModel_ReturnsNotFound()
     {
-        var result = await Get<SimulationModelsController>().Delete(999);
+        var result = await Get<SimulationsController>().Delete(999);
 
         result.ShouldBeOfType<NotFoundResult>();
     }

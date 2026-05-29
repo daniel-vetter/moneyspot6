@@ -80,8 +80,8 @@ public abstract class ApiTest
         await db.Set<DbSimulationLog>().ExecuteDeleteAsync();
         await db.Set<DbSimulationTransaction>().ExecuteDeleteAsync();
         await db.Set<DbSimulationDaySummary>().ExecuteDeleteAsync();
-        await db.Set<DbSimulationModelRevision>().ExecuteDeleteAsync();
-        await db.Set<DbSimulationModel>().ExecuteDeleteAsync();
+        await db.Set<DbSimulationRevision>().ExecuteDeleteAsync();
+        await db.Set<DbSimulation>().ExecuteDeleteAsync();
         await db.Set<DbImportedEmail>().ExecuteDeleteAsync();
         await db.Set<DbEmailSyncStatus>().ExecuteDeleteAsync();
         await db.Set<DbEmailSyncJob>().ExecuteDeleteAsync();

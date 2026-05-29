@@ -11,14 +11,14 @@ namespace MoneySpot6.WebApp.Features.Ui.SimulationPage;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SimulationModelsController : Controller
+public class SimulationsController : Controller
 {
     private readonly Db _db;
     private readonly SimulationRunner _simulationRunner;
     private readonly BalanceProvider _balanceProvider;
     private readonly StockDataProvider _stockDataProvider;
 
-    public SimulationModelsController(Db db, SimulationRunner simulationRunner, BalanceProvider balanceProvider, StockDataProvider stockDataProvider)
+    public SimulationsController(Db db, SimulationRunner simulationRunner, BalanceProvider balanceProvider, StockDataProvider stockDataProvider)
     {
         _db = db;
         _simulationRunner = simulationRunner;
@@ -27,11 +27,11 @@ public class SimulationModelsController : Controller
     }
 
     [HttpGet("GetAll")]
-    [Produces<SimulationModelListItemResponse[]>]
-    public async Task<ImmutableArray<SimulationModelListItemResponse>> GetAll()
+    [Produces<SimulationListItemResponse[]>]
+    public async Task<ImmutableArray<SimulationListItemResponse>> GetAll()
     {
-        return await _db.SimulationModels
-            .Select(m => new SimulationModelListItemResponse
+        return await _db.Simulations
+            .Select(m => new SimulationListItemResponse
             {
                 Id = m.Id,
                 Name = m.Name
@@ -40,21 +40,21 @@ public class SimulationModelsController : Controller
     }
 
     [HttpGet("GetById")]
-    [Produces<SimulationModelResponse>]
+    [Produces<SimulationResponse>]
     public async Task<IActionResult> GetById(int id)
     {
-        var model = await _db.SimulationModels
+        var model = await _db.Simulations
             .SingleOrDefaultAsync(x => x.Id == id);
 
         if (model == null)
             return NotFound();
 
-        var latestRevision = await _db.SimulationModelRevisions
-            .Where(r => r.SimulationModel.Id == id)
+        var latestRevision = await _db.SimulationRevisions
+            .Where(r => r.Simulation.Id == id)
             .OrderByDescending(r => r.CreatedAt)
             .FirstOrDefaultAsync();
 
-        return Ok(new SimulationModelResponse
+        return Ok(new SimulationResponse
         {
             Id = model.Id,
             Name = model.Name,
@@ -65,32 +65,32 @@ public class SimulationModelsController : Controller
 
     [HttpPut("Create")]
     [Produces<int>]
-    [ProducesResponseType<SimulationModelValidationErrorResponse>(400)]
-    public async Task<IActionResult> Create(NewSimulationModelRequest request)
+    [ProducesResponseType<SimulationValidationErrorResponse>(400)]
+    public async Task<IActionResult> Create(NewSimulationRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return BadRequest(new SimulationModelValidationErrorResponse
+            return BadRequest(new SimulationValidationErrorResponse
             {
                 MissingName = true
             });
         }
 
-        var existingWithName = await _db.SimulationModels.AnyAsync(x => x.Name == request.Name);
+        var existingWithName = await _db.Simulations.AnyAsync(x => x.Name == request.Name);
         if (existingWithName)
         {
-            return BadRequest(new SimulationModelValidationErrorResponse
+            return BadRequest(new SimulationValidationErrorResponse
             {
                 NameAlreadyInUse = true
             });
         }
 
-        var model = new DbSimulationModel
+        var model = new DbSimulation
         {
             Name = request.Name
         };
 
-        _db.SimulationModels.Add(model);
+        _db.Simulations.Add(model);
         await _db.SaveChangesAsync();
 
         var initialCode = request.IncludeSampleCode ? $$"""
@@ -168,16 +168,16 @@ public class SimulationModelsController : Controller
         }
         """;
 
-        var revision = new DbSimulationModelRevision
+        var revision = new DbSimulationRevision
         {
-            SimulationModel = model,
+            Simulation = model,
             CreatedAt = DateTimeOffset.UtcNow,
             OriginalCode = initialCode,
             CompiledCode = "",
             SourceMap = ""
         };
 
-        _db.SimulationModelRevisions.Add(revision);
+        _db.SimulationRevisions.Add(revision);
         await _db.SaveChangesAsync();
 
         return Ok(model.Id);
@@ -185,49 +185,49 @@ public class SimulationModelsController : Controller
 
     [HttpPost("Update")]
     [Produces<int>]
-    public async Task<IActionResult> Update(UpdateSimulationModelRequest request)
+    public async Task<IActionResult> Update(UpdateSimulationRequest request)
     {
-        var model = await _db.SimulationModels.FindAsync(request.Id);
+        var model = await _db.Simulations.FindAsync(request.Id);
 
         if (model == null)
             return NotFound();
 
-        var newRevision = new DbSimulationModelRevision
+        var newRevision = new DbSimulationRevision
         {
-            SimulationModel = model,
+            Simulation = model,
             CreatedAt = DateTimeOffset.UtcNow,
             OriginalCode = request.OriginalCode,
             CompiledCode = request.CompiledCode,
             SourceMap = request.SourceMap
         };
 
-        _db.SimulationModelRevisions.Add(newRevision);
+        _db.SimulationRevisions.Add(newRevision);
         await _db.SaveChangesAsync();
 
         return Ok(newRevision.Id);
     }
 
     [HttpPost("Rename")]
-    [ProducesResponseType<SimulationModelValidationErrorResponse>(400)]
-    public async Task<IActionResult> Rename(RenameSimulationModelRequest request)
+    [ProducesResponseType<SimulationValidationErrorResponse>(400)]
+    public async Task<IActionResult> Rename(RenameSimulationRequest request)
     {
-        var model = await _db.SimulationModels.FindAsync(request.Id);
+        var model = await _db.Simulations.FindAsync(request.Id);
 
         if (model == null)
             return NotFound();
 
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return BadRequest(new SimulationModelValidationErrorResponse
+            return BadRequest(new SimulationValidationErrorResponse
             {
                 MissingName = true
             });
         }
 
-        var existingWithName = await _db.SimulationModels.AnyAsync(x => x.Name == request.Name && x.Id != request.Id);
+        var existingWithName = await _db.Simulations.AnyAsync(x => x.Name == request.Name && x.Id != request.Id);
         if (existingWithName)
         {
-            return BadRequest(new SimulationModelValidationErrorResponse
+            return BadRequest(new SimulationValidationErrorResponse
             {
                 NameAlreadyInUse = true
             });
@@ -249,7 +249,7 @@ public class SimulationModelsController : Controller
     [Produces<SimulationRunResultResponse>]
     public async Task<IActionResult> GetRunResult(int revisionId)
     {
-        var revision = await _db.SimulationModelRevisions
+        var revision = await _db.SimulationRevisions
             .SingleOrDefaultAsync(r => r.Id == revisionId);
         if (revision == null) return NotFound();
 
@@ -327,12 +327,12 @@ public class SimulationModelsController : Controller
     [HttpDelete("Delete")]
     public async Task<IActionResult> Delete(int id)
     {
-        var model = await _db.SimulationModels.FindAsync(id);
+        var model = await _db.Simulations.FindAsync(id);
 
         if (model == null)
             return NotFound();
 
-        _db.SimulationModels.Remove(model);
+        _db.Simulations.Remove(model);
         await _db.SaveChangesAsync();
 
         return Ok();
@@ -340,14 +340,14 @@ public class SimulationModelsController : Controller
 }
 
 [PublicAPI]
-public record SimulationModelListItemResponse
+public record SimulationListItemResponse
 {
     [Required] public int Id { get; set; }
     [Required] public required string Name { get; set; }
 }
 
 [PublicAPI]
-public record SimulationModelResponse
+public record SimulationResponse
 {
     [Required] public int Id { get; set; }
     [Required] public required string Name { get; set; }
@@ -356,14 +356,14 @@ public record SimulationModelResponse
 }
 
 [PublicAPI]
-public record NewSimulationModelRequest
+public record NewSimulationRequest
 {
     [Required] public required string Name { get; set; }
     [Required] public required bool IncludeSampleCode { get; set; }
 }
 
 [PublicAPI]
-public record UpdateSimulationModelRequest
+public record UpdateSimulationRequest
 {
     [Required] public required int Id { get; set; }
     [Required] public required string OriginalCode { get; set; }
@@ -372,14 +372,14 @@ public record UpdateSimulationModelRequest
 }
 
 [PublicAPI]
-public record RenameSimulationModelRequest
+public record RenameSimulationRequest
 {
     [Required] public required int Id { get; set; }
     [Required] public required string Name { get; set; }
 }
 
 [PublicAPI]
-public record SimulationModelValidationErrorResponse
+public record SimulationValidationErrorResponse
 {
     [Required] public bool MissingName { get; set; }
     [Required] public bool NameAlreadyInUse { get; set; }

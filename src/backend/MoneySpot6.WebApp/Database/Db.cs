@@ -57,8 +57,8 @@ public class Db : DbContext, IDataProtectionKeyContext
     public DbSet<DbEmailSyncJob> EmailSyncJobs { get; init; }
     public DbSet<DbImportedEmail> ImportedEmails { get; init; }
     public DbSet<DbInflationData> InflationData { get; init; }
-    public DbSet<DbSimulationModel> SimulationModels { get; init; }
-    public DbSet<DbSimulationModelRevision> SimulationModelRevisions { get; init; }
+    public DbSet<DbSimulation> Simulations { get; init; }
+    public DbSet<DbSimulationRevision> SimulationRevisions { get; init; }
     public DbSet<DbSimulationLog> SimulationLogs { get; init; }
     public DbSet<DbSimulationTransaction> SimulationTransactions { get; init; }
     public DbSet<DbSimulationDaySummary> SimulationDaySummaries { get; init; }
@@ -512,18 +512,18 @@ public class DbInflationData
     public DateTimeOffset? ImportedAt { get; set; }
 }
 
-[Table("SimulationModels")]
-public class DbSimulationModel
+[Table("Simulations")]
+public class DbSimulation
 {
     public int Id { get; set; }
     public required string Name { get; set; }
 }
 
-[Table("SimulationModelRevisions")]
-public class DbSimulationModelRevision
+[Table("SimulationRevisions")]
+public class DbSimulationRevision
 {
     public int Id { get; set; }
-    public required DbSimulationModel SimulationModel { get; set; }
+    public required DbSimulation Simulation { get; set; }
     public required DateTimeOffset CreatedAt { get; set; }
     public required string OriginalCode { get; set; }
     public required string CompiledCode { get; set; }
@@ -535,7 +535,7 @@ public class DbSimulationModelRevision
 public class DbSimulationLog
 {
     public int Id { get; set; }
-    public required DbSimulationModelRevision Revision { get; set; }
+    public required DbSimulationRevision Revision { get; set; }
     public required string Message { get; set; }
     public bool IsError { get; set; }
 }
@@ -544,7 +544,7 @@ public class DbSimulationLog
 public class DbSimulationTransaction
 {
     public int Id { get; set; }
-    public required DbSimulationModelRevision Revision { get; set; }
+    public required DbSimulationRevision Revision { get; set; }
     public required DateOnly Date { get; set; }
     public required string Title { get; set; }
     public required decimal Balance { get; set; }
@@ -555,7 +555,7 @@ public class DbSimulationTransaction
 public class DbSimulationDaySummary
 {
     public int Id { get; set; }
-    public required DbSimulationModelRevision Revision { get; set; }
+    public required DbSimulationRevision Revision { get; set; }
     public required DateOnly Date { get; set; }
     public required decimal Balance { get; set; }
     public required decimal Amount { get; set; }

@@ -1462,7 +1462,7 @@ export class StockChartPageClient {
 }
 
 @Injectable({providedIn: 'root'})
-export class SimulationModelsClient {
+export class SimulationsClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -1472,8 +1472,8 @@ export class SimulationModelsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(): Observable<SimulationModelListItemResponse[]> {
-        let url_ = this.baseUrl + "/api/SimulationModels/GetAll";
+    getAll(): Observable<SimulationListItemResponse[]> {
+        let url_ = this.baseUrl + "/api/Simulations/GetAll";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1491,14 +1491,14 @@ export class SimulationModelsClient {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SimulationModelListItemResponse[]>;
+                    return _observableThrow(e) as any as Observable<SimulationListItemResponse[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SimulationModelListItemResponse[]>;
+                return _observableThrow(response_) as any as Observable<SimulationListItemResponse[]>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<SimulationModelListItemResponse[]> {
+    protected processGetAll(response: HttpResponseBase): Observable<SimulationListItemResponse[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1512,7 +1512,7 @@ export class SimulationModelsClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(SimulationModelListItemResponse.fromJS(item));
+                    result200!.push(SimulationListItemResponse.fromJS(item));
             }
             else {
                 result200 = null as any;
@@ -1527,8 +1527,8 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    getById(id: number | undefined): Observable<SimulationModelResponse> {
-        let url_ = this.baseUrl + "/api/SimulationModels/GetById?";
+    getById(id: number | undefined): Observable<SimulationResponse> {
+        let url_ = this.baseUrl + "/api/Simulations/GetById?";
         if (id === null)
             throw new globalThis.Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -1550,14 +1550,14 @@ export class SimulationModelsClient {
                 try {
                     return this.processGetById(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SimulationModelResponse>;
+                    return _observableThrow(e) as any as Observable<SimulationResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SimulationModelResponse>;
+                return _observableThrow(response_) as any as Observable<SimulationResponse>;
         }));
     }
 
-    protected processGetById(response: HttpResponseBase): Observable<SimulationModelResponse> {
+    protected processGetById(response: HttpResponseBase): Observable<SimulationResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1568,7 +1568,7 @@ export class SimulationModelsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = SimulationModelResponse.fromJS(resultData200);
+            result200 = SimulationResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1579,8 +1579,8 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    create(request: NewSimulationModelRequest): Observable<number> {
-        let url_ = this.baseUrl + "/api/SimulationModels/Create";
+    create(request: NewSimulationRequest): Observable<number> {
+        let url_ = this.baseUrl + "/api/Simulations/Create";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(request);
@@ -1628,7 +1628,7 @@ export class SimulationModelsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = SimulationModelValidationErrorResponse.fromJS(resultData400);
+            result400 = SimulationValidationErrorResponse.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1639,8 +1639,8 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    update(request: UpdateSimulationModelRequest): Observable<number> {
-        let url_ = this.baseUrl + "/api/SimulationModels/Update";
+    update(request: UpdateSimulationRequest): Observable<number> {
+        let url_ = this.baseUrl + "/api/Simulations/Update";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(request);
@@ -1692,8 +1692,8 @@ export class SimulationModelsClient {
         return _observableOf(null as any);
     }
 
-    rename(request: RenameSimulationModelRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/SimulationModels/Rename";
+    rename(request: RenameSimulationRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/Simulations/Rename";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(request);
@@ -1732,7 +1732,7 @@ export class SimulationModelsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = SimulationModelValidationErrorResponse.fromJS(resultData400);
+            result400 = SimulationValidationErrorResponse.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1744,7 +1744,7 @@ export class SimulationModelsClient {
     }
 
     run(revisionId: number | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/SimulationModels/Run?";
+        let url_ = this.baseUrl + "/api/Simulations/Run?";
         if (revisionId === null)
             throw new globalThis.Error("The parameter 'revisionId' cannot be null.");
         else if (revisionId !== undefined)
@@ -1792,7 +1792,7 @@ export class SimulationModelsClient {
     }
 
     getRunResult(revisionId: number | undefined): Observable<SimulationRunResultResponse> {
-        let url_ = this.baseUrl + "/api/SimulationModels/GetRunResult?";
+        let url_ = this.baseUrl + "/api/Simulations/GetRunResult?";
         if (revisionId === null)
             throw new globalThis.Error("The parameter 'revisionId' cannot be null.");
         else if (revisionId !== undefined)
@@ -1844,7 +1844,7 @@ export class SimulationModelsClient {
     }
 
     delete(id: number | undefined): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/SimulationModels/Delete?";
+        let url_ = this.baseUrl + "/api/Simulations/Delete?";
         if (id === null)
             throw new globalThis.Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -6061,11 +6061,11 @@ export enum StockPriceInterval {
     Daily = 1440,
 }
 
-export class SimulationModelListItemResponse implements ISimulationModelListItemResponse {
+export class SimulationListItemResponse implements ISimulationListItemResponse {
     id!: number;
     name!: string;
 
-    constructor(data?: ISimulationModelListItemResponse) {
+    constructor(data?: ISimulationListItemResponse) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6081,9 +6081,9 @@ export class SimulationModelListItemResponse implements ISimulationModelListItem
         }
     }
 
-    static fromJS(data: any): SimulationModelListItemResponse {
+    static fromJS(data: any): SimulationListItemResponse {
         data = typeof data === 'object' ? data : {};
-        let result = new SimulationModelListItemResponse();
+        let result = new SimulationListItemResponse();
         result.init(data);
         return result;
     }
@@ -6096,18 +6096,18 @@ export class SimulationModelListItemResponse implements ISimulationModelListItem
     }
 }
 
-export interface ISimulationModelListItemResponse {
+export interface ISimulationListItemResponse {
     id: number;
     name: string;
 }
 
-export class SimulationModelResponse implements ISimulationModelResponse {
+export class SimulationResponse implements ISimulationResponse {
     id!: number;
     name!: string;
     latestRevisionId?: number | undefined;
     originalCode!: string;
 
-    constructor(data?: ISimulationModelResponse) {
+    constructor(data?: ISimulationResponse) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6125,9 +6125,9 @@ export class SimulationModelResponse implements ISimulationModelResponse {
         }
     }
 
-    static fromJS(data: any): SimulationModelResponse {
+    static fromJS(data: any): SimulationResponse {
         data = typeof data === 'object' ? data : {};
-        let result = new SimulationModelResponse();
+        let result = new SimulationResponse();
         result.init(data);
         return result;
     }
@@ -6142,18 +6142,18 @@ export class SimulationModelResponse implements ISimulationModelResponse {
     }
 }
 
-export interface ISimulationModelResponse {
+export interface ISimulationResponse {
     id: number;
     name: string;
     latestRevisionId?: number | undefined;
     originalCode: string;
 }
 
-export class SimulationModelValidationErrorResponse implements ISimulationModelValidationErrorResponse {
+export class SimulationValidationErrorResponse implements ISimulationValidationErrorResponse {
     missingName!: boolean;
     nameAlreadyInUse!: boolean;
 
-    constructor(data?: ISimulationModelValidationErrorResponse) {
+    constructor(data?: ISimulationValidationErrorResponse) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6169,9 +6169,9 @@ export class SimulationModelValidationErrorResponse implements ISimulationModelV
         }
     }
 
-    static fromJS(data: any): SimulationModelValidationErrorResponse {
+    static fromJS(data: any): SimulationValidationErrorResponse {
         data = typeof data === 'object' ? data : {};
-        let result = new SimulationModelValidationErrorResponse();
+        let result = new SimulationValidationErrorResponse();
         result.init(data);
         return result;
     }
@@ -6184,16 +6184,16 @@ export class SimulationModelValidationErrorResponse implements ISimulationModelV
     }
 }
 
-export interface ISimulationModelValidationErrorResponse {
+export interface ISimulationValidationErrorResponse {
     missingName: boolean;
     nameAlreadyInUse: boolean;
 }
 
-export class NewSimulationModelRequest implements INewSimulationModelRequest {
+export class NewSimulationRequest implements INewSimulationRequest {
     name!: string;
     includeSampleCode!: boolean;
 
-    constructor(data?: INewSimulationModelRequest) {
+    constructor(data?: INewSimulationRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6209,9 +6209,9 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
         }
     }
 
-    static fromJS(data: any): NewSimulationModelRequest {
+    static fromJS(data: any): NewSimulationRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new NewSimulationModelRequest();
+        let result = new NewSimulationRequest();
         result.init(data);
         return result;
     }
@@ -6224,18 +6224,18 @@ export class NewSimulationModelRequest implements INewSimulationModelRequest {
     }
 }
 
-export interface INewSimulationModelRequest {
+export interface INewSimulationRequest {
     name: string;
     includeSampleCode: boolean;
 }
 
-export class UpdateSimulationModelRequest implements IUpdateSimulationModelRequest {
+export class UpdateSimulationRequest implements IUpdateSimulationRequest {
     id!: number;
     originalCode!: string;
     compiledCode!: string;
     sourceMap!: string;
 
-    constructor(data?: IUpdateSimulationModelRequest) {
+    constructor(data?: IUpdateSimulationRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6253,9 +6253,9 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
         }
     }
 
-    static fromJS(data: any): UpdateSimulationModelRequest {
+    static fromJS(data: any): UpdateSimulationRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new UpdateSimulationModelRequest();
+        let result = new UpdateSimulationRequest();
         result.init(data);
         return result;
     }
@@ -6270,18 +6270,18 @@ export class UpdateSimulationModelRequest implements IUpdateSimulationModelReque
     }
 }
 
-export interface IUpdateSimulationModelRequest {
+export interface IUpdateSimulationRequest {
     id: number;
     originalCode: string;
     compiledCode: string;
     sourceMap: string;
 }
 
-export class RenameSimulationModelRequest implements IRenameSimulationModelRequest {
+export class RenameSimulationRequest implements IRenameSimulationRequest {
     id!: number;
     name!: string;
 
-    constructor(data?: IRenameSimulationModelRequest) {
+    constructor(data?: IRenameSimulationRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6297,9 +6297,9 @@ export class RenameSimulationModelRequest implements IRenameSimulationModelReque
         }
     }
 
-    static fromJS(data: any): RenameSimulationModelRequest {
+    static fromJS(data: any): RenameSimulationRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new RenameSimulationModelRequest();
+        let result = new RenameSimulationRequest();
         result.init(data);
         return result;
     }
@@ -6312,7 +6312,7 @@ export class RenameSimulationModelRequest implements IRenameSimulationModelReque
     }
 }
 
-export interface IRenameSimulationModelRequest {
+export interface IRenameSimulationRequest {
     id: number;
     name: string;
 }
