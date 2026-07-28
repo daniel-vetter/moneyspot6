@@ -32,6 +32,7 @@ export class SystemComponent implements OnInit {
     gateEnabled = false;
     gateSaving = signal(false);
     gateSaved = signal(false);
+    gateError = signal('');
 
     async onCheckForUpdateClicked() {
         this.isChecking = true;
@@ -91,8 +92,15 @@ export class SystemComponent implements OnInit {
     }
 
     async onSaveGateClicked(): Promise<void> {
-        this.gateSaving.set(true);
         this.gateSaved.set(false);
+        this.gateError.set('');
+
+        if (this.gateEnabled && !this.gateUrl.trim()) {
+            this.gateError.set('Bitte geben Sie eine Prüf-URL an, wenn die Zugriffssperre aktiv ist.');
+            return;
+        }
+
+        this.gateSaving.set(true);
         try {
             await lastValueFrom(this.systemClient.setGateConfig(new SetGateConfigRequest({
                 url: this.gateUrl.trim(),

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using MoneySpot6.WebApp.Features.Core.Gate;
 using MoneySpot6.WebApp.Features.Ui.AppState;
 using MoneySpot6.WebApp.Features.Ui.System;
@@ -39,6 +40,38 @@ public class GateApiTests(DbProvider dbProvider) : ApiTest(dbProvider)
         var state = result.ShouldBeOkObjectResult<MoneySpot6.WebApp.Features.Ui.AppState.AppState>();
         state.Blocked.ShouldBeFalse();
         state.BlockMessage.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task SetGateConfig_DisabledWithoutUrl_Succeeds()
+    {
+        var result = await Get<SystemController>().SetGateConfig(new SetGateConfigRequest
+        {
+            Url = "",
+            Enabled = false
+        });
+
+        result.ShouldBeOfType<OkResult>();
+        var config = await Get<SystemController>().GetGateConfig();
+        config.Url.ShouldBe("");
+        config.Enabled.ShouldBeFalse();
+    }
+
+    [Test]
+    public async Task SetGateConfig_EnabledWithoutUrl_ReturnsMissingUrlError()
+    {
+        var result = await Get<SystemController>().SetGateConfig(new SetGateConfigRequest
+        {
+            Url = "  ",
+            Enabled = true
+        });
+
+        var error = result.ShouldBeBadRequestObjectResult<SetGateConfigValidationErrorResponse>();
+        error.MissingUrl.ShouldBeTrue();
+
+        // Nothing must have been persisted.
+        var config = await Get<SystemController>().GetGateConfig();
+        config.Enabled.ShouldBeFalse();
     }
 
     [Test]

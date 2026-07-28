@@ -85,9 +85,20 @@ public class SystemController : Controller
     }
 
     [HttpPost("SetGateConfig")]
-    public async Task SetGateConfig(SetGateConfigRequest request)
+    [ProducesResponseType(200)]
+    [ProducesResponseType<SetGateConfigValidationErrorResponse>(400)]
+    public async Task<IActionResult> SetGateConfig(SetGateConfigRequest request)
     {
+        if (request.Enabled && string.IsNullOrWhiteSpace(request.Url))
+        {
+            return BadRequest(new SetGateConfigValidationErrorResponse
+            {
+                MissingUrl = true
+            });
+        }
+
         await _gateService.SetConfig(request.Url, request.Enabled);
+        return Ok();
     }
 }
 
@@ -109,6 +120,14 @@ public record GateConfigResponse([property: Required] string Url, [property: Req
 [PublicAPI]
 public record SetGateConfigRequest
 {
-    [Required] public required string Url { get; init; }
+    // AllowEmptyStrings: an empty URL is valid while the gate is disabled;
+    // the conditional requirement is enforced in the action.
+    [Required(AllowEmptyStrings = true)] public required string Url { get; init; }
     [Required] public required bool Enabled { get; init; }
+}
+
+[PublicAPI]
+public class SetGateConfigValidationErrorResponse
+{
+    public bool MissingUrl { get; init; }
 }

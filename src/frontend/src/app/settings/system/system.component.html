@@ -105,6 +105,9 @@
                 @if (gateSaved()) {
                     <p-message severity="success" text="Gespeichert" variant="simple" size="small" />
                 }
+                @if (gateError()) {
+                    <p-message severity="error" [text]="gateError()" variant="simple" size="small" />
+                }
             </div>
         </div>
     </p-panel>

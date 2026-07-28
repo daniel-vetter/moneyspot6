@@ -724,6 +724,13 @@ export class SystemClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = SetGateConfigValidationErrorResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5376,6 +5383,42 @@ export class GateConfigResponse implements IGateConfigResponse {
 export interface IGateConfigResponse {
     url: string;
     enabled: boolean;
+}
+
+export class SetGateConfigValidationErrorResponse implements ISetGateConfigValidationErrorResponse {
+    missingUrl?: boolean;
+
+    constructor(data?: ISetGateConfigValidationErrorResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.missingUrl = _data["missingUrl"];
+        }
+    }
+
+    static fromJS(data: any): SetGateConfigValidationErrorResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetGateConfigValidationErrorResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["missingUrl"] = this.missingUrl;
+        return data;
+    }
+}
+
+export interface ISetGateConfigValidationErrorResponse {
+    missingUrl?: boolean;
 }
 
 export class SetGateConfigRequest implements ISetGateConfigRequest {
