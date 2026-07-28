@@ -1,5 +1,7 @@
 @if (isLoggedIn) {
-    @if (appStateService.isFirstSetupDone()) {
+    @if (appStateService.blocked()) {
+        <div class="blocked-screen">{{ appStateService.blockMessage() || 'Die Anwendung ist derzeit nicht verfügbar.' }}</div>
+    } @else if (appStateService.isFirstSetupDone()) {
         <app-particles-background />
         <div class="flex-col" style="width: 100%; flex: 1">
             <div class="only-mobile">

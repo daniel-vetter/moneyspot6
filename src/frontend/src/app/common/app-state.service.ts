@@ -14,6 +14,8 @@ export class AppStateService {
     });
 
     isFirstSetupDone = computed(() => this.state().isFirstSetupDone);
+    blocked = computed(() => this.state().blocked);
+    blockMessage = computed(() => this.state().blockMessage);
 
     async init(): Promise<void> {
         const state = await lastValueFrom(this.appStateClient.get());

@@ -635,6 +635,102 @@ export class SystemClient {
         }
         return _observableOf(null as any);
     }
+
+    getGateConfig(): Observable<GateConfigResponse> {
+        let url_ = this.baseUrl + "/api/System/GetGateConfig";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetGateConfig(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetGateConfig(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GateConfigResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GateConfigResponse>;
+        }));
+    }
+
+    protected processGetGateConfig(response: HttpResponseBase): Observable<GateConfigResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GateConfigResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    setGateConfig(request: SetGateConfigRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/System/SetGateConfig";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSetGateConfig(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSetGateConfig(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSetGateConfig(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({providedIn: 'root'})
@@ -5242,6 +5338,86 @@ export interface IUpdateLogEntry {
     log?: string;
 }
 
+export class GateConfigResponse implements IGateConfigResponse {
+    url!: string;
+    enabled!: boolean;
+
+    constructor(data?: IGateConfigResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.url = _data["url"];
+            this.enabled = _data["enabled"];
+        }
+    }
+
+    static fromJS(data: any): GateConfigResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GateConfigResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["url"] = this.url;
+        data["enabled"] = this.enabled;
+        return data;
+    }
+}
+
+export interface IGateConfigResponse {
+    url: string;
+    enabled: boolean;
+}
+
+export class SetGateConfigRequest implements ISetGateConfigRequest {
+    url!: string;
+    enabled!: boolean;
+
+    constructor(data?: ISetGateConfigRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.url = _data["url"];
+            this.enabled = _data["enabled"];
+        }
+    }
+
+    static fromJS(data: any): SetGateConfigRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetGateConfigRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["url"] = this.url;
+        data["enabled"] = this.enabled;
+        return data;
+    }
+}
+
+export interface ISetGateConfigRequest {
+    url: string;
+    enabled: boolean;
+}
+
 export class BankAccountSummaryResponse implements IBankAccountSummaryResponse {
     accounts!: BankAccountEntrySummaryResponse[];
     total!: number;
@@ -8885,6 +9061,8 @@ export enum AuthMode {
 
 export class AppState implements IAppState {
     isFirstSetupDone!: boolean;
+    blocked!: boolean;
+    blockMessage?: string | undefined;
 
     constructor(data?: IAppState) {
         if (data) {
@@ -8898,6 +9076,8 @@ export class AppState implements IAppState {
     init(_data?: any) {
         if (_data) {
             this.isFirstSetupDone = _data["isFirstSetupDone"];
+            this.blocked = _data["blocked"];
+            this.blockMessage = _data["blockMessage"];
         }
     }
 
@@ -8911,12 +9091,16 @@ export class AppState implements IAppState {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["isFirstSetupDone"] = this.isFirstSetupDone;
+        data["blocked"] = this.blocked;
+        data["blockMessage"] = this.blockMessage;
         return data;
     }
 }
 
 export interface IAppState {
     isFirstSetupDone: boolean;
+    blocked: boolean;
+    blockMessage?: string | undefined;
 }
 
 export class CompleteFirstSetupRequest implements ICompleteFirstSetupRequest {

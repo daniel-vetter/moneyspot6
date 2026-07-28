@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Core.AccountSync.FinTs.Adapter;
+using MoneySpot6.WebApp.Features.Core.Gate;
 using MoneySpot6.WebApp.Features.Ui.InflationData.Import;
 using MoneySpot6.WebApp.Features.Ui.Stocks.PriceImport.YahooAdapter;
 using System.Data.Common;
@@ -19,6 +20,7 @@ public static class Module
             x.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
         });
         services.AddHttpClient("ghcr");
+        services.AddHttpClient<GateService>(x => x.Timeout = TimeSpan.FromSeconds(5));
         services.Configure<MailIntegrationOptions>(configuration.GetSection("MailIntegration"));
         services.Configure<InflationImportOptions>(configuration.GetSection("InflationImport"));
         services.Configure<HbciAdapterOptions>(configuration.GetSection("HbciAdapter"));

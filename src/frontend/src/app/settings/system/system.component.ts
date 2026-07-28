@@ -1,7 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { AppDetails, SystemClient, SetAutoUpdateRequest } from '../../server';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { AppDetails, SystemClient, SetAutoUpdateRequest, SetGateConfigRequest } from '../../server';
 import { ButtonModule } from 'primeng/button';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { FormsModule } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
 import { PanelModule } from 'primeng/panel';
@@ -14,7 +16,7 @@ import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-system',
-    imports: [ButtonModule, PanelModule, TooltipModule, ToggleSwitchModule, FormsModule, DatePipe],
+    imports: [ButtonModule, PanelModule, TooltipModule, ToggleSwitchModule, InputTextModule, MessageModule, FormsModule, DatePipe],
     templateUrl: './system.component.html',
     styleUrl: './system.component.scss'
 })
@@ -25,6 +27,11 @@ export class SystemComponent implements OnInit {
 
     appDetails?: AppDetails;
     isChecking = false;
+
+    gateUrl = '';
+    gateEnabled = false;
+    gateSaving = signal(false);
+    gateSaved = signal(false);
 
     async onCheckForUpdateClicked() {
         this.isChecking = true;
@@ -83,8 +90,26 @@ export class SystemComponent implements OnInit {
         }, 2000);
     }
 
+    async onSaveGateClicked(): Promise<void> {
+        this.gateSaving.set(true);
+        this.gateSaved.set(false);
+        try {
+            await lastValueFrom(this.systemClient.setGateConfig(new SetGateConfigRequest({
+                url: this.gateUrl.trim(),
+                enabled: this.gateEnabled
+            })));
+            this.gateSaved.set(true);
+        } finally {
+            this.gateSaving.set(false);
+        }
+    }
+
     async ngOnInit(): Promise<void> {
         this.appDetails = await lastValueFrom(this.systemClient.getAppDetails());
         await this.updateState.refresh();
+
+        const gateConfig = await lastValueFrom(this.systemClient.getGateConfig());
+        this.gateUrl = gateConfig.url;
+        this.gateEnabled = gateConfig.enabled;
     }
 }

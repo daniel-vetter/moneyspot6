@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using MoneySpot6.WebApp.Features.Core.Config;
+using MoneySpot6.WebApp.Features.Core.Gate;
 using MoneySpot6.WebApp.Features.Core.SampleData;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,11 +15,13 @@ public class AppStateController : Controller
 
     private readonly KeyValueConfiguration _config;
     private readonly SampleDataSeeder _sampleDataSeeder;
+    private readonly GateService _gateService;
 
-    public AppStateController(KeyValueConfiguration config, SampleDataSeeder sampleDataSeeder)
+    public AppStateController(KeyValueConfiguration config, SampleDataSeeder sampleDataSeeder, GateService gateService)
     {
         _config = config;
         _sampleDataSeeder = sampleDataSeeder;
+        _gateService = gateService;
     }
 
     [HttpGet("Get")]
@@ -26,7 +29,8 @@ public class AppStateController : Controller
     public async Task<IActionResult> Get()
     {
         var isFirstSetupDone = await _config.Get(IsFirstSetupDoneConfigKey, false);
-        return Ok(new AppState(isFirstSetupDone));
+        var gate = await _gateService.Check();
+        return Ok(new AppState(isFirstSetupDone, gate.Blocked, gate.Message));
     }
 
     [HttpPost("CompleteFirstSetup")]
@@ -40,7 +44,10 @@ public class AppStateController : Controller
 }
 
 [PublicAPI]
-public record AppState([property: Required] bool IsFirstSetupDone);
+public record AppState(
+    [property: Required] bool IsFirstSetupDone,
+    [property: Required] bool Blocked,
+    string? BlockMessage);
 
 [PublicAPI]
 public record CompleteFirstSetupRequest

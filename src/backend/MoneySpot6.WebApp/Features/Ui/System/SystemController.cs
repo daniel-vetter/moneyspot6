@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Core.Gate;
 using MoneySpot6.WebApp.Features.Core.SelfUpdate;
 
 namespace MoneySpot6.WebApp.Features.Ui.System;
@@ -15,11 +16,13 @@ public class SystemController : Controller
 {
     private readonly Db _db;
     private readonly SelfUpdateFacade _selfUpdateFacade;
+    private readonly GateService _gateService;
 
-    public SystemController(Db db, SelfUpdateFacade selfUpdateFacade)
+    public SystemController(Db db, SelfUpdateFacade selfUpdateFacade, GateService gateService)
     {
         _db = db;
         _selfUpdateFacade = selfUpdateFacade;
+        _gateService = gateService;
     }
 
     [HttpGet("GetAppDetails")]
@@ -73,6 +76,19 @@ public class SystemController : Controller
             .Select(x => new UpdateLogEntry(x.Id, x.CreatedAt, x.Log))
             .ToListAsync()];
     }
+
+    [HttpGet("GetGateConfig")]
+    public async Task<GateConfigResponse> GetGateConfig()
+    {
+        var config = await _gateService.GetConfig();
+        return new GateConfigResponse(config.Url, config.Enabled);
+    }
+
+    [HttpPost("SetGateConfig")]
+    public async Task SetGateConfig(SetGateConfigRequest request)
+    {
+        await _gateService.SetConfig(request.Url, request.Enabled);
+    }
 }
 
 [PublicAPI]
@@ -84,5 +100,15 @@ public record UpdateLogEntry(int Id, DateTimeOffset CreatedAt, string Log);
 [PublicAPI]
 public record SetAutoUpdateRequest
 {
+    [Required] public required bool Enabled { get; init; }
+}
+
+[PublicAPI]
+public record GateConfigResponse([property: Required] string Url, [property: Required] bool Enabled);
+
+[PublicAPI]
+public record SetGateConfigRequest
+{
+    [Required] public required string Url { get; init; }
     [Required] public required bool Enabled { get; init; }
 }
