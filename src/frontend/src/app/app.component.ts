@@ -34,8 +34,10 @@ export class AppComponent implements OnInit {
             return;
         }
         await this.appStateService.init();
-        await this.updateState.init();
-        await this.emailSyncState.init();
+        if (!this.appStateService.blocked()) {
+            await this.updateState.init();
+            await this.emailSyncState.init();
+        }
         this.isLoggedIn = true;
     }
 }

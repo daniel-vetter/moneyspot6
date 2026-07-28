@@ -73,4 +73,39 @@
             </div>
         }
     </p-panel>
+
+    <p-panel>
+        <ng-template pTemplate="header">
+            <div class="panel-header">
+                <h1>Zugriffssperre</h1>
+            </div>
+        </ng-template>
+
+        <p class="gate-intro">
+            Ist die Sperre aktiv, kann die Anwendung über die angegebene URL aus der Ferne gesperrt werden.
+            Im Sperrfall sehen Nutzer nur eine kurze Meldung. Ist die URL nicht erreichbar, bleibt die
+            Anwendung normal nutzbar.
+        </p>
+
+        <div class="gate-form">
+            <div class="gate-row">
+                <p-toggleswitch inputId="gate-enabled" [(ngModel)]="gateEnabled" />
+                <label for="gate-enabled">Zugriffssperre aktiv</label>
+            </div>
+
+            <div class="gate-field">
+                <label for="gate-url">Prüf-URL</label>
+                <input id="gate-url" type="text" pInputText [(ngModel)]="gateUrl"
+                       name="gate-url" autocomplete="off" data-1p-ignore data-lpignore="true"
+                       placeholder="https://example.com/moneyspot-gate" style="width: 100%" />
+            </div>
+
+            <div class="gate-actions">
+                <p-button label="Speichern" (onClick)="onSaveGateClicked()" [loading]="gateSaving()" />
+                @if (gateSaved()) {
+                    <p-message severity="success" text="Gespeichert" variant="simple" size="small" />
+                }
+            </div>
+        </div>
+    </p-panel>
 </div>
