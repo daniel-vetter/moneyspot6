@@ -12,6 +12,7 @@ import { SearchBarComponent } from '../common/search-bar/search-bar.component';
 import { ViewGrouping, GroupingBarComponent } from '../common/grouping-bar/grouping-bar.component';
 import { TransactionDetailsDialogComponent } from './transaction-details-dialog/transaction-details-dialog.component';
 import { InflationAdjustmentDialogComponent } from './inflation-adjustment-dialog/inflation-adjustment-dialog.component';
+import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { AppEvents } from '../app-events';
@@ -203,6 +204,12 @@ export class TransactionsComponent implements OnInit {
             case TransactionType.Refund: return '#FFB74D';
             default: return (amount ?? 0) >= 0 ? '#81C784' : '#E57373';
         }
+    }
+
+    openExportDialog() {
+        this.modalDialogService.open(ExportDialogComponent, {
+            focusOnShow: false
+        });
     }
 
     async toggleInflationAdjustment() {

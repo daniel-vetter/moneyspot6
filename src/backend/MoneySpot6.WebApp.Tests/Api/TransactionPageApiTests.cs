@@ -1,3 +1,5 @@
+using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using MoneySpot6.WebApp.Database;
 using MoneySpot6.WebApp.Features.Ui.TransactionPage;
 using Shouldly;
@@ -113,5 +115,77 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
         var result = await Get<TransactionPageController>().GetTransactions("nonexistent", null, null, null);
 
         result.ShouldBeOkObjectResult<TransactionResponse>().Entries.ShouldBeEmpty();
+    }
+
+    private async Task<string[]> ExportCsvLines(bool includeRaw, bool includeFinal)
+    {
+        var result = await Get<TransactionPageController>().Export(includeRaw, includeFinal);
+
+        var file = result.ShouldBeOfType<FileContentResult>();
+        file.ContentType.ShouldBe("text/csv");
+
+        var text = Encoding.UTF8.GetString(file.FileContents);
+        text.ShouldStartWith("\uFEFF"); // UTF-8 BOM so Excel detects the encoding
+        return text.TrimStart('\uFEFF').Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    [Test]
+    public async Task Export_FinalOnly_ContainsFinalColumnsButNoRawColumns()
+    {
+        var account = await CreateAccount();
+        await AddTransaction(account, finalName: "Amazon", finalPurpose: "Order 123");
+
+        var lines = await ExportCsvLines(includeRaw: false, includeFinal: true);
+
+        lines.Length.ShouldBe(2);
+        lines[0].ShouldStartWith("Id;Account;Currency;Source;Final.Date;Final.Name;Final.Purpose;Final.Amount");
+        lines[0].ShouldNotContain("Raw.");
+        lines[1].ShouldContain("Test Account;EUR;test;");
+        lines[1].ShouldContain(";Amazon;Order 123;-10");
+    }
+
+    [Test]
+    public async Task Export_RawOnly_ContainsRawColumnsButNoFinalColumns()
+    {
+        var account = await CreateAccount();
+        await AddTransaction(account, finalName: "Amazon", finalPurpose: "Order 123");
+
+        var lines = await ExportCsvLines(includeRaw: true, includeFinal: false);
+
+        lines[0].ShouldContain("Raw.Date;Raw.Amount;Raw.Purpose");
+        lines[0].ShouldNotContain("Final.");
+        lines[1].ShouldNotContain("Amazon");
+    }
+
+    [Test]
+    public async Task Export_Both_ContainsBothColumnGroups()
+    {
+        var account = await CreateAccount();
+        await AddTransaction(account, finalName: "Amazon", finalPurpose: "Order 123");
+
+        var lines = await ExportCsvLines(includeRaw: true, includeFinal: true);
+
+        lines[0].ShouldContain("Final.Date");
+        lines[0].ShouldContain("Raw.Date");
+    }
+
+    [Test]
+    public async Task Export_ValuesWithSeparatorAndQuotes_AreEscaped()
+    {
+        var account = await CreateAccount();
+        await AddTransaction(account, finalName: "Some;Name", finalPurpose: "He said \"hi\"");
+
+        var lines = await ExportCsvLines(includeRaw: false, includeFinal: true);
+
+        lines[1].ShouldContain("\"Some;Name\"");
+        lines[1].ShouldContain("\"He said \"\"hi\"\"\"");
+    }
+
+    [Test]
+    public async Task Export_NothingSelected_ReturnsBadRequest()
+    {
+        var result = await Get<TransactionPageController>().Export(includeRaw: false, includeFinal: false);
+
+        result.ShouldBeOfType<BadRequestResult>();
     }
 }

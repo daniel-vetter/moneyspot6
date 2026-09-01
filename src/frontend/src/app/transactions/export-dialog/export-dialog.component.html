@@ -1,0 +1,31 @@
+<div style="display: flex; flex-direction: column; height: 100%;">
+    <div class="vertical" style="gap: 1rem; flex: 1;">
+        <p>
+            Exportiert alle Transaktionen als CSV-Datei. Wählen Sie, welche Daten enthalten sein sollen.
+        </p>
+
+        <div class="option">
+            <p-checkbox [(ngModel)]="includeFinal" [binary]="true" inputId="include-final"></p-checkbox>
+            <label for="include-final">
+                <span class="title">Finale Daten</span>
+                <span class="hint">Aufbereitete Werte, wie sie in der Anwendung angezeigt werden</span>
+            </label>
+        </div>
+
+        <div class="option">
+            <p-checkbox [(ngModel)]="includeRaw" [binary]="true" inputId="include-raw"></p-checkbox>
+            <label for="include-raw">
+                <span class="title">Rohdaten</span>
+                <span class="hint">Unveränderte Daten, wie sie von der Bank importiert wurden</span>
+            </label>
+        </div>
+    </div>
+
+    <div style="padding-top: 1rem">
+        <div class="horizontal">
+            <div class="spacer"></div>
+            <p-button [outlined]="true" [style]="{ 'min-width': '100px' }" (click)="onCancelClicked()" [disabled]="isExporting" label="Abbrechen"></p-button>
+            <p-button [style]="{ 'min-width': '120px' }" [disabled]="!isValid()" [loading]="isExporting" (click)="onExportClicked()" label="Exportieren" data-testid="export-button"></p-button>
+        </div>
+    </div>
+</div>
