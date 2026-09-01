@@ -59,11 +59,13 @@ public static class McpModule
     /// </summary>
     public static AuthenticationBuilder AddMcpAuthentication(this AuthenticationBuilder builder, IConfiguration configuration)
     {
-        // Everything is derived from the existing auth config: the authorization server is the OIDC provider
-        // (Auth:Authority), and the MCP resource (= expected token audience) is the public /mcp URL under Domain.
+        // The MCP client is its own Authentik application (public + PKCE), so its issuer differs from the UI's
+        // Auth:Authority — point at it via Mcp:Authority (falls back to Auth:Authority if you run a shared issuer).
+        // The MCP resource identifier is the public /mcp URL under Domain.
         // Fail soft: if either is missing, skip MCP auth rather than crash startup — MapMoneySpotMcp then leaves
         // /mcp unmapped.
-        var authority = configuration.GetValue<string>("Auth:Authority");
+        var authority = configuration.GetValue<string>("Mcp:Authority")
+            ?? configuration.GetValue<string>("Auth:Authority");
         var domain = configuration.GetValue<string>("Domain");
         if (string.IsNullOrWhiteSpace(authority) || string.IsNullOrWhiteSpace(domain))
             return builder;
@@ -77,10 +79,11 @@ public static class McpModule
             .AddJwtBearer(options =>
             {
                 // JwtBearer lazily fetches the OIDC metadata/JWKS from the authority on first token validation.
+                // Validate issuer + signature; audience validation is intentionally off — for a small self-hosted
+                // deployment, trusting any token from our own Authentik is an acceptable simplification.
                 options.Authority = authority;
-                options.Audience = resource;
                 options.TokenValidationParameters.ValidateIssuer = true;
-                options.TokenValidationParameters.ValidateAudience = true;
+                options.TokenValidationParameters.ValidateAudience = false;
             })
             .AddMcp(options =>
             {
