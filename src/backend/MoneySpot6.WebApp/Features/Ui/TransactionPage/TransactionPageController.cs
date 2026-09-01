@@ -30,7 +30,7 @@ public class TransactionPageController : Controller
     }
 
     [HttpGet]
-    [McpTool(Description = "Lists bank account transactions, newest first. Optional filters: a case-insensitive text search over transaction name and purpose, and a date range (startDate inclusive, endDate exclusive, both yyyy-MM-dd). Returns date, name, purpose, category, amount, transaction type and whether each entry is newly imported.")]
+    [McpTool(Description = "Lists bank account transactions, newest first. IMPORTANT: with no filter this returns the ENTIRE history (thousands of rows, hundreds of KB) — always narrow the query. Restrict the period with startDate (inclusive) and endDate (exclusive), both yyyy-MM-dd; for \"recent\" transactions query roughly the last 30 days. Use search for a case-insensitive match on name and purpose (e.g. a merchant or keyword). Combine filters to keep the result small. Each entry has: date, name, purpose, category, amount, transaction type, and whether it is newly imported. Set inflationAdjustmentDate (yyyy-MM-dd) to express every amount in that date's value.")]
     public async Task<ActionResult<TransactionResponse>> GetTransactions(
         string? search,
         [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? startDate,

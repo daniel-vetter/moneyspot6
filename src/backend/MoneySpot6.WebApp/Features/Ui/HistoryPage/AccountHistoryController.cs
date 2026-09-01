@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 using MoneySpot6.WebApp.Features.Ui.Shared;
 
 namespace MoneySpot6.WebApp.Features.Ui.HistoryPage;
@@ -24,6 +25,7 @@ public class AccountHistoryController : Controller
     }
 
     [HttpGet]
+    [McpTool(Description = "Daily account history over the entire tracked period: for each day the bank account balance, the current stock-portfolio value and the total invested amount. Use for net-worth and balance-over-time questions. Note: one entry per day across the full history (no date filter), so the series can be long.")]
     public async Task<ActionResult<ImmutableArray<AccountHistoryBalanceResponse>>> Get()
     {
         var minTransactionDate = await _db.BankAccountTransactions.Select(x => (DateOnly?)x.Final.Date).MinAsync();

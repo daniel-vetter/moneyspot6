@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 
 namespace MoneySpot6.WebApp.Features.Ui.Stocks;
 
@@ -20,6 +21,7 @@ public class StockChartPageController : Controller
     }
 
     [HttpGet("GetStocks")]
+    [McpTool(Description = "Lists the tracked stocks with their id and name. Use to resolve a stock name to the stockId needed by GetHistory.")]
     public async Task<ImmutableArray<StockResponse>> GetStocks()
     {
         return ImmutableCollectionsMarshal.AsImmutableArray(
@@ -34,6 +36,7 @@ public class StockChartPageController : Controller
     }
 
     [HttpGet("GetHistory")]
+    [McpTool(Description = "Historical price candles (open, close, high, low, volume) for one stock. stockId comes from GetStocks; interval sets the candle granularity; optional start/end (ISO 8601) bound the range — set them to avoid a very long series.")]
     public async Task<ImmutableArray<StockPriceResponse>> GetHistory(int stockId, DateTimeOffset? start, DateTimeOffset? end, StockPriceInterval interval)
     {
         IQueryable<DbStockPrice> query = _db.StockPrices
