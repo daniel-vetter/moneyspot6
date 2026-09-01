@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoneySpot6.ServiceDefaults;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 using MoneySpot6.WebApp.Features.Ui.AccountSync;
 using MoneySpot6.WebApp.Features.Ui.Auth;
 using MoneySpot6.WebApp.Infrastructure;
@@ -36,6 +37,7 @@ public class Program
         builder.Services.AddSignalR();
         builder.Services.AddResponseCompression();
         builder.Services.RegisterAppServices(builder.Configuration);
+        builder.Services.AddMoneySpotMcp();
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -57,8 +59,20 @@ public class Program
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = "Cookies";
+                // Only the reading of identity is "smart": normal requests resolve to Cookies, the MCP
+                // in-process call (which carries the secret header) resolves to McpInternal. Challenge and
+                // sign-in stay on oidc/Cookies exactly as before.
+                options.DefaultAuthenticateScheme = McpModule.SmartAuthenticationScheme;
                 options.DefaultChallengeScheme = "oidc";
             })
+                .AddPolicyScheme(McpModule.SmartAuthenticationScheme, McpModule.SmartAuthenticationScheme, options =>
+                {
+                    options.ForwardDefaultSelector = context =>
+                        context.Request.Headers.ContainsKey(McpInternalAuthenticationHandler.SecretHeaderName)
+                            ? McpInternalAuthenticationHandler.SchemeName
+                            : "Cookies";
+                })
+                .AddScheme<AuthenticationSchemeOptions, McpInternalAuthenticationHandler>(McpInternalAuthenticationHandler.SchemeName, null)
                 .AddCookie("Cookies")
                 .AddOpenIdConnect("oidc", options =>
                 {
@@ -82,7 +96,9 @@ public class Program
                             ctx.ProtocolMessage.RedirectUri = builder.Configuration.GetValue<string>("Domain") + "/signin-oidc";
                         return Task.CompletedTask;
                     };
-                });
+                })
+                // Protect /mcp as an OAuth resource server, reusing the same OIDC provider as authorization server.
+                .AddMcpAuthentication(builder.Configuration);
         }
 
         var app = builder.Build();
@@ -101,6 +117,7 @@ public class Program
         app.UseAuthorization();
         app.MapControllers();
         app.MapDefaultEndpoints();
+        app.MapMoneySpotMcp();
         app.MapHub<AccountSyncHub>("/api/account-sync");
         app.MapFallbackToFile("/index.html");
 

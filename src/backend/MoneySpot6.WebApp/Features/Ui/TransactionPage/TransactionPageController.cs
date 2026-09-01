@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 using MoneySpot6.WebApp.Features.Core.Inflation;
 using NJsonSchema;
@@ -29,6 +30,7 @@ public class TransactionPageController : Controller
     }
 
     [HttpGet]
+    [McpTool(Description = "Lists bank account transactions, newest first. Optional filters: a case-insensitive text search over transaction name and purpose, and a date range (startDate inclusive, endDate exclusive, both yyyy-MM-dd). Returns date, name, purpose, category, amount, transaction type and whether each entry is newly imported.")]
     public async Task<ActionResult<TransactionResponse>> GetTransactions(
         string? search,
         [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? startDate,
