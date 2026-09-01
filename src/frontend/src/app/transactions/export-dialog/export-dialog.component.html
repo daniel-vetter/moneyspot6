@@ -1,7 +1,12 @@
 <div style="display: flex; flex-direction: column; height: 100%;">
     <div class="vertical" style="gap: 1rem; flex: 1;">
         <p>
-            Exportiert alle Transaktionen als CSV-Datei. Wählen Sie, welche Daten enthalten sein sollen.
+            @if (hasFilter) {
+                Exportiert die aktuell gefilterten Transaktionen (Suche und Zeitraum werden berücksichtigt) als CSV-Datei.
+            } @else {
+                Exportiert alle Transaktionen als CSV-Datei.
+            }
+            Wählen Sie, welche Daten enthalten sein sollen.
         </p>
 
         <div class="option">

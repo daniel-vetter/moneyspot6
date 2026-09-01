@@ -24,18 +24,31 @@ public class TransactionCsvExporter
         _db = db;
     }
 
-    public async Task<byte[]> Export(bool includeRaw, bool includeFinal)
+    public async Task<byte[]> Export(bool includeRaw, bool includeFinal, string? search, DateOnly? startDate, DateOnly? endDate)
     {
         var categories = await _db.Categories
             .AsNoTracking()
             .ToDictionaryAsync(x => x.Id, x => x.Name);
 
-        var transactions = await _db.BankAccountTransactions
+        IQueryable<DbBankAccountTransaction> query = _db.BankAccountTransactions
             .AsNoTracking()
             .Include(x => x.BankAccount)
             .OrderByDescending(x => x.Final.Date)
-            .ThenByDescending(x => x.Id)
-            .ToListAsync();
+            .ThenByDescending(x => x.Id);
+
+        if (startDate != null)
+            query = query.Where(x => x.Final.Date >= startDate);
+
+        if (endDate != null)
+            query = query.Where(x => x.Final.Date < endDate);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = "%" + search.ToLower() + "%";
+            query = query.Where(x => EF.Functions.Like(x.Final.Purpose.ToLower(), pattern) || EF.Functions.Like(x.Final.Name.ToLower(), pattern));
+        }
+
+        var transactions = await query.ToListAsync();
 
         var columns = BuildColumns(includeRaw, includeFinal, categories);
 

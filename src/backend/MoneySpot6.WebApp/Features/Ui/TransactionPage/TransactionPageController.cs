@@ -233,12 +233,17 @@ public class TransactionPageController : Controller
 
     [HttpGet("Export")]
     [ProducesResponseType(typeof(FileContentResult), 200)]
-    public async Task<IActionResult> Export(bool includeRaw, bool includeFinal)
+    public async Task<IActionResult> Export(
+        bool includeRaw,
+        bool includeFinal,
+        string? search,
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? startDate,
+        [JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly? endDate)
     {
         if (!includeRaw && !includeFinal)
             return BadRequest();
 
-        var csv = await _transactionCsvExporter.Export(includeRaw, includeFinal);
+        var csv = await _transactionCsvExporter.Export(includeRaw, includeFinal, search, startDate, endDate);
         return File(csv, "text/csv", $"MoneySpot-Transaktionen-{DateTime.Now:yyyy-MM-dd}.csv");
     }
 

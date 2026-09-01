@@ -239,7 +239,7 @@ export class TransactionPageClient {
         return _observableOf(null as any);
     }
 
-    export(includeRaw: boolean | undefined, includeFinal: boolean | undefined): Observable<FileResponse> {
+    export(includeRaw: boolean | undefined, includeFinal: boolean | undefined, search: string | null | undefined, startDate: string | null | undefined, endDate: string | null | undefined): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TransactionPage/Export?";
         if (includeRaw === null)
             throw new globalThis.Error("The parameter 'includeRaw' cannot be null.");
@@ -249,6 +249,12 @@ export class TransactionPageClient {
             throw new globalThis.Error("The parameter 'includeFinal' cannot be null.");
         else if (includeFinal !== undefined)
             url_ += "includeFinal=" + encodeURIComponent("" + includeFinal) + "&";
+        if (search !== undefined && search !== null)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
+        if (startDate !== undefined && startDate !== null)
+            url_ += "startDate=" + encodeURIComponent("" + startDate) + "&";
+        if (endDate !== undefined && endDate !== null)
+            url_ += "endDate=" + encodeURIComponent("" + endDate) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

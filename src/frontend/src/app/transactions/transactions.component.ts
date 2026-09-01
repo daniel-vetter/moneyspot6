@@ -208,6 +208,11 @@ export class TransactionsComponent implements OnInit {
 
     openExportDialog() {
         this.modalDialogService.open(ExportDialogComponent, {
+            data: {
+                search: this.searchText === '' ? undefined : this.searchText,
+                startDate: this.dateRange === undefined ? undefined : this.convertDate(this.dateRange.start),
+                endDate: this.dateRange === undefined ? undefined : this.convertDate(this.dateRange.end, true)
+            },
             focusOnShow: false
         });
     }
