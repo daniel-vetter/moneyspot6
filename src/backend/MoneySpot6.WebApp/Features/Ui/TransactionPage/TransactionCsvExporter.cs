@@ -9,7 +9,13 @@ namespace MoneySpot6.WebApp.Features.Ui.TransactionPage;
 [ScopedService]
 public class TransactionCsvExporter
 {
-    private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("de-DE");
+    // German-style formatting without a culture lookup: the production container runs in
+    // globalization-invariant mode, where CultureInfo.GetCultureInfo("de-DE") throws.
+    private static readonly NumberFormatInfo NumberFormat = new()
+    {
+        NumberDecimalSeparator = ",",
+        NumberGroupSeparator = "."
+    };
 
     private readonly Db _db;
 
@@ -48,7 +54,7 @@ public class TransactionCsvExporter
     {
         var b = ImmutableArray.CreateBuilder<Column>();
 
-        b.Add(new Column("Id", x => x.Id.ToString(Culture)));
+        b.Add(new Column("Id", x => x.Id.ToString(CultureInfo.InvariantCulture)));
         b.Add(new Column("Account", x => x.BankAccount.Name));
         b.Add(new Column("Currency", x => x.BankAccount.Currency));
         b.Add(new Column("Source", x => x.Source));
@@ -110,9 +116,9 @@ public class TransactionCsvExporter
         return b.ToImmutable();
     }
 
-    private static string Format(DateOnly date) => date.ToString("dd.MM.yyyy", Culture);
-    private static string Format(decimal value) => value.ToString(Culture);
-    private static string Format(decimal? value) => value?.ToString(Culture) ?? "";
+    private static string Format(DateOnly date) => date.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
+    private static string Format(decimal value) => value.ToString(NumberFormat);
+    private static string Format(decimal? value) => value?.ToString(NumberFormat) ?? "";
     private static string Format(bool value) => value ? "true" : "false";
 
     private static string Escape(string value)

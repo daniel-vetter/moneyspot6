@@ -36,7 +36,7 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
         return account;
     }
 
-    private async Task AddTransaction(DbBankAccount account, string finalName, string finalPurpose)
+    private async Task AddTransaction(DbBankAccount account, string finalName, string finalPurpose, decimal amount = -10m)
     {
         var db = Get<Db>();
         var date = DateOnly.FromDateTime(DateTime.Now).AddDays(-1);
@@ -49,7 +49,7 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
             Raw = new DbBankAccountTransactionRawData
             {
                 Date = date,
-                Amount = -10m,
+                Amount = amount,
                 Counterparty = new CounterpartyAccount()
             },
             Parsed = DbBankAccountTransactionParsedData.Default,
@@ -58,7 +58,7 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
             Final = new DbBankAccountTransactionFinalData
             {
                 Date = date,
-                Amount = -10m,
+                Amount = amount,
                 Name = finalName,
                 Purpose = finalPurpose,
                 TransactionType = TransactionType.External
@@ -179,6 +179,19 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
 
         lines[1].ShouldContain("\"Some;Name\"");
         lines[1].ShouldContain("\"He said \"\"hi\"\"\"");
+    }
+
+    [Test]
+    public async Task Export_DecimalAmounts_UseGermanFormat()
+    {
+        var account = await CreateAccount();
+        await AddTransaction(account, finalName: "Amazon", finalPurpose: "Order 123", amount: -10.50m);
+
+        var lines = await ExportCsvLines(includeRaw: false, includeFinal: true);
+
+        // SQLite loses the trailing zero on the roundtrip (-10,5), Postgres keeps it (-10,50) —
+        // only the decimal separator matters here.
+        lines[1].ShouldContain(";-10,5");
     }
 
     [Test]
