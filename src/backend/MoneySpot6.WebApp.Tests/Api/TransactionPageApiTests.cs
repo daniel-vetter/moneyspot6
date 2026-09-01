@@ -36,10 +36,10 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
         return account;
     }
 
-    private async Task AddTransaction(DbBankAccount account, string finalName, string finalPurpose, decimal amount = -10m)
+    private async Task AddTransaction(DbBankAccount account, string finalName, string finalPurpose, decimal amount = -10m, DateOnly? date = null)
     {
         var db = Get<Db>();
-        var date = DateOnly.FromDateTime(DateTime.Now).AddDays(-1);
+        date ??= DateOnly.FromDateTime(DateTime.Now).AddDays(-1);
         db.BankAccountTransactions.Add(new DbBankAccountTransaction
         {
             Source = "test",
@@ -48,7 +48,7 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
             IsNew = false,
             Raw = new DbBankAccountTransactionRawData
             {
-                Date = date,
+                Date = date.Value,
                 Amount = amount,
                 Counterparty = new CounterpartyAccount()
             },
@@ -57,7 +57,7 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
             Overridden = new DbBankAccountTransactionOverrideData(),
             Final = new DbBankAccountTransactionFinalData
             {
-                Date = date,
+                Date = date.Value,
                 Amount = amount,
                 Name = finalName,
                 Purpose = finalPurpose,
@@ -117,9 +117,9 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
         result.ShouldBeOkObjectResult<TransactionResponse>().Entries.ShouldBeEmpty();
     }
 
-    private async Task<string[]> ExportCsvLines(bool includeRaw, bool includeFinal)
+    private async Task<string[]> ExportCsvLines(bool includeRaw, bool includeFinal, string? search = null, DateOnly? startDate = null, DateOnly? endDate = null)
     {
-        var result = await Get<TransactionPageController>().Export(includeRaw, includeFinal);
+        var result = await Get<TransactionPageController>().Export(includeRaw, includeFinal, search, startDate, endDate);
 
         var file = result.ShouldBeOfType<FileContentResult>();
         file.ContentType.ShouldBe("text/csv");
@@ -197,8 +197,39 @@ public class TransactionPageApiTests(DbProvider dbProvider) : ApiTest(dbProvider
     [Test]
     public async Task Export_NothingSelected_ReturnsBadRequest()
     {
-        var result = await Get<TransactionPageController>().Export(includeRaw: false, includeFinal: false);
+        var result = await Get<TransactionPageController>().Export(includeRaw: false, includeFinal: false, null, null, null);
 
         result.ShouldBeOfType<BadRequestResult>();
+    }
+
+    [Test]
+    public async Task Export_WithSearch_FiltersRows()
+    {
+        var account = await CreateAccount();
+        await AddTransaction(account, finalName: "Amazon", finalPurpose: "Order 123");
+        await AddTransaction(account, finalName: "Edeka", finalPurpose: "Groceries");
+
+        var lines = await ExportCsvLines(includeRaw: false, includeFinal: true, search: "amazon");
+
+        lines.Length.ShouldBe(2);
+        lines[1].ShouldContain("Amazon");
+    }
+
+    [Test]
+    public async Task Export_WithDateRange_FiltersRows()
+    {
+        var account = await CreateAccount();
+        await AddTransaction(account, finalName: "Old", finalPurpose: "", date: new DateOnly(2024, 1, 15));
+        await AddTransaction(account, finalName: "InRange", finalPurpose: "", date: new DateOnly(2024, 2, 15));
+        await AddTransaction(account, finalName: "TooLate", finalPurpose: "", date: new DateOnly(2024, 3, 1));
+
+        var lines = await ExportCsvLines(
+            includeRaw: false,
+            includeFinal: true,
+            startDate: new DateOnly(2024, 2, 1),
+            endDate: new DateOnly(2024, 3, 1));
+
+        lines.Length.ShouldBe(2);
+        lines[1].ShouldContain("InRange");
     }
 }

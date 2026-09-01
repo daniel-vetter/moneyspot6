@@ -21,12 +21,24 @@ export class ExportDialogComponent {
     includeRaw = false;
     isExporting = false;
 
+    private search: string | undefined;
+    private startDate: string | undefined;
+    private endDate: string | undefined;
+
     constructor() {
         const dialogConfig = inject(DynamicDialogConfig);
 
         dialogConfig.modal = true;
         dialogConfig.width = '500px';
         dialogConfig.header = 'Daten exportieren';
+
+        this.search = dialogConfig.data?.search;
+        this.startDate = dialogConfig.data?.startDate;
+        this.endDate = dialogConfig.data?.endDate;
+    }
+
+    get hasFilter(): boolean {
+        return this.search !== undefined || this.startDate !== undefined;
     }
 
     isValid(): boolean {
@@ -40,7 +52,8 @@ export class ExportDialogComponent {
     async onExportClicked() {
         this.isExporting = true;
         try {
-            const response = await lastValueFrom(this.transactionPageClient.export(this.includeRaw, this.includeFinal));
+            const response = await lastValueFrom(this.transactionPageClient.export(
+                this.includeRaw, this.includeFinal, this.search, this.startDate, this.endDate));
             const url = URL.createObjectURL(response.data);
             const anchor = document.createElement('a');
             anchor.href = url;
