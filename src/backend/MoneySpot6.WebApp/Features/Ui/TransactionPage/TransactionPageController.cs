@@ -18,12 +18,14 @@ public class TransactionPageController : Controller
     private readonly Db _db;
     private readonly TransactionProcessingFacade _transactionProcessingFacade;
     private readonly InflationCalculator _inflationCalculator;
+    private readonly TransactionCsvExporter _transactionCsvExporter;
 
-    public TransactionPageController(Db db, TransactionProcessingFacade transactionProcessingFacade, InflationCalculator inflationCalculator)
+    public TransactionPageController(Db db, TransactionProcessingFacade transactionProcessingFacade, InflationCalculator inflationCalculator, TransactionCsvExporter transactionCsvExporter)
     {
         _db = db;
         _transactionProcessingFacade = transactionProcessingFacade;
         _inflationCalculator = inflationCalculator;
+        _transactionCsvExporter = transactionCsvExporter;
     }
 
     [HttpGet]
@@ -227,6 +229,17 @@ public class TransactionPageController : Controller
         
         await _transactionProcessingFacade.UpdateTransactions([entry.Id]);
         return Ok();
+    }
+
+    [HttpGet("Export")]
+    [ProducesResponseType(typeof(FileContentResult), 200)]
+    public async Task<IActionResult> Export(bool includeRaw, bool includeFinal)
+    {
+        if (!includeRaw && !includeFinal)
+            return BadRequest();
+
+        var csv = await _transactionCsvExporter.Export(includeRaw, includeFinal);
+        return File(csv, "text/csv", $"MoneySpot-Transaktionen-{DateTime.Now:yyyy-MM-dd}.csv");
     }
 
     [HttpPost("MarkAllSeen")]

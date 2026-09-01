@@ -12,6 +12,15 @@
             pTooltip="Inflationsanpassung"
             tooltipPosition="bottom">
         </p-button>
+        <p-button
+            icon="pi pi-download"
+            (onClick)="openExportDialog()"
+            severity="secondary"
+            [outlined]="true"
+            pTooltip="Daten exportieren"
+            tooltipPosition="bottom"
+            data-testid="export-dialog-button">
+        </p-button>
     </div>
 
     @if (isLoading) {
