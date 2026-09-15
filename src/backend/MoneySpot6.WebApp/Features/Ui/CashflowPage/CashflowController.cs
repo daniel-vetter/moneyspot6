@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 using MoneySpot6.WebApp.Features.Ui.Shared;
 
 namespace MoneySpot6.WebApp.Features.Ui.CashflowPage;
@@ -22,6 +23,7 @@ public class CashflowController : Controller
     }
 
     [HttpGet("GetMonthlyIncomeAndExpenses")]
+    [McpTool(Description = "Income, expenses, investments and stock-portfolio value change aggregated per period. grouping (required): None = a single total over all data, Month = per calendar month, Year = per calendar year. Optional search filters transactions by name/purpose. The numeric `month` field encodes the period as year*13 + month (month 1-12; for Year grouping the month part is 0). Prefer this over listing raw transactions for \"how much did I earn/spend/invest over time\" questions.")]
     public async Task<ActionResult<ImmutableArray<IncomeExpenseEntryResponse>>> Get(string? search, [BindRequired] IncomeExpenseGrouping grouping)
     {
         //External >= 0 -> Income

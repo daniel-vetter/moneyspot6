@@ -20,13 +20,14 @@ ul {
 a {
     text-decoration: none;
     padding: 1rem 1rem;
-    display: block;
+    display: flex;
+    align-items: center;
+    position: relative;
     height: 100%;
     width: 100%;
     color: var(--p-text-color);
     border-radius: 8px;
     font-size: 1rem;
-    transition: all 0.15s ease;
 }
 
 .active {

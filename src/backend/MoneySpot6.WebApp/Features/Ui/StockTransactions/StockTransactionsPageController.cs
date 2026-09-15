@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 using MoneySpot6.WebApp.Features.Ui.Shared;
 using MoneySpot6.WebApp.Infrastructure;
 using NJsonSchema;
@@ -27,6 +28,7 @@ public class StockTransactionsPageController : Controller
     }
 
     [HttpGet("GetStockTransactions")]
+    [McpTool(Description = "All stock trades, oldest first: each with stock id and name, date, share amount (positive = buy, negative = sell) and price per share.")]
     public async Task<ActionResult<ImmutableArray<StockTransactionResponse>>> GetStockTransactions()
     {
         var transactions = await _db.StockTransactions
@@ -48,6 +50,7 @@ public class StockTransactionsPageController : Controller
     }
 
     [HttpGet("GetPortfolio")]
+    [McpTool(Description = "Current stock portfolio: per holding the purchased, sold and remaining share amounts with their prices and taxes, plus a per-lot breakdown. Use for \"what stocks do I own / how is my portfolio doing\".")]
     public async Task<ActionResult<ImmutableArray<PortfolioStockResponse>>> GetPortfolio()
     {
         return Ok((await _portfolioProvider.GetPortfolio()).Select(x => new PortfolioStockResponse

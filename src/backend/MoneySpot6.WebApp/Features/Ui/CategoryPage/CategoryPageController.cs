@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 using NJsonSchema;
 using NJsonSchema.Annotations;
 
@@ -23,6 +24,7 @@ namespace MoneySpot6.WebApp.Features.Ui.CategoryPage
 
         [HttpGet("GetSankeyData")]
         [ProducesResponseType<SankeyDataResponse>(200)]
+        [McpTool(Description = "Spending and income for a date range, broken down by category as a flow graph (Sankey): nodes are categories plus a central 'Budget' node, connections carry the summed amount between them. Requires start (inclusive) and end (exclusive) as yyyy-MM-dd. Use for \"where did my money go by category\" over a period.")]
         public async Task<IActionResult> GetSankeyData(
             [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly start,
             [BindRequired, JsonSchema(JsonObjectType.String, Format = "date-only")] DateOnly end)

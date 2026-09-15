@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneySpot6.WebApp.Database;
+using MoneySpot6.WebApp.Features.Mcp;
 using MoneySpot6.WebApp.Features.Core.TransactionProcessing;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
@@ -22,6 +23,7 @@ public class CategoryConfigurationController : Controller
     }
 
     [HttpGet("GetCategoryTree")]
+    [McpTool(Description = "The category hierarchy as a nested tree (id, name, children). Use to see which categories exist and how they nest when interpreting spending.")]
     public async Task<ImmutableArray<CategoryResponse>> GetCategoryTree()
     {
         var all = await _db
