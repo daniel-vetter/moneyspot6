@@ -6,7 +6,7 @@
     <li><a pRipple [routerLink]="['']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"><i class="pi pi-home"></i> Dashboard</a></li>
     <li><a pRipple [routerLink]="['/transactions']" routerLinkActive="active"><i class="pi pi-list"></i> Transaktionen
             @if (newTransactionCount != 0) {
-                <p-badge [value]="newTransactionCount" severity="warn" style="margin-left: auto" />
+                <p-badge [value]="newTransactionCount" severity="warn" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%)" />
             }
         </a>
     </li>
@@ -18,7 +18,7 @@
     <li><a pRipple [routerLink]="['/simulation']" routerLinkActive="active"><i class="pi pi-calculator"></i> Simulation</a></li>
     <li><a pRipple [routerLink]="['/settings']" routerLinkActive="active"><i class="pi pi-cog"></i> Einstellungen
             @if (updateState.isUpdateAvailable() || emailSyncState.hasFailedSync()) {
-                <p-badge severity="warn" style="margin-left: auto" data-testid="settings-menu-badge" />
+                <p-badge severity="warn" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%)" data-testid="settings-menu-badge" />
             }
         </a>
     </li>
