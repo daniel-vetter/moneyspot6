@@ -20,7 +20,8 @@ ul {
 a {
     text-decoration: none;
     padding: 1rem 1rem;
-    display: block;
+    display: flex;
+    align-items: center;
     height: 100%;
     width: 100%;
     color: var(--p-text-color);
